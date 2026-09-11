@@ -2,6 +2,7 @@
 
 import { useState } from 'react';
 import Link from 'next/link';
+import { useRouter } from 'next/navigation';
 import { useCart } from '@/lib/cart/CartContext';
 import { formatNaira } from '@/lib/format';
 import { getDeliveryCost, type FulfillmentMethod } from '@/lib/checkout/deliveryCost';
@@ -11,13 +12,10 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 
 const REGIONS = ['ABUJA', 'LAGOS', 'KANO'];
 
-type SubmitState =
-  | { status: 'idle' }
-  | { status: 'submitting' }
-  | { status: 'order-created'; orderId: string }
-  | { status: 'error'; message: string };
+type SubmitState = { status: 'idle' } | { status: 'submitting' } | { status: 'error'; message: string };
 
 export function CheckoutForm({ buyerId }: { buyerId: string }) {
+  const router = useRouter();
   const { lines, subtotal, clear } = useCart();
   const [region, setRegion] = useState(REGIONS[0]);
   const [fulfillmentMethod, setFulfillmentMethod] = useState<FulfillmentMethod>('DELIVERY');
@@ -25,22 +23,6 @@ export function CheckoutForm({ buyerId }: { buyerId: string }) {
 
   const deliveryCost = getDeliveryCost(region, fulfillmentMethod);
   const total = subtotal + deliveryCost;
-
-  if (state.status === 'order-created') {
-    return (
-      <div className="rounded-lg border border-border bg-surface p-8 text-center">
-        <h2 className="text-lg font-medium text-ink">Order placed</h2>
-        <p className="mt-2 text-sm text-slate">
-          Order <span className="font-mono text-ink">{state.orderId}</span> was created. Payment
-          isn&apos;t wired up yet, so it&apos;s sitting in{' '}
-          <span className="font-mono">PENDING_PAYMENT</span> until a gateway is connected.
-        </p>
-        <Link href="/catalog" className="mt-6 inline-block text-sm text-brand hover:underline">
-          Continue browsing
-        </Link>
-      </div>
-    );
-  }
 
   if (lines.length === 0) {
     return (
@@ -74,10 +56,11 @@ export function CheckoutForm({ buyerId }: { buyerId: string }) {
 
       // The order is created before initiatePayment() runs, so even the
       // expected "not implemented" error (see app/api/checkout/route.ts)
-      // still carries a real order back — surface it as a success state.
+      // still carries a real order back — send the buyer to its
+      // confirmation page rather than treating this as a failure.
       if (body.order?.id) {
         clear();
-        setState({ status: 'order-created', orderId: body.order.id });
+        router.push(`/orders/${body.order.id}`);
         return;
       }
 
@@ -88,78 +71,85 @@ export function CheckoutForm({ buyerId }: { buyerId: string }) {
   }
 
   return (
-    <form onSubmit={handleSubmit} className="flex flex-col gap-6">
-      <div className="rounded-lg border border-border bg-surface p-5">
-        <h2 className="mb-4 text-sm font-medium text-slate">Order summary</h2>
-        <div className="flex flex-col gap-2">
-          {lines.map((line) => (
-            <div key={line.materialId} className="flex justify-between text-sm">
-              <span className="text-ink">
-                {line.name} × {line.quantity}
-              </span>
-              <span className="text-slate">{formatNaira(line.catalogPrice * line.quantity)}</span>
-            </div>
-          ))}
+    <form onSubmit={handleSubmit} className="grid grid-cols-1 gap-8 lg:grid-cols-[1fr_360px]">
+      <div className="flex flex-col gap-6">
+        <div className="rounded-lg border border-border bg-surface p-5">
+          <h2 className="mb-4 text-sm font-semibold text-slate">Delivery details</h2>
+
+          <div className="mb-4 flex flex-col gap-1.5">
+            <Label htmlFor="region">Region</Label>
+            <Select value={region} onValueChange={setRegion}>
+              <SelectTrigger id="region" className="w-full">
+                <SelectValue />
+              </SelectTrigger>
+              <SelectContent>
+                {REGIONS.map((r) => (
+                  <SelectItem key={r} value={r}>
+                    {r.charAt(0) + r.slice(1).toLowerCase()}
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+          </div>
+
+          <Label className="mb-2 block">Fulfillment method</Label>
+          <div className="grid grid-cols-2 gap-3">
+            {(['DELIVERY', 'PICKUP'] as const).map((method) => (
+              <Button
+                key={method}
+                type="button"
+                variant={fulfillmentMethod === method ? 'default' : 'outline'}
+                className="h-auto py-3"
+                onClick={() => setFulfillmentMethod(method)}
+              >
+                {method === 'DELIVERY' ? 'Deliver to site' : 'Pick up at center'}
+              </Button>
+            ))}
+          </div>
         </div>
-        <div className="mt-4 flex flex-col gap-1.5 border-t border-border pt-4 text-sm">
+
+        <div className="rounded-lg border border-border bg-surface p-5">
+          <h2 className="mb-4 text-sm font-semibold text-slate">Items ({lines.length})</h2>
+          <div className="flex flex-col gap-2">
+            {lines.map((line) => (
+              <div key={line.materialId} className="flex justify-between text-sm">
+                <span className="text-ink">
+                  {line.name} × {line.quantity}
+                </span>
+                <span className="tabular-nums text-slate">{formatNaira(line.catalogPrice * line.quantity)}</span>
+              </div>
+            ))}
+          </div>
+        </div>
+
+        {state.status === 'error' && (
+          <p className="rounded-md border border-danger/20 bg-danger/5 px-4 py-3 text-sm text-danger">
+            {state.message}
+          </p>
+        )}
+      </div>
+
+      <div className="h-fit rounded-lg border border-border bg-surface p-5 lg:sticky lg:top-24">
+        <h2 className="mb-4 text-sm font-semibold text-slate">Order summary</h2>
+        <div className="flex flex-col gap-1.5 text-sm">
           <div className="flex justify-between text-slate">
             <span>Subtotal</span>
-            <span>{formatNaira(subtotal)}</span>
+            <span className="tabular-nums">{formatNaira(subtotal)}</span>
           </div>
           <div className="flex justify-between text-slate">
             <span>Delivery</span>
-            <span>{deliveryCost === 0 ? 'Free' : formatNaira(deliveryCost)}</span>
+            <span className="tabular-nums">{deliveryCost === 0 ? 'Free' : formatNaira(deliveryCost)}</span>
           </div>
-          <div className="flex justify-between pt-1 text-base font-medium text-ink">
+          <div className="flex justify-between border-t border-border pt-2.5 text-base font-semibold text-ink">
             <span>Total</span>
-            <span>{formatNaira(total)}</span>
+            <span className="tabular-nums">{formatNaira(total)}</span>
           </div>
         </div>
+
+        <Button type="submit" size="lg" className="mt-5 w-full" disabled={state.status === 'submitting'}>
+          {state.status === 'submitting' ? 'Placing order…' : 'Place order'}
+        </Button>
       </div>
-
-      <div className="rounded-lg border border-border bg-surface p-5">
-        <h2 className="mb-4 text-sm font-medium text-slate">Delivery details</h2>
-
-        <div className="mb-4 flex flex-col gap-1.5">
-          <Label htmlFor="region">Region</Label>
-          <Select value={region} onValueChange={setRegion}>
-            <SelectTrigger id="region" className="w-full">
-              <SelectValue />
-            </SelectTrigger>
-            <SelectContent>
-              {REGIONS.map((r) => (
-                <SelectItem key={r} value={r}>
-                  {r.charAt(0) + r.slice(1).toLowerCase()}
-                </SelectItem>
-              ))}
-            </SelectContent>
-          </Select>
-        </div>
-
-        <div className="grid grid-cols-2 gap-3">
-          {(['DELIVERY', 'PICKUP'] as const).map((method) => (
-            <Button
-              key={method}
-              type="button"
-              variant={fulfillmentMethod === method ? 'default' : 'outline'}
-              className="h-auto py-3"
-              onClick={() => setFulfillmentMethod(method)}
-            >
-              {method === 'DELIVERY' ? 'Deliver to site' : 'Pick up at center'}
-            </Button>
-          ))}
-        </div>
-      </div>
-
-      {state.status === 'error' && (
-        <p className="rounded-md border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-700">
-          {state.message}
-        </p>
-      )}
-
-      <Button type="submit" size="lg" disabled={state.status === 'submitting'}>
-        {state.status === 'submitting' ? 'Placing order…' : `Place order — ${formatNaira(total)}`}
-      </Button>
     </form>
   );
 }

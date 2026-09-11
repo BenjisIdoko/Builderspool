@@ -77,6 +77,7 @@ const MATERIALS = [
     spec: 'Grade 42.5R, CEM II',
     catalogPrice: 7500,
     sourcingScope: SourcingScope.NATIONAL,
+    imageUrl: '/materials/cement.jpg',
   },
   {
     name: 'BUA Cement 42.5R',
@@ -85,6 +86,7 @@ const MATERIALS = [
     spec: 'Grade 42.5R, CEM II',
     catalogPrice: 7200,
     sourcingScope: SourcingScope.NATIONAL,
+    imageUrl: '/materials/cement.jpg',
   },
   {
     name: 'Sandcrete Block, 9 inch',
@@ -93,6 +95,7 @@ const MATERIALS = [
     spec: '225mm, solid',
     catalogPrice: 550,
     sourcingScope: SourcingScope.REGIONAL,
+    imageUrl: '/materials/blocks.jpg',
   },
   {
     name: 'Sandcrete Block, 6 inch',
@@ -101,6 +104,7 @@ const MATERIALS = [
     spec: '150mm, solid',
     catalogPrice: 450,
     sourcingScope: SourcingScope.REGIONAL,
+    imageUrl: '/materials/blocks.jpg',
   },
   {
     name: 'Reinforcement Rod, 12mm',
@@ -109,6 +113,7 @@ const MATERIALS = [
     spec: 'Y12 high-yield deformed bar',
     catalogPrice: 9500,
     sourcingScope: SourcingScope.NATIONAL,
+    imageUrl: '/materials/rebar.jpg',
   },
   {
     name: 'Reinforcement Rod, 16mm',
@@ -117,6 +122,7 @@ const MATERIALS = [
     spec: 'Y16 high-yield deformed bar',
     catalogPrice: 16800,
     sourcingScope: SourcingScope.NATIONAL,
+    imageUrl: '/materials/rebar.jpg',
   },
   {
     name: 'Aluminium Roofing Sheet, 0.55mm',
@@ -154,16 +160,29 @@ const MATERIALS = [
 
 async function seedMaterials() {
   let created = 0;
+  let imagesPatched = 0;
   for (const material of MATERIALS) {
     const existing = await prisma.material.findFirst({
       where: { name: material.name },
     });
-    if (existing) continue;
 
-    await prisma.material.create({ data: material });
-    created++;
+    if (!existing) {
+      await prisma.material.create({ data: material });
+      created++;
+      continue;
+    }
+
+    // Backfill imageUrl on rows seeded before real product photos existed —
+    // never overwrites an image already set some other way.
+    if (!existing.imageUrl && material.imageUrl) {
+      await prisma.material.update({
+        where: { id: existing.id },
+        data: { imageUrl: material.imageUrl },
+      });
+      imagesPatched++;
+    }
   }
-  return created;
+  return { created, imagesPatched };
 }
 
 async function seedFulfillmentCenters() {
@@ -229,12 +248,12 @@ async function seedDemoBuyer() {
 }
 
 async function main() {
-  const materialsCreated = await seedMaterials();
+  const { created: materialsCreated, imagesPatched } = await seedMaterials();
   const centersCreated = await seedFulfillmentCenters();
   const sellersCreated = await seedSellers();
   const buyerCreated = await seedDemoBuyer();
   console.log(
-    `Seeded ${materialsCreated} material(s), ${centersCreated} fulfillment center(s), ${sellersCreated} seller profile(s), ${buyerCreated} demo buyer(s).`
+    `Seeded ${materialsCreated} material(s) (${imagesPatched} image(s) backfilled), ${centersCreated} fulfillment center(s), ${sellersCreated} seller profile(s), ${buyerCreated} demo buyer(s).`
   );
 }
 

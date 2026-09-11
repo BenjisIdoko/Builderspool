@@ -13,9 +13,12 @@ const BUYER_SAFE_SELECT = {
   catalogPrice: true,
 } as const;
 
-export async function getMaterials(category?: string) {
+export async function getMaterials(category?: string, query?: string) {
   const materials = await prisma.material.findMany({
-    where: category ? { category } : undefined,
+    where: {
+      category: category || undefined,
+      name: query ? { contains: query, mode: 'insensitive' } : undefined,
+    },
     select: BUYER_SAFE_SELECT,
     orderBy: [{ category: 'asc' }, { name: 'asc' }],
   });

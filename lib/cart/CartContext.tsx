@@ -8,6 +8,7 @@ export interface CartLine {
   unit: string;
   category: string;
   catalogPrice: number;
+  imageUrl: string | null;
   quantity: number;
 }
 

@@ -41,13 +41,28 @@ A marketplace platform for construction materials (cement, blocks, rebar, roofin
 
 ## Design Direction
 
-- **Typeface**: Plus Jakarta Sans
-- **Target feel**: mature B2B SaaS — closer to Stripe, Linear, or Mercury than a consumer marketplace. Clean, mature, professional, minimal, with subtle gradients used functionally, not decoratively.
+- **Typeface**: Plus Jakarta Sans, 16px/1rem base.
+- **Target feel**: mature B2B SaaS — closer to Stripe, Linear, or Mercury than a consumer marketplace. Clean, mature, professional, minimal, with subtle gradients used functionally, not decoratively. The hero section is the one deliberate exception to "restraint" — big, bold (font-bold, not just semibold) headline type and a subtle radial gradient backdrop, so the storefront doesn't read as flat/sterile.
 - **Explicitly avoid** ("AI slop" tells): identical rounded cards with the same soft grey shadow on every one, ALL-CAPS eyebrow labels, decorative gradients with no function, warm-cream-background-plus-serif-font combos, decorative numbered markers.
 - **Use instead**: hairline borders over shadows, sentence case everywhere, one confident accent color used sparingly, generous whitespace, restraint over decoration.
-- **Established color tokens**: off-white canvas `#FAFAFA`, near-black ink `#15181C`, blue accent `#2954E5`, slate secondary text `#5B6068`, hairline border `#E6E7EA`, muted text `#8A8F97`.
+- **Established color tokens** (refined 2026-09-11 against a Stitch-generated reference design, see below): off-white canvas `#FAFAFB`, near-black ink `#0F172A`, blue brand `#0F62FE`, slate secondary text `#475569`, muted text `#64748B`, hairline border `#E2E8F0`, strong hairline border (inputs, hover) `#CBD5E1`, well/muted background `#F1F3F5`, plus semantic status colors success `#059669` / warning `#D97706` / danger `#DC2626`.
+- **Two-tier corner radius**: base controls (buttons, inputs, badges, tabs) get 4px; containers (cards, modals, popovers) get 8px. Encoded as `--radius-md`/`--radius-lg` in `app/globals.css`.
 - **Logo**: reuse the existing mark — blue gradient "B" monogram with a building-skyline icon and a wave swoosh, grey wordmark. Evolve, don't replace.
 - Reference HTML mockups were built for home/catalog, listing, and checkout screens establishing this token system — useful as a visual anchor when building the real Next.js/Tailwind/shadcn pages.
+
+### Stitch reference design import (2026-09-11)
+
+The user supplied a Stitch-generated design export (`stitch_builders_pool_buyer_app.zip`) covering home, category listing, product detail, cart, checkout, order confirmation, order tracking, and account settings — plus a `DESIGN.md` design system doc (the refined color/type/radius values above come from it) and real product photography (cement pallet, rebar bundle, CMU block pallet).
+
+**Two things this import could not be taken at face value:**
+1. **The home and category-listing screens surfaced pooling directly to the buyer** — a live "Active Corridor" pool-capacity widget with a countdown ("Next Flatbed Pool closing in 3hrs 42mins") and a "Flatbed Freight Pool Active — Claim Freight Slot" banner. Both were dropped entirely rather than adapted — they contradict this doc's own firm, repeatedly-confirmed rule that bidding/pooling stays invisible to the buyer.
+2. **Most of the mockups describe a much larger enterprise product than what's built**: reviews/Q&A, ASTM certification tables, Net-30 trade credit, PO/job-cost codes, GPS driver telemetry, "frequently bought together" bundling, multi-facet filters (steel grade, bar size, sourcing origin). None of that exists in this schema. The visual language (typography, color, card/spacing system, hero treatment) was adopted; the content was rebuilt against only the real fields this app actually has, not fabricated.
+
+**What was applied**: full re-skin of home, catalog, product detail, cart, and checkout against the refined tokens above, plus a genuinely new order confirmation page at `app/(shop)/orders/[id]/page.tsx` (real order data — items, fulfillment center, status — not a mockup). Header gained a real (wired, not decorative) search box backed by a `name: { contains }` query in `lib/queries/materials.ts`. Product cards gained a quantity stepper before "Add to cart," matching the reference pattern and matching how bulk-material buyers actually shop.
+
+**Product photography**: cropped from the Stitch screenshots (`sips --cropOffset`) into `public/materials/{cement,blocks,rebar}.jpg` and wired to the matching materials via `Material.imageUrl`. No source photo existed for Fittings or Roofing — those categories still render the category-icon placeholder (`components/material-image.tsx`) rather than a fabricated stock photo. `prisma/seed.ts`'s `seedMaterials()` now backfills `imageUrl` onto already-existing rows (previously pure skip-if-exists), so re-running the seed stays safe to use for future asset additions too.
+
+**Deferred, not built**: order tracking history (needs order-status-over-time, which the schema doesn't track distinctly from the single `status` field) and account/job-site settings (needs buyer auth, which doesn't exist — see TODOs).
 
 ## Bidding Engine Design
 
@@ -109,7 +124,9 @@ These are deliberate, clearly-marked placeholders — not oversights:
 - [ ] Build the design mockups (home/catalog, listing, checkout) that establish the Design Direction token system — still don't exist as separate artifacts; the buyer UI was built directly against the tokens instead (see "What's Been Built" above)
 - [x] Install and adopt shadcn/ui — applied 2026-09-11 (see "What's Been Built" above for the token-collision fixes this required). `dropdown-menu`, `dialog`, `alert`, `tabs`, `textarea`, `checkbox`, and `avatar` aren't installed yet — add them as the admin dashboard and real-auth work need them, rather than installing everything speculatively now
 - [ ] Build real buyer accounts/auth — checkout currently attaches every order to one seeded demo buyer (`lib/demoBuyer.ts`); replace that lookup and move the cart from `localStorage` to a real per-account store once auth exists
-- [ ] Add product images — every seeded `Material.imageUrl` is null; the buyer UI has no image at all yet (cards/detail page render text-only)
+- [x] Add product images — applied 2026-09-11. Cement, Blocks, and Rebar have real photos (cropped from the Stitch reference screenshots, see above); Fittings and Roofing still have none (no source photo existed) and render the category-icon placeholder instead — add real photography for those two categories when available
+- [ ] Build order tracking history — needs order-status-over-time, which `Order.status` alone doesn't capture; deferred during the Stitch design import (2026-09-11)
+- [ ] Build account/job-site settings — needs buyer auth, which doesn't exist yet; deferred during the Stitch design import (2026-09-11), same blocker as the demo-buyer TODO above
 - [x] Build the seller portal (bid submission UI, pickup instructions) — `app/seller/`, applied 2026-09-11. Uses a seeded-account cookie session (`lib/seller/session.ts`), same TODO-and-replace pattern as the buyer side — build real seller auth here too, eventually.
 - [ ] Build real seller auth — `/seller/login` currently just lets you pick any seeded seller account with no credential check; replace `lib/seller/session.ts`'s cookie-only session
 - [ ] Build the admin dashboard (materials, bid cycles, fulfillment centers, disputes)

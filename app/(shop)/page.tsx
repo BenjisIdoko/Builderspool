@@ -1,7 +1,16 @@
 import Link from 'next/link';
+import { Tag, Truck, MapPin, Warehouse } from 'lucide-react';
 import { getCategories, getMaterials } from '@/lib/queries/materials';
 import { MaterialCard } from '@/components/material-card';
 import { Button } from '@/components/ui/button';
+import { getCategoryIcon } from '@/lib/categoryIcons';
+
+const FEATURES = [
+  { icon: Tag, title: 'Fixed price at checkout', body: 'Your rate is locked the moment you pay — never renegotiated.' },
+  { icon: Truck, title: 'Pickup or delivery', body: 'Choose at checkout. Every order routes through a fulfillment center.' },
+  { icon: MapPin, title: 'Nationwide & regional', body: 'Some materials ship anywhere, others source close to your site.' },
+  { icon: Warehouse, title: 'Real fulfillment centers', body: 'Not a drop-shipper — materials move through staffed hubs.' },
+];
 
 export default async function Home() {
   const [categories, materials] = await Promise.all([getCategories(), getMaterials()]);
@@ -9,41 +18,64 @@ export default async function Home() {
 
   return (
     <div className="flex flex-1 flex-col">
-      <section className="border-b border-border bg-surface">
-        <div className="mx-auto flex max-w-6xl flex-col gap-6 px-6 py-20">
-          <h1 className="max-w-xl text-4xl font-medium leading-tight tracking-tight text-ink">
-            Construction materials, delivered at a fair price.
+      <section className="relative overflow-hidden border-b border-border bg-[radial-gradient(ellipse_90%_80%_at_50%_-20%,rgba(15,98,254,0.10),transparent_60%)] bg-canvas">
+        <div className="mx-auto flex max-w-7xl flex-col gap-6 px-6 py-24 sm:py-28">
+          <h1 className="max-w-2xl text-5xl font-bold tracking-tight text-ink sm:text-6xl">
+            Construction materials,{' '}
+            <span className="bg-gradient-to-r from-brand to-[#0043ce] bg-clip-text text-transparent">
+              delivered at a fair price.
+            </span>
           </h1>
-          <p className="max-w-md text-slate">
-            Browse cement, blocks, rebar, roofing and fittings. Pick up at a fulfillment center or
-            get it delivered to site.
+          <p className="max-w-lg text-lg text-slate">
+            Cement, blocks, rebar, roofing and fittings — one fixed price, no back-and-forth.
+            Pick up at a fulfillment center or get it delivered to site.
           </p>
-          <div>
-            <Button asChild size="lg">
+          <div className="flex flex-wrap items-center gap-3 pt-2">
+            <Button asChild size="lg" className="h-11 px-6 text-base">
               <Link href="/catalog">Browse the catalog</Link>
             </Button>
           </div>
         </div>
-      </section>
 
-      <section className="mx-auto w-full max-w-6xl px-6 py-14">
-        <h2 className="mb-5 text-sm font-medium text-slate">Shop by category</h2>
-        <div className="grid grid-cols-2 gap-3 sm:grid-cols-5">
-          {categories.map((category) => (
-            <Link
-              key={category}
-              href={`/catalog?category=${encodeURIComponent(category)}`}
-              className="rounded-lg border border-border bg-surface px-4 py-6 text-center text-sm font-medium text-ink transition-colors hover:border-ink/20"
-            >
-              {category}
-            </Link>
-          ))}
+        <div className="border-t border-border bg-surface/60 backdrop-blur-sm">
+          <div className="mx-auto grid max-w-7xl grid-cols-2 gap-6 px-6 py-6 sm:grid-cols-4">
+            {FEATURES.map(({ icon: Icon, title, body }) => (
+              <div key={title} className="flex items-start gap-3">
+                <Icon className="mt-0.5 size-4.5 shrink-0 text-brand" />
+                <div>
+                  <div className="text-sm font-semibold text-ink">{title}</div>
+                  <div className="text-xs text-muted-foreground">{body}</div>
+                </div>
+              </div>
+            ))}
+          </div>
         </div>
       </section>
 
-      <section className="mx-auto w-full max-w-6xl px-6 pb-20">
+      <section className="mx-auto w-full max-w-7xl px-6 py-14">
+        <h2 className="mb-5 text-sm font-semibold text-slate">Shop by category</h2>
+        <div className="grid grid-cols-2 gap-3 sm:grid-cols-5">
+          {categories.map((category) => {
+            const Icon = getCategoryIcon(category);
+            return (
+              <Link
+                key={category}
+                href={`/catalog?category=${encodeURIComponent(category)}`}
+                className="flex flex-col items-center gap-2.5 rounded-lg border border-border bg-surface px-4 py-6 text-center transition-colors hover:border-border-strong"
+              >
+                <span className="flex size-9 items-center justify-center rounded-md bg-well text-brand">
+                  <Icon className="size-4.5" />
+                </span>
+                <span className="text-sm font-medium text-ink">{category}</span>
+              </Link>
+            );
+          })}
+        </div>
+      </section>
+
+      <section className="mx-auto w-full max-w-7xl px-6 pb-20">
         <div className="mb-5 flex items-baseline justify-between">
-          <h2 className="text-sm font-medium text-slate">Popular materials</h2>
+          <h2 className="text-sm font-semibold text-slate">Popular materials</h2>
           <Link href="/catalog" className="text-sm text-brand hover:underline">
             View all
           </Link>
