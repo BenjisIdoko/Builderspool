@@ -1,4 +1,4 @@
-import { PrismaClient, Role } from '@prisma/client';
+import { PrismaClient, Role, SourcingScope } from '@prisma/client';
 
 const prisma = new PrismaClient();
 
@@ -62,6 +62,109 @@ const SELLERS = [
   },
 ];
 
+// Catalog spanning the categories named in the project brief (cement,
+// blocks, rebar, roofing, fittings). catalogPrice is the buyer-facing fixed
+// price (₦). sourcingScope splits between NATIONAL materials that ship
+// anywhere (cement, steel, PVC) and REGIONAL materials that are heavy/bulky
+// or locally produced (blocks, roofing sheet) — mirroring the brief's "REGIONAL
+// and NATIONAL pooling both exist side by side".
+const MATERIALS = [
+  {
+    name: 'Dangote Cement 42.5R',
+    category: 'Cement',
+    unit: '50kg bag',
+    spec: 'Grade 42.5R, CEM II',
+    catalogPrice: 7500,
+    sourcingScope: SourcingScope.NATIONAL,
+  },
+  {
+    name: 'BUA Cement 42.5R',
+    category: 'Cement',
+    unit: '50kg bag',
+    spec: 'Grade 42.5R, CEM II',
+    catalogPrice: 7200,
+    sourcingScope: SourcingScope.NATIONAL,
+  },
+  {
+    name: 'Sandcrete Block, 9 inch',
+    category: 'Blocks',
+    unit: 'block',
+    spec: '225mm, solid',
+    catalogPrice: 550,
+    sourcingScope: SourcingScope.REGIONAL,
+  },
+  {
+    name: 'Sandcrete Block, 6 inch',
+    category: 'Blocks',
+    unit: 'block',
+    spec: '150mm, solid',
+    catalogPrice: 450,
+    sourcingScope: SourcingScope.REGIONAL,
+  },
+  {
+    name: 'Reinforcement Rod, 12mm',
+    category: 'Rebar',
+    unit: '12m length',
+    spec: 'Y12 high-yield deformed bar',
+    catalogPrice: 9500,
+    sourcingScope: SourcingScope.NATIONAL,
+  },
+  {
+    name: 'Reinforcement Rod, 16mm',
+    category: 'Rebar',
+    unit: '12m length',
+    spec: 'Y16 high-yield deformed bar',
+    catalogPrice: 16800,
+    sourcingScope: SourcingScope.NATIONAL,
+  },
+  {
+    name: 'Aluminium Roofing Sheet, 0.55mm',
+    category: 'Roofing',
+    unit: 'sheet',
+    spec: '0.55mm gauge, long-span',
+    catalogPrice: 4200,
+    sourcingScope: SourcingScope.REGIONAL,
+  },
+  {
+    name: 'Stone-Coated Roofing Tile',
+    category: 'Roofing',
+    unit: 'sheet',
+    spec: '1340mm x 420mm, classic profile',
+    catalogPrice: 8500,
+    sourcingScope: SourcingScope.NATIONAL,
+  },
+  {
+    name: 'PVC Conduit Pipe, 20mm',
+    category: 'Fittings',
+    unit: '3m length',
+    spec: '20mm diameter, heavy gauge',
+    catalogPrice: 650,
+    sourcingScope: SourcingScope.NATIONAL,
+  },
+  {
+    name: 'PVC Elbow Fitting, 20mm',
+    category: 'Fittings',
+    unit: 'piece',
+    spec: '20mm diameter, 90-degree',
+    catalogPrice: 150,
+    sourcingScope: SourcingScope.NATIONAL,
+  },
+];
+
+async function seedMaterials() {
+  let created = 0;
+  for (const material of MATERIALS) {
+    const existing = await prisma.material.findFirst({
+      where: { name: material.name },
+    });
+    if (existing) continue;
+
+    await prisma.material.create({ data: material });
+    created++;
+  }
+  return created;
+}
+
 async function seedFulfillmentCenters() {
   let created = 0;
   for (const center of FULFILLMENT_CENTERS) {
@@ -109,9 +212,12 @@ async function seedSellers() {
 }
 
 async function main() {
+  const materialsCreated = await seedMaterials();
   const centersCreated = await seedFulfillmentCenters();
   const sellersCreated = await seedSellers();
-  console.log(`Seeded ${centersCreated} fulfillment center(s), ${sellersCreated} seller profile(s).`);
+  console.log(
+    `Seeded ${materialsCreated} material(s), ${centersCreated} fulfillment center(s), ${sellersCreated} seller profile(s).`
+  );
 }
 
 main()
