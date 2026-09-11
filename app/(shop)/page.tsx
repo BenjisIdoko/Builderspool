@@ -24,7 +24,7 @@ export default async function Home() {
 
   return (
     <div className="flex flex-1 flex-col">
-      <section className="relative flex min-h-[560px] items-center overflow-hidden border-b border-border">
+      <section className="relative flex min-h-[80svh] items-center overflow-hidden border-b border-border">
         {/* Signature duotone: the brand's blue->indigo->amber gradient mapped
             onto the photo's luminosity via mix-blend-color, rather than a
             generic dark scrim. This is the one deliberately bold color
@@ -44,7 +44,7 @@ export default async function Home() {
               headline sits (top-left) and fading out toward the amber
               corner, so the copy stays legible without muting the gradient
               everywhere. */}
-          <div className="absolute inset-0 bg-gradient-to-br from-ink/70 via-ink/25 to-transparent" />
+          <div className="absolute inset-0 bg-gradient-to-br from-ink/90 via-ink/60 to-ink/20" />
         </div>
 
         <div className="relative mx-auto w-full max-w-7xl px-6 py-20 sm:py-24">
