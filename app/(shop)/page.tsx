@@ -25,22 +25,34 @@ export default async function Home() {
   return (
     <div className="flex flex-1 flex-col">
       <section className="relative flex min-h-[560px] items-center overflow-hidden border-b border-border">
+        {/* Signature duotone: the brand's blue->indigo->amber gradient mapped
+            onto the photo's luminosity via mix-blend-color, rather than a
+            generic dark scrim. This is the one deliberately bold color
+            moment on the site — reserved for the hero only, not repeated on
+            routine controls. */}
         <div className="absolute inset-0">
           <Image
             src="/materials/cement.jpg"
             alt="Cement bag staged on a pallet in a fulfillment warehouse"
             fill
             sizes="100vw"
-            className="object-cover"
+            className="object-cover grayscale contrast-125"
             priority
           />
-          <div className="absolute inset-0 bg-gradient-to-t from-ink/85 via-ink/55 to-ink/30" />
+          <div className="absolute inset-0 bg-gradient-to-br from-brand via-brand-deep to-brand-warm mix-blend-color" />
+          {/* Darkening is directional, not flat — strongest where the
+              headline sits (top-left) and fading out toward the amber
+              corner, so the copy stays legible without muting the gradient
+              everywhere. */}
+          <div className="absolute inset-0 bg-gradient-to-br from-ink/70 via-ink/25 to-transparent" />
         </div>
 
         <div className="relative mx-auto w-full max-w-7xl px-6 py-20 sm:py-24">
           <h1 className="max-w-2xl text-5xl font-extrabold tracking-tight text-white sm:text-6xl">
             Construction materials,{' '}
-            <span className="text-[#8fb4ff]">delivered at a fair price.</span>
+            <span className="bg-gradient-to-r from-[#8fb4ff] to-[#fdba74] bg-clip-text text-transparent">
+              delivered at a fair price.
+            </span>
           </h1>
           <p className="mt-6 max-w-lg text-lg text-white/80">
             Cement, blocks, rebar, roofing and fittings — one fixed price, no back-and-forth.
@@ -55,7 +67,8 @@ export default async function Home() {
           {/* In normal flow (stacked below the CTA) on mobile so it never
               overlaps the button; floats over the photo's corner from sm+
               where there's enough room. */}
-          <div className="mt-8 w-full max-w-xs rounded-xl border border-white/15 bg-ink/40 p-4 text-white shadow-2xl backdrop-blur-md sm:absolute sm:right-0 sm:bottom-0 sm:mt-0 sm:w-60">
+          <div className="relative mt-8 w-full max-w-xs overflow-hidden rounded-xl border border-white/15 bg-ink/40 p-4 text-white shadow-2xl backdrop-blur-md sm:absolute sm:right-0 sm:bottom-0 sm:mt-0 sm:w-60">
+            <div className="absolute inset-x-0 top-0 h-0.5 bg-gradient-to-r from-brand via-brand-deep to-brand-warm" />
             <div className="text-xs font-medium text-white/70">Live on the platform</div>
             <div className="mt-1 text-2xl font-extrabold tracking-tight text-white">
               {stats.materialCount}+ <span className="text-base font-medium text-white/80">materials</span>

@@ -14,6 +14,11 @@
   --color-ink: #0f172a;
   --color-brand: #0f62fe; /* "accent" is reserved below for shadcn/ui's own hover/highlight token */
   --color-brand-ink: #ffffff;
+  --color-brand-deep: #3730a3; /* mid-stop for the signature gradient — steel blue toward indigo */
+  --color-brand-warm: #ea580c; /* construction-amber counterpoint to the brand blue — the signature
+                                   gradient (blue -> indigo -> amber), used deliberately in a small
+                                   number of high-impact spots (hero, headline accent, stat card),
+                                   never on routine controls — see Design Direction. */
   --color-slate: #475569;
   --color-muted-text: #64748b; /* exposed as the utility `text-muted-foreground`, shadcn/ui's own name for this */
   --color-border: #e2e8f0;
@@ -61,6 +66,8 @@
   --color-ink: var(--color-ink);
   --color-brand: var(--color-brand);
   --color-brand-ink: var(--color-brand-ink);
+  --color-brand-deep: var(--color-brand-deep);
+  --color-brand-warm: var(--color-brand-warm);
   --color-slate: var(--color-slate);
   --color-border: var(--color-border);
   --color-border-strong: var(--color-border-strong);
