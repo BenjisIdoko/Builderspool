@@ -25,9 +25,10 @@ export async function createOrder(input: CheckoutInput) {
   });
   const materialById = new Map(materials.map((m) => [m.id, m]));
 
-  const center =
-    input.fulfillmentMethod === 'DELIVERY' ? await findServingCenter(input.region) : null;
-  if (input.fulfillmentMethod === 'DELIVERY' && !center) {
+  // Every order routes through a fulfillment center regardless of method —
+  // delivery just adds a final hop from center to site (pickup ends there).
+  const center = await findServingCenter(input.region);
+  if (!center) {
     throw new Error(`No fulfillment center serves region ${input.region}.`);
   }
 
@@ -53,7 +54,7 @@ export async function createOrder(input: CheckoutInput) {
           quantity: item.quantity,
           priceLocked: material.catalogPrice,
           deliveryCost,
-          fulfilmentCenterId: center?.id,
+          fulfilmentCenterId: center.id,
         },
       });
     }
