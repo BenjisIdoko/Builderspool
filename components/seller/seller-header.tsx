@@ -1,6 +1,7 @@
 import Link from 'next/link';
 import { signOutSeller } from '@/app/seller/actions';
 import type { getSellerProfile } from '@/lib/queries/sellerPortal';
+import { Button } from '@/components/ui/button';
 
 export function SellerHeader({ profile }: { profile: NonNullable<Awaited<ReturnType<typeof getSellerProfile>>> }) {
   return (
@@ -10,7 +11,7 @@ export function SellerHeader({ profile }: { profile: NonNullable<Awaited<ReturnT
           <Link href="/seller" className="flex items-center gap-2">
             <span
               aria-hidden
-              className="flex h-8 w-8 items-center justify-center rounded-md bg-accent text-sm font-semibold text-accent-ink"
+              className="flex h-8 w-8 items-center justify-center rounded-md bg-brand text-sm font-semibold text-brand-ink"
             >
               B
             </span>
@@ -35,9 +36,9 @@ export function SellerHeader({ profile }: { profile: NonNullable<Awaited<ReturnT
             {profile.user.businessName ?? profile.user.name}
           </span>
           <form action={signOutSeller}>
-            <button type="submit" className="text-sm text-slate hover:text-ink">
+            <Button type="submit" variant="ghost">
               Sign out
-            </button>
+            </Button>
           </form>
         </div>
       </div>

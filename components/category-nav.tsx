@@ -2,6 +2,7 @@
 
 import Link from 'next/link';
 import { usePathname, useSearchParams } from 'next/navigation';
+import { Button } from '@/components/ui/button';
 
 export function CategoryNav({ categories }: { categories: string[] }) {
   const pathname = usePathname();
@@ -10,30 +11,19 @@ export function CategoryNav({ categories }: { categories: string[] }) {
 
   return (
     <div className="flex flex-wrap gap-2">
-      <Link
-        href={pathname}
-        className={tabClass(!active)}
-      >
-        All
-      </Link>
+      <Button asChild variant={!active ? 'default' : 'outline'} className="rounded-full">
+        <Link href={pathname}>All</Link>
+      </Button>
       {categories.map((category) => (
-        <Link
+        <Button
           key={category}
-          href={`${pathname}?category=${encodeURIComponent(category)}`}
-          className={tabClass(active === category)}
+          asChild
+          variant={active === category ? 'default' : 'outline'}
+          className="rounded-full"
         >
-          {category}
-        </Link>
+          <Link href={`${pathname}?category=${encodeURIComponent(category)}`}>{category}</Link>
+        </Button>
       ))}
     </div>
   );
-}
-
-function tabClass(isActive: boolean) {
-  return [
-    'rounded-full border px-3.5 py-1.5 text-sm transition-colors',
-    isActive
-      ? 'border-ink bg-ink text-white'
-      : 'border-border text-slate hover:border-ink/30 hover:text-ink',
-  ].join(' ');
 }

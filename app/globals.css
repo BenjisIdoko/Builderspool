@@ -1,30 +1,84 @@
 @import "tailwindcss";
+@import "tw-animate-css";
+@import "shadcn/tailwind.css";
 
 :root {
+  /* Brand tokens — see BUILDERSPOOL_PROJECT_BRIEF.md's Design Direction section.
+     Everything below (including shadcn/ui's semantic tokens) derives from these. */
   --color-canvas: #fafafa;
   --color-surface: #ffffff;
   --color-ink: #15181c;
-  --color-accent: #2954e5;
-  --color-accent-ink: #ffffff;
+  --color-brand: #2954e5; /* "accent" is reserved below for shadcn/ui's own hover/highlight token */
+  --color-brand-ink: #ffffff;
   --color-slate: #5b6068;
-  --color-muted: #8a8f97;
+  --color-muted-text: #8a8f97; /* exposed as the utility `text-muted-foreground`, shadcn/ui's own name for this */
   --color-border: #e6e7ea;
+
+  /* shadcn/ui semantic tokens, mapped onto the brand tokens above rather than
+     left on the library's default neutral palette — so shadcn components
+     (Button, Card, Input, ...) render in this app's actual look. */
+  --background: var(--color-canvas);
+  --foreground: var(--color-ink);
+  --card: var(--color-surface);
+  --card-foreground: var(--color-ink);
+  --popover: var(--color-surface);
+  --popover-foreground: var(--color-ink);
+  --primary: var(--color-ink); /* matches the bg-ink buttons already used app-wide */
+  --primary-foreground: #ffffff;
+  --secondary: var(--color-surface);
+  --secondary-foreground: var(--color-ink);
+  --muted: var(--color-canvas);
+  --muted-foreground: var(--color-muted-text);
+  --accent: var(--color-canvas); /* shadcn's own hover/highlight token — kept neutral, distinct from --color-brand */
+  --accent-foreground: var(--color-ink);
+  --destructive: oklch(0.577 0.245 27.325);
+  --border: var(--color-border);
+  --input: var(--color-border);
+  --ring: var(--color-brand); /* the one confident accent color, used functionally on focus */
+  --radius: 0.625rem;
 }
 
 @theme inline {
   --color-canvas: var(--color-canvas);
   --color-surface: var(--color-surface);
   --color-ink: var(--color-ink);
-  --color-accent: var(--color-accent);
-  --color-accent-ink: var(--color-accent-ink);
+  --color-brand: var(--color-brand);
+  --color-brand-ink: var(--color-brand-ink);
   --color-slate: var(--color-slate);
-  --color-muted: var(--color-muted);
   --color-border: var(--color-border);
   --font-sans: var(--font-plus-jakarta-sans);
+
+  --color-background: var(--background);
+  --color-foreground: var(--foreground);
+  --color-card: var(--card);
+  --color-card-foreground: var(--card-foreground);
+  --color-popover: var(--popover);
+  --color-popover-foreground: var(--popover-foreground);
+  --color-primary: var(--primary);
+  --color-primary-foreground: var(--primary-foreground);
+  --color-secondary: var(--secondary);
+  --color-secondary-foreground: var(--secondary-foreground);
+  --color-muted: var(--muted);
+  --color-muted-foreground: var(--muted-foreground);
+  --color-accent-foreground: var(--accent-foreground);
+  --color-destructive: var(--destructive);
+  --color-input: var(--input);
+  --color-ring: var(--ring);
+
+  --radius-sm: calc(var(--radius) * 0.6);
+  --radius-md: calc(var(--radius) * 0.8);
+  --radius-lg: var(--radius);
+  --radius-xl: calc(var(--radius) * 1.4);
 }
 
-body {
-  background: var(--color-canvas);
-  color: var(--color-ink);
-  font-family: var(--font-sans), ui-sans-serif, system-ui, sans-serif;
+@layer base {
+  * {
+    @apply border-border outline-ring/50;
+  }
+  body {
+    @apply bg-background text-foreground;
+  }
+  html {
+    @apply font-sans;
+  }
 }

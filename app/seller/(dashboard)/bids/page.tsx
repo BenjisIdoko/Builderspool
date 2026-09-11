@@ -2,13 +2,16 @@ import { getSellerIdFromSession } from '@/lib/seller/session';
 import { getSellerBids } from '@/lib/queries/sellerPortal';
 import { formatNaira } from '@/lib/format';
 import { withdrawBid } from '../../actions';
+import { Button } from '@/components/ui/button';
+import { Badge } from '@/components/ui/badge';
+import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 
-const STATUS_STYLES: Record<string, string> = {
-  SUBMITTED: 'text-slate',
-  PARTIALLY_FILLED: 'text-accent',
-  FILLED: 'text-accent',
-  REJECTED: 'text-muted',
-  WITHDRAWN: 'text-muted',
+const STATUS_BADGE_CLASS: Record<string, string> = {
+  SUBMITTED: 'bg-transparent text-slate border-border',
+  PARTIALLY_FILLED: 'bg-transparent text-brand border-brand/30',
+  FILLED: 'bg-brand text-brand-ink',
+  REJECTED: 'bg-transparent text-muted-foreground border-border',
+  WITHDRAWN: 'bg-transparent text-muted-foreground border-border',
 };
 
 export default async function SellerBidsPage() {
@@ -20,49 +23,51 @@ export default async function SellerBidsPage() {
       <h1 className="mb-6 text-xl font-medium tracking-tight text-ink">My bids</h1>
 
       {bids.length === 0 ? (
-        <p className="rounded-lg border border-border bg-surface p-6 text-sm text-muted">
+        <p className="rounded-lg border border-border bg-surface p-6 text-sm text-muted-foreground">
           You haven&apos;t submitted any bids yet.
         </p>
       ) : (
         <div className="overflow-hidden rounded-lg border border-border bg-surface">
-          <table className="w-full text-sm">
-            <thead>
-              <tr className="border-b border-border text-left text-slate">
-                <th className="px-5 py-3 font-medium">Material</th>
-                <th className="px-5 py-3 font-medium">Price</th>
-                <th className="px-5 py-3 font-medium">Quantity</th>
-                <th className="px-5 py-3 font-medium">Delivery</th>
-                <th className="px-5 py-3 font-medium">Status</th>
-                <th className="px-5 py-3 font-medium"></th>
-              </tr>
-            </thead>
-            <tbody className="divide-y divide-border">
+          <Table>
+            <TableHeader>
+              <TableRow>
+                <TableHead>Material</TableHead>
+                <TableHead>Price</TableHead>
+                <TableHead>Quantity</TableHead>
+                <TableHead>Delivery</TableHead>
+                <TableHead>Status</TableHead>
+                <TableHead />
+              </TableRow>
+            </TableHeader>
+            <TableBody>
               {bids.map((bid) => (
-                <tr key={bid.id}>
-                  <td className="px-5 py-3 text-ink">{bid.material.name}</td>
-                  <td className="px-5 py-3 text-ink">{formatNaira(bid.unitPrice)}</td>
-                  <td className="px-5 py-3 text-ink">
+                <TableRow key={bid.id}>
+                  <TableCell className="text-ink">{bid.material.name}</TableCell>
+                  <TableCell className="text-ink">{formatNaira(bid.unitPrice)}</TableCell>
+                  <TableCell className="text-ink">
                     {bid.quantityOffered} {bid.material.unit}
-                  </td>
-                  <td className="px-5 py-3 text-ink">{bid.estimatedDeliveryDays}d</td>
-                  <td className={`px-5 py-3 ${STATUS_STYLES[bid.status] ?? 'text-ink'}`}>
-                    {bid.status.replace('_', ' ').toLowerCase()}
-                  </td>
-                  <td className="px-5 py-3 text-right">
+                  </TableCell>
+                  <TableCell className="text-ink">{bid.estimatedDeliveryDays}d</TableCell>
+                  <TableCell>
+                    <Badge variant="outline" className={STATUS_BADGE_CLASS[bid.status]}>
+                      {bid.status.replace('_', ' ').toLowerCase()}
+                    </Badge>
+                  </TableCell>
+                  <TableCell className="text-right">
                     {bid.status === 'SUBMITTED' && (
                       <form action={withdrawBid}>
                         <input type="hidden" name="bidId" value={bid.id} />
                         <input type="hidden" name="sellerId" value={sellerId} />
-                        <button type="submit" className="text-sm text-muted hover:text-ink">
+                        <Button type="submit" variant="ghost" size="sm">
                           Withdraw
-                        </button>
+                        </Button>
                       </form>
                     )}
-                  </td>
-                </tr>
+                  </TableCell>
+                </TableRow>
               ))}
-            </tbody>
-          </table>
+            </TableBody>
+          </Table>
         </div>
       )}
     </div>

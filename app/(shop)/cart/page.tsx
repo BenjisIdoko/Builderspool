@@ -3,6 +3,7 @@
 import Link from 'next/link';
 import { useCart } from '@/lib/cart/CartContext';
 import { formatNaira } from '@/lib/format';
+import { Button } from '@/components/ui/button';
 
 export default function CartPage() {
   const { lines, subtotal, updateQuantity, removeItem } = useCart();
@@ -12,12 +13,9 @@ export default function CartPage() {
       <div className="mx-auto flex w-full max-w-3xl flex-1 flex-col items-center justify-center gap-4 px-6 py-24 text-center">
         <h1 className="text-xl font-medium text-ink">Your cart is empty</h1>
         <p className="text-slate">Add materials from the catalog to get started.</p>
-        <Link
-          href="/catalog"
-          className="rounded-md bg-ink px-5 py-2.5 text-sm font-medium text-white hover:opacity-90"
-        >
-          Browse the catalog
-        </Link>
+        <Button asChild size="lg">
+          <Link href="/catalog">Browse the catalog</Link>
+        </Button>
       </div>
     );
   }
@@ -33,43 +31,45 @@ export default function CartPage() {
               <Link href={`/catalog/${line.materialId}`} className="font-medium text-ink hover:underline">
                 {line.name}
               </Link>
-              <div className="text-sm text-muted">
+              <div className="text-sm text-muted-foreground">
                 {formatNaira(line.catalogPrice)} / {line.unit}
               </div>
             </div>
 
             <div className="flex items-center gap-1.5 rounded-md border border-border">
-              <button
+              <Button
                 type="button"
+                variant="ghost"
+                size="icon-sm"
                 onClick={() => updateQuantity(line.materialId, line.quantity - 1)}
-                className="flex h-8 w-8 items-center justify-center text-slate hover:text-ink"
                 aria-label={`Decrease quantity of ${line.name}`}
               >
                 −
-              </button>
+              </Button>
               <span className="w-6 text-center text-sm text-ink">{line.quantity}</span>
-              <button
+              <Button
                 type="button"
+                variant="ghost"
+                size="icon-sm"
                 onClick={() => updateQuantity(line.materialId, line.quantity + 1)}
-                className="flex h-8 w-8 items-center justify-center text-slate hover:text-ink"
                 aria-label={`Increase quantity of ${line.name}`}
               >
                 +
-              </button>
+              </Button>
             </div>
 
             <div className="w-24 text-right text-sm font-medium text-ink">
               {formatNaira(line.catalogPrice * line.quantity)}
             </div>
 
-            <button
+            <Button
               type="button"
+              variant="ghost"
               onClick={() => removeItem(line.materialId)}
-              className="text-sm text-muted hover:text-ink"
               aria-label={`Remove ${line.name}`}
             >
               Remove
-            </button>
+            </Button>
           </div>
         ))}
       </div>
@@ -80,12 +80,9 @@ export default function CartPage() {
       </div>
 
       <div className="mt-6 flex justify-end">
-        <Link
-          href="/checkout"
-          className="rounded-md bg-ink px-5 py-2.5 text-sm font-medium text-white hover:opacity-90"
-        >
-          Continue to checkout
-        </Link>
+        <Button asChild size="lg">
+          <Link href="/checkout">Continue to checkout</Link>
+        </Button>
       </div>
     </div>
   );

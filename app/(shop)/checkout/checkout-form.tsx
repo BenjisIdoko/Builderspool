@@ -5,6 +5,9 @@ import Link from 'next/link';
 import { useCart } from '@/lib/cart/CartContext';
 import { formatNaira } from '@/lib/format';
 import { getDeliveryCost, type FulfillmentMethod } from '@/lib/checkout/deliveryCost';
+import { Button } from '@/components/ui/button';
+import { Label } from '@/components/ui/label';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 
 const REGIONS = ['ABUJA', 'LAGOS', 'KANO'];
 
@@ -32,7 +35,7 @@ export function CheckoutForm({ buyerId }: { buyerId: string }) {
           isn&apos;t wired up yet, so it&apos;s sitting in{' '}
           <span className="font-mono">PENDING_PAYMENT</span> until a gateway is connected.
         </p>
-        <Link href="/catalog" className="mt-6 inline-block text-sm text-accent hover:underline">
+        <Link href="/catalog" className="mt-6 inline-block text-sm text-brand hover:underline">
           Continue browsing
         </Link>
       </div>
@@ -43,7 +46,7 @@ export function CheckoutForm({ buyerId }: { buyerId: string }) {
     return (
       <div className="rounded-lg border border-border bg-surface p-8 text-center text-sm text-slate">
         Your cart is empty.{' '}
-        <Link href="/catalog" className="text-accent hover:underline">
+        <Link href="/catalog" className="text-brand hover:underline">
           Browse the catalog
         </Link>
         .
@@ -117,36 +120,33 @@ export function CheckoutForm({ buyerId }: { buyerId: string }) {
       <div className="rounded-lg border border-border bg-surface p-5">
         <h2 className="mb-4 text-sm font-medium text-slate">Delivery details</h2>
 
-        <label className="mb-4 block text-sm">
-          <span className="mb-1.5 block text-ink">Region</span>
-          <select
-            value={region}
-            onChange={(e) => setRegion(e.target.value)}
-            className="w-full rounded-md border border-border bg-surface px-3 py-2 text-ink"
-          >
-            {REGIONS.map((r) => (
-              <option key={r} value={r}>
-                {r.charAt(0) + r.slice(1).toLowerCase()}
-              </option>
-            ))}
-          </select>
-        </label>
+        <div className="mb-4 flex flex-col gap-1.5">
+          <Label htmlFor="region">Region</Label>
+          <Select value={region} onValueChange={setRegion}>
+            <SelectTrigger id="region" className="w-full">
+              <SelectValue />
+            </SelectTrigger>
+            <SelectContent>
+              {REGIONS.map((r) => (
+                <SelectItem key={r} value={r}>
+                  {r.charAt(0) + r.slice(1).toLowerCase()}
+                </SelectItem>
+              ))}
+            </SelectContent>
+          </Select>
+        </div>
 
         <div className="grid grid-cols-2 gap-3">
           {(['DELIVERY', 'PICKUP'] as const).map((method) => (
-            <button
+            <Button
               key={method}
               type="button"
+              variant={fulfillmentMethod === method ? 'default' : 'outline'}
+              className="h-auto py-3"
               onClick={() => setFulfillmentMethod(method)}
-              className={[
-                'rounded-md border px-4 py-3 text-sm font-medium transition-colors',
-                fulfillmentMethod === method
-                  ? 'border-ink bg-ink text-white'
-                  : 'border-border text-slate hover:border-ink/30',
-              ].join(' ')}
             >
               {method === 'DELIVERY' ? 'Deliver to site' : 'Pick up at center'}
-            </button>
+            </Button>
           ))}
         </div>
       </div>
@@ -157,13 +157,9 @@ export function CheckoutForm({ buyerId }: { buyerId: string }) {
         </p>
       )}
 
-      <button
-        type="submit"
-        disabled={state.status === 'submitting'}
-        className="rounded-md bg-ink px-5 py-3 text-sm font-medium text-white transition-opacity hover:opacity-90 disabled:opacity-50"
-      >
+      <Button type="submit" size="lg" disabled={state.status === 'submitting'}>
         {state.status === 'submitting' ? 'Placing order…' : `Place order — ${formatNaira(total)}`}
-      </button>
+      </Button>
     </form>
   );
 }

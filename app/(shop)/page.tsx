@@ -1,6 +1,7 @@
 import Link from 'next/link';
 import { getCategories, getMaterials } from '@/lib/queries/materials';
 import { MaterialCard } from '@/components/material-card';
+import { Button } from '@/components/ui/button';
 
 export default async function Home() {
   const [categories, materials] = await Promise.all([getCategories(), getMaterials()]);
@@ -18,12 +19,9 @@ export default async function Home() {
             get it delivered to site.
           </p>
           <div>
-            <Link
-              href="/catalog"
-              className="inline-flex items-center rounded-md bg-ink px-5 py-2.5 text-sm font-medium text-white transition-opacity hover:opacity-90"
-            >
-              Browse the catalog
-            </Link>
+            <Button asChild size="lg">
+              <Link href="/catalog">Browse the catalog</Link>
+            </Button>
           </div>
         </div>
       </section>
@@ -46,7 +44,7 @@ export default async function Home() {
       <section className="mx-auto w-full max-w-6xl px-6 pb-20">
         <div className="mb-5 flex items-baseline justify-between">
           <h2 className="text-sm font-medium text-slate">Popular materials</h2>
-          <Link href="/catalog" className="text-sm text-accent hover:underline">
+          <Link href="/catalog" className="text-sm text-brand hover:underline">
             View all
           </Link>
         </div>

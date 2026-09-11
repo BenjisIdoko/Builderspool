@@ -8,7 +8,7 @@ export function SiteHeader() {
         <Link href="/" className="flex items-center gap-2">
           <span
             aria-hidden
-            className="flex h-8 w-8 items-center justify-center rounded-md bg-accent text-sm font-semibold text-accent-ink"
+            className="flex h-8 w-8 items-center justify-center rounded-md bg-brand text-sm font-semibold text-brand-ink"
           >
             B
           </span>

@@ -26,7 +26,7 @@ export default async function CatalogPage({
       </div>
 
       {materials.length === 0 && (
-        <p className="mt-10 text-sm text-muted">No materials in this category yet.</p>
+        <p className="mt-10 text-sm text-muted-foreground">No materials in this category yet.</p>
       )}
     </div>
   );
