@@ -44,13 +44,14 @@
   --input: var(--color-border-strong);
   --ring: var(--color-brand); /* the one confident accent color, used functionally on focus */
 
-  /* Two-tier radius per the Stitch spec: base controls (buttons, inputs,
-     badges, tabs) get a tight 4px; containers (cards, modals, panels) get
-     8px. Large/pill radii are reserved for icon buttons and counters. */
-  --radius-sm: 0.1875rem;
-  --radius-md: 0.25rem;
-  --radius-lg: 0.5rem;
-  --radius-xl: 0.75rem;
+  /* Softer, rounder scale than the original tight-industrial Stitch spec —
+     buttons and badges go fully pill-shaped (rounded-full, not token-driven)
+     regardless of this scale; this governs inputs/selects (md) and
+     cards/containers (lg/xl). */
+  --radius-sm: 0.375rem;
+  --radius-md: 0.625rem;
+  --radius-lg: 0.875rem;
+  --radius-xl: 1.25rem;
 }
 
 @theme inline {
@@ -100,8 +101,21 @@
   }
   body {
     @apply bg-background text-foreground text-base;
+    line-height: 1.6; /* relaxed reading line-height, matches the Church HR Manager typography scale */
   }
   html {
     @apply font-sans;
+  }
+
+  /* Heading weight scale adopted from the Church HR Manager project
+     (src/styles/globals.css): true display/hero text is extrabold with
+     tight tracking; page-level headings are bold; card/section-label
+     headings stay semibold. Sizes remain contextual per page — this fixes
+     the weight/tracking rung per heading role, not a single fixed size. */
+  h1 {
+    @apply font-bold tracking-tight;
+  }
+  h2 {
+    @apply font-semibold;
   }
 }

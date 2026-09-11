@@ -30,7 +30,7 @@ export default async function OrderConfirmationPage({ params }: { params: Promis
         </span>
         <div>
           <div className="flex items-center gap-2">
-            <h1 className="text-xl font-semibold text-ink">Order confirmed</h1>
+            <h1 className="text-xl font-bold text-ink">Order confirmed</h1>
             <Badge variant="outline" className="bg-well text-muted-foreground">
               {STATUS_LABEL[order.status] ?? order.status}
             </Badge>

@@ -20,7 +20,7 @@ export default async function SellerBidsPage() {
 
   return (
     <div className="mx-auto w-full max-w-5xl px-6 py-12">
-      <h1 className="mb-6 text-xl font-medium tracking-tight text-ink">My bids</h1>
+      <h1 className="mb-6 text-xl font-bold tracking-tight text-ink">My bids</h1>
 
       {bids.length === 0 ? (
         <p className="rounded-lg border border-border bg-surface p-6 text-sm text-muted-foreground">

@@ -13,7 +13,7 @@ export default function CartPage() {
   if (lines.length === 0) {
     return (
       <div className="mx-auto flex w-full max-w-3xl flex-1 flex-col items-center justify-center gap-4 px-6 py-24 text-center">
-        <h1 className="text-xl font-semibold text-ink">Your cart is empty</h1>
+        <h1 className="text-xl font-bold text-ink">Your cart is empty</h1>
         <p className="text-slate">Add materials from the catalog to get started.</p>
         <Button asChild size="lg">
           <Link href="/catalog">Browse the catalog</Link>
@@ -26,7 +26,7 @@ export default function CartPage() {
 
   return (
     <div className="mx-auto w-full max-w-6xl px-6 py-10">
-      <h1 className="mb-6 text-2xl font-semibold tracking-tight text-ink">
+      <h1 className="mb-6 text-2xl font-bold tracking-tight text-ink">
         Cart <span className="font-normal text-muted-foreground">({itemCount} items)</span>
       </h1>
 

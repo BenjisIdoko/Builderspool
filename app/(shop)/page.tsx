@@ -20,7 +20,7 @@ export default async function Home() {
     <div className="flex flex-1 flex-col">
       <section className="relative overflow-hidden border-b border-border bg-[radial-gradient(ellipse_90%_80%_at_50%_-20%,rgba(15,98,254,0.10),transparent_60%)] bg-canvas">
         <div className="mx-auto flex max-w-7xl flex-col gap-6 px-6 py-24 sm:py-28">
-          <h1 className="max-w-2xl text-5xl font-bold tracking-tight text-ink sm:text-6xl">
+          <h1 className="max-w-2xl text-5xl font-extrabold tracking-tight text-ink sm:text-6xl">
             Construction materials,{' '}
             <span className="bg-gradient-to-r from-brand to-[#0043ce] bg-clip-text text-transparent">
               delivered at a fair price.

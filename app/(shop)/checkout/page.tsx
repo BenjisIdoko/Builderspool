@@ -6,7 +6,7 @@ export default async function CheckoutPage() {
 
   return (
     <div className="mx-auto w-full max-w-5xl px-6 py-10">
-      <h1 className="mb-2 text-2xl font-semibold tracking-tight text-ink">Checkout</h1>
+      <h1 className="mb-2 text-2xl font-bold tracking-tight text-ink">Checkout</h1>
       <p className="mb-8 text-sm text-muted-foreground">
         Ordering as {buyer.name} ({buyer.email}) — buyer accounts aren&apos;t built yet, so every
         checkout uses this demo account for now.

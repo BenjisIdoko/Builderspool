@@ -16,7 +16,7 @@ export default async function SellerAllocationsPage() {
 
   return (
     <div className="mx-auto w-full max-w-5xl px-6 py-12">
-      <h1 className="mb-1 text-xl font-medium tracking-tight text-ink">Allocations</h1>
+      <h1 className="mb-1 text-xl font-bold tracking-tight text-ink">Allocations</h1>
       <p className="mb-6 text-sm text-muted-foreground">
         Materials awarded to you. Drop off at the fulfillment center listed — it confirms receipt (GRN),
         which is what triggers your payout.
@@ -33,7 +33,7 @@ export default async function SellerAllocationsPage() {
               <div className="flex flex-wrap items-start justify-between gap-4">
                 <div>
                   <span className="text-xs text-muted-foreground">{allocation.bid.material.category}</span>
-                  <h2 className="text-[15px] font-medium text-ink">{allocation.bid.material.name}</h2>
+                  <h2 className="text-[15px] font-semibold text-ink">{allocation.bid.material.name}</h2>
                   <p className="text-sm text-slate">
                     {allocation.quantityFilled} {allocation.bid.material.unit}
                   </p>
