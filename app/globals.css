@@ -31,8 +31,8 @@
   --card-foreground: var(--color-ink);
   --popover: var(--color-surface);
   --popover-foreground: var(--color-ink);
-  --primary: var(--color-ink); /* matches the bg-ink buttons already used app-wide */
-  --primary-foreground: #ffffff;
+  --primary: var(--color-brand); /* primary buttons use the brand blue, not ink */
+  --primary-foreground: var(--color-brand-ink);
   --secondary: var(--color-surface);
   --secondary-foreground: var(--color-ink);
   --muted: var(--color-well);
