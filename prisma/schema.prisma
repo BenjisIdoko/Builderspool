@@ -1,8 +1,11 @@
 // Builders Pool — data model
-// Core loop: buyers add materials to a cart -> carts lock into a daily
-// DemandCycle -> demand is aggregated per Material -> sellers submit Bids
-// against that aggregated demand -> winning bids are split into
-// Allocations that map back to the individual buyer CartItems they fill.
+// Core loop: buyers check out at a fixed catalog price -> paid OrderItems join
+// a daily, per-material (per-region if REGIONAL) BidCycle -> sellers submit
+// blind Bids against that pooled demand -> winning bids are split into
+// Allocations that map back to the individual OrderItems they fill.
+//
+// Bidding is invisible to the buyer at all times — this schema exists to
+// let the backend absorb margin variance, not to expose pooling/bidding UI.
 
 generator client {
   provider = "prisma-client-js"
@@ -19,11 +22,15 @@ enum Role {
   ADMIN
 }
 
+enum SourcingScope {
+  REGIONAL // only sourceable from certain locations
+  NATIONAL // sourceable anywhere, pools into one national cycle
+}
+
 enum CycleStatus {
-  OPEN      // buyers can still add/edit cart items
-  LOCKED    // cutoff passed, demand aggregated, not yet open to sellers
-  BIDDING   // sellers can submit bids
-  RESOLVED  // bids allocated, buyers notified
+  OPEN     // buyers' paid order items and sellers' bids can still join
+  CLOSED   // cutoff passed, demand frozen, being scored
+  AWARDED  // bids scored and allocated
 }
 
 enum BidStatus {
@@ -35,9 +42,15 @@ enum BidStatus {
 }
 
 enum AllocationStatus {
-  PENDING     // buyer not yet notified/confirmed
+  PENDING     // awarded, buyer not yet notified/confirmed
   CONFIRMED   // buyer confirmed, ready for fulfillment
   FULFILLED
+  CANCELLED   // failed allocation, cascaded to a fallback bid (see lib/bidding/fallback.ts)
+}
+
+enum OrderStatus {
+  PENDING_PAYMENT
+  PAID
   CANCELLED
 }
 
@@ -51,80 +64,163 @@ model User {
   location     String?
   createdAt    DateTime @default(now())
 
-  cartItems CartItem[]
-  bids      Bid[]
+  sellerProfile SellerProfile?
+  cartItems     CartItem[]
+  orders        Order[]
+  bids          Bid[]
+}
+
+// Seller-specific data. regionsServed feeds the geography eligibility filter;
+// trustScore feeds the reliability weight in the award scoring engine.
+model SellerProfile {
+  id            String   @id @default(cuid())
+  userId        String   @unique
+  regionsServed String[]
+  trustScore    Float    @default(50)
+  createdAt     DateTime @default(now())
+
+  user User @relation(fields: [userId], references: [id])
+}
+
+model FulfillmentCenter {
+  id        String   @id @default(cuid())
+  name      String
+  region    String
+  address   String
+  createdAt DateTime @default(now())
+
+  orderItems OrderItem[]
 }
 
 model Material {
-  id          String   @id @default(cuid())
-  name        String
-  category    String
-  unit        String   // e.g. "50kg bag", "12mm x 12m length", "trip (5 tons)"
-  spec        String?  // grade, size, brand-neutral spec description
-  imageUrl    String?
-  createdAt   DateTime @default(now())
+  id            String        @id @default(cuid())
+  name          String
+  category      String
+  unit          String // e.g. "50kg bag", "12mm x 12m length", "trip (5 tons)"
+  spec          String? // grade, size, brand-neutral spec description
+  imageUrl      String?
+  catalogPrice  Decimal       @db.Decimal(12, 2) // buyer-facing fixed price
+  sourcingScope SourcingScope @default(NATIONAL)
+  createdAt     DateTime      @default(now())
 
-  cartItems CartItem[]
-  bids      Bid[]
+  cartItems  CartItem[]
+  orderItems OrderItem[]
+  bids       Bid[]
+  bidCycles  BidCycle[]
 }
 
-model DemandCycle {
-  id        String      @id @default(cuid())
-  date      DateTime    @unique @db.Date
-  cutoffAt  DateTime
-  status    CycleStatus @default(OPEN)
-  createdAt DateTime    @default(now())
-
-  cartItems CartItem[]
-  bids      Bid[]
-}
-
-// A buyer's requested quantity of one material within one day's cycle.
+// A buyer's pre-checkout cart line. Simple browsing cart — becomes an
+// Order/OrderItem at checkout; never joins a bid cycle directly.
 model CartItem {
   id         String   @id @default(cuid())
   buyerId    String
   materialId String
-  cycleId    String
   quantity   Int
   createdAt  DateTime @default(now())
   updatedAt  DateTime @updatedAt
 
-  buyer       User        @relation(fields: [buyerId], references: [id])
-  material    Material    @relation(fields: [materialId], references: [id])
-  cycle       DemandCycle @relation(fields: [cycleId], references: [id])
-  allocations Allocation[]
+  buyer    User     @relation(fields: [buyerId], references: [id])
+  material Material @relation(fields: [materialId], references: [id])
 
-  @@unique([buyerId, materialId, cycleId])
+  @@unique([buyerId, materialId])
 }
 
-// A seller's offer to supply a quantity of one material within one cycle.
+// The buyer-facing checkout transaction. region is persisted here specifically
+// so bid-cycle assignment can read it back after payment confirms.
+model Order {
+  id        String      @id @default(cuid())
+  buyerId   String
+  region    String
+  status    OrderStatus @default(PENDING_PAYMENT)
+  createdAt DateTime    @default(now())
+  paidAt    DateTime?
+
+  buyer User        @relation(fields: [buyerId], references: [id])
+  items OrderItem[]
+}
+
+// One line of a checkout order. priceLocked guarantees the fixed-price promise
+// holds regardless of the eventual winning bid. Each item independently joins
+// a bid cycle and routes to a fulfillment center once payment is confirmed.
+model OrderItem {
+  id                 String   @id @default(cuid())
+  orderId            String
+  materialId         String
+  quantity           Int
+  priceLocked        Decimal  @db.Decimal(12, 2)
+  deliveryCost       Decimal  @default(0) @db.Decimal(12, 2)
+  fulfilmentCenterId String?
+  bidCycleId         String?
+  createdAt          DateTime @default(now())
+
+  order             Order              @relation(fields: [orderId], references: [id])
+  material          Material           @relation(fields: [materialId], references: [id])
+  fulfillmentCenter FulfillmentCenter? @relation(fields: [fulfilmentCenterId], references: [id])
+  bidCycle          BidCycle?          @relation(fields: [bidCycleId], references: [id])
+  allocations       Allocation[]
+}
+
+// One per material, per region (null = national), per day.
+//
+// Note: Postgres treats NULL as distinct across rows in a unique index, so
+// @@unique([materialId, region, date]) does not by itself prevent duplicate
+// national (region: null) cycles for the same material/day — joinCycle.ts
+// guards this at the application level with a findFirst-then-create inside
+// a transaction instead of relying on the DB constraint alone.
+model BidCycle {
+  id         String      @id @default(cuid())
+  materialId String
+  region     String?
+  date       DateTime    @db.Date
+  cutoffAt   DateTime
+  status     CycleStatus @default(OPEN)
+  createdAt  DateTime    @default(now())
+
+  material   Material    @relation(fields: [materialId], references: [id])
+  orderItems OrderItem[]
+  bids       Bid[]
+
+  @@unique([materialId, region, date])
+}
+
+// A seller's blind offer to supply a quantity of one material within one cycle.
 model Bid {
-  id            String    @id @default(cuid())
-  sellerId      String
-  materialId    String
-  cycleId       String
-  pricePerUnit  Decimal   @db.Decimal(12, 2)
-  maxQuantity   Int
-  status        BidStatus @default(SUBMITTED)
-  submittedAt   DateTime  @default(now())
+  id                    String    @id @default(cuid())
+  sellerId              String
+  materialId            String
+  cycleId               String
+  unitPrice             Decimal   @db.Decimal(12, 2)
+  quantityOffered       Int
+  estimatedDeliveryDays Int
+  score                 Float? // filled in at award time
+  rank                  Int? // filled in at award time
+  status                BidStatus @default(SUBMITTED)
+  submittedAt           DateTime  @default(now())
 
-  seller      User        @relation(fields: [sellerId], references: [id])
-  material    Material    @relation(fields: [materialId], references: [id])
-  cycle       DemandCycle @relation(fields: [cycleId], references: [id])
+  seller   User     @relation(fields: [sellerId], references: [id])
+  material Material @relation(fields: [materialId], references: [id])
+  cycle    BidCycle @relation(fields: [cycleId], references: [id])
+
   allocations Allocation[]
 
-  @@index([materialId, cycleId, pricePerUnit])
+  @@index([materialId, cycleId, unitPrice])
 }
 
-// The resolved link: how much of a winning Bid fills a specific buyer's CartItem.
+// The resolved link: how much of a winning Bid fills a specific OrderItem.
+// Supports split awards (multiple allocations per bid cycle) and the fallback
+// cascade (a cancelled allocation's quantity becomes a new allocation against
+// the next-ranked bid). receivedAt is the GRN (Goods Received Note) capture —
+// a fulfillment center confirming a seller's drop-off — and is the trigger
+// point for seller payout.
 model Allocation {
   id             String           @id @default(cuid())
   bidId          String
-  cartItemId     String
+  orderItemId    String
   quantityFilled Int
   status         AllocationStatus @default(PENDING)
+  receivedAt     DateTime?
   createdAt      DateTime         @default(now())
 
-  bid      Bid      @relation(fields: [bidId], references: [id])
-  cartItem CartItem @relation(fields: [cartItemId], references: [id])
+  bid       Bid       @relation(fields: [bidId], references: [id])
+  orderItem OrderItem @relation(fields: [orderItemId], references: [id])
 }

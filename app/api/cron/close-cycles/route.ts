@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { closeAndProcessCycles } from '@/lib/bidding';
+import { closeDueCycles } from '@/lib/bidding';
 
 export const dynamic = 'force-dynamic';
 
@@ -27,15 +27,15 @@ async function handleCron(request: NextRequest) {
       }
     }
 
-    const result = await closeAndProcessCycles();
+    const reports = await closeDueCycles();
 
     return NextResponse.json({
       success: true,
       timestamp: new Date().toISOString(),
       summary: {
-        lockedCyclesCount: result.lockedCyclesCount,
-        resolvedCyclesCount: result.resolvedCycles.length,
-        resolvedCycles: result.resolvedCycles,
+        closedCyclesCount: reports.length,
+        cyclesNeedingAttention: reports.filter((r) => r.needsAttention).length,
+        reports,
       },
     });
   } catch (error: any) {
