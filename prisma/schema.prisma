@@ -1,0 +1,130 @@
+// Builders Pool — data model
+// Core loop: buyers add materials to a cart -> carts lock into a daily
+// DemandCycle -> demand is aggregated per Material -> sellers submit Bids
+// against that aggregated demand -> winning bids are split into
+// Allocations that map back to the individual buyer CartItems they fill.
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+enum Role {
+  BUYER
+  SELLER
+  ADMIN
+}
+
+enum CycleStatus {
+  OPEN      // buyers can still add/edit cart items
+  LOCKED    // cutoff passed, demand aggregated, not yet open to sellers
+  BIDDING   // sellers can submit bids
+  RESOLVED  // bids allocated, buyers notified
+}
+
+enum BidStatus {
+  SUBMITTED
+  PARTIALLY_FILLED
+  FILLED
+  REJECTED
+  WITHDRAWN
+}
+
+enum AllocationStatus {
+  PENDING     // buyer not yet notified/confirmed
+  CONFIRMED   // buyer confirmed, ready for fulfillment
+  FULFILLED
+  CANCELLED
+}
+
+model User {
+  id           String   @id @default(cuid())
+  role         Role
+  name         String
+  email        String   @unique
+  phone        String?
+  businessName String?
+  location     String?
+  createdAt    DateTime @default(now())
+
+  cartItems CartItem[]
+  bids      Bid[]
+}
+
+model Material {
+  id          String   @id @default(cuid())
+  name        String
+  category    String
+  unit        String   // e.g. "50kg bag", "12mm x 12m length", "trip (5 tons)"
+  spec        String?  // grade, size, brand-neutral spec description
+  imageUrl    String?
+  createdAt   DateTime @default(now())
+
+  cartItems CartItem[]
+  bids      Bid[]
+}
+
+model DemandCycle {
+  id        String      @id @default(cuid())
+  date      DateTime    @unique @db.Date
+  cutoffAt  DateTime
+  status    CycleStatus @default(OPEN)
+  createdAt DateTime    @default(now())
+
+  cartItems CartItem[]
+  bids      Bid[]
+}
+
+// A buyer's requested quantity of one material within one day's cycle.
+model CartItem {
+  id         String   @id @default(cuid())
+  buyerId    String
+  materialId String
+  cycleId    String
+  quantity   Int
+  createdAt  DateTime @default(now())
+  updatedAt  DateTime @updatedAt
+
+  buyer       User        @relation(fields: [buyerId], references: [id])
+  material    Material    @relation(fields: [materialId], references: [id])
+  cycle       DemandCycle @relation(fields: [cycleId], references: [id])
+  allocations Allocation[]
+
+  @@unique([buyerId, materialId, cycleId])
+}
+
+// A seller's offer to supply a quantity of one material within one cycle.
+model Bid {
+  id            String    @id @default(cuid())
+  sellerId      String
+  materialId    String
+  cycleId       String
+  pricePerUnit  Decimal   @db.Decimal(12, 2)
+  maxQuantity   Int
+  status        BidStatus @default(SUBMITTED)
+  submittedAt   DateTime  @default(now())
+
+  seller      User        @relation(fields: [sellerId], references: [id])
+  material    Material    @relation(fields: [materialId], references: [id])
+  cycle       DemandCycle @relation(fields: [cycleId], references: [id])
+  allocations Allocation[]
+
+  @@index([materialId, cycleId, pricePerUnit])
+}
+
+// The resolved link: how much of a winning Bid fills a specific buyer's CartItem.
+model Allocation {
+  id             String           @id @default(cuid())
+  bidId          String
+  cartItemId     String
+  quantityFilled Int
+  status         AllocationStatus @default(PENDING)
+  createdAt      DateTime         @default(now())
+
+  bid      Bid      @relation(fields: [bidId], references: [id])
+  cartItem CartItem @relation(fields: [cartItemId], references: [id])
+}
