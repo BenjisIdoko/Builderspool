@@ -105,7 +105,7 @@ These are deliberate, clearly-marked placeholders — not oversights:
 - [ ] Build the admin dashboard (materials, bid cycles, fulfillment centers, disputes)
 - [ ] Upgrade delivery cost from flat-rate to distance-based once volume justifies the API cost
 - [ ] `fallback.ts`'s exhausted-cascade case still only logs to console — no ops-facing flag/notification yet (unlike `award.ts`'s `needsAttention` field, which is now real)
-- [ ] Seed `FulfillmentCenter` and `SellerProfile` data — no seed script exists yet
+- [x] Seed `FulfillmentCenter` and `SellerProfile` data — `prisma/seed.ts` (run via `npx prisma db seed`), applied 2026-09-11. 3 fulfillment centers (Abuja/Lagos/Kano, matching the flat-rate regions in `lib/checkout/deliveryCost.ts`) and 4 sellers spanning a deliberate trust-score/region spread (one national high-trust, two regional mid-trust, one newly onboarded low-trust) so the award engine's scoring and geography filter both have real data to operate on. Idempotent — safe to re-run.
 
 ## Deferred / Explicitly Post-MVP
 
