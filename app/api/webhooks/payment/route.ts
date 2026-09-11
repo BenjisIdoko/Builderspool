@@ -37,5 +37,7 @@ export async function POST(request: NextRequest) {
  * header compared to a shared secret).
  */
 function verifySignature(rawBody: string, signature: string | null): boolean {
+  void rawBody;
+  void signature;
   throw new Error('verifySignature() not implemented — wire in gateway-specific verification.');
 }

@@ -88,9 +88,9 @@ Full detail in `schema.prisma`. Key entities and why they're shaped this way:
    - `findServingCenter.ts` — routes an order to a fulfillment center by region
    - `app/api/checkout/route.ts` — checkout API route
    - `app/api/webhooks/payment/route.ts` — payment confirmation webhook
-`npx tsc --noEmit` and `npx next build` both pass clean against the real generated Prisma client — all three API routes (`checkout`, `webhooks/payment`, `cron/close-cycles`) compile and register correctly.
+4. **Buyer UI** — home, catalog (with category filter), material detail, cart, and a checkout shell, built directly in Tailwind against the Design Direction tokens (off-white canvas, near-black ink, blue accent, hairline borders, Plus Jakarta Sans) rather than from separate static mockups — those still don't exist (see TODOs). **shadcn/ui was not actually installed**; components are hand-rolled Tailwind, another deviation from this doc's original Tech Stack note worth flagging if shadcn matters later. Cart state lives in `localStorage` (`lib/cart/CartContext.tsx`) since there's no buyer auth yet; checkout attaches every order to a single seeded demo buyer (`lib/demoBuyer.ts` / `prisma/seed.ts`) for the same reason — swap both for real accounts once auth exists. Buyer-facing queries (`lib/queries/materials.ts`) deliberately select only buyer-safe fields — `sourcingScope`, bid cycles, and anything else that would leak the pooling/bidding mechanism are excluded at the query layer, not just hidden in the UI. Walked the full golden path in-browser (browse → filter → add to cart → checkout → order created in `PENDING_PAYMENT`) against the live database; `npm run lint`, `npx tsc --noEmit`, and `npx next build` all pass clean.
 
-**Not yet built**, despite earlier notes in this doc implying otherwise: the design mockups (home/catalog, listing, checkout) referenced under Design Direction above don't exist in this repo — see TODOs below.
+`npx tsc --noEmit` and `npx next build` both pass clean against the real generated Prisma client — all three API routes (`checkout`, `webhooks/payment`, `cron/close-cycles`) compile and register correctly.
 
 ## Explicit TODOs / Open Seams
 
@@ -100,8 +100,10 @@ These are deliberate, clearly-marked placeholders — not oversights:
 - [ ] `verifySignature()` in `app/api/webhooks/payment/route.ts` throws a TODO — wire in real gateway-specific signature verification (Paystack: HMAC-SHA512 header; Flutterwave: verif-hash)
 - [x] Run `npx prisma migrate dev --name init` against the real Supabase database — applied 2026-09-11. Note: `db.<ref>.supabase.co` (the "direct connection" host) is IPv6-only and unreachable from networks without IPv6 egress; `DATABASE_URL` now points at Supabase's session pooler (`aws-1-eu-west-1.pooler.supabase.com:5432`) instead, which is IPv4-reachable and is also the recommended host for serverless/Vercel deployments anyway.
 - [x] Seed `Material` data — 10 materials in `prisma/seed.ts` spanning all five categories named in this brief (Cement, Blocks, Rebar, Roofing, Fittings), split between `NATIONAL` and `REGIONAL` sourcing scope so both pooling models have real catalog rows to check out against. Applied 2026-09-11.
-- [ ] Build the design mockups (home/catalog, listing, checkout) that establish the Design Direction token system — these don't exist yet despite earlier notes here implying they did
-- [ ] Build the actual buyer app pages in Next.js/Tailwind/shadcn (once mockups above exist to translate from)
+- [ ] Build the design mockups (home/catalog, listing, checkout) that establish the Design Direction token system — still don't exist as separate artifacts; the buyer UI was built directly against the tokens instead (see "What's Been Built" above)
+- [ ] Install and adopt shadcn/ui, or consciously drop it from the Tech Stack section — the buyer UI currently uses hand-rolled Tailwind components instead
+- [ ] Build real buyer accounts/auth — checkout currently attaches every order to one seeded demo buyer (`lib/demoBuyer.ts`); replace that lookup and move the cart from `localStorage` to a real per-account store once auth exists
+- [ ] Add product images — every seeded `Material.imageUrl` is null; the buyer UI has no image at all yet (cards/detail page render text-only)
 - [ ] Build the seller portal (bid submission UI, pickup instructions)
 - [ ] Build the admin dashboard (materials, bid cycles, fulfillment centers, disputes)
 - [ ] Upgrade delivery cost from flat-rate to distance-based once volume justifies the API cost

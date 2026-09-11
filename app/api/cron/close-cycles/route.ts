@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { closeDueCycles } from '@/lib/bidding';
+import { errorMessage } from '@/lib/errors';
 
 export const dynamic = 'force-dynamic';
 
@@ -38,12 +39,12 @@ async function handleCron(request: NextRequest) {
         reports,
       },
     });
-  } catch (error: any) {
+  } catch (error: unknown) {
     console.error('Error executing close-cycles cron job:', error);
     return NextResponse.json(
       {
         success: false,
-        error: error?.message || 'Failed to close and process demand cycles',
+        error: errorMessage(error, 'Failed to close and process demand cycles'),
       },
       { status: 500 }
     );

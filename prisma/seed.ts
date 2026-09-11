@@ -1,4 +1,5 @@
 import { PrismaClient, Role, SourcingScope } from '@prisma/client';
+import { DEMO_BUYER_EMAIL } from '../lib/demoBuyer';
 
 const prisma = new PrismaClient();
 
@@ -211,12 +212,29 @@ async function seedSellers() {
   return created;
 }
 
+async function seedDemoBuyer() {
+  const existing = await prisma.user.findUnique({ where: { email: DEMO_BUYER_EMAIL } });
+  if (existing) return 0;
+
+  await prisma.user.create({
+    data: {
+      role: Role.BUYER,
+      name: 'Demo Buyer',
+      email: DEMO_BUYER_EMAIL,
+      businessName: 'Demo Construction Ltd',
+      location: 'Abuja',
+    },
+  });
+  return 1;
+}
+
 async function main() {
   const materialsCreated = await seedMaterials();
   const centersCreated = await seedFulfillmentCenters();
   const sellersCreated = await seedSellers();
+  const buyerCreated = await seedDemoBuyer();
   console.log(
-    `Seeded ${materialsCreated} material(s), ${centersCreated} fulfillment center(s), ${sellersCreated} seller profile(s).`
+    `Seeded ${materialsCreated} material(s), ${centersCreated} fulfillment center(s), ${sellersCreated} seller profile(s), ${buyerCreated} demo buyer(s).`
   );
 }
 
