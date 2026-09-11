@@ -98,7 +98,7 @@ These are deliberate, clearly-marked placeholders — not oversights:
 
 - [ ] `initiatePayment()` in `app/api/checkout/route.ts` throws a TODO — wire in the real Paystack/Flutterwave/e-Transact initialization call
 - [ ] `verifySignature()` in `app/api/webhooks/payment/route.ts` throws a TODO — wire in real gateway-specific signature verification (Paystack: HMAC-SHA512 header; Flutterwave: verif-hash)
-- [ ] Run `npx prisma migrate dev --name init` against a real Neon/Supabase database (schema is validated and generates clean, but no migration has been applied to any real database yet)
+- [x] Run `npx prisma migrate dev --name init` against the real Supabase database — applied 2026-09-11. Note: `db.<ref>.supabase.co` (the "direct connection" host) is IPv6-only and unreachable from networks without IPv6 egress; `DATABASE_URL` now points at Supabase's session pooler (`aws-1-eu-west-1.pooler.supabase.com:5432`) instead, which is IPv4-reachable and is also the recommended host for serverless/Vercel deployments anyway.
 - [ ] Build the design mockups (home/catalog, listing, checkout) that establish the Design Direction token system — these don't exist yet despite earlier notes here implying they did
 - [ ] Build the actual buyer app pages in Next.js/Tailwind/shadcn (once mockups above exist to translate from)
 - [ ] Build the seller portal (bid submission UI, pickup instructions)
