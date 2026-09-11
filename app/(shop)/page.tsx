@@ -24,65 +24,62 @@ export default async function Home() {
 
   return (
     <div className="flex flex-1 flex-col">
-      <section className="relative overflow-hidden border-b border-border bg-[radial-gradient(ellipse_90%_80%_at_50%_-20%,rgba(15,98,254,0.10),transparent_60%)] bg-canvas">
-        <div className="mx-auto grid max-w-7xl grid-cols-1 items-center gap-10 px-6 py-20 sm:py-24 lg:grid-cols-[1.1fr_1fr] lg:gap-8">
-          <div className="flex flex-col gap-6">
-            <h1 className="max-w-xl text-5xl font-extrabold tracking-tight text-ink sm:text-6xl">
-              Construction materials,{' '}
-              <span className="bg-gradient-to-r from-brand to-[#0043ce] bg-clip-text text-transparent">
-                delivered at a fair price.
-              </span>
-            </h1>
-            <p className="max-w-lg text-lg text-slate">
-              Cement, blocks, rebar, roofing and fittings — one fixed price, no back-and-forth.
-              Pick up at a fulfillment center or get it delivered to site.
-            </p>
-            <div className="flex flex-wrap items-center gap-3 pt-2">
-              <Button asChild size="lg" className="h-11 px-6 text-base">
-                <Link href="/catalog">Browse the catalog</Link>
-              </Button>
-            </div>
-          </div>
-
-          <div className="relative aspect-[4/3] w-full max-w-lg justify-self-center lg:justify-self-end">
-            <div className="absolute inset-0 overflow-hidden rounded-2xl border border-border shadow-[0_20px_50px_-20px_rgba(15,23,42,0.25)]">
-              <Image
-                src="/materials/cement.jpg"
-                alt="Cement bag staged on a pallet in a fulfillment warehouse"
-                fill
-                sizes="(max-width: 1024px) 90vw, 500px"
-                className="object-cover"
-                priority
-              />
-              <div className="absolute inset-0 bg-gradient-to-t from-transparent to-brand/10" />
-            </div>
-
-            <div className="absolute bottom-3 left-3 w-48 rounded-xl border border-border bg-surface/95 p-3.5 shadow-[0_16px_40px_-12px_rgba(15,23,42,0.25)] backdrop-blur-sm sm:-bottom-6 sm:-left-10 sm:w-56 sm:p-4">
-              <div className="text-xs font-medium text-muted-foreground">Live on the platform</div>
-              <div className="mt-1 text-2xl font-extrabold tracking-tight text-ink">
-                {stats.materialCount}+ <span className="text-base font-medium text-slate">materials</span>
-              </div>
-              <div className="mt-0.5 text-sm text-slate">
-                across {stats.fulfillmentCenterCount} fulfillment hubs
-              </div>
-            </div>
-          </div>
+      <section className="relative flex min-h-[560px] items-center overflow-hidden border-b border-border">
+        <div className="absolute inset-0">
+          <Image
+            src="/materials/cement.jpg"
+            alt="Cement bag staged on a pallet in a fulfillment warehouse"
+            fill
+            sizes="100vw"
+            className="object-cover"
+            priority
+          />
+          <div className="absolute inset-0 bg-gradient-to-t from-ink/85 via-ink/55 to-ink/30" />
         </div>
 
-        <div className="border-t border-border bg-surface/60 backdrop-blur-sm">
-          <div className="mx-auto grid max-w-7xl grid-cols-2 gap-6 px-6 py-6 sm:grid-cols-4">
-            {FEATURES.map(({ icon: Icon, title, body }) => (
-              <div key={title} className="flex items-start gap-3">
-                <Icon className="mt-0.5 size-4.5 shrink-0 text-brand" />
-                <div>
-                  <div className="text-sm font-semibold text-ink">{title}</div>
-                  <div className="text-xs text-muted-foreground">{body}</div>
-                </div>
-              </div>
-            ))}
+        <div className="relative mx-auto w-full max-w-7xl px-6 py-20 sm:py-24">
+          <h1 className="max-w-2xl text-5xl font-extrabold tracking-tight text-white sm:text-6xl">
+            Construction materials,{' '}
+            <span className="text-[#8fb4ff]">delivered at a fair price.</span>
+          </h1>
+          <p className="mt-6 max-w-lg text-lg text-white/80">
+            Cement, blocks, rebar, roofing and fittings — one fixed price, no back-and-forth.
+            Pick up at a fulfillment center or get it delivered to site.
+          </p>
+          <div className="mt-8 flex flex-wrap items-center gap-3">
+            <Button asChild size="lg" className="h-11 px-6 text-base">
+              <Link href="/catalog">Browse the catalog</Link>
+            </Button>
+          </div>
+
+          {/* In normal flow (stacked below the CTA) on mobile so it never
+              overlaps the button; floats over the photo's corner from sm+
+              where there's enough room. */}
+          <div className="mt-8 w-full max-w-xs rounded-xl border border-white/15 bg-ink/40 p-4 text-white shadow-2xl backdrop-blur-md sm:absolute sm:right-0 sm:bottom-0 sm:mt-0 sm:w-60">
+            <div className="text-xs font-medium text-white/70">Live on the platform</div>
+            <div className="mt-1 text-2xl font-extrabold tracking-tight text-white">
+              {stats.materialCount}+ <span className="text-base font-medium text-white/80">materials</span>
+            </div>
+            <div className="mt-0.5 text-sm text-white/70">
+              across {stats.fulfillmentCenterCount} fulfillment hubs
+            </div>
           </div>
         </div>
       </section>
+
+      <div className="border-b border-border bg-surface/60">
+        <div className="mx-auto grid max-w-7xl grid-cols-2 gap-6 px-6 py-6 sm:grid-cols-4">
+          {FEATURES.map(({ icon: Icon, title, body }) => (
+            <div key={title} className="flex items-start gap-3">
+              <Icon className="mt-0.5 size-4.5 shrink-0 text-brand" />
+              <div>
+                <div className="text-sm font-semibold text-ink">{title}</div>
+                <div className="text-xs text-muted-foreground">{body}</div>
+              </div>
+            </div>
+          ))}
+        </div>
+      </div>
 
       <section className="mx-auto w-full max-w-7xl px-6 py-14">
         <h2 className="mb-5 text-sm font-semibold text-slate">Shop by category</h2>

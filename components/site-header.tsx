@@ -2,7 +2,7 @@ import Link from 'next/link';
 import { Search } from 'lucide-react';
 import { getCategories } from '@/lib/queries/materials';
 import { Input } from '@/components/ui/input';
-import { CartLink } from './cart-link';
+import { CartSheet } from './cart-sheet';
 
 export async function SiteHeader() {
   const categories = await getCategories();
@@ -51,7 +51,7 @@ export async function SiteHeader() {
         </form>
 
         <div className="ml-auto flex shrink-0 items-center gap-3">
-          <CartLink />
+          <CartSheet />
         </div>
       </div>
     </header>

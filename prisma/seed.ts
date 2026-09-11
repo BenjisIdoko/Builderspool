@@ -147,6 +147,7 @@ const MATERIALS = [
     spec: '20mm diameter, heavy gauge',
     catalogPrice: 650,
     sourcingScope: SourcingScope.NATIONAL,
+    imageUrl: '/materials/fittings.jpg',
   },
   {
     name: 'PVC Elbow Fitting, 20mm',
@@ -155,6 +156,7 @@ const MATERIALS = [
     spec: '20mm diameter, 90-degree',
     catalogPrice: 150,
     sourcingScope: SourcingScope.NATIONAL,
+    imageUrl: '/materials/fittings.jpg',
   },
 ];
 
