@@ -1,5 +1,5 @@
 import Link from 'next/link';
-import { MagnifyingGlassIcon } from '@phosphor-icons/react/ssr';
+import { MagnifyingGlassIcon, UserIcon } from '@phosphor-icons/react/ssr';
 import { getCategories } from '@/lib/queries/materials';
 import { Input } from '@/components/ui/input';
 import { CartSheet } from './cart-sheet';
@@ -44,6 +44,13 @@ export async function SiteHeader() {
         </form>
 
         <div className="ml-auto flex shrink-0 items-center gap-3">
+          <Link
+            href="/account"
+            className="flex items-center gap-1.5 text-sm font-medium text-slate transition-colors hover:text-ink"
+          >
+            <UserIcon className="size-4.5" />
+            <span className="hidden sm:inline">Account</span>
+          </Link>
           <CartSheet />
         </div>
       </div>
