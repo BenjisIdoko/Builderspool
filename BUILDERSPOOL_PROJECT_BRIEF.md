@@ -127,6 +127,18 @@ Every `h1`/`h2` in the app is now `font-bold` (700) — the base rule in `app/gl
 
 Every displayed price (`formatNaira(...)` call sites) in the cart page, the cart sheet, checkout's line items/subtotal/delivery/total, the order confirmation page's equivalent summary, and the material card is now `font-bold`, not just the previously-bolder "total" row — subtotal and delivery lines were plain-weight before, on the reasoning that visual hierarchy should favor the total; this instruction overrides that hierarchy in favor of uniform emphasis on every monetary value. Product detail page's price was already `font-bold` from earlier work, so no change was needed there. Seller-portal bid/allocation prices were left untouched — the instruction named buyer-facing pages specifically (cart, checkout, product card, order summary) and didn't mention the seller side.
 
+### Admin dashboard for the bidding engine (2026-09-12)
+
+Asked to work on "the bidding engine next" — given the choice between an admin dashboard, fixing known TODOs, or something else, the user picked the dashboard. Scoped deliberately to bid cycles only, not the full admin surface this doc's TODO list originally named ("materials, bid cycles, fulfillment centers, disputes") — that's still four separate pieces of work, not one.
+
+Same demo-account pattern as the buyer and seller sides, one level simpler: a single seeded ops account (`lib/demoAdmin.ts`, `ops@builderspool.example`) behind a plain session cookie (`lib/admin/session.ts`), rather than a picker between multiple accounts like the seller side has — there's realistically one internal ops user, not several competing businesses. `/admin/login` is a single "Continue as Ops Admin" button, not a list.
+
+`/admin` lists every `BidCycle` (material, region, cutoff, aggregated demand, bid count, status) via `lib/queries/adminBidding.ts`. `/admin/cycles/[id]` shows the full detail: every bid ranked with its score, quantity, delivery estimate and status, and every allocation with its GRN-received state — the same data the seller portal shows filtered to *their own* bids, here shown unfiltered, since blind-bidding confidentiality is a buyer/seller-facing rule, not an ops one. A `needsAttention` flag (allocated quantity short of requested) is computed on read rather than stored — no schema change needed for a value derivable from existing rows.
+
+The one real feature beyond a read-only view: a **"Close & award now"** action (`forceAwardCycle` in `app/admin/actions.ts`) on any `OPEN` cycle, which calls the exact same `awardCycle()` the cron job uses, just without waiting for `cutoffAt` — manual ops override for testing or for a cycle that needs resolving early, not a parallel/duplicate scoring path. Verified end-to-end in-browser against the live database: force-awarded a real zero-bid cycle and confirmed the `needsAttention` badge correctly appeared (0 allocated against 1 requested), then separately confirmed an already-awarded cycle with a real bid renders its full bid/allocation detail correctly (rank, score, "partially filled" status, GRN pending). Auth-gating and sign-out both checked too. lint and `next build` pass clean.
+
+**Left for later**: materials CRUD, fulfillment center management, and a disputes surface are still entirely unbuilt — this dashboard is bid-cycle visibility and manual award override only, per the scope the user actually chose.
+
 ## Bidding Engine Design
 
 - **Weighted award scoring**, not simple lowest-price-wins: Price 40%, seller reliability/trust score 25%, capacity fit 20%, delivery speed 15%.
@@ -192,7 +204,7 @@ These are deliberate, clearly-marked placeholders — not oversights:
 - [ ] Build account/job-site settings — needs buyer auth, which doesn't exist yet; deferred during the Stitch design import (2026-09-11), same blocker as the demo-buyer TODO above
 - [x] Build the seller portal (bid submission UI, pickup instructions) — `app/seller/`, applied 2026-09-11. Uses a seeded-account cookie session (`lib/seller/session.ts`), same TODO-and-replace pattern as the buyer side — build real seller auth here too, eventually.
 - [ ] Build real seller auth — `/seller/login` currently just lets you pick any seeded seller account with no credential check; replace `lib/seller/session.ts`'s cookie-only session
-- [ ] Build the admin dashboard (materials, bid cycles, fulfillment centers, disputes)
+- [x] Build the admin dashboard — bid cycles only so far (`app/admin/`), applied 2026-09-12. Materials, fulfillment centers, and disputes management are still not built — see the new section below for scope and what's left.
 - [ ] Upgrade delivery cost from flat-rate to distance-based once volume justifies the API cost
 - [ ] `fallback.ts`'s exhausted-cascade case still only logs to console — no ops-facing flag/notification yet (unlike `award.ts`'s `needsAttention` field, which is now real)
 - [x] Seed `FulfillmentCenter` and `SellerProfile` data — `prisma/seed.ts` (run via `npx prisma db seed`), applied 2026-09-11. 3 fulfillment centers (Abuja/Lagos/Kano, matching the flat-rate regions in `lib/checkout/deliveryCost.ts`) and 4 sellers spanning a deliberate trust-score/region spread (one national high-trust, two regional mid-trust, one newly onboarded low-trust) so the award engine's scoring and geography filter both have real data to operate on. Idempotent — safe to re-run.

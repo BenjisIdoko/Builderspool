@@ -1,5 +1,6 @@
 import { PrismaClient, Role, SourcingScope } from '@prisma/client';
 import { DEMO_BUYER_EMAIL } from '../lib/demoBuyer';
+import { DEMO_ADMIN_EMAIL } from '../lib/demoAdmin';
 
 const prisma = new PrismaClient();
 
@@ -249,13 +250,28 @@ async function seedDemoBuyer() {
   return 1;
 }
 
+async function seedDemoAdmin() {
+  const existing = await prisma.user.findUnique({ where: { email: DEMO_ADMIN_EMAIL } });
+  if (existing) return 0;
+
+  await prisma.user.create({
+    data: {
+      role: Role.ADMIN,
+      name: 'Ops Admin',
+      email: DEMO_ADMIN_EMAIL,
+    },
+  });
+  return 1;
+}
+
 async function main() {
   const { created: materialsCreated, imagesPatched } = await seedMaterials();
   const centersCreated = await seedFulfillmentCenters();
   const sellersCreated = await seedSellers();
   const buyerCreated = await seedDemoBuyer();
+  const adminCreated = await seedDemoAdmin();
   console.log(
-    `Seeded ${materialsCreated} material(s) (${imagesPatched} image(s) backfilled), ${centersCreated} fulfillment center(s), ${sellersCreated} seller profile(s), ${buyerCreated} demo buyer(s).`
+    `Seeded ${materialsCreated} material(s) (${imagesPatched} image(s) backfilled), ${centersCreated} fulfillment center(s), ${sellersCreated} seller profile(s), ${buyerCreated} demo buyer(s), ${adminCreated} demo admin(s).`
   );
 }
 
