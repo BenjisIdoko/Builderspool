@@ -2,6 +2,7 @@ import Link from 'next/link';
 import { signOutSeller } from '@/app/seller/actions';
 import type { getSellerProfile } from '@/lib/queries/sellerPortal';
 import { Button } from '@/components/ui/button';
+import { LogoMark } from '@/components/logo';
 
 export function SellerHeader({ profile }: { profile: NonNullable<Awaited<ReturnType<typeof getSellerProfile>>> }) {
   return (
@@ -9,12 +10,7 @@ export function SellerHeader({ profile }: { profile: NonNullable<Awaited<ReturnT
       <div className="mx-auto flex h-16 max-w-5xl items-center justify-between px-6">
         <div className="flex items-center gap-8">
           <Link href="/seller" className="flex items-center gap-2">
-            <span
-              aria-hidden
-              className="flex h-8 w-8 items-center justify-center rounded-md bg-brand text-sm font-semibold text-brand-ink"
-            >
-              B
-            </span>
+            <LogoMark className="size-8" />
             <span className="text-[15px] font-medium tracking-tight text-ink">Seller portal</span>
           </Link>
 

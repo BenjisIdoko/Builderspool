@@ -1,13 +1,17 @@
-import { Layers, Grid3x3, GitCommitHorizontal, Home, Wrench, Package, type LucideIcon } from 'lucide-react';
+import { Package, type LucideIcon } from 'lucide-react';
+import { CementIcon, BlocksIcon, RebarIcon, RoofingIcon, FittingsIcon } from '@/components/icons/material-icons';
+import type { ComponentType, SVGProps } from 'react';
 
-const ICONS: Record<string, LucideIcon> = {
-  Cement: Layers,
-  Blocks: Grid3x3,
-  Rebar: GitCommitHorizontal,
-  Roofing: Home,
-  Fittings: Wrench,
+type CategoryIcon = LucideIcon | ComponentType<SVGProps<SVGSVGElement>>;
+
+const ICONS: Record<string, CategoryIcon> = {
+  Cement: CementIcon,
+  Blocks: BlocksIcon,
+  Rebar: RebarIcon,
+  Roofing: RoofingIcon,
+  Fittings: FittingsIcon,
 };
 
-export function getCategoryIcon(category: string): LucideIcon {
+export function getCategoryIcon(category: string): CategoryIcon {
   return ICONS[category] ?? Package;
 }
