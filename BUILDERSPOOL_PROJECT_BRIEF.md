@@ -41,7 +41,7 @@ A marketplace platform for construction materials (cement, blocks, rebar, roofin
 
 ## Design Direction
 
-- **Typeface**: Plus Jakarta Sans, 16px/1rem base.
+- **Typeface**: Plus Jakarta Sans. Base font-size is fluid (superseded the original fixed 16px/1rem call, 2026-09-12, confirmed intentional): `clamp(1rem, 0.9561rem + 0.1876vw, 1.125rem)` in `app/globals.css` — 16px on narrow viewports, scaling up to 18px on wide ones. `h2` also picked up a tightened `-0.025em` letter-spacing at the same time (`h1` already had this via Tailwind's `tracking-tight`).
 - **Target feel**: mature B2B SaaS — closer to Stripe, Linear, or Mercury than a consumer marketplace. Clean, mature, professional, minimal, with subtle gradients used functionally, not decoratively. The hero section is the one deliberate exception to "restraint" — big, bold (font-bold, not just semibold) headline type and a subtle radial gradient backdrop, so the storefront doesn't read as flat/sterile.
 - **Explicitly avoid** ("AI slop" tells): identical rounded cards with the same soft grey shadow on every one, ALL-CAPS eyebrow labels, decorative gradients with no function, warm-cream-background-plus-serif-font combos, decorative numbered markers.
 - **Use instead**: hairline borders over shadows, sentence case everywhere, one confident accent color used sparingly, generous whitespace, restraint over decoration.

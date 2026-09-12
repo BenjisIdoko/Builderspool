@@ -101,7 +101,10 @@
 
 @layer base {
   html {
-    font-size: 16px; /* explicit 1rem base, per Design Direction */
+    /* Fluid base: 16px on narrow viewports up to 18px on wide ones, per
+       Design Direction — deliberate, not a drift from the original fixed
+       16px/1rem call, which this supersedes. */
+    font-size: clamp(1rem, 0.9561rem + 0.1876vw, 1.125rem);
   }
   * {
     @apply border-border outline-ring/50;
@@ -122,5 +125,6 @@
   }
   h2 {
     @apply font-bold;
+    letter-spacing: -0.025em;
   }
 }
