@@ -7,7 +7,7 @@ export async function getAllCycles() {
       orderItems: { select: { quantity: true } },
       bids: { select: { status: true } },
     },
-    orderBy: { cutoffAt: 'desc' },
+    orderBy: [{ cutoffAt: 'desc' }, { createdAt: 'desc' }],
   });
 
   return cycles.map((cycle) => ({

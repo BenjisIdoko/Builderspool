@@ -169,6 +169,10 @@ Also corrected a stale line in the "Explicit TODOs" list below while in there: i
 
 `next build` and lint both clean.
 
+### Fixed the admin cycle-list sort-order bug (2026-09-12, later same day)
+
+The tie-break instability found during the redesign test above. `getAllCycles()` (`lib/queries/adminBidding.ts`) and `getOpenCyclesForSeller()` (`lib/queries/sellerPortal.ts`) both ordered only by `cutoffAt`, which is computed from a fixed daily window (`getCycleWindowForDate`) — every cycle created on the same calendar day gets the identical `cutoffAt`, so Postgres was free to return same-cutoff rows in whatever order it liked, and that order wasn't guaranteed stable across requests. Fixed both with a secondary sort key (`createdAt`, which is unique enough in practice to fully disambiguate) — `[{ cutoffAt: 'desc' }, { createdAt: 'desc' }]` for the admin list, `[{ cutoffAt: 'asc' }, { createdAt: 'asc' }]` for the seller's open-cycles list. Verified by reloading the admin bid-cycles page three times in a row against the same live data (two same-cutoff cycles from the redesign test) and confirming identical row order every time — it was visibly reordering between reloads before the fix. `next build` and lint clean.
+
 ## Bidding Engine Design
 
 - **Weighted award scoring**, not simple lowest-price-wins: Price 40%, seller reliability/trust score 25%, capacity fit 20%, delivery speed 15%.

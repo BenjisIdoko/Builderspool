@@ -34,7 +34,7 @@ export async function getOpenCyclesForSeller(sellerId: string) {
       orderItems: { select: { quantity: true } },
       bids: { where: { sellerId }, orderBy: { submittedAt: 'desc' }, take: 1 },
     },
-    orderBy: { cutoffAt: 'asc' },
+    orderBy: [{ cutoffAt: 'asc' }, { createdAt: 'asc' }],
   });
 
   return cycles
