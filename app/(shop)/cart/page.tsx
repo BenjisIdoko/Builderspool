@@ -75,7 +75,7 @@ export default function CartPage() {
                 </Button>
               </div>
 
-              <div className="w-24 text-right font-semibold tabular-nums text-ink">
+              <div className="w-24 text-right font-bold tabular-nums text-ink">
                 {formatNaira(line.catalogPrice * line.quantity)}
               </div>
 
@@ -93,10 +93,10 @@ export default function CartPage() {
         </div>
 
         <div className="h-fit rounded-lg border border-border bg-surface p-5 lg:sticky lg:top-24">
-          <h2 className="mb-4 text-sm font-semibold text-slate">Order summary</h2>
+          <h2 className="mb-4 text-sm font-bold text-slate">Order summary</h2>
           <div className="flex items-center justify-between text-sm">
             <span className="text-slate">Subtotal</span>
-            <span className="font-medium tabular-nums text-ink">{formatNaira(subtotal)}</span>
+            <span className="font-bold tabular-nums text-ink">{formatNaira(subtotal)}</span>
           </div>
           <p className="mt-1 text-xs text-muted-foreground">Delivery calculated at checkout.</p>
 

@@ -59,7 +59,7 @@ export default async function OrderConfirmationPage({ params }: { params: Promis
 
       <div className="rounded-lg border border-border bg-surface">
         <div className="border-b border-border px-5 py-4">
-          <h2 className="text-sm font-semibold text-slate">
+          <h2 className="text-sm font-bold text-slate">
             Items ({order.items.length})
           </h2>
         </div>
@@ -79,7 +79,7 @@ export default async function OrderConfirmationPage({ params }: { params: Promis
                   {item.quantity} {item.material.unit} × {formatNaira(item.priceLocked)}
                 </div>
               </div>
-              <div className="font-semibold tabular-nums text-ink">
+              <div className="font-bold tabular-nums text-ink">
                 {formatNaira(item.priceLocked * item.quantity)}
               </div>
             </div>
@@ -88,13 +88,13 @@ export default async function OrderConfirmationPage({ params }: { params: Promis
         <div className="flex flex-col gap-1.5 border-t border-border px-5 py-4 text-sm">
           <div className="flex justify-between text-slate">
             <span>Subtotal</span>
-            <span className="tabular-nums">{formatNaira(subtotal)}</span>
+            <span className="font-bold tabular-nums">{formatNaira(subtotal)}</span>
           </div>
           <div className="flex justify-between text-slate">
             <span>Delivery</span>
-            <span className="tabular-nums">{deliveryTotal === 0 ? 'Free' : formatNaira(deliveryTotal)}</span>
+            <span className="font-bold tabular-nums">{deliveryTotal === 0 ? 'Free' : formatNaira(deliveryTotal)}</span>
           </div>
-          <div className="flex justify-between pt-1 text-base font-semibold text-ink">
+          <div className="flex justify-between pt-1 text-base font-bold text-ink">
             <span>Total</span>
             <span className="tabular-nums">{formatNaira(subtotal + deliveryTotal)}</span>
           </div>

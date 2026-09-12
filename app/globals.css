@@ -114,15 +114,13 @@
     @apply font-sans;
   }
 
-  /* Heading weight scale adopted from the Church HR Manager project
-     (src/styles/globals.css): true display/hero text is extrabold with
-     tight tracking; page-level headings are bold; card/section-label
-     headings stay semibold. Sizes remain contextual per page — this fixes
-     the weight/tracking rung per heading role, not a single fixed size. */
+  /* Every heading is bold (700) per explicit instruction — h1 keeps its
+     tight tracking for display/hero text. h3+ isn't used anywhere in this
+     app yet; add it here if that changes. */
   h1 {
     @apply font-bold tracking-tight;
   }
   h2 {
-    @apply font-semibold;
+    @apply font-bold;
   }
 }

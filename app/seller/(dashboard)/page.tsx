@@ -44,7 +44,7 @@ export default async function SellerDashboardPage() {
             <div className="flex flex-wrap items-start justify-between gap-4">
               <div>
                 <span className="text-xs text-muted-foreground">{cycle.material.category}</span>
-                <h2 className="text-[15px] font-semibold text-ink">{cycle.material.name}</h2>
+                <h2 className="text-[15px] font-bold text-ink">{cycle.material.name}</h2>
                 {cycle.material.spec && <p className="text-sm text-slate">{cycle.material.spec}</p>}
               </div>
               <div className="text-right text-sm text-slate">

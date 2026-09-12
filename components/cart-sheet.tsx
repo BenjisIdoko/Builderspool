@@ -96,7 +96,7 @@ export function CartSheet() {
                         </Button>
                       </div>
 
-                      <span className="text-sm font-semibold tabular-nums text-ink">
+                      <span className="text-sm font-bold tabular-nums text-ink">
                         {formatNaira(line.catalogPrice * line.quantity)}
                       </span>
                     </div>
@@ -119,7 +119,7 @@ export function CartSheet() {
             <SheetFooter className="border-t border-border">
               <div className="flex items-center justify-between text-sm">
                 <span className="text-slate">Subtotal</span>
-                <span className="font-semibold tabular-nums text-ink">{formatNaira(subtotal)}</span>
+                <span className="font-bold tabular-nums text-ink">{formatNaira(subtotal)}</span>
               </div>
               <p className="text-xs text-muted-foreground">Delivery calculated at checkout.</p>
               <SheetClose asChild>

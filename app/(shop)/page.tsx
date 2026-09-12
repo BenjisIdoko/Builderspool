@@ -48,7 +48,7 @@ export default async function Home() {
         </div>
 
         <div className="relative mx-auto w-full max-w-7xl px-6 py-20 sm:py-24">
-          <h1 className="max-w-2xl text-5xl font-extrabold tracking-tight text-white sm:text-6xl">
+          <h1 className="max-w-2xl text-5xl font-bold tracking-tight text-white sm:text-6xl">
             Construction materials,{' '}
             <span className="bg-gradient-to-r from-[#8fb4ff] to-[#fdba74] bg-clip-text text-transparent">
               delivered at a fair price.
@@ -95,7 +95,7 @@ export default async function Home() {
       </div>
 
       <section className="mx-auto w-full max-w-7xl px-6 py-14">
-        <h2 className="mb-5 text-sm font-semibold text-slate">Shop by category</h2>
+        <h2 className="mb-5 text-sm font-bold text-slate">Shop by category</h2>
         <div className="grid grid-cols-2 gap-3 sm:grid-cols-5">
           {categories.map((category) => {
             const Icon = getCategoryIcon(category);
@@ -117,7 +117,7 @@ export default async function Home() {
 
       <section className="mx-auto w-full max-w-7xl px-6 pb-20">
         <div className="mb-5 flex items-baseline justify-between">
-          <h2 className="text-sm font-semibold text-slate">Popular materials</h2>
+          <h2 className="text-sm font-bold text-slate">Popular materials</h2>
           <Link href="/catalog" className="text-sm text-brand hover:underline">
             View all
           </Link>
