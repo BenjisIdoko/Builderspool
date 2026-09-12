@@ -1,5 +1,5 @@
 import Link from 'next/link';
-import { Search } from 'lucide-react';
+import { MagnifyingGlassIcon } from '@phosphor-icons/react/ssr';
 import { getCategories } from '@/lib/queries/materials';
 import { Input } from '@/components/ui/input';
 import { CartSheet } from './cart-sheet';
@@ -31,7 +31,7 @@ export async function SiteHeader() {
         </nav>
 
         <form action="/catalog" method="get" className="relative hidden flex-1 max-w-md md:block">
-          <Search
+          <MagnifyingGlassIcon
             aria-hidden
             className="pointer-events-none absolute top-1/2 left-2.5 size-4 -translate-y-1/2 text-muted-foreground"
           />

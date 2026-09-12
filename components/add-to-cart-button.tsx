@@ -1,7 +1,7 @@
 'use client';
 
 import { useState } from 'react';
-import { Minus, Plus } from 'lucide-react';
+import { MinusIcon, PlusIcon } from '@phosphor-icons/react/ssr';
 import { useCart } from '@/lib/cart/CartContext';
 import type { BuyerMaterial } from '@/lib/queries/materials';
 import { Button } from '@/components/ui/button';
@@ -22,7 +22,7 @@ export function AddToCartButton({ material }: { material: BuyerMaterial }) {
           onClick={() => setQuantity((q) => Math.max(1, q - 1))}
           aria-label={`Decrease quantity of ${material.name}`}
         >
-          <Minus className="size-3" />
+          <MinusIcon className="size-3" />
         </Button>
         <span className="w-7 text-center text-sm tabular-nums text-ink">{quantity}</span>
         <Button
@@ -33,7 +33,7 @@ export function AddToCartButton({ material }: { material: BuyerMaterial }) {
           onClick={() => setQuantity((q) => q + 1)}
           aria-label={`Increase quantity of ${material.name}`}
         >
-          <Plus className="size-3" />
+          <PlusIcon className="size-3" />
         </Button>
       </div>
 

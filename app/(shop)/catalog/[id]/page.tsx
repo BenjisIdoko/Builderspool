@@ -1,6 +1,6 @@
 import { notFound } from 'next/navigation';
 import Link from 'next/link';
-import { ChevronRight, Tag, Truck } from 'lucide-react';
+import { CaretRightIcon, TagIcon, TruckIcon } from '@phosphor-icons/react/ssr';
 import { getMaterialById } from '@/lib/queries/materials';
 import { formatNaira } from '@/lib/format';
 import { AddToCartButton } from '@/components/add-to-cart-button';
@@ -18,11 +18,11 @@ export default async function MaterialPage({ params }: { params: Promise<{ id: s
         <Link href="/catalog" className="hover:text-ink">
           Catalog
         </Link>
-        <ChevronRight className="size-3.5" />
+        <CaretRightIcon className="size-3.5" />
         <Link href={`/catalog?category=${encodeURIComponent(material.category)}`} className="hover:text-ink">
           {material.category}
         </Link>
-        <ChevronRight className="size-3.5" />
+        <CaretRightIcon className="size-3.5" />
         <span className="text-ink">{material.name}</span>
       </nav>
 
@@ -46,14 +46,14 @@ export default async function MaterialPage({ params }: { params: Promise<{ id: s
 
           <div className="mt-8 grid grid-cols-2 gap-4 border-t border-border pt-6 sm:grid-cols-2">
             <div className="flex items-start gap-3 rounded-lg border border-border bg-surface p-4">
-              <Tag className="mt-0.5 size-4 shrink-0 text-brand" />
+              <TagIcon className="mt-0.5 size-4 shrink-0 text-brand" />
               <div>
                 <div className="text-sm font-semibold text-ink">Fixed price</div>
                 <div className="text-xs text-muted-foreground">Locked in at checkout, no renegotiation.</div>
               </div>
             </div>
             <div className="flex items-start gap-3 rounded-lg border border-border bg-surface p-4">
-              <Truck className="mt-0.5 size-4 shrink-0 text-brand" />
+              <TruckIcon className="mt-0.5 size-4 shrink-0 text-brand" />
               <div>
                 <div className="text-sm font-semibold text-ink">Pickup or delivery</div>
                 <div className="text-xs text-muted-foreground">Choose your fulfillment method at checkout.</div>

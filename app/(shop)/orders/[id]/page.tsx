@@ -1,6 +1,6 @@
 import { notFound } from 'next/navigation';
 import Link from 'next/link';
-import { CheckCircle2, Truck, Store } from 'lucide-react';
+import { CheckCircleIcon, TruckIcon, StorefrontIcon } from '@phosphor-icons/react/ssr';
 import { getOrderById } from '@/lib/queries/orders';
 import { formatNaira } from '@/lib/format';
 import { Badge } from '@/components/ui/badge';
@@ -26,7 +26,7 @@ export default async function OrderConfirmationPage({ params }: { params: Promis
     <div className="mx-auto w-full max-w-3xl px-6 py-12">
       <div className="mb-8 flex items-start gap-4 rounded-lg border border-border bg-surface p-6">
         <span className="flex size-10 shrink-0 items-center justify-center rounded-md bg-success/10 text-success">
-          <CheckCircle2 className="size-5" />
+          <CheckCircleIcon className="size-5" />
         </span>
         <div>
           <div className="flex items-center gap-2">
@@ -46,9 +46,9 @@ export default async function OrderConfirmationPage({ params }: { params: Promis
       {center && (
         <div className="mb-8 flex items-start gap-3 rounded-lg border border-border bg-surface p-5">
           {order.items[0]?.fulfilmentCenterId ? (
-            <Truck className="mt-0.5 size-4 shrink-0 text-brand" />
+            <TruckIcon className="mt-0.5 size-4 shrink-0 text-brand" />
           ) : (
-            <Store className="mt-0.5 size-4 shrink-0 text-brand" />
+            <StorefrontIcon className="mt-0.5 size-4 shrink-0 text-brand" />
           )}
           <div>
             <div className="text-sm font-semibold text-ink">Routed through {center.name}</div>

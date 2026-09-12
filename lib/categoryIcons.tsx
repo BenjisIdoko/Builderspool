@@ -1,8 +1,9 @@
-import { Package, type LucideIcon } from 'lucide-react';
+import { PackageIcon } from '@phosphor-icons/react/ssr';
+import type { Icon } from '@phosphor-icons/react';
 import { CementIcon, BlocksIcon, RebarIcon, RoofingIcon, FittingsIcon } from '@/components/icons/material-icons';
 import type { ComponentType, SVGProps } from 'react';
 
-type CategoryIcon = LucideIcon | ComponentType<SVGProps<SVGSVGElement>>;
+type CategoryIcon = Icon | ComponentType<SVGProps<SVGSVGElement>>;
 
 const ICONS: Record<string, CategoryIcon> = {
   Cement: CementIcon,
@@ -13,5 +14,5 @@ const ICONS: Record<string, CategoryIcon> = {
 };
 
 export function getCategoryIcon(category: string): CategoryIcon {
-  return ICONS[category] ?? Package;
+  return ICONS[category] ?? PackageIcon;
 }

@@ -2,7 +2,7 @@
 
 import { useState } from 'react';
 import Link from 'next/link';
-import { Minus, Plus, X } from 'lucide-react';
+import { MinusIcon, PlusIcon, XIcon } from '@phosphor-icons/react/ssr';
 import { useCart } from '@/lib/cart/CartContext';
 import { formatNaira } from '@/lib/format';
 import { Button } from '@/components/ui/button';
@@ -81,7 +81,7 @@ export function CartSheet() {
                           onClick={() => updateQuantity(line.materialId, line.quantity - 1)}
                           aria-label={`Decrease quantity of ${line.name}`}
                         >
-                          <Minus className="size-3" />
+                          <MinusIcon className="size-3" />
                         </Button>
                         <span className="w-7 text-center text-sm tabular-nums text-ink">{line.quantity}</span>
                         <Button
@@ -92,7 +92,7 @@ export function CartSheet() {
                           onClick={() => updateQuantity(line.materialId, line.quantity + 1)}
                           aria-label={`Increase quantity of ${line.name}`}
                         >
-                          <Plus className="size-3" />
+                          <PlusIcon className="size-3" />
                         </Button>
                       </div>
 
@@ -110,7 +110,7 @@ export function CartSheet() {
                     onClick={() => removeItem(line.materialId)}
                     aria-label={`Remove ${line.name}`}
                   >
-                    <X className="size-4" />
+                    <XIcon className="size-4" />
                   </Button>
                 </div>
               ))}

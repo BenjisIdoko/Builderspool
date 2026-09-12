@@ -1,6 +1,6 @@
 import Image from 'next/image';
 import Link from 'next/link';
-import { Tag, Truck, MapPin, Warehouse } from 'lucide-react';
+import { TagIcon, TruckIcon, MapPinIcon, WarehouseIcon } from '@phosphor-icons/react/ssr';
 import { getCategories, getMaterials } from '@/lib/queries/materials';
 import { getStorefrontStats } from '@/lib/queries/stats';
 import { MaterialCard } from '@/components/material-card';
@@ -8,10 +8,10 @@ import { Button } from '@/components/ui/button';
 import { getCategoryIcon } from '@/lib/categoryIcons';
 
 const FEATURES = [
-  { icon: Tag, title: 'Fixed price at checkout', body: 'Your rate is locked the moment you pay — never renegotiated.' },
-  { icon: Truck, title: 'Pickup or delivery', body: 'Choose at checkout. Every order routes through a fulfillment center.' },
-  { icon: MapPin, title: 'Nationwide & regional', body: 'Some materials ship anywhere, others source close to your site.' },
-  { icon: Warehouse, title: 'Real fulfillment centers', body: 'Not a drop-shipper — materials move through staffed hubs.' },
+  { icon: TagIcon, title: 'Fixed price at checkout', body: 'Your rate is locked the moment you pay — never renegotiated.' },
+  { icon: TruckIcon, title: 'Pickup or delivery', body: 'Choose at checkout. Every order routes through a fulfillment center.' },
+  { icon: MapPinIcon, title: 'Nationwide & regional', body: 'Some materials ship anywhere, others source close to your site.' },
+  { icon: WarehouseIcon, title: 'Real fulfillment centers', body: 'Not a drop-shipper — materials move through staffed hubs.' },
 ];
 
 export default async function Home() {

@@ -1,6 +1,6 @@
 import { notFound } from 'next/navigation';
 import Link from 'next/link';
-import { ChevronLeft } from 'lucide-react';
+import { CaretLeftIcon } from '@phosphor-icons/react/ssr';
 import { getCycleDetail } from '@/lib/queries/adminBidding';
 import { formatNaira } from '@/lib/format';
 import { Badge } from '@/components/ui/badge';
@@ -30,7 +30,7 @@ export default async function AdminCycleDetailPage({ params }: { params: Promise
   return (
     <div className="mx-auto w-full max-w-6xl px-6 py-10">
       <Link href="/admin" className="mb-6 flex items-center gap-1 text-sm text-muted-foreground hover:text-ink">
-        <ChevronLeft className="size-4" />
+        <CaretLeftIcon className="size-4" />
         All cycles
       </Link>
 
