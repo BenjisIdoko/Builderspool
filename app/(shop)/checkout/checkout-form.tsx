@@ -72,58 +72,60 @@ export function CheckoutForm({ buyerId }: { buyerId: string }) {
 
   return (
     <form onSubmit={handleSubmit} className="grid grid-cols-1 gap-8 lg:grid-cols-[1fr_360px]">
-      <div className="flex flex-col gap-6">
-        <div className="rounded-lg border border-border bg-surface p-5">
-          <h2 className="mb-4 text-sm font-bold text-slate">Delivery details</h2>
-
-          <div className="mb-4 flex flex-col gap-1.5">
-            <Label htmlFor="region">Region</Label>
-            <Select value={region} onValueChange={setRegion}>
-              <SelectTrigger id="region" className="w-full">
-                <SelectValue />
-              </SelectTrigger>
-              <SelectContent>
-                {REGIONS.map((r) => (
-                  <SelectItem key={r} value={r}>
-                    {r.charAt(0) + r.slice(1).toLowerCase()}
-                  </SelectItem>
-                ))}
-              </SelectContent>
-            </Select>
-          </div>
-
-          <Label className="mb-2 block">Fulfillment method</Label>
-          <div className="grid grid-cols-2 gap-3">
-            {(['DELIVERY', 'PICKUP'] as const).map((method) => (
-              <Button
-                key={method}
-                type="button"
-                variant={fulfillmentMethod === method ? 'default' : 'outline'}
-                className="h-auto py-3"
-                onClick={() => setFulfillmentMethod(method)}
-              >
-                {method === 'DELIVERY' ? 'Deliver to site' : 'Pick up at center'}
-              </Button>
-            ))}
-          </div>
+      <div className="flex flex-col">
+        <div className="mb-3.5 font-mono text-[13px] font-bold text-slate">01 · Fulfillment</div>
+        <div className="mb-10 grid grid-cols-2 gap-3">
+          {(['DELIVERY', 'PICKUP'] as const).map((method) => (
+            <button
+              key={method}
+              type="button"
+              onClick={() => setFulfillmentMethod(method)}
+              className={`rounded-lg border p-4 text-left text-sm font-semibold transition-colors ${
+                fulfillmentMethod === method
+                  ? 'border-[1.5px] border-brand bg-brand/5 text-ink'
+                  : 'border-border text-ink hover:border-border-strong'
+              }`}
+            >
+              {method === 'DELIVERY' ? 'Delivery to site' : 'Pickup at center'}
+            </button>
+          ))}
         </div>
 
+        <div className="mb-3.5 font-mono text-[13px] font-bold text-slate">02 · Region</div>
+        <div className="mb-10 max-w-xs">
+          <Label htmlFor="region" className="sr-only">
+            Region
+          </Label>
+          <Select value={region} onValueChange={setRegion}>
+            <SelectTrigger id="region" className="w-full">
+              <SelectValue />
+            </SelectTrigger>
+            <SelectContent>
+              {REGIONS.map((r) => (
+                <SelectItem key={r} value={r}>
+                  {r.charAt(0) + r.slice(1).toLowerCase()}
+                </SelectItem>
+              ))}
+            </SelectContent>
+          </Select>
+        </div>
+
+        <div className="mb-3.5 font-mono text-[13px] font-bold text-slate">03 · Items ({lines.length})</div>
         <div className="rounded-lg border border-border bg-surface p-5">
-          <h2 className="mb-4 text-sm font-bold text-slate">Items ({lines.length})</h2>
           <div className="flex flex-col gap-2">
             {lines.map((line) => (
               <div key={line.materialId} className="flex justify-between text-sm">
                 <span className="text-ink">
-                  {line.name} × {line.quantity}
+                  {line.name} × <span className="font-mono">{line.quantity}</span>
                 </span>
-                <span className="font-bold tabular-nums text-slate">{formatNaira(line.catalogPrice * line.quantity)}</span>
+                <span className="font-bold font-mono tabular-nums text-slate">{formatNaira(line.catalogPrice * line.quantity)}</span>
               </div>
             ))}
           </div>
         </div>
 
         {state.status === 'error' && (
-          <p className="rounded-md border border-danger/20 bg-danger/5 px-4 py-3 text-sm text-danger">
+          <p className="mt-6 rounded-md border border-danger/20 bg-danger/5 px-4 py-3 text-sm text-danger">
             {state.message}
           </p>
         )}
@@ -134,15 +136,15 @@ export function CheckoutForm({ buyerId }: { buyerId: string }) {
         <div className="flex flex-col gap-1.5 text-sm">
           <div className="flex justify-between text-slate">
             <span>Subtotal</span>
-            <span className="font-bold tabular-nums">{formatNaira(subtotal)}</span>
+            <span className="font-bold font-mono tabular-nums">{formatNaira(subtotal)}</span>
           </div>
           <div className="flex justify-between text-slate">
             <span>Delivery</span>
-            <span className="font-bold tabular-nums">{deliveryCost === 0 ? 'Free' : formatNaira(deliveryCost)}</span>
+            <span className="font-bold font-mono tabular-nums">{deliveryCost === 0 ? 'Free' : formatNaira(deliveryCost)}</span>
           </div>
           <div className="flex justify-between border-t border-border pt-2.5 text-base font-bold text-ink">
             <span>Total</span>
-            <span className="tabular-nums">{formatNaira(total)}</span>
+            <span className="font-mono tabular-nums">{formatNaira(total)}</span>
           </div>
         </div>
 

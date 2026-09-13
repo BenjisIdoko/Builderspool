@@ -47,7 +47,7 @@ export default function CartPage() {
                   {line.name}
                 </Link>
                 <div className="text-sm text-muted-foreground">
-                  {formatNaira(line.catalogPrice)} / {line.unit}
+                  <span className="font-mono">{formatNaira(line.catalogPrice)}</span> / {line.unit}
                 </div>
               </div>
 
@@ -62,7 +62,7 @@ export default function CartPage() {
                 >
                   <MinusIcon className="size-3" />
                 </Button>
-                <span className="w-8 text-center text-sm tabular-nums text-ink">{line.quantity}</span>
+                <span className="w-8 text-center text-sm font-mono tabular-nums text-ink">{line.quantity}</span>
                 <Button
                   type="button"
                   variant="ghost"
@@ -75,7 +75,7 @@ export default function CartPage() {
                 </Button>
               </div>
 
-              <div className="w-24 text-right font-bold tabular-nums text-ink">
+              <div className="w-24 text-right font-bold font-mono tabular-nums text-ink">
                 {formatNaira(line.catalogPrice * line.quantity)}
               </div>
 
@@ -96,7 +96,7 @@ export default function CartPage() {
           <h2 className="mb-4 text-sm font-bold text-slate">Order summary</h2>
           <div className="flex items-center justify-between text-sm">
             <span className="text-slate">Subtotal</span>
-            <span className="font-bold tabular-nums text-ink">{formatNaira(subtotal)}</span>
+            <span className="font-bold font-mono tabular-nums text-ink">{formatNaira(subtotal)}</span>
           </div>
           <p className="mt-1 text-xs text-muted-foreground">Delivery calculated at checkout.</p>
 

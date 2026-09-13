@@ -33,7 +33,9 @@ export function CartSheet() {
 
       <SheetContent side="right" className="flex w-full flex-col gap-0 sm:max-w-md">
         <SheetHeader className="border-b border-border">
-          <SheetTitle>Cart ({itemCount} items)</SheetTitle>
+          <SheetTitle>
+            Cart (<span className="font-mono">{itemCount}</span> {itemCount === 1 ? 'item' : 'items'})
+          </SheetTitle>
         </SheetHeader>
 
         {lines.length === 0 ? (
@@ -68,7 +70,7 @@ export function CartSheet() {
                       </Link>
                     </SheetClose>
                     <div className="text-xs text-muted-foreground">
-                      {formatNaira(line.catalogPrice)} / {line.unit}
+                      <span className="font-mono">{formatNaira(line.catalogPrice)}</span> / {line.unit}
                     </div>
 
                     <div className="mt-2 flex items-center justify-between">
@@ -83,7 +85,7 @@ export function CartSheet() {
                         >
                           <MinusIcon className="size-3" />
                         </Button>
-                        <span className="w-7 text-center text-sm tabular-nums text-ink">{line.quantity}</span>
+                        <span className="w-7 text-center text-sm font-mono tabular-nums text-ink">{line.quantity}</span>
                         <Button
                           type="button"
                           variant="ghost"
@@ -96,7 +98,7 @@ export function CartSheet() {
                         </Button>
                       </div>
 
-                      <span className="text-sm font-bold tabular-nums text-ink">
+                      <span className="text-sm font-bold font-mono tabular-nums text-ink">
                         {formatNaira(line.catalogPrice * line.quantity)}
                       </span>
                     </div>
@@ -119,7 +121,7 @@ export function CartSheet() {
             <SheetFooter className="border-t border-border">
               <div className="flex items-center justify-between text-sm">
                 <span className="text-slate">Subtotal</span>
-                <span className="font-bold tabular-nums text-ink">{formatNaira(subtotal)}</span>
+                <span className="font-bold font-mono tabular-nums text-ink">{formatNaira(subtotal)}</span>
               </div>
               <p className="text-xs text-muted-foreground">Delivery calculated at checkout.</p>
               <SheetClose asChild>

@@ -68,7 +68,7 @@ export function PriceHistoryChart({ points }: { points: { date: Date; price: num
       </svg>
       {minPrice !== maxPrice && (
         <p className="mt-2 text-xs text-muted-foreground">
-          Ranged {formatNaira(minPrice)} – {formatNaira(maxPrice)} over this period.
+          Ranged <span className="font-mono">{formatNaira(minPrice)} – {formatNaira(maxPrice)}</span> over this period.
         </p>
       )}
     </div>

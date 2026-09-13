@@ -8,6 +8,8 @@ export async function getOrderById(id: string) {
         include: {
           material: { select: { name: true, category: true, unit: true, imageUrl: true } },
           fulfillmentCenter: { select: { name: true, address: true, region: true } },
+          bidCycle: { select: { status: true } },
+          allocations: { select: { receivedAt: true } },
         },
       },
     },
@@ -25,6 +27,51 @@ export async function getOrderById(id: string) {
 }
 
 export type BuyerOrder = NonNullable<Awaited<ReturnType<typeof getOrderById>>>;
+
+export interface TrackingStage {
+  key: string;
+  title: string;
+  achieved: boolean;
+  current: boolean;
+}
+
+// Derived entirely from data we already have — no OrderStatus enum change.
+// Each stage has a genuinely distinct, real trigger except the last, which
+// this system has no signal for yet and always shows as pending rather than
+// a fabricated "Delivered" checkmark. A multi-item order is only as far
+// along as its least-advanced item.
+export function getOrderTrackingStages(order: BuyerOrder): TrackingStage[] {
+  const isPickup = order.items.every((item) => item.deliveryCost === 0);
+
+  const itemStageIndex = (item: BuyerOrder['items'][number]) => {
+    const received = item.allocations.some((a) => a.receivedAt);
+    if (received) return 4;
+    const assigned = item.allocations.length > 0;
+    if (assigned) return 3;
+    if (item.bidCycleId) return 2;
+    if (order.status === 'PAID') return 1;
+    return 0;
+  };
+
+  const currentIndex =
+    order.items.length === 0 ? 0 : Math.min(...order.items.map(itemStageIndex));
+
+  const titles = [
+    'Order confirmed',
+    'Payment confirmed',
+    'Demand pooled',
+    'Supplier assigned',
+    isPickup ? 'Ready for pickup' : 'Out for delivery',
+    isPickup ? 'Picked up' : 'Delivered',
+  ];
+
+  return titles.map((title, i) => ({
+    key: title,
+    title,
+    achieved: i <= currentIndex,
+    current: i === currentIndex,
+  }));
+}
 
 export async function getOrdersForBuyer(buyerId: string) {
   const orders = await prisma.order.findMany({

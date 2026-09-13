@@ -1,38 +1,28 @@
 import Image from 'next/image';
 import Link from 'next/link';
-import { createElement } from 'react';
-import { TagIcon, TruckIcon, MapPinIcon, WarehouseIcon } from '@phosphor-icons/react/ssr';
-import { getCategories, getMaterials } from '@/lib/queries/materials';
+import { getMaterials } from '@/lib/queries/materials';
 import { getStorefrontStats } from '@/lib/queries/stats';
 import { MaterialCard } from '@/components/material-card';
 import { Button } from '@/components/ui/button';
-import { getCategoryIcon } from '@/lib/categoryIcons';
 
-const FEATURES = [
-  { icon: TagIcon, title: 'Fixed price at checkout', body: 'Your rate is locked the moment you pay — never renegotiated.' },
-  { icon: TruckIcon, title: 'Pickup or delivery', body: 'Choose at checkout. Every order routes through a fulfillment center.' },
-  { icon: MapPinIcon, title: 'Nationwide & regional', body: 'Some materials ship anywhere, others source close to your site.' },
-  { icon: WarehouseIcon, title: 'Real fulfillment centers', body: 'Not a drop-shipper — materials move through staffed hubs.' },
+const FLOW_STEPS = [
+  { title: 'Order confirmed', body: 'Fixed price, paid immediately.' },
+  { title: 'Demand pooled', body: 'Combined daily with other buyers.' },
+  { title: 'Procurement negotiated', body: 'Sellers compete to supply the pool.' },
+  { title: 'Materials prepared', body: 'Routed to the nearest fulfillment center.' },
+  { title: 'Delivered', body: 'To your site, or ready for pickup.' },
 ];
 
 export default async function Home() {
-  const [categories, materials, stats] = await Promise.all([
-    getCategories(),
-    getMaterials(),
-    getStorefrontStats(),
-  ]);
+  const [materials, stats] = await Promise.all([getMaterials(), getStorefrontStats()]);
   const featured = materials.slice(0, 8);
 
-  const categoryImages = new Map<string, string>();
-  const categoryCounts = new Map<string, number>();
-  for (const material of materials) {
-    categoryCounts.set(material.category, (categoryCounts.get(material.category) ?? 0) + 1);
-    if (material.imageUrl && !categoryImages.has(material.category)) {
-      categoryImages.set(material.category, material.imageUrl);
-    }
-  }
-  const featuredCategory = categories.find((c) => categoryImages.has(c)) ?? categories[0];
-  const restCategories = categories.filter((c) => c !== featuredCategory);
+  const trustStats = [
+    { value: stats.materialCount, label: 'Materials listed' },
+    { value: stats.fulfillmentCenterCount, label: 'Fulfillment centers' },
+    { value: stats.sellerCount, label: 'Registered sellers' },
+    { value: stats.categoryCount, label: 'Categories' },
+  ];
 
   return (
     <div className="flex flex-1 flex-col">
@@ -60,7 +50,10 @@ export default async function Home() {
         </div>
 
         <div className="relative mx-auto w-full max-w-7xl px-6 py-20 sm:py-24">
-          <h1 className="max-w-2xl text-5xl font-bold tracking-tight text-white sm:text-6xl">
+          <div className="mb-6 font-mono text-xs tracking-wide text-white/60">
+            Construction materials · sourced nationally
+          </div>
+          <h1 className="max-w-3xl text-5xl leading-[1.05] font-extrabold tracking-[-0.02em] text-white sm:text-6xl lg:text-[68px]">
             Construction materials,{' '}
             <span className="bg-gradient-to-r from-[#8fb4ff] to-[#fdba74] bg-clip-text text-transparent">
               delivered at a fair price.
@@ -76,38 +69,48 @@ export default async function Home() {
             </Button>
           </div>
 
-          {/* In normal flow (stacked below the CTA) on mobile so it never
-              overlaps the button; floats over the photo's corner from sm+
-              where there's enough room. */}
-          <div className="relative mt-8 w-full max-w-xs overflow-hidden rounded-xl border border-white/15 bg-ink/40 p-4 text-white shadow-2xl backdrop-blur-md sm:absolute sm:right-0 sm:bottom-0 sm:mt-0 sm:w-60">
-            <div className="absolute inset-x-0 top-0 h-0.5 bg-gradient-to-r from-brand via-brand-deep to-brand-warm" />
-            <div className="text-xs font-medium text-white/70">Live on the platform</div>
-            <div className="mt-1 text-2xl font-extrabold tracking-tight text-white">
-              {stats.materialCount}+ <span className="text-base font-medium text-white/80">materials</span>
-            </div>
-            <div className="mt-0.5 text-sm text-white/70">
-              across {stats.fulfillmentCenterCount} fulfillment hubs
-            </div>
+          <div className="relative mt-16 flex border-t border-white/15">
+            {trustStats.map((ts) => (
+              <div key={ts.label} className="flex-1 border-r border-white/15 px-4 pt-6 first:pl-0 last:border-r-0 sm:px-8">
+                <div className="font-mono text-3xl font-semibold tabular-nums text-white sm:text-4xl">{ts.value}</div>
+                <div className="mt-1.5 text-xs text-white/60 sm:text-sm">{ts.label}</div>
+              </div>
+            ))}
           </div>
         </div>
       </section>
 
-      <section className="border-b border-border bg-well">
-        <div className="mx-auto max-w-7xl px-6 py-14">
-          <h2 className="font-display text-3xl font-bold tracking-tight text-ink sm:text-4xl">
-            How Builders Pool works
-          </h2>
-          <div className="mt-10 grid grid-cols-1 gap-8 sm:grid-cols-2 lg:grid-cols-4">
-            {FEATURES.map(({ icon: Icon, title, body }, i) => (
-              <div key={title} className="relative">
-                <span className="font-display text-4xl font-bold text-brand/15">
-                  {String(i + 1).padStart(2, '0')}
-                </span>
-                <span className="mt-2 flex size-11 items-center justify-center rounded-full bg-brand/10 text-brand">
-                  <Icon className="size-5" />
-                </span>
-                <div className="mt-4 text-base font-semibold text-ink">{title}</div>
-                <div className="mt-1 text-sm text-muted-foreground">{body}</div>
+      {/* Dark philosophy band — full-bleed, distinct from the hero's photo,
+          same restrained blueprint-grid texture in white at low opacity.
+          Buyer-safe lifecycle copy throughout — no bidding/auction/scoring
+          language, matching every other buyer-facing surface in this app. */}
+      <section
+        className="relative bg-ink px-6 py-24 text-white"
+        style={{
+          backgroundImage:
+            'linear-gradient(rgba(255,255,255,0.04) 1px, transparent 1px), linear-gradient(90deg, rgba(255,255,255,0.04) 1px, transparent 1px)',
+          backgroundSize: '64px 64px',
+        }}
+      >
+        <div className="mx-auto max-w-7xl">
+          <div className="mb-16 max-w-xl">
+            <div className="mb-5 font-mono text-xs text-white/50">Product philosophy</div>
+            <h2 className="text-3xl font-bold tracking-tight sm:text-4xl">
+              Simple for the buyer. Sophisticated behind the scenes.
+            </h2>
+          </div>
+
+          <div className="relative flex flex-col gap-10 sm:flex-row sm:items-start">
+            <div className="absolute top-[6.5px] right-0 left-0 hidden h-px bg-white/25 sm:block" />
+            {FLOW_STEPS.map((step, i) => (
+              <div key={step.title} className="relative flex-1 sm:pr-5">
+                <div
+                  className={`relative z-10 mb-5 size-3.5 rounded-full border-2 border-ink ${
+                    i === FLOW_STEPS.length - 1 ? 'bg-brand' : 'bg-canvas'
+                  }`}
+                />
+                <div className="mb-1.5 text-sm font-semibold">{step.title}</div>
+                <div className="text-[13px] leading-relaxed text-white/55">{step.body}</div>
               </div>
             ))}
           </div>
@@ -115,33 +118,8 @@ export default async function Home() {
       </section>
 
       <section className="mx-auto w-full max-w-7xl px-6 py-16">
-        <h2 className="mb-8 font-display text-3xl font-bold tracking-tight text-ink sm:text-4xl">
-          Shop by category
-        </h2>
-        <div className="grid auto-rows-[9.5rem] grid-cols-2 gap-4 sm:grid-cols-4">
-          <CategoryTile
-            category={featuredCategory}
-            count={categoryCounts.get(featuredCategory) ?? 0}
-            imageUrl={categoryImages.get(featuredCategory)}
-            className="col-span-2 row-span-2"
-            large
-          />
-          {restCategories.map((category) => (
-            <CategoryTile
-              key={category}
-              category={category}
-              count={categoryCounts.get(category) ?? 0}
-              imageUrl={categoryImages.get(category)}
-            />
-          ))}
-        </div>
-      </section>
-
-      <section className="mx-auto w-full max-w-7xl px-6 pb-20">
         <div className="mb-8 flex items-baseline justify-between">
-          <h2 className="font-display text-3xl font-bold tracking-tight text-ink sm:text-4xl">
-            Popular materials
-          </h2>
+          <h2 className="text-3xl font-bold tracking-tight text-ink sm:text-4xl">Popular materials</h2>
           <Link href="/catalog" className="text-sm font-medium text-brand hover:underline">
             View all
           </Link>
@@ -153,58 +131,5 @@ export default async function Home() {
         </div>
       </section>
     </div>
-  );
-}
-
-function CategoryTile({
-  category,
-  count,
-  imageUrl,
-  className = '',
-  large = false,
-}: {
-  category: string;
-  count: number;
-  imageUrl?: string;
-  className?: string;
-  large?: boolean;
-}) {
-  if (imageUrl) {
-    return (
-      <Link
-        href={`/catalog?category=${encodeURIComponent(category)}`}
-        className={`group relative overflow-hidden rounded-lg border border-border ${className}`}
-      >
-        <Image
-          src={imageUrl}
-          alt={category}
-          fill
-          sizes={large ? '(max-width: 640px) 100vw, 50vw' : '(max-width: 640px) 50vw, 25vw'}
-          className="object-cover transition-transform duration-300 group-hover:scale-105"
-        />
-        <div className="absolute inset-0 bg-gradient-to-t from-ink/80 via-ink/10 to-transparent" />
-        <div className="absolute inset-x-0 bottom-0 p-4">
-          <div className={`font-semibold text-white ${large ? 'text-xl' : 'text-sm'}`}>{category}</div>
-          <div className="text-xs text-white/75">
-            {count} {count === 1 ? 'item' : 'items'}
-          </div>
-        </div>
-      </Link>
-    );
-  }
-
-  return (
-    <Link
-      href={`/catalog?category=${encodeURIComponent(category)}`}
-      className={`flex flex-col items-center justify-center gap-2.5 rounded-lg border border-border bg-surface px-4 text-center transition-colors hover:border-border-strong ${className}`}
-    >
-      <span className="flex size-9 items-center justify-center rounded-md bg-well text-brand">
-        {createElement(getCategoryIcon(category), { className: 'size-4.5' })}
-      </span>
-      <span className="text-sm font-medium text-ink">{category}</span>
-      <span className="text-xs text-muted-foreground">
-        {count} {count === 1 ? 'item' : 'items'}
-      </span>
-    </Link>
   );
 }

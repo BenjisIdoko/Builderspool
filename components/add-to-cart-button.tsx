@@ -24,7 +24,7 @@ export function AddToCartButton({ material }: { material: BuyerMaterial }) {
         >
           <MinusIcon className="size-3" />
         </Button>
-        <span className="w-7 text-center text-sm tabular-nums text-ink">{quantity}</span>
+        <span className="w-7 text-center text-sm font-mono tabular-nums text-ink">{quantity}</span>
         <Button
           type="button"
           variant="ghost"

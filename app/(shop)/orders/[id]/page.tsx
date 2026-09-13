@@ -1,8 +1,9 @@
 import { notFound } from 'next/navigation';
 import Link from 'next/link';
 import { CheckCircleIcon, TruckIcon, StorefrontIcon } from '@phosphor-icons/react/ssr';
-import { getOrderById } from '@/lib/queries/orders';
+import { getOrderById, getOrderTrackingStages } from '@/lib/queries/orders';
 import { formatNaira } from '@/lib/format';
+import { orderStatusTone, pillClass } from '@/lib/statusColors';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { MaterialImage } from '@/components/material-image';
@@ -21,6 +22,7 @@ export default async function OrderConfirmationPage({ params }: { params: Promis
   const subtotal = order.items.reduce((sum, item) => sum + item.priceLocked * item.quantity, 0);
   const deliveryTotal = order.items.reduce((sum, item) => sum + item.deliveryCost, 0) / (order.items.length || 1);
   const center = order.items[0]?.fulfillmentCenter;
+  const stages = getOrderTrackingStages(order);
 
   return (
     <div className="mx-auto w-full max-w-3xl px-6 py-12">
@@ -31,14 +33,13 @@ export default async function OrderConfirmationPage({ params }: { params: Promis
         <div>
           <div className="flex items-center gap-2">
             <h1 className="text-xl font-bold text-ink">Order confirmed</h1>
-            <Badge variant="outline" className="bg-well text-muted-foreground">
+            <Badge variant="outline" className={pillClass(orderStatusTone(order.status))}>
               {STATUS_LABEL[order.status] ?? order.status}
             </Badge>
           </div>
           <p className="mt-1 text-sm text-muted-foreground">
             Order <span className="font-mono text-ink">{order.id}</span>
-            {order.status === 'PENDING_PAYMENT' &&
-              ' — payment isn\'t wired up yet, so it\'s sitting here until a gateway is connected.'}
+            {order.status === 'PENDING_PAYMENT' && ' — we\'ll confirm your payment shortly.'}
           </p>
         </div>
       </div>
@@ -56,6 +57,35 @@ export default async function OrderConfirmationPage({ params }: { params: Promis
           </div>
         </div>
       )}
+
+      <div className="mb-8 rounded-lg border border-border bg-surface p-6">
+        <h2 className="mb-6 text-sm font-bold text-slate">Order tracking</h2>
+        <div className="relative">
+          <div className="absolute top-1.5 bottom-1.5 left-[6.5px] w-px bg-border" />
+          <div className="flex flex-col gap-6">
+            {stages.map((stage) => (
+              <div key={stage.key} className="relative flex items-start gap-4">
+                <div
+                  className={`relative z-10 mt-0.5 size-3.5 shrink-0 rounded-full border-2 ${
+                    stage.achieved && !stage.current
+                      ? 'border-ink bg-ink'
+                      : stage.current
+                        ? 'border-brand bg-canvas'
+                        : 'border-border-strong bg-canvas'
+                  }`}
+                />
+                <span
+                  className={`text-sm font-medium ${
+                    stage.current ? 'text-brand' : stage.achieved ? 'text-ink' : 'text-muted-foreground'
+                  }`}
+                >
+                  {stage.title}
+                </span>
+              </div>
+            ))}
+          </div>
+        </div>
+      </div>
 
       <div className="rounded-lg border border-border bg-surface">
         <div className="border-b border-border px-5 py-4">
@@ -76,10 +106,10 @@ export default async function OrderConfirmationPage({ params }: { params: Promis
               <div className="flex-1">
                 <div className="font-medium text-ink">{item.material.name}</div>
                 <div className="text-sm text-muted-foreground">
-                  {item.quantity} {item.material.unit} × {formatNaira(item.priceLocked)}
+                  <span className="font-mono">{item.quantity}</span> {item.material.unit} × <span className="font-mono">{formatNaira(item.priceLocked)}</span>
                 </div>
               </div>
-              <div className="font-bold tabular-nums text-ink">
+              <div className="font-bold font-mono tabular-nums text-ink">
                 {formatNaira(item.priceLocked * item.quantity)}
               </div>
             </div>
@@ -88,15 +118,15 @@ export default async function OrderConfirmationPage({ params }: { params: Promis
         <div className="flex flex-col gap-1.5 border-t border-border px-5 py-4 text-sm">
           <div className="flex justify-between text-slate">
             <span>Subtotal</span>
-            <span className="font-bold tabular-nums">{formatNaira(subtotal)}</span>
+            <span className="font-bold font-mono tabular-nums">{formatNaira(subtotal)}</span>
           </div>
           <div className="flex justify-between text-slate">
             <span>Delivery</span>
-            <span className="font-bold tabular-nums">{deliveryTotal === 0 ? 'Free' : formatNaira(deliveryTotal)}</span>
+            <span className="font-bold font-mono tabular-nums">{deliveryTotal === 0 ? 'Free' : formatNaira(deliveryTotal)}</span>
           </div>
           <div className="flex justify-between pt-1 text-base font-bold text-ink">
             <span>Total</span>
-            <span className="tabular-nums">{formatNaira(subtotal + deliveryTotal)}</span>
+            <span className="font-mono tabular-nums">{formatNaira(subtotal + deliveryTotal)}</span>
           </div>
         </div>
       </div>

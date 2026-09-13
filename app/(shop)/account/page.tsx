@@ -1,6 +1,7 @@
 import { getDemoBuyer } from '@/lib/demoBuyer';
 import { getOrdersForBuyer } from '@/lib/queries/orders';
 import { formatNaira } from '@/lib/format';
+import { orderStatusTone, pillClass } from '@/lib/statusColors';
 import { updateBuyerProfile } from './actions';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
@@ -17,13 +18,14 @@ const STATUS_LABEL: Record<string, string> = {
 export default async function AccountPage() {
   const buyer = await getDemoBuyer();
   const orders = await getOrdersForBuyer(buyer.id);
+  const activeOrders = orders.filter((o) => o.status !== 'CANCELLED').length;
 
   return (
     <div className="mx-auto w-full max-w-3xl px-6 py-10">
-      <h1 className="mb-2 text-2xl font-bold tracking-tight text-ink">Account</h1>
-      <p className="mb-8 text-sm text-muted-foreground">
-        Buyer accounts aren&apos;t built yet, so this is the one demo profile every checkout uses —
-        edits here save to that same account.
+      <h1 className="mb-1 text-2xl font-bold tracking-tight text-ink">Welcome back, {buyer.name}</h1>
+      <p className="mb-8 text-sm text-slate">
+        <span className="font-mono">{activeOrders}</span> active {activeOrders === 1 ? 'order' : 'orders'} · buyer
+        accounts aren&apos;t built yet, so edits below save to this one demo profile.
       </p>
 
       <div className="mb-8 rounded-lg border border-border bg-surface p-5">
@@ -83,7 +85,7 @@ export default async function AccountPage() {
                 <div>
                   <div className="flex items-center gap-2">
                     <span className="font-mono text-sm text-ink">{order.id}</span>
-                    <Badge variant="outline" className="bg-well text-muted-foreground">
+                    <Badge variant="outline" className={pillClass(orderStatusTone(order.status))}>
                       {STATUS_LABEL[order.status] ?? order.status}
                     </Badge>
                   </div>
@@ -92,7 +94,7 @@ export default async function AccountPage() {
                     {order.itemCount} item{order.itemCount === 1 ? '' : 's'}
                   </div>
                 </div>
-                <div className="font-bold tabular-nums text-ink">{formatNaira(order.total)}</div>
+                <div className="font-bold font-mono tabular-nums text-ink">{formatNaira(order.total)}</div>
               </Link>
             ))}
           </div>

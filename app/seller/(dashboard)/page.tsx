@@ -87,8 +87,8 @@ export default async function SellerDashboardPage() {
                 <CardContent className="px-5 pb-5">
                   <div className="flex items-center gap-2 rounded-md bg-well px-3.5 py-2.5 text-sm text-ink">
                     <CheckCircleIcon className="size-4 shrink-0 text-brand" />
-                    Your current bid: <span className="font-bold">{formatNaira(cycle.myBid.unitPrice)}</span> for{' '}
-                    <span className="font-bold">{cycle.myBid.quantityOffered} {cycle.material.unit}</span>,{' '}
+                    Your current bid: <span className="font-mono font-bold">{formatNaira(cycle.myBid.unitPrice)}</span> for{' '}
+                    <span className="font-mono font-bold">{cycle.myBid.quantityOffered} {cycle.material.unit}</span>,{' '}
                     {cycle.myBid.estimatedDeliveryDays}-day delivery — resubmit below to update it.
                   </div>
                 </CardContent>
