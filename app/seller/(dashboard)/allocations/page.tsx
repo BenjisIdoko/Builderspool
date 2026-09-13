@@ -1,23 +1,9 @@
 import { StackIcon, TruckIcon } from '@phosphor-icons/react/ssr';
 import { getSellerIdFromSession } from '@/lib/seller/session';
 import { getSellerAllocations } from '@/lib/queries/sellerPortal';
+import { allocationStatusTone, payoutStatusTone, pillClass } from '@/lib/statusColors';
 import { Badge } from '@/components/ui/badge';
-import { Card, CardContent, CardFooter } from '@/components/ui/card';
 import { MaterialImage } from '@/components/material-image';
-
-const STATUS_BADGE_CLASS: Record<string, string> = {
-  PENDING: 'bg-transparent text-slate border-border',
-  CONFIRMED: 'bg-transparent text-brand border-brand/30',
-  FULFILLED: 'bg-brand text-brand-ink',
-  CANCELLED: 'bg-transparent text-muted-foreground border-border',
-};
-
-const PAYOUT_STATUS_CLASS: Record<string, string> = {
-  PENDING_GRN: 'bg-transparent text-slate border-border',
-  PROCESSED: 'bg-transparent text-brand border-brand/30',
-  PAID: 'bg-success text-white border-transparent',
-  ON_HOLD: 'bg-transparent text-danger border-danger/30',
-};
 
 const PAYOUT_STATUS_LABEL: Record<string, string> = {
   PENDING_GRN: 'Payout pending GRN',
@@ -44,75 +30,69 @@ export default async function SellerAllocationsPage() {
           <p className="text-sm text-muted-foreground">Nothing awarded to you yet.</p>
         </div>
       ) : (
-        <div className="flex flex-col gap-4">
+        <div>
+          <div className="grid grid-cols-[2fr_1fr_2fr_1.2fr] gap-4 border-b border-ink pb-3 text-[12.5px] font-semibold text-slate">
+            <div>Allocation</div>
+            <div>Quantity</div>
+            <div>Drop-off center</div>
+            <div>Payout status</div>
+          </div>
           {allocations.map((allocation) => (
-            <Card key={allocation.id} className="gap-0 overflow-hidden py-0">
-              <CardContent className="flex flex-wrap items-start justify-between gap-4 p-5">
-                <div className="flex items-start gap-3">
-                  <MaterialImage
-                    imageUrl={allocation.bid.material.imageUrl}
-                    category={allocation.bid.material.category}
-                    alt={allocation.bid.material.name}
-                    className="size-14 shrink-0 rounded-md border border-border"
-                  />
-                  <div>
-                    <Badge variant="outline" className="mb-1 bg-well text-muted-foreground">
-                      {allocation.bid.material.category}
-                    </Badge>
-                    <h2 className="text-[15px] font-bold text-ink">{allocation.bid.material.name}</h2>
-                    <p className="flex items-center gap-1.5 text-sm text-slate">
-                      <StackIcon className="size-3.5" />
-                      {allocation.quantityFilled} {allocation.bid.material.unit}
-                    </p>
-                  </div>
+            <div
+              key={allocation.id}
+              className="grid grid-cols-[2fr_1fr_2fr_1.2fr] items-center gap-4 border-b border-border py-4 text-sm"
+            >
+              <div className="flex items-center gap-3">
+                <MaterialImage
+                  imageUrl={allocation.bid.material.imageUrl}
+                  category={allocation.bid.material.category}
+                  alt={allocation.bid.material.name}
+                  className="size-11 shrink-0 rounded-md border border-border"
+                />
+                <div>
+                  <div className="font-semibold text-ink">{allocation.bid.material.name}</div>
+                  <Badge variant="outline" className={`${pillClass(allocationStatusTone(allocation.status))} mt-0.5`}>
+                    {allocation.status.toLowerCase()}
+                  </Badge>
                 </div>
-                <Badge variant="outline" className={STATUS_BADGE_CLASS[allocation.status]}>
-                  {allocation.status.toLowerCase()}
-                </Badge>
-              </CardContent>
+              </div>
 
-              <CardContent className="px-5 pb-5">
-                <div className="flex items-start gap-3 rounded-lg border border-border bg-canvas p-4">
-                  <TruckIcon className="mt-0.5 size-4 shrink-0 text-brand" />
-                  <div>
-                    <div className="text-xs text-muted-foreground">Drop off at</div>
-                    {allocation.orderItem.fulfillmentCenter ? (
-                      <>
-                        <div className="text-sm font-bold text-ink">
-                          {allocation.orderItem.fulfillmentCenter.name}
-                        </div>
-                        <div className="text-sm text-slate">{allocation.orderItem.fulfillmentCenter.address}</div>
-                      </>
-                    ) : (
-                      <div className="text-sm text-muted-foreground">
-                        No fulfillment center on record for this order item.
-                      </div>
-                    )}
-                  </div>
-                </div>
+              <div className="font-mono text-ink">
+                {allocation.quantityFilled} {allocation.bid.material.unit}
+              </div>
 
-                {allocation.receivedAt && (
-                  <p className="mt-3 text-sm font-medium text-brand">
-                    Received {allocation.receivedAt.toLocaleString('en-NG', { dateStyle: 'medium', timeStyle: 'short' })}
-                    {allocation.grnNumber && (
-                      <span className="ml-1.5 font-mono text-xs text-muted-foreground">{allocation.grnNumber}</span>
-                    )}
-                  </p>
+              <div>
+                {allocation.orderItem.fulfillmentCenter ? (
+                  <>
+                    <div className="flex items-center gap-1.5 font-medium text-ink">
+                      <TruckIcon className="size-3.5 shrink-0 text-brand" />
+                      {allocation.orderItem.fulfillmentCenter.name}
+                    </div>
+                    <div className="text-xs text-slate">{allocation.orderItem.fulfillmentCenter.address}</div>
+                  </>
+                ) : (
+                  <span className="text-xs text-muted-foreground">No fulfillment center on record.</span>
                 )}
-              </CardContent>
+                {allocation.receivedAt && (
+                  <div className="mt-1 text-xs text-brand">
+                    Received {allocation.receivedAt.toLocaleString('en-NG', { dateStyle: 'medium', timeStyle: 'short' })}
+                    {allocation.grnNumber && <span className="ml-1 font-mono text-muted-foreground">{allocation.grnNumber}</span>}
+                  </div>
+                )}
+              </div>
 
-              <CardFooter className="flex-col items-start gap-1">
-                <Badge variant="outline" className={PAYOUT_STATUS_CLASS[allocation.payoutStatus]}>
+              <div>
+                <Badge variant="outline" className={pillClass(payoutStatusTone(allocation.payoutStatus))}>
                   {PAYOUT_STATUS_LABEL[allocation.payoutStatus]}
                 </Badge>
                 {allocation.payoutStatus === 'PAID' && allocation.payoutReference && (
-                  <span className="font-mono text-xs text-muted-foreground">{allocation.payoutReference}</span>
+                  <div className="mt-1 font-mono text-xs text-muted-foreground">{allocation.payoutReference}</div>
                 )}
                 {allocation.payoutStatus === 'ON_HOLD' && allocation.holdReason && (
-                  <span className="text-xs text-danger">{allocation.holdReason}</span>
+                  <div className="mt-1 text-xs text-danger">{allocation.holdReason}</div>
                 )}
-              </CardFooter>
-            </Card>
+              </div>
+            </div>
           ))}
         </div>
       )}

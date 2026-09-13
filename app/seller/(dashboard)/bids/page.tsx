@@ -2,18 +2,11 @@ import { ClockIcon, StackIcon, TruckIcon } from '@phosphor-icons/react/ssr';
 import { getSellerIdFromSession } from '@/lib/seller/session';
 import { getSellerBids } from '@/lib/queries/sellerPortal';
 import { formatNaira } from '@/lib/format';
+import { bidStatusTone, pillClass } from '@/lib/statusColors';
 import { withdrawBid } from '../../actions';
 import { MaterialImage } from '@/components/material-image';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
-
-const STATUS_BADGE_CLASS: Record<string, string> = {
-  SUBMITTED: 'bg-transparent text-slate border-border',
-  PARTIALLY_FILLED: 'bg-transparent text-brand border-brand/30',
-  FILLED: 'bg-brand text-brand-ink',
-  REJECTED: 'bg-transparent text-muted-foreground border-border',
-  WITHDRAWN: 'bg-transparent text-muted-foreground border-border',
-};
 
 export default async function SellerBidsPage() {
   const sellerId = (await getSellerIdFromSession())!;
@@ -47,12 +40,12 @@ export default async function SellerBidsPage() {
                 <div className="min-w-0 flex-1">
                   <div className="flex items-center gap-2">
                     <span className="font-bold text-ink">{bid.material.name}</span>
-                    <Badge variant="outline" className={STATUS_BADGE_CLASS[bid.status]}>
+                    <Badge variant="outline" className={pillClass(bidStatusTone(bid.status))}>
                       {bid.status.replace('_', ' ').toLowerCase()}
                     </Badge>
                   </div>
                   <div className="mt-1 flex flex-wrap items-center gap-x-4 gap-y-1 text-sm text-muted-foreground">
-                    <span className="flex items-center gap-1.5">
+                    <span className="flex items-center gap-1.5 font-mono">
                       <StackIcon className="size-3.5" />
                       {bid.quantityOffered} {bid.material.unit}
                     </span>

@@ -9,16 +9,25 @@ import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetClose, SheetTrigger 
 export function MobileNav({
   links,
   title,
+  hideFrom = 'lg',
 }: {
   links: { href: string; label: string }[];
   title: string;
+  /** Tailwind breakpoint at which the full nav takes over and this trigger hides. */
+  hideFrom?: 'sm' | 'lg';
 }) {
   const [open, setOpen] = useState(false);
 
   return (
     <Sheet open={open} onOpenChange={setOpen}>
       <SheetTrigger asChild>
-        <Button type="button" variant="ghost" size="icon-sm" aria-label="Open menu" className="lg:hidden">
+        <Button
+          type="button"
+          variant="ghost"
+          size="icon-sm"
+          aria-label="Open menu"
+          className={hideFrom === 'sm' ? 'sm:hidden' : 'lg:hidden'}
+        >
           <ListIcon className="size-5" />
         </Button>
       </SheetTrigger>

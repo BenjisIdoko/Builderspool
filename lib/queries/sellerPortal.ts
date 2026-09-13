@@ -43,7 +43,10 @@ export async function getOpenCyclesForSeller(sellerId: string) {
       const myBid = cycle.bids[0];
       return {
         id: cycle.id,
-        material: cycle.material,
+        // Decimal fields (catalogPrice) don't serialize across the server/
+        // client boundary — this page passes cycles into a client-side bid
+        // dialog, so plain numbers are required here, not just convenient.
+        material: { ...cycle.material, catalogPrice: Number(cycle.material.catalogPrice) },
         region: cycle.region,
         cutoffAt: cycle.cutoffAt,
         totalQuantityRequested: cycle.orderItems.reduce((sum, item) => sum + item.quantity, 0),
