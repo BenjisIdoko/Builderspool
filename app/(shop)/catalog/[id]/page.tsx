@@ -1,16 +1,19 @@
 import { notFound } from 'next/navigation';
 import Link from 'next/link';
 import { CaretRightIcon, TagIcon, TruckIcon } from '@phosphor-icons/react/ssr';
-import { getMaterialById } from '@/lib/queries/materials';
+import { getMaterialById, getPriceHistory } from '@/lib/queries/materials';
 import { formatNaira } from '@/lib/format';
 import { AddToCartButton } from '@/components/add-to-cart-button';
 import { MaterialImage } from '@/components/material-image';
+import { PriceHistoryChart } from '@/components/price-history-chart';
 import { Badge } from '@/components/ui/badge';
 
 export default async function MaterialPage({ params }: { params: Promise<{ id: string }> }) {
   const { id } = await params;
   const material = await getMaterialById(id);
   if (!material) notFound();
+
+  const priceHistory = await getPriceHistory(id);
 
   return (
     <div className="mx-auto w-full max-w-6xl px-6 py-10">
@@ -59,6 +62,11 @@ export default async function MaterialPage({ params }: { params: Promise<{ id: s
                 <div className="text-xs text-muted-foreground">Choose your fulfillment method at checkout.</div>
               </div>
             </div>
+          </div>
+
+          <div className="mt-6 rounded-lg border border-border bg-surface p-5">
+            <h2 className="mb-4 text-sm font-bold text-slate">Price history</h2>
+            <PriceHistoryChart points={priceHistory} />
           </div>
         </div>
 

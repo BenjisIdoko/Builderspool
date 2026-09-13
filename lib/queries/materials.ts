@@ -33,6 +33,27 @@ export async function getMaterialById(id: string) {
   return material ? toPlainMaterial(material) : null;
 }
 
+// Buyer-safe by construction — PriceSnapshot only ever records catalogPrice
+// over time, nothing bidding-related. Carries the last known price forward
+// to "today" so the chart reads as "held steady since," not just a dangling
+// last point — a display convenience, not a fabricated data row.
+export async function getPriceHistory(materialId: string) {
+  const snapshots = await prisma.priceSnapshot.findMany({
+    where: { materialId },
+    orderBy: { recordedAt: 'asc' },
+    select: { price: true, recordedAt: true },
+  });
+  if (snapshots.length === 0) return [];
+
+  const points = snapshots.map((s) => ({ date: s.recordedAt, price: Number(s.price) }));
+  const last = points[points.length - 1];
+  const now = new Date();
+  if (now.getTime() > last.date.getTime()) {
+    points.push({ date: now, price: last.price });
+  }
+  return points;
+}
+
 export async function getCategories() {
   const rows = await prisma.material.findMany({
     select: { category: true },

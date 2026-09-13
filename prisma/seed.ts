@@ -164,13 +164,17 @@ const MATERIALS = [
 async function seedMaterials() {
   let created = 0;
   let imagesPatched = 0;
+  let priceSnapshotsBackfilled = 0;
   for (const material of MATERIALS) {
     const existing = await prisma.material.findFirst({
       where: { name: material.name },
     });
 
     if (!existing) {
-      await prisma.material.create({ data: material });
+      const row = await prisma.material.create({ data: material });
+      await prisma.priceSnapshot.create({
+        data: { materialId: row.id, price: row.catalogPrice, recordedAt: row.createdAt },
+      });
       created++;
       continue;
     }
@@ -184,8 +188,19 @@ async function seedMaterials() {
       });
       imagesPatched++;
     }
+
+    // Backfill a first PriceSnapshot on rows seeded before price history
+    // existed — accurate, not fabricated, since catalogPrice has never
+    // changed without a snapshot being recorded alongside it.
+    const hasSnapshot = await prisma.priceSnapshot.findFirst({ where: { materialId: existing.id } });
+    if (!hasSnapshot) {
+      await prisma.priceSnapshot.create({
+        data: { materialId: existing.id, price: existing.catalogPrice, recordedAt: existing.createdAt },
+      });
+      priceSnapshotsBackfilled++;
+    }
   }
-  return { created, imagesPatched };
+  return { created, imagesPatched, priceSnapshotsBackfilled };
 }
 
 async function seedFulfillmentCenters() {
@@ -265,13 +280,13 @@ async function seedDemoAdmin() {
 }
 
 async function main() {
-  const { created: materialsCreated, imagesPatched } = await seedMaterials();
+  const { created: materialsCreated, imagesPatched, priceSnapshotsBackfilled } = await seedMaterials();
   const centersCreated = await seedFulfillmentCenters();
   const sellersCreated = await seedSellers();
   const buyerCreated = await seedDemoBuyer();
   const adminCreated = await seedDemoAdmin();
   console.log(
-    `Seeded ${materialsCreated} material(s) (${imagesPatched} image(s) backfilled), ${centersCreated} fulfillment center(s), ${sellersCreated} seller profile(s), ${buyerCreated} demo buyer(s), ${adminCreated} demo admin(s).`
+    `Seeded ${materialsCreated} material(s) (${imagesPatched} image(s) backfilled, ${priceSnapshotsBackfilled} price snapshot(s) backfilled), ${centersCreated} fulfillment center(s), ${sellersCreated} seller profile(s), ${buyerCreated} demo buyer(s), ${adminCreated} demo admin(s).`
   );
 }
 

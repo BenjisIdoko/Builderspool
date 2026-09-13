@@ -110,10 +110,27 @@ model Material {
   sourcingScope SourcingScope @default(NATIONAL)
   createdAt     DateTime      @default(now())
 
-  cartItems  CartItem[]
-  orderItems OrderItem[]
-  bids       Bid[]
-  bidCycles  BidCycle[]
+  cartItems      CartItem[]
+  orderItems     OrderItem[]
+  bids           Bid[]
+  bidCycles      BidCycle[]
+  priceSnapshots PriceSnapshot[]
+}
+
+// A record of what catalogPrice was at a point in time — buyer-safe price
+// history, deliberately separate from anything bidding-related. There's no
+// materials-CRUD UI yet to actually change catalogPrice, so every material
+// starts with exactly one snapshot (backfilled at its createdAt); a second
+// row only ever appears once a real price change happens.
+model PriceSnapshot {
+  id         String   @id @default(cuid())
+  materialId String
+  price      Decimal  @db.Decimal(12, 2)
+  recordedAt DateTime @default(now())
+
+  material Material @relation(fields: [materialId], references: [id])
+
+  @@index([materialId, recordedAt])
 }
 
 // A buyer's pre-checkout cart line. Simple browsing cart — becomes an
