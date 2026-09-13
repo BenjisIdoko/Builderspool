@@ -4,28 +4,34 @@
 
 :root {
   /* Brand tokens — see BUILDERSPOOL_PROJECT_BRIEF.md's Design Direction
-     section. Values refined against the Stitch design system (DESIGN.md,
-     Sept 2026) for a denser, more "engineered B2B" feel — still Stripe/
-     Linear/Mercury-restrained, hairline borders over shadows.
-     Everything below (including shadcn/ui's semantic tokens) derives from these. */
-  --color-canvas: #fafafb;
+     section. Values adopted from the Fable/Design handoff (Sept 2026,
+     "Design system scope discussion") — a denser, more "engineered B2B"
+     feel — still Stripe/Linear/Mercury-restrained, hairline borders over
+     shadows. Everything below (including shadcn/ui's semantic tokens)
+     derives from these. */
+  --color-canvas: #fafafa;
   --color-surface: #ffffff;
   --color-well: #f1f3f5; /* distinct from canvas — inactive table headers, input backdrops, inset blocks */
-  --color-ink: #0f172a;
-  --color-brand: #0f62fe; /* "accent" is reserved below for shadcn/ui's own hover/highlight token */
+  --color-ink: #15181c;
+  --color-brand: #2954e5; /* "accent" is reserved below for shadcn/ui's own hover/highlight token */
   --color-brand-ink: #ffffff;
   --color-brand-deep: #3730a3; /* mid-stop for the signature gradient — steel blue toward indigo */
   --color-brand-warm: #ea580c; /* construction-amber counterpoint to the brand blue — the signature
                                    gradient (blue -> indigo -> amber), used deliberately in a small
                                    number of high-impact spots (hero, headline accent, stat card),
                                    never on routine controls — see Design Direction. */
-  --color-slate: #475569;
-  --color-muted-text: #64748b; /* exposed as the utility `text-muted-foreground`, shadcn/ui's own name for this */
-  --color-border: #e2e8f0;
-  --color-border-strong: #cbd5e1; /* input boundaries, active tab lines, hover states */
-  --color-success: #059669;
-  --color-warning: #d97706;
-  --color-danger: #dc2626;
+  --color-slate: #5b6068;
+  --color-muted-text: #8a8f97; /* exposed as the utility `text-muted-foreground`, shadcn/ui's own name for this */
+  --color-border: #e6e7ea;
+  --color-border-strong: #c2cad3; /* input boundaries, active tab lines, hover states */
+  --color-success: #2e6b45;
+  --color-success-soft: #eaf3ec;
+  --color-warning: #8a5a20;
+  --color-warning-soft: #fbf1e4;
+  --color-danger: #a0432c;
+  --color-danger-soft: #f7e9e6;
+  --color-info: var(--color-brand);
+  --color-info-soft: #e9edfb;
 
   /* shadcn/ui semantic tokens, mapped onto the brand tokens above rather than
      left on the library's default neutral palette — so shadcn components
@@ -52,9 +58,10 @@
   /* Softer, rounder scale than the original tight-industrial Stitch spec —
      buttons and badges go fully pill-shaped (rounded-full, not token-driven)
      regardless of this scale; this governs inputs/selects (md) and
-     cards/containers (lg/xl). */
+     cards/containers (lg/xl). --radius-md matches the Fable handoff's 8px
+     button/input radius exactly. */
   --radius-sm: 0.375rem;
-  --radius-md: 0.625rem;
+  --radius-md: 0.5rem;
   --radius-lg: 0.875rem;
   --radius-xl: 1.25rem;
 }
@@ -72,10 +79,15 @@
   --color-border: var(--color-border);
   --color-border-strong: var(--color-border-strong);
   --color-success: var(--color-success);
+  --color-success-soft: var(--color-success-soft);
   --color-warning: var(--color-warning);
+  --color-warning-soft: var(--color-warning-soft);
   --color-danger: var(--color-danger);
+  --color-danger-soft: var(--color-danger-soft);
+  --color-info: var(--color-info);
+  --color-info-soft: var(--color-info-soft);
   --font-sans: var(--font-plus-jakarta-sans);
-  --font-display: var(--font-fraunces);
+  --font-mono: var(--font-jetbrains-mono);
 
   --color-background: var(--background);
   --color-foreground: var(--foreground);
@@ -121,11 +133,11 @@
   /* Every heading is bold (700) per explicit instruction — h1 keeps its
      tight tracking for display/hero text. h3+ isn't used anywhere in this
      app yet; add it here if that changes.
-     h1 also carries the display serif (Fraunces) — the one typographic
-     personality lever this app hadn't pulled yet; body copy and UI chrome
-     stay on the sans so the system still reads as calm/orderly overall. */
+     A brief serif (Fraunces) personality pass on h1 was tried and then
+     superseded by the Fable/Design handoff's pure Plus-Jakarta-Sans system
+     (2026-09-13) — every heading is sans again. */
   h1 {
-    @apply font-display font-bold tracking-tight;
+    @apply font-bold tracking-tight;
   }
   h2 {
     @apply font-bold;

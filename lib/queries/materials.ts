@@ -1,8 +1,14 @@
 import { prisma } from '../prisma';
 
 // Buyer-facing catalog reads. These intentionally select only fields the
-// buyer is allowed to see — never sourcingScope, bid cycles, or anything
-// that would leak the pooling/bidding mechanism into the shopfront.
+// buyer is allowed to see — never bid cycles, scores, or anything else that
+// would leak the pooling/bidding mechanism into the shopfront.
+//
+// sourcingScope is the one deliberate exception (added 2026-09-13, per the
+// Fable/Design handoff's region-eligibility badge): it's shipping/
+// availability information a buyer reasonably needs before ordering
+// ("does this ship to me"), not a hint about how procurement is priced or
+// scored — unlike everything else this comment warns against.
 const BUYER_SAFE_SELECT = {
   id: true,
   name: true,
@@ -11,6 +17,7 @@ const BUYER_SAFE_SELECT = {
   spec: true,
   imageUrl: true,
   catalogPrice: true,
+  sourcingScope: true,
 } as const;
 
 export async function getMaterials(category?: string, query?: string) {
