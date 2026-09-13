@@ -75,6 +75,7 @@
   --color-warning: var(--color-warning);
   --color-danger: var(--color-danger);
   --font-sans: var(--font-plus-jakarta-sans);
+  --font-display: var(--font-fraunces);
 
   --color-background: var(--background);
   --color-foreground: var(--foreground);
@@ -111,7 +112,7 @@
   }
   body {
     @apply bg-background text-foreground text-base;
-    line-height: 1.6; /* relaxed reading line-height, matches the Church HR Manager typography scale */
+    line-height: 1.6; /* relaxed reading line-height for body copy */
   }
   html {
     @apply font-sans;
@@ -119,9 +120,12 @@
 
   /* Every heading is bold (700) per explicit instruction — h1 keeps its
      tight tracking for display/hero text. h3+ isn't used anywhere in this
-     app yet; add it here if that changes. */
+     app yet; add it here if that changes.
+     h1 also carries the display serif (Fraunces) — the one typographic
+     personality lever this app hadn't pulled yet; body copy and UI chrome
+     stay on the sans so the system still reads as calm/orderly overall. */
   h1 {
-    @apply font-bold tracking-tight;
+    @apply font-display font-bold tracking-tight;
   }
   h2 {
     @apply font-bold;
