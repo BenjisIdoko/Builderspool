@@ -246,6 +246,25 @@ Third phase of the handoff adoption (phase one: tokens/fonts/Dialog foundation; 
 
 Verified live end-to-end against the live database, not against seed data left over from an earlier session: confirmed payment on a real pending order via the same throwaway "call the real webhook logic, not a DB hack" script pattern used for the GRN/payout work, to get a genuinely open cycle to bid against. Submitted a bid through the new dialog, confirmed the live total value calculation via DOM inspection (this pane's screenshots after `form_input`-driven field changes were stale again — same known issue, same workaround), then confirmed via a fresh page load that the bid actually persisted with the right price/quantity/delivery values, and that My Bids and Allocations both render the new hairline layouts correctly with live data. Mobile nav confirmed open at 600px via `getComputedStyle`. `next build` and lint clean.
 
+### Fable/Design handoff adoption — admin portal (2026-09-13, later same day)
+
+Fourth and final phase of the handoff adoption (foundation → buyer storefront → seller portal → this). The admin dashboard's scope stays exactly as scoped in the 2026-09-12 "Admin dashboard for the bidding engine" entry — bid-cycle visibility and manual award override only, materials/fulfillment-centers/disputes still explicitly unbuilt. This phase adds the handoff's platform-summary view *above* that existing scope, not instead of it.
+
+**New: `lib/queries/adminStats.ts`** — three real, derivable-with-no-schema-change queries:
+- `getAdminKpis()` — Platform GMV (Σ paid orders), Builders Pool margin (Σ `(catalogPrice − winning bid unitPrice) × quantityFilled` over non-cancelled allocations — a genuine settlement-style margin calculation, not a placeholder), active open demand pools (count), material volume (Σ units actually allocated — presented as a plain unit count, not a fabricated tonnage figure, since material units aren't homogeneous), pending hub GRNs (allocations with no `receivedAt` yet).
+- `getRecentOrders()` — real order rows for the handoff's "Recent orders" table.
+- `getDailyGmv()` — adapted from the handoff's "GMV, last 5 weeks" (no weekly rollup table exists) to **5 real calendar days** of actual paid-order totals, including zero-value days rather than a fabricated multi-week trend.
+
+Wired into `app/admin/(dashboard)/page.tsx` above the existing bid-cycles table: a 5-cell KPI strip (the handoff's `gap-1px` background-as-divider technique), a hairline-grid "Recent orders" list, and a small real bar chart with the latest day's real value called out in mono above its bar.
+
+**Status-color consolidation completed** — `app/admin/(dashboard)/cycles/[id]/page.tsx`'s three local `*_STATUS_CLASS` consts (cycle/bid/payout, duplicated since the admin dashboard build) replaced with the shared `lib/statusColors.ts` utility from phase one, matching what phases two and three already did for the buyer and seller sides. The allocation-status cell also picked up a `Badge` (it was plain text before) for consistency with every other status column on the same page and with the seller-side allocations view.
+
+**Admin header** — added the same `MobileNav` shell the buyer and seller headers now have, for consistency, even though a single nav link was never really broken at narrow widths.
+
+A Supabase session-pooler exhaustion (`EMAXCONNSESSION`, pool_size 15) blocked verification for close to 10 minutes during this phase with no local process responsible (confirmed repeatedly via `lsof`/`ps` — nothing was holding port 3000 or any local connection) — stale pooler-side connections, most likely left over from the app being quit mid-session earlier. No local action fixed it; it cleared on its own once enough real time had passed for Supabase's side to reclaim the stale sessions. Worth remembering if this recurs: don't chase a local fix that doesn't exist, and don't assume a fixed short backoff is enough — this one genuinely needed several minutes.
+
+Verified in-browser against the live database: KPI strip shows real GMV/margin/volume figures matching a hand-computed check against the same seeded orders and allocations used throughout this session's testing; Recent orders and the daily chart both reflect real rows. `next build` and lint clean.
+
 ## Bidding Engine Design
 
 - **Weighted award scoring**, not simple lowest-price-wins: Price 40%, seller reliability/trust score 25%, capacity fit 20%, delivery speed 15%.

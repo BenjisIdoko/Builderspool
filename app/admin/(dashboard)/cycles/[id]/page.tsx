@@ -7,27 +7,7 @@ import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import { forceAwardCycle, issueGrnAction, disbursePayoutAction, toggleAllocationHoldAction } from '@/app/admin/actions';
-
-const CYCLE_STATUS_CLASS: Record<string, string> = {
-  OPEN: 'bg-transparent text-slate border-border',
-  CLOSED: 'bg-transparent text-warning border-warning/30',
-  AWARDED: 'bg-brand text-brand-ink',
-};
-
-const BID_STATUS_CLASS: Record<string, string> = {
-  SUBMITTED: 'bg-transparent text-slate border-border',
-  PARTIALLY_FILLED: 'bg-transparent text-brand border-brand/30',
-  FILLED: 'bg-brand text-brand-ink',
-  REJECTED: 'bg-transparent text-muted-foreground border-border',
-  WITHDRAWN: 'bg-transparent text-muted-foreground border-border',
-};
-
-const PAYOUT_STATUS_CLASS: Record<string, string> = {
-  PENDING_GRN: 'bg-transparent text-slate border-border',
-  PROCESSED: 'bg-transparent text-brand border-brand/30',
-  PAID: 'bg-success text-white border-transparent',
-  ON_HOLD: 'bg-transparent text-danger border-danger/30',
-};
+import { allocationStatusTone, bidStatusTone, cycleStatusTone, payoutStatusTone, pillClass } from '@/lib/statusColors';
 
 const PAYOUT_STATUS_LABEL: Record<string, string> = {
   PENDING_GRN: 'Pending GRN',
@@ -52,7 +32,7 @@ export default async function AdminCycleDetailPage({ params }: { params: Promise
         <div>
           <div className="flex items-center gap-2">
             <h1 className="text-xl font-bold text-ink">{cycle.material.name}</h1>
-            <Badge variant="outline" className={CYCLE_STATUS_CLASS[cycle.status]}>
+            <Badge variant="outline" className={pillClass(cycleStatusTone(cycle.status))}>
               {cycle.status.toLowerCase()}
             </Badge>
             {cycle.needsAttention && (
@@ -112,7 +92,7 @@ export default async function AdminCycleDetailPage({ params }: { params: Promise
                   <TableCell className="text-ink">{bid.estimatedDeliveryDays}d</TableCell>
                   <TableCell className="text-ink">{bid.score ? bid.score.toFixed(3) : '—'}</TableCell>
                   <TableCell>
-                    <Badge variant="outline" className={BID_STATUS_CLASS[bid.status]}>
+                    <Badge variant="outline" className={pillClass(bidStatusTone(bid.status))}>
                       {bid.status.replace('_', ' ').toLowerCase()}
                     </Badge>
                   </TableCell>
@@ -148,10 +128,14 @@ export default async function AdminCycleDetailPage({ params }: { params: Promise
                 bid.allocations.map((allocation) => (
                   <TableRow key={allocation.id}>
                     <TableCell className="text-ink">{bid.sellerName}</TableCell>
-                    <TableCell className="text-ink">
+                    <TableCell className="font-mono text-ink">
                       {allocation.quantityFilled} {cycle.material.unit}
                     </TableCell>
-                    <TableCell className="text-ink">{allocation.status.toLowerCase()}</TableCell>
+                    <TableCell>
+                      <Badge variant="outline" className={pillClass(allocationStatusTone(allocation.status))}>
+                        {allocation.status.toLowerCase()}
+                      </Badge>
+                    </TableCell>
                     <TableCell>
                       {allocation.grnNumber ? (
                         <>
@@ -165,7 +149,7 @@ export default async function AdminCycleDetailPage({ params }: { params: Promise
                       )}
                     </TableCell>
                     <TableCell>
-                      <Badge variant="outline" className={PAYOUT_STATUS_CLASS[allocation.payoutStatus]}>
+                      <Badge variant="outline" className={pillClass(payoutStatusTone(allocation.payoutStatus))}>
                         {PAYOUT_STATUS_LABEL[allocation.payoutStatus]}
                       </Badge>
                       {allocation.payoutStatus === 'PAID' && allocation.payoutReference && (
