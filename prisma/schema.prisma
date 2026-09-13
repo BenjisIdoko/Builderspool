@@ -54,6 +54,13 @@ enum OrderStatus {
   CANCELLED
 }
 
+enum PayoutStatus {
+  PENDING_GRN // awarded, but the fulfillment center hasn't confirmed physical receipt yet
+  PROCESSED   // GRN issued — cleared for disbursement, not yet sent
+  PAID        // disbursed to the seller
+  ON_HOLD     // an ops exception (quality/count dispute) blocks disbursement
+}
+
 model User {
   id           String   @id @default(cuid())
   role         Role
@@ -219,7 +226,13 @@ model Allocation {
   quantityFilled Int
   status         AllocationStatus @default(PENDING)
   receivedAt     DateTime?
+  grnNumber      String?          @unique // set together with receivedAt when the GRN is issued
   createdAt      DateTime         @default(now())
+
+  payoutStatus    PayoutStatus @default(PENDING_GRN)
+  payoutReference String?      @unique // set when payoutStatus becomes PAID
+  paidAt          DateTime?
+  holdReason      String? // set when payoutStatus is ON_HOLD, cleared on release
 
   bid       Bid       @relation(fields: [bidId], references: [id])
   orderItem OrderItem @relation(fields: [orderItemId], references: [id])

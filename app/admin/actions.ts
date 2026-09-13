@@ -8,6 +8,7 @@ import { CycleStatus } from '@prisma/client';
 import { getDemoAdmin } from '@/lib/demoAdmin';
 import { ADMIN_COOKIE } from '@/lib/admin/session';
 import { awardCycle } from '@/lib/bidding';
+import { issueGrn, disbursePayout, toggleAllocationHold } from '@/lib/fulfillment';
 
 export async function signInAdmin() {
   await getDemoAdmin(); // throws if the seed hasn't run — fail loudly, not silently
@@ -43,4 +44,39 @@ export async function forceAwardCycle(formData: FormData) {
 
   revalidatePath('/admin');
   revalidatePath(`/admin/cycles/${cycleId}`);
+}
+
+function requireAllocationFields(formData: FormData) {
+  const allocationId = formData.get('allocationId');
+  const cycleId = formData.get('cycleId');
+  if (typeof allocationId !== 'string' || typeof cycleId !== 'string') {
+    throw new Error('Missing allocation or cycle id.');
+  }
+  return { allocationId, cycleId };
+}
+
+export async function issueGrnAction(formData: FormData) {
+  const { allocationId, cycleId } = requireAllocationFields(formData);
+  await issueGrn(allocationId);
+
+  revalidatePath(`/admin/cycles/${cycleId}`);
+  revalidatePath('/seller/allocations');
+}
+
+export async function disbursePayoutAction(formData: FormData) {
+  const { allocationId, cycleId } = requireAllocationFields(formData);
+  await disbursePayout(allocationId);
+
+  revalidatePath(`/admin/cycles/${cycleId}`);
+  revalidatePath('/seller/allocations');
+}
+
+export async function toggleAllocationHoldAction(formData: FormData) {
+  const { allocationId, cycleId } = requireAllocationFields(formData);
+  const reason = formData.get('reason');
+
+  await toggleAllocationHold(allocationId, typeof reason === 'string' ? reason : undefined);
+
+  revalidatePath(`/admin/cycles/${cycleId}`);
+  revalidatePath('/seller/allocations');
 }

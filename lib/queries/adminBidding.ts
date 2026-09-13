@@ -78,6 +78,11 @@ export async function getCycleDetail(id: string) {
         quantityFilled: a.quantityFilled,
         status: a.status,
         receivedAt: a.receivedAt,
+        grnNumber: a.grnNumber,
+        payoutStatus: a.payoutStatus,
+        payoutReference: a.payoutReference,
+        paidAt: a.paidAt,
+        holdReason: a.holdReason,
       })),
     })),
   };

@@ -6,7 +6,7 @@ import { formatNaira } from '@/lib/format';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
-import { forceAwardCycle } from '@/app/admin/actions';
+import { forceAwardCycle, issueGrnAction, disbursePayoutAction, toggleAllocationHoldAction } from '@/app/admin/actions';
 
 const CYCLE_STATUS_CLASS: Record<string, string> = {
   OPEN: 'bg-transparent text-slate border-border',
@@ -20,6 +20,20 @@ const BID_STATUS_CLASS: Record<string, string> = {
   FILLED: 'bg-brand text-brand-ink',
   REJECTED: 'bg-transparent text-muted-foreground border-border',
   WITHDRAWN: 'bg-transparent text-muted-foreground border-border',
+};
+
+const PAYOUT_STATUS_CLASS: Record<string, string> = {
+  PENDING_GRN: 'bg-transparent text-slate border-border',
+  PROCESSED: 'bg-transparent text-brand border-brand/30',
+  PAID: 'bg-success text-white border-transparent',
+  ON_HOLD: 'bg-transparent text-danger border-danger/30',
+};
+
+const PAYOUT_STATUS_LABEL: Record<string, string> = {
+  PENDING_GRN: 'Pending GRN',
+  PROCESSED: 'Cleared',
+  PAID: 'Paid',
+  ON_HOLD: 'On hold',
 };
 
 export default async function AdminCycleDetailPage({ params }: { params: Promise<{ id: string }> }) {
@@ -124,7 +138,9 @@ export default async function AdminCycleDetailPage({ params }: { params: Promise
                 <TableHead>Seller</TableHead>
                 <TableHead>Quantity filled</TableHead>
                 <TableHead>Status</TableHead>
-                <TableHead>Received</TableHead>
+                <TableHead>GRN</TableHead>
+                <TableHead>Payout</TableHead>
+                <TableHead>Actions</TableHead>
               </TableRow>
             </TableHeader>
             <TableBody>
@@ -136,10 +152,59 @@ export default async function AdminCycleDetailPage({ params }: { params: Promise
                       {allocation.quantityFilled} {cycle.material.unit}
                     </TableCell>
                     <TableCell className="text-ink">{allocation.status.toLowerCase()}</TableCell>
-                    <TableCell className="text-muted-foreground">
-                      {allocation.receivedAt
-                        ? allocation.receivedAt.toLocaleString('en-NG', { dateStyle: 'medium', timeStyle: 'short' })
-                        : '—'}
+                    <TableCell>
+                      {allocation.grnNumber ? (
+                        <>
+                          <div className="font-mono text-xs text-ink">{allocation.grnNumber}</div>
+                          <div className="text-xs text-muted-foreground">
+                            {allocation.receivedAt!.toLocaleString('en-NG', { dateStyle: 'medium', timeStyle: 'short' })}
+                          </div>
+                        </>
+                      ) : (
+                        <span className="text-muted-foreground">—</span>
+                      )}
+                    </TableCell>
+                    <TableCell>
+                      <Badge variant="outline" className={PAYOUT_STATUS_CLASS[allocation.payoutStatus]}>
+                        {PAYOUT_STATUS_LABEL[allocation.payoutStatus]}
+                      </Badge>
+                      {allocation.payoutStatus === 'PAID' && allocation.payoutReference && (
+                        <div className="mt-1 font-mono text-xs text-muted-foreground">{allocation.payoutReference}</div>
+                      )}
+                      {allocation.payoutStatus === 'ON_HOLD' && allocation.holdReason && (
+                        <div className="mt-1 text-xs text-danger">{allocation.holdReason}</div>
+                      )}
+                    </TableCell>
+                    <TableCell>
+                      <div className="flex flex-wrap items-center gap-1.5">
+                        {allocation.status !== 'CANCELLED' && !allocation.receivedAt && (
+                          <form action={issueGrnAction}>
+                            <input type="hidden" name="allocationId" value={allocation.id} />
+                            <input type="hidden" name="cycleId" value={cycle.id} />
+                            <Button type="submit" variant="outline" size="sm">
+                              Issue GRN
+                            </Button>
+                          </form>
+                        )}
+                        {allocation.payoutStatus === 'PROCESSED' && (
+                          <form action={disbursePayoutAction}>
+                            <input type="hidden" name="allocationId" value={allocation.id} />
+                            <input type="hidden" name="cycleId" value={cycle.id} />
+                            <Button type="submit" size="sm">
+                              Disburse
+                            </Button>
+                          </form>
+                        )}
+                        {allocation.payoutStatus !== 'PAID' && (
+                          <form action={toggleAllocationHoldAction}>
+                            <input type="hidden" name="allocationId" value={allocation.id} />
+                            <input type="hidden" name="cycleId" value={cycle.id} />
+                            <Button type="submit" variant="ghost" size="sm">
+                              {allocation.payoutStatus === 'ON_HOLD' ? 'Release hold' : 'Put on hold'}
+                            </Button>
+                          </form>
+                        )}
+                      </div>
                     </TableCell>
                   </TableRow>
                 ))

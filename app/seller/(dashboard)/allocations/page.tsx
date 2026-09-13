@@ -2,7 +2,7 @@ import { StackIcon, TruckIcon } from '@phosphor-icons/react/ssr';
 import { getSellerIdFromSession } from '@/lib/seller/session';
 import { getSellerAllocations } from '@/lib/queries/sellerPortal';
 import { Badge } from '@/components/ui/badge';
-import { Card, CardContent } from '@/components/ui/card';
+import { Card, CardContent, CardFooter } from '@/components/ui/card';
 import { MaterialImage } from '@/components/material-image';
 
 const STATUS_BADGE_CLASS: Record<string, string> = {
@@ -10,6 +10,20 @@ const STATUS_BADGE_CLASS: Record<string, string> = {
   CONFIRMED: 'bg-transparent text-brand border-brand/30',
   FULFILLED: 'bg-brand text-brand-ink',
   CANCELLED: 'bg-transparent text-muted-foreground border-border',
+};
+
+const PAYOUT_STATUS_CLASS: Record<string, string> = {
+  PENDING_GRN: 'bg-transparent text-slate border-border',
+  PROCESSED: 'bg-transparent text-brand border-brand/30',
+  PAID: 'bg-success text-white border-transparent',
+  ON_HOLD: 'bg-transparent text-danger border-danger/30',
+};
+
+const PAYOUT_STATUS_LABEL: Record<string, string> = {
+  PENDING_GRN: 'Payout pending GRN',
+  PROCESSED: 'Payout cleared',
+  PAID: 'Payout sent',
+  ON_HOLD: 'Payout on hold',
 };
 
 export default async function SellerAllocationsPage() {
@@ -79,11 +93,25 @@ export default async function SellerAllocationsPage() {
 
                 {allocation.receivedAt && (
                   <p className="mt-3 text-sm font-medium text-brand">
-                    Received{' '}
-                    {allocation.receivedAt.toLocaleString('en-NG', { dateStyle: 'medium', timeStyle: 'short' })}
+                    Received {allocation.receivedAt.toLocaleString('en-NG', { dateStyle: 'medium', timeStyle: 'short' })}
+                    {allocation.grnNumber && (
+                      <span className="ml-1.5 font-mono text-xs text-muted-foreground">{allocation.grnNumber}</span>
+                    )}
                   </p>
                 )}
               </CardContent>
+
+              <CardFooter className="flex-col items-start gap-1">
+                <Badge variant="outline" className={PAYOUT_STATUS_CLASS[allocation.payoutStatus]}>
+                  {PAYOUT_STATUS_LABEL[allocation.payoutStatus]}
+                </Badge>
+                {allocation.payoutStatus === 'PAID' && allocation.payoutReference && (
+                  <span className="font-mono text-xs text-muted-foreground">{allocation.payoutReference}</span>
+                )}
+                {allocation.payoutStatus === 'ON_HOLD' && allocation.holdReason && (
+                  <span className="text-xs text-danger">{allocation.holdReason}</span>
+                )}
+              </CardFooter>
             </Card>
           ))}
         </div>
