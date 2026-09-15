@@ -3,11 +3,10 @@
 import { useState } from 'react';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
-import { CheckCircleIcon, CircleIcon } from '@phosphor-icons/react/ssr';
+import { CheckCircleIcon, CircleIcon, MapPinIcon, TruckIcon } from '@phosphor-icons/react/ssr';
 import { useCart } from '@/lib/cart/CartContext';
 import { formatNaira } from '@/lib/format';
 import { getDeliveryCost, type FulfillmentMethod } from '@/lib/checkout/deliveryCost';
-import { LogoMark } from '@/components/logo';
 import { MaterialImage } from '@/components/material-image';
 import { Button } from '@/components/ui/button';
 import { Label } from '@/components/ui/label';
@@ -128,9 +127,22 @@ export function CheckoutForm({ buyerId }: { buyerId: string }) {
       </div>
 
       <div className="h-fit rounded-lg bg-ink p-5 text-white lg:sticky lg:top-24">
-        <div className="mb-5 flex items-center gap-2">
-          <LogoMark className="size-6" />
-          <span className="text-sm font-bold">Builders Pool</span>
+        <div className="mb-5 rounded-lg bg-gradient-to-br from-brand via-brand-deep to-brand-warm p-4">
+          <div className="flex items-center gap-2 text-xs font-medium text-white/80">
+            {fulfillmentMethod === 'DELIVERY' ? (
+              <TruckIcon className="size-4" />
+            ) : (
+              <MapPinIcon className="size-4" />
+            )}
+            {fulfillmentMethod === 'DELIVERY' ? 'Delivering to' : 'Pickup from'}
+          </div>
+          <div className="mt-1 text-lg font-bold">
+            {region.charAt(0) + region.slice(1).toLowerCase()} region
+          </div>
+        </div>
+
+        <div className="mb-5 text-2xl font-bold">
+          {lines.length} {lines.length === 1 ? 'item' : 'items'}
         </div>
 
         <h2 className="mb-3 text-xs font-bold tracking-wide text-white/50 uppercase">Shipping method</h2>
@@ -177,7 +189,7 @@ export function CheckoutForm({ buyerId }: { buyerId: string }) {
         </div>
 
         <Button type="submit" size="lg" className="mt-5 w-full" disabled={state.status === 'submitting'}>
-          {state.status === 'submitting' ? 'Placing order…' : 'Place order'}
+          {state.status === 'submitting' ? 'Placing order…' : 'Place order →'}
         </Button>
       </div>
     </form>

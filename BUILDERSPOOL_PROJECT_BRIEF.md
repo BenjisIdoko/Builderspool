@@ -326,6 +326,17 @@ Reference was an e-commerce checkout (address form left, a black "Billing Summar
 
 Deliberately not adopted, all for the same reason as the last two passes — nothing to honestly back them: the free-shipping progress-bar upsell (no free-shipping-threshold feature), a full shipping address form (`Order` has no address columns, schema changes are out of scope for this pass), and tax/discount line items (no tax or coupon system exists). `npm run lint` clean; verified live end-to-end with a real cart item.
 
+### Checkout — four more layout pieces from a second reference (2026-09-15, later still)
+
+A second checkout reference followed (contact info / delivery-tier / payment-method steps, a saved-card visual, a discount line). The user clarified upfront they only meant the *layout*, not that content — so the review response separated what's honestly buildable now (contact info step, using real `User` fields) from what needs a real decision (delivery-speed tiers, zip/address capture) from what shouldn't be built even as UI (payment method icons with no real gateway behind them, and especially a saved-card mockup with invented card numbers — flagged as the kind of fake affordance this project has avoided all along, e.g. the wishlist heart). The user agreed to implement only four purely structural pieces, no new content:
+
+1. **"← Back to cart" link** above the page title (`app/(shop)/checkout/page.tsx`).
+2. A bold **item-count headline** ("1 item" / "N items") inside the dark summary card, promoted from the small "02 · Items (N)" label on the left.
+3. **A visual card pinned to the top of the summary panel** — reusing the existing signature gradient (`from-brand via-brand-deep to-brand-warm`, the same one used sparingly elsewhere per the Design Direction's "small number of high-impact spots" rule) rather than a generic decorative block. Content is real and already selected: a truck/pin icon + "Delivering to" / "Pickup from" + the chosen region, swapping live with the fulfillment-method radio above it — verified switching Delivery→Pickup flips both the icon and the label instantly.
+4. **Arrow-suffixed CTA** — "Place order" → "Place order →", matching a small existing convention already used elsewhere in the app (e.g. the seller bid dialog's "Submit bid →").
+
+`npm run lint` clean; verified live (region/method switching, item count, back link).
+
 ## Bidding Engine Design
 
 - **Weighted award scoring**, not simple lowest-price-wins: Price 40%, seller reliability/trust score 25%, capacity fit 20%, delivery speed 15%.
