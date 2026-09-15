@@ -8,6 +8,7 @@ import { formatNaira } from '@/lib/format';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { MaterialImage } from '@/components/material-image';
+import { QuantityInput } from '@/components/quantity-input';
 import {
   Sheet,
   SheetContent,
@@ -89,7 +90,12 @@ export function CartSheet() {
                         >
                           <MinusIcon className="size-3" />
                         </Button>
-                        <span className="w-7 text-center text-sm tabular-nums text-ink">{line.quantity}</span>
+                        <QuantityInput
+                          value={line.quantity}
+                          onChange={(next) => updateQuantity(line.materialId, next)}
+                          label={line.name}
+                          className="w-7 text-sm tabular-nums text-ink"
+                        />
                         <Button
                           type="button"
                           variant="ghost"

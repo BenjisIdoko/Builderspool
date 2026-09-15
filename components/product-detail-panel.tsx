@@ -11,6 +11,7 @@ import { Badge } from '@/components/ui/badge';
 import { Input } from '@/components/ui/input';
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { PriceHistoryChart } from '@/components/price-history-chart';
+import { QuantityInput } from '@/components/quantity-input';
 
 const SPEC_FIELDS = [
   { key: 'grade', label: 'Grade' },
@@ -79,9 +80,12 @@ export function ProductDetailPanel({
       >
         <MinusIcon className="size-3.5" />
       </button>
-      <span className="min-w-[2.5ch] border-x border-border px-2 text-center text-sm font-semibold text-ink">
-        {quantity}
-      </span>
+      <QuantityInput
+        value={quantity}
+        onChange={setQuantity}
+        label={material.name}
+        className="min-w-[2.5ch] border-x border-border px-2 text-sm font-semibold text-ink"
+      />
       <button
         type="button"
         onClick={increment}

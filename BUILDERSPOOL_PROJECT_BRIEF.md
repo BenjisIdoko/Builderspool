@@ -337,6 +337,14 @@ A second checkout reference followed (contact info / delivery-tier / payment-met
 
 `npm run lint` clean; verified live (region/method switching, item count, back link).
 
+### Fixed: quantity fields were display-only, not actually typeable (2026-09-15, later still)
+
+User-reported bug: "Input quantity does not accept numbers only the control buttons work." Checked all four quantity steppers in the app (`components/add-to-cart-button.tsx`, `components/product-detail-panel.tsx`, `components/cart-sheet.tsx`, `app/(shop)/cart/page.tsx`) — every one rendered the quantity as a plain `<span>` between the +/- buttons, not an `<input>`. There was never a way to type a quantity directly; only the two buttons worked, exactly as reported.
+
+Added `components/quantity-input.tsx`, a small shared `QuantityInput` — buffers keystrokes in local text state (so the field doesn't snap back to the last committed number mid-edit, e.g. while briefly empty between clearing "1" and typing "25") and commits a parsed, clamped value on blur or Enter. Stays in sync when the +/- buttons change the value externally, using React's documented "adjust state during render" pattern instead of a `useEffect` (avoids a `react-hooks/set-state-in-effect` lint error and the cascading-render it warns about). Swapped into all four locations, preserving each site's existing width/border styling exactly — this was a bug fix, not a restyle.
+
+Verified live in all four spots: typed "25" on a homepage card, confirmed the +/- button correctly continued from 26 (not from the pre-edit value); typed a replacement quantity in the cart sheet and on the full cart page and confirmed the header cart badge updated to match; typed a quantity on a PDP. `npm run lint` clean.
+
 ## Bidding Engine Design
 
 - **Weighted award scoring**, not simple lowest-price-wins: Price 40%, seller reliability/trust score 25%, capacity fit 20%, delivery speed 15%.

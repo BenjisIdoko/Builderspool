@@ -5,6 +5,7 @@ import { MinusIcon, PlusIcon, ShoppingCartIcon } from '@phosphor-icons/react/ssr
 import { useCart } from '@/lib/cart/CartContext';
 import type { BuyerMaterial } from '@/lib/queries/materials';
 import { Button } from '@/components/ui/button';
+import { QuantityInput } from '@/components/quantity-input';
 
 export function AddToCartButton({ material }: { material: BuyerMaterial }) {
   const { addItem } = useCart();
@@ -24,7 +25,12 @@ export function AddToCartButton({ material }: { material: BuyerMaterial }) {
         >
           <MinusIcon className="size-3" />
         </Button>
-        <span className="w-7 text-center text-sm tabular-nums text-ink">{quantity}</span>
+        <QuantityInput
+          value={quantity}
+          onChange={setQuantity}
+          label={material.name}
+          className="w-7 text-sm tabular-nums text-ink"
+        />
         <Button
           type="button"
           variant="ghost"

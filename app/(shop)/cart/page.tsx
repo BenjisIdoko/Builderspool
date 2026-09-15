@@ -6,6 +6,7 @@ import { useCart } from '@/lib/cart/CartContext';
 import { formatNaira } from '@/lib/format';
 import { Button } from '@/components/ui/button';
 import { MaterialImage } from '@/components/material-image';
+import { QuantityInput } from '@/components/quantity-input';
 
 export default function CartPage() {
   const { lines, subtotal, updateQuantity, removeItem } = useCart();
@@ -62,7 +63,12 @@ export default function CartPage() {
                 >
                   <MinusIcon className="size-3" />
                 </Button>
-                <span className="w-8 text-center text-sm tabular-nums text-ink">{line.quantity}</span>
+                <QuantityInput
+                  value={line.quantity}
+                  onChange={(next) => updateQuantity(line.materialId, next)}
+                  label={line.name}
+                  className="w-8 text-sm tabular-nums text-ink"
+                />
                 <Button
                   type="button"
                   variant="ghost"
