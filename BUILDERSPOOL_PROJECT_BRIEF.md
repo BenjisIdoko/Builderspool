@@ -355,6 +355,22 @@ New `components/header-search.tsx`: icon-first by design specifically to avoid r
 
 Verified live at 1024px specifically (the exact width that broke before) — header renders cleanly, nothing overflows. Verified the search itself end-to-end: searching "cement" correctly returns all four cement products *and* the four Reinforcement Rod entries — not a bug, confirmed by querying the database directly, "Reinforcement" genuinely contains the substring "cement" (Rein-for-**cement**), so a case-insensitive substring search is behaving exactly as designed. `npm run lint` clean.
 
+### Seller portal restructured — left sidebar + dashboard KPI strip, from a "Bidly" reference (2026-09-15, later still)
+
+Reference was a tender/bid-management SaaS dashboard — genuinely close to this domain (their "tenders" map to our bid cycles), so most of its structure translated directly. Same rule as every prior design-inspiration pass: real data only, our own tokens.
+
+**Left sidebar navigation** (`components/seller/seller-sidebar.tsx`, new) replaces the old top header (`components/seller/seller-header.tsx`, deleted — fully superseded, nothing left referencing it) for the seller portal specifically. `hidden lg:flex`, active-link highlighting via `usePathname()` (same pattern `category-nav.tsx` already uses), logo at top, the same three real nav links as before (Open cycles / My bids / Allocations — no "Settings" link, since no seller settings page exists), and a footer with the seller's real business name/region and sign-out. `app/seller/(dashboard)/layout.tsx` now renders the sidebar alongside a slim `lg:hidden` mobile top bar (logo + the existing `MobileNav` sheet) instead of a single shared header — the buyer and admin portals are untouched, this only affects seller.
+
+**Dashboard KPI strip** (`app/seller/(dashboard)/page.tsx`) — 4 cards above the existing "Open demand pools" bid grid (which stays exactly as it was; it's the actual task, not something to replace with a generic table), matching the icon-badge-plus-status-chip pattern from the admin dashboard pass. All real, honestly derived from data already fetched for this page or one more real query (`getSellerBids`, `getSellerAllocations`, both pre-existing):
+- **Open demand pools** — count of cycles this seller is eligible to bid on; chip: how many they've already bid on.
+- **Closing today** — count of those cycles whose `cutoffAt` falls on today's calendar date; chip: "Urgent" (danger tone) if any, "None today" (success) otherwise.
+- **Bids submitted** — total bid count; chip: how many are still `SUBMITTED` (open).
+- **Awarded** — total allocation count; chip: how many have `payoutStatus !== PAID` ("pending payout") or "All paid out".
+
+Deliberately not adopted, for the same reason as every payment-adjacent thing skipped earlier: the reference's **"Ask Bidly" AI chat box and "Quick Actions" (Write Cover Letter, Explain Document, Find New Tenders)** — there's no AI assistant, document-explanation, or cover-letter feature anywhere in this system, and building the UI for one with no real backend would be exactly the kind of fake affordance this project has avoided throughout (the wishlist heart, the payment-method icons, the saved-card mockup).
+
+Verified live: KPI values match real seeded data (4 bids submitted, 4 allocations, 3 pending payout for the Dangote seller account); sidebar active-state class correctly follows the current route; "My bids" and "Allocations" both render correctly under the new layout; mobile top bar + sheet nav works. `npm run lint` and `tsc --noEmit` both clean.
+
 ## Bidding Engine Design
 
 - **Weighted award scoring**, not simple lowest-price-wins: Price 40%, seller reliability/trust score 25%, capacity fit 20%, delivery speed 15%.

@@ -1,35 +1,97 @@
-import { ClockIcon, MapPinIcon, TrophyIcon, CheckCircleIcon } from '@phosphor-icons/react/ssr';
+import {
+  AlarmIcon,
+  ClockIcon,
+  StackIcon,
+  TrophyIcon,
+  CheckCircleIcon,
+} from '@phosphor-icons/react/ssr';
 import { getSellerIdFromSession } from '@/lib/seller/session';
-import { getSellerProfile, getOpenCyclesForSeller } from '@/lib/queries/sellerPortal';
+import { getSellerProfile, getOpenCyclesForSeller, getSellerBids, getSellerAllocations } from '@/lib/queries/sellerPortal';
 import { formatNaira } from '@/lib/format';
+import { pillClass } from '@/lib/statusColors';
 import { BidDialog } from '@/components/seller/bid-dialog';
+import { Badge } from '@/components/ui/badge';
 
 export default async function SellerDashboardPage() {
   const sellerId = (await getSellerIdFromSession())!;
-  const [profile, cycles] = await Promise.all([
+  const [profile, cycles, bids, allocations] = await Promise.all([
     getSellerProfile(sellerId),
     getOpenCyclesForSeller(sellerId),
+    getSellerBids(sellerId),
+    getSellerAllocations(sellerId),
   ]);
+
+  const today = new Date();
+  const closingToday = cycles.filter((c) => {
+    const cutoff = c.cutoffAt;
+    return (
+      cutoff.getFullYear() === today.getFullYear() &&
+      cutoff.getMonth() === today.getMonth() &&
+      cutoff.getDate() === today.getDate()
+    );
+  }).length;
+  const openBids = bids.filter((b) => b.status === 'SUBMITTED').length;
+  const pendingPayouts = allocations.filter((a) => a.payoutStatus !== 'PAID').length;
+
+  const kpiCards = [
+    {
+      label: 'Open demand pools',
+      value: cycles.length,
+      icon: StackIcon,
+      chip: { text: `${cycles.filter((c) => c.myBid).length} bid on`, tone: 'info' as const },
+    },
+    {
+      label: 'Closing today',
+      value: closingToday,
+      icon: AlarmIcon,
+      chip:
+        closingToday > 0
+          ? { text: 'Urgent', tone: 'danger' as const }
+          : { text: 'None today', tone: 'success' as const },
+    },
+    {
+      label: 'Bids submitted',
+      value: bids.length,
+      icon: ClockIcon,
+      chip: { text: `${openBids} still open`, tone: 'info' as const },
+    },
+    {
+      label: 'Awarded',
+      value: allocations.length,
+      icon: TrophyIcon,
+      chip:
+        pendingPayouts > 0
+          ? { text: `${pendingPayouts} pending payout`, tone: 'warning' as const }
+          : { text: 'All paid out', tone: 'success' as const },
+    },
+  ];
 
   return (
     <div className="mx-auto w-full max-w-6xl px-6 py-12">
-      <div className="mb-8 flex flex-wrap items-center justify-between gap-4 rounded-lg border border-border bg-surface p-5">
-        <div>
-          <div className="text-sm font-bold text-ink">{profile!.user.businessName ?? profile!.user.name}</div>
-          <div className="mt-0.5 flex items-center gap-1.5 text-sm text-muted-foreground">
-            <MapPinIcon className="size-4" />
-            Serves {profile!.regionsServed.join(', ')}
+      <div className="mb-1 text-xs text-muted-foreground">Seller portal</div>
+      <h1 className="mb-1 text-xl font-bold tracking-tight text-ink">
+        Welcome back, {profile!.user.businessName ?? profile!.user.name}
+      </h1>
+      <p className="mb-6 text-sm text-muted-foreground">
+        Trust score {profile!.trustScore} · Serving {profile!.regionsServed.join(', ')}
+      </p>
+
+      <div className="mb-10 grid grid-cols-2 gap-4 lg:grid-cols-4">
+        {kpiCards.map((kpi) => (
+          <div key={kpi.label} className="rounded-lg border border-border bg-surface p-5">
+            <div className={`mb-4 flex size-9 items-center justify-center rounded-lg ${pillClass(kpi.chip.tone)}`}>
+              <kpi.icon className="size-4.5" />
+            </div>
+            <div className="mb-1.5 text-[11.5px] text-muted-foreground">{kpi.label}</div>
+            <div className="mb-2.5 text-xl font-semibold text-ink">{kpi.value}</div>
+            <Badge variant="outline" className={pillClass(kpi.chip.tone)}>
+              {kpi.chip.text}
+            </Badge>
           </div>
-        </div>
-        <div className="flex items-center gap-2 rounded-full border border-border bg-well px-3.5 py-2">
-          <TrophyIcon className="size-4 text-brand" />
-          <span className="text-sm text-slate">Trust score</span>
-          <span className="text-sm font-bold text-ink">{profile!.trustScore}</span>
-        </div>
+        ))}
       </div>
 
-      <div className="mb-1 text-xs text-muted-foreground">Seller portal</div>
-      <h1 className="mb-1 text-xl font-bold tracking-tight text-ink">Open demand pools</h1>
+      <h2 className="mb-1 text-xl font-bold tracking-tight text-ink">Open demand pools</h2>
       <p className="mb-6 text-sm text-muted-foreground">
         Blind bidding — you&apos;ll never see other sellers&apos; bids or buyer identities, only the
         aggregated demand.
