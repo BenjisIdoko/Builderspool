@@ -345,6 +345,16 @@ Added `components/quantity-input.tsx`, a small shared `QuantityInput` — buffer
 
 Verified live in all four spots: typed "25" on a homepage card, confirmed the +/- button correctly continued from 26 (not from the pre-edit value); typed a replacement quantity in the cart sheet and on the full cart page and confirmed the header cart badge updated to match; typed a quantity on a PDP. `npm run lint` clean.
 
+### Cart page trash icon; global search restored to the header (2026-09-15, later still)
+
+Two small requests. First, swapped the cart page's remove-item `X` icon for a trash icon (`app/(shop)/cart/page.tsx`) — cosmetic only.
+
+Second: **global search, back in the header.** A search field existed in the header before the Fable redesign but was deliberately dropped in that pass because it broke the layout at 1024px (documented earlier in this file). The backend already supported it the whole time — `getMaterials(category, query)` has always taken an optional `name: { contains, mode: 'insensitive' }` filter and the catalog page already read `searchParams.q` — there just hasn't been a UI entry point since the redesign.
+
+New `components/header-search.tsx`: icon-first by design specifically to avoid repeating the 1024px breakage — it renders as a single `MagnifyingGlassIcon` button by default and only expands into a bounded-width input (`w-36 sm:w-56`) once clicked, so it never competes with the nav links for space at any viewport. Submits via a plain `<form onSubmit>` (same pattern as `checkout-form.tsx`) that calls `router.push('/catalog?q=...')`; collapses back to the icon on blur if empty. Wired into `components/site-header.tsx` next to the account/cart icons.
+
+Verified live at 1024px specifically (the exact width that broke before) — header renders cleanly, nothing overflows. Verified the search itself end-to-end: searching "cement" correctly returns all four cement products *and* the four Reinforcement Rod entries — not a bug, confirmed by querying the database directly, "Reinforcement" genuinely contains the substring "cement" (Rein-for-**cement**), so a case-insensitive substring search is behaving exactly as designed. `npm run lint` clean.
+
 ## Bidding Engine Design
 
 - **Weighted award scoring**, not simple lowest-price-wins: Price 40%, seller reliability/trust score 25%, capacity fit 20%, delivery speed 15%.

@@ -3,6 +3,7 @@ import { UserIcon } from '@phosphor-icons/react/ssr';
 import { getCategories } from '@/lib/queries/materials';
 import { CartSheet } from './cart-sheet';
 import { MobileNav } from './mobile-nav';
+import { HeaderSearch } from './header-search';
 import { Logo } from './logo';
 
 export async function SiteHeader() {
@@ -33,6 +34,7 @@ export async function SiteHeader() {
         </nav>
 
         <div className="ml-auto flex shrink-0 items-center gap-3">
+          <HeaderSearch />
           <Link
             href="/account"
             className="flex items-center gap-1.5 text-sm font-medium text-slate transition-colors hover:text-ink"
