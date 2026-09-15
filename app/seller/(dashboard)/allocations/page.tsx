@@ -31,7 +31,7 @@ export default async function SellerAllocationsPage() {
         </div>
       ) : (
         <div>
-          <div className="grid grid-cols-[2fr_1fr_2fr_1.2fr] gap-4 border-b border-ink pb-3 text-[12.5px] font-semibold text-slate">
+          <div className="hidden gap-4 border-b border-ink pb-3 text-[12.5px] font-semibold text-slate sm:grid sm:grid-cols-[2fr_1fr_2fr_1.2fr]">
             <div>Allocation</div>
             <div>Quantity</div>
             <div>Drop-off center</div>
@@ -40,7 +40,7 @@ export default async function SellerAllocationsPage() {
           {allocations.map((allocation) => (
             <div
               key={allocation.id}
-              className="grid grid-cols-[2fr_1fr_2fr_1.2fr] items-center gap-4 border-b border-border py-4 text-sm"
+              className="flex flex-col gap-3 border-b border-border py-4 text-sm sm:grid sm:grid-cols-[2fr_1fr_2fr_1.2fr] sm:items-center sm:gap-4"
             >
               <div className="flex items-center gap-3">
                 <MaterialImage
@@ -58,10 +58,14 @@ export default async function SellerAllocationsPage() {
               </div>
 
               <div className="text-ink">
+                <span className="mr-1 text-xs text-muted-foreground sm:hidden">Quantity:</span>
                 {allocation.quantityFilled} {allocation.bid.material.unit}
               </div>
 
               <div>
+                <span className="mb-1 block text-xs font-semibold text-muted-foreground sm:hidden">
+                  Drop-off center
+                </span>
                 {allocation.orderItem.fulfillmentCenter ? (
                   <>
                     <div className="flex items-center gap-1.5 font-medium text-ink">
@@ -82,6 +86,9 @@ export default async function SellerAllocationsPage() {
               </div>
 
               <div>
+                <span className="mb-1 block text-xs font-semibold text-muted-foreground sm:hidden">
+                  Payout status
+                </span>
                 <Badge variant="outline" className={pillClass(payoutStatusTone(allocation.payoutStatus))}>
                   {PAYOUT_STATUS_LABEL[allocation.payoutStatus]}
                 </Badge>

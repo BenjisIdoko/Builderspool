@@ -371,6 +371,16 @@ Deliberately not adopted, for the same reason as every payment-adjacent thing sk
 
 Verified live: KPI values match real seeded data (4 bids submitted, 4 allocations, 3 pending payout for the Dangote seller account); sidebar active-state class correctly follows the current route; "My bids" and "Allocations" both render correctly under the new layout; mobile top bar + sheet nav works. `npm run lint` and `tsc --noEmit` both clean.
 
+### Fixed: two real mobile regressions from the sidebar restructure (2026-09-15, later still)
+
+User-reported: "check it on mobile it's not sitting properly." Checked every seller page at 375px and found two genuine bugs, both fixed:
+
+1. **Allocations page overflowed horizontally** — its table used a hardcoded `grid-cols-[2fr_1fr_2fr_1.2fr]` with no mobile fallback (pre-existing, not introduced by the sidebar change, just never hit a small screen with real content before). The Payout status column was cut off entirely. Fixed by making the row `flex flex-col` below `sm` and `sm:grid sm:grid-cols-[2fr_1fr_2fr_1.2fr]` at `sm` and up, with small inline field labels (`Quantity:`, `Drop-off center`, `Payout status`) shown only below `sm` where the table header is hidden. Desktop grid is pixel-identical to before.
+
+2. **Sign-out was missing entirely on mobile** — a real regression from the sidebar change: the old header always showed a visible "Sign out" button regardless of screen size; the new `SellerSidebar` only renders at `lg:flex`, so mobile lost it with no replacement. Fixed by giving `components/mobile-nav.tsx` a new optional `footer` prop (renders below the nav links, `mt-auto` pinned to the bottom of the sheet) — opt-in, so the buyer and admin mobile menus are unaffected. `app/seller/(dashboard)/layout.tsx` passes the same business-name/region/sign-out block the desktop sidebar footer already has.
+
+Verified live at 375px: Allocations renders as clean stacked cards with labels, no overflow; mobile menu now shows the seller's real business name, regions, and a working sign-out button pinned to the bottom. Re-verified the desktop table view is unchanged. `npm run lint` and `tsc --noEmit` clean.
+
 ## Bidding Engine Design
 
 - **Weighted award scoring**, not simple lowest-price-wins: Price 40%, seller reliability/trust score 25%, capacity fit 20%, delivery speed 15%.

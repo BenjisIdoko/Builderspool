@@ -10,11 +10,14 @@ export function MobileNav({
   links,
   title,
   hideFrom = 'lg',
+  footer,
 }: {
   links: { href: string; label: string }[];
   title: string;
   /** Tailwind breakpoint at which the full nav takes over and this trigger hides. */
   hideFrom?: 'sm' | 'lg';
+  /** Optional content rendered below the nav links, e.g. account info + sign out. */
+  footer?: React.ReactNode;
 }) {
   const [open, setOpen] = useState(false);
 
@@ -47,6 +50,7 @@ export function MobileNav({
             </SheetClose>
           ))}
         </nav>
+        {footer && <div className="mt-auto border-t border-border p-4">{footer}</div>}
       </SheetContent>
     </Sheet>
   );
