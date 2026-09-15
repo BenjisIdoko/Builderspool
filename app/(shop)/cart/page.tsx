@@ -1,7 +1,7 @@
 'use client';
 
 import Link from 'next/link';
-import { MinusIcon, PlusIcon, XIcon } from '@phosphor-icons/react/ssr';
+import { MinusIcon, PlusIcon, TrashIcon } from '@phosphor-icons/react/ssr';
 import { useCart } from '@/lib/cart/CartContext';
 import { formatNaira } from '@/lib/format';
 import { Button } from '@/components/ui/button';
@@ -92,7 +92,7 @@ export default function CartPage() {
                 onClick={() => removeItem(line.materialId)}
                 aria-label={`Remove ${line.name}`}
               >
-                <XIcon className="size-4" />
+                <TrashIcon className="size-4" />
               </Button>
             </div>
           ))}
