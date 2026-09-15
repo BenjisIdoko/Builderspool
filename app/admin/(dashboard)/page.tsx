@@ -1,10 +1,18 @@
-import Link from 'next/link';
+import {
+  ChartBarIcon,
+  ClipboardTextIcon,
+  ClockIcon,
+  CurrencyNgnIcon,
+  PackageIcon,
+  ReceiptIcon,
+  TrendUpIcon,
+} from '@phosphor-icons/react/ssr';
 import { getAllCycles } from '@/lib/queries/adminBidding';
 import { getAdminKpis, getRecentOrders, getDailyGmv } from '@/lib/queries/adminStats';
 import { formatNaira } from '@/lib/format';
-import { cycleStatusTone, orderStatusTone, pillClass } from '@/lib/statusColors';
+import { orderStatusTone, pillClass } from '@/lib/statusColors';
 import { Badge } from '@/components/ui/badge';
-import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
+import { CyclesTable } from '@/components/admin/cycles-table';
 
 const ORDER_STATUS_LABEL: Record<string, string> = {
   PENDING_PAYMENT: 'Pending payment',
@@ -20,12 +28,43 @@ export default async function AdminCyclesPage() {
     getDailyGmv(),
   ]);
 
+  // Every chip below is a real, honestly-derived read — no fabricated
+  // percentages or comparisons the data doesn't support.
+  const marginPct = kpis.platformGmv > 0 ? (kpis.margin / kpis.platformGmv) * 100 : 0;
   const kpiCards = [
-    { label: 'Platform GMV', value: formatNaira(kpis.platformGmv) },
-    { label: 'Builders Pool margin', value: formatNaira(kpis.margin) },
-    { label: 'Active demand pools', value: `${kpis.activeDemandPools} open` },
-    { label: 'Material volume', value: `${kpis.materialVolume} units` },
-    { label: 'Pending hub GRNs', value: `${kpis.pendingGrnCount} arriving` },
+    {
+      label: 'Platform GMV',
+      value: formatNaira(kpis.platformGmv),
+      icon: CurrencyNgnIcon,
+      chip: { text: 'All-time', tone: 'info' as const },
+    },
+    {
+      label: 'Builders Pool margin',
+      value: formatNaira(kpis.margin),
+      icon: TrendUpIcon,
+      chip: { text: `${marginPct.toFixed(1)}% of GMV`, tone: 'success' as const },
+    },
+    {
+      label: 'Active demand pools',
+      value: `${kpis.activeDemandPools} open`,
+      icon: ClockIcon,
+      chip: { text: 'Live count', tone: 'info' as const },
+    },
+    {
+      label: 'Material volume',
+      value: `${kpis.materialVolume} units`,
+      icon: PackageIcon,
+      chip: { text: 'All-time', tone: 'info' as const },
+    },
+    {
+      label: 'Pending hub GRNs',
+      value: `${kpis.pendingGrnCount} arriving`,
+      icon: ClipboardTextIcon,
+      chip:
+        kpis.pendingGrnCount > 0
+          ? { text: 'Needs receipt', tone: 'warning' as const }
+          : { text: 'All clear', tone: 'success' as const },
+    },
   ];
 
   const maxGmv = Math.max(1, ...dailyGmv.map((d) => d.total));
@@ -35,18 +74,28 @@ export default async function AdminCyclesPage() {
       <div className="mb-3 text-xs text-muted-foreground">Admin · ops desk</div>
       <h1 className="mb-8 text-2xl font-bold tracking-tight text-ink">Platform administration</h1>
 
-      <div className="mb-14 grid grid-cols-2 gap-px overflow-hidden rounded-lg border border-border bg-border sm:grid-cols-5">
+      <div className="mb-14 grid grid-cols-2 gap-4 sm:grid-cols-5">
         {kpiCards.map((kpi) => (
-          <div key={kpi.label} className="bg-surface p-5">
-            <div className="mb-2.5 text-[11.5px] text-muted-foreground">{kpi.label}</div>
-            <div className="text-xl font-semibold text-ink">{kpi.value}</div>
+          <div key={kpi.label} className="rounded-lg border border-border bg-surface p-5">
+            <div className={`mb-4 flex size-9 items-center justify-center rounded-lg ${pillClass(kpi.chip.tone)}`}>
+              <kpi.icon className="size-4.5" />
+            </div>
+            <div className="mb-1.5 text-[11.5px] text-muted-foreground">{kpi.label}</div>
+            <div className="mb-2.5 text-xl font-semibold text-ink">{kpi.value}</div>
+            <Badge variant="outline" className={pillClass(kpi.chip.tone)}>
+              {kpi.chip.text}
+            </Badge>
           </div>
         ))}
       </div>
 
-      <div className="mb-14 grid grid-cols-1 gap-12 lg:grid-cols-[1.4fr_1fr]">
-        <div>
-          <h2 className="mb-4 text-[13px] font-bold text-slate">Recent orders</h2>
+      <div className="mb-14 grid grid-cols-1 gap-6 lg:grid-cols-[1.4fr_1fr]">
+        <div className="rounded-lg border border-border bg-surface p-6">
+          <div className="mb-1 flex items-center gap-2">
+            <ReceiptIcon className="size-4.5 text-slate" />
+            <h2 className="text-[13px] font-bold text-slate">Recent orders</h2>
+          </div>
+          <p className="mb-5 text-xs text-muted-foreground">The latest checkouts across every buyer, newest first.</p>
           <div className="grid grid-cols-4 gap-4 border-b border-ink pb-3 text-[12.5px] font-semibold text-slate">
             <div>Order</div>
             <div>Material</div>
@@ -72,8 +121,12 @@ export default async function AdminCyclesPage() {
           ))}
         </div>
 
-        <div>
-          <h2 className="mb-4 text-[13px] font-bold text-slate">GMV, last {dailyGmv.length} days</h2>
+        <div className="rounded-lg border border-border bg-surface p-6">
+          <div className="mb-1 flex items-center gap-2">
+            <ChartBarIcon className="size-4.5 text-slate" />
+            <h2 className="text-[13px] font-bold text-slate">GMV, last {dailyGmv.length} days</h2>
+          </div>
+          <p className="mb-5 text-xs text-muted-foreground">Real paid-order totals per calendar day.</p>
           <div className="flex h-40 items-end gap-3.5 border-b border-border pb-1">
             {dailyGmv.map((day, i) => {
               const isLast = i === dailyGmv.length - 1;
@@ -103,62 +156,7 @@ export default async function AdminCyclesPage() {
         </div>
       </div>
 
-      <h2 className="mb-1 text-xl font-bold tracking-tight text-ink">Bid cycles</h2>
-      <p className="mb-6 text-sm text-muted-foreground">
-        Every demand cycle the bidding engine has created or resolved — one per material, per
-        region (national if none), per day.
-      </p>
-
-      {cycles.length === 0 ? (
-        <p className="rounded-lg border border-border bg-surface p-6 text-sm text-muted-foreground">
-          No bid cycles yet — one is created the first time a paid order item joins a demand pool
-          (see lib/bidding/joinCycle.ts).
-        </p>
-      ) : (
-        <div className="overflow-hidden rounded-lg border border-border bg-surface">
-          <Table>
-            <TableHeader>
-              <TableRow>
-                <TableHead>Material</TableHead>
-                <TableHead>Region</TableHead>
-                <TableHead>Cutoff</TableHead>
-                <TableHead>Demand</TableHead>
-                <TableHead>Bids</TableHead>
-                <TableHead>Status</TableHead>
-                <TableHead />
-              </TableRow>
-            </TableHeader>
-            <TableBody>
-              {cycles.map((cycle) => (
-                <TableRow key={cycle.id}>
-                  <TableCell className="text-ink">
-                    {cycle.material.name}
-                    <span className="ml-1.5 text-xs text-muted-foreground">{cycle.material.category}</span>
-                  </TableCell>
-                  <TableCell className="text-ink">{cycle.region ?? 'National'}</TableCell>
-                  <TableCell className="text-ink">
-                    {cycle.cutoffAt.toLocaleString('en-NG', { dateStyle: 'medium', timeStyle: 'short' })}
-                  </TableCell>
-                  <TableCell className="text-ink">
-                    {cycle.totalQuantityRequested} {cycle.material.unit}
-                  </TableCell>
-                  <TableCell className="text-ink">{cycle.bidCount}</TableCell>
-                  <TableCell>
-                    <Badge variant="outline" className={pillClass(cycleStatusTone(cycle.status))}>
-                      {cycle.status.toLowerCase()}
-                    </Badge>
-                  </TableCell>
-                  <TableCell className="text-right">
-                    <Link href={`/admin/cycles/${cycle.id}`} className="text-sm text-brand hover:underline">
-                      View
-                    </Link>
-                  </TableCell>
-                </TableRow>
-              ))}
-            </TableBody>
-          </Table>
-        </div>
-      )}
+      <CyclesTable cycles={cycles} />
     </div>
   );
 }

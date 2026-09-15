@@ -8,28 +8,35 @@ import { Badge } from '@/components/ui/badge';
 
 export function MaterialCard({ material }: { material: BuyerMaterial }) {
   return (
-    <Card className="gap-0 overflow-hidden py-0">
-      <Link href={`/catalog/${material.id}`} className="flex flex-col">
+    <Card className="gap-3 p-3">
+      <Link href={`/catalog/${material.id}`} className="relative block overflow-hidden rounded-lg">
         <MaterialImage
           imageUrl={material.imageUrl}
           category={material.category}
           alt={material.name}
-          className="aspect-[4/3] w-full border-b border-border"
+          className="aspect-square w-full"
         />
-        <CardContent className="flex flex-col gap-1.5 p-4">
-          <Badge variant="outline" className="w-fit bg-well text-muted-foreground">
-            {material.category}
-          </Badge>
-          <span className="text-[15px] leading-snug font-semibold text-ink">{material.name}</span>
-          {material.spec && <span className="text-sm text-slate">{material.spec}</span>}
-        </CardContent>
+        <Badge
+          variant="outline"
+          className="absolute top-2.5 left-2.5 border-transparent bg-white/92 text-muted-foreground"
+        >
+          {material.category}
+        </Badge>
       </Link>
-      <CardFooter className="mt-auto flex-col items-stretch gap-3 border-t border-border bg-surface p-4">
-        <div className="flex items-baseline justify-between">
+
+      <CardContent className="flex flex-1 flex-col gap-1 p-0">
+        <Link href={`/catalog/${material.id}`}>
+          <span className="text-[15px] leading-snug font-semibold text-ink">{material.name}</span>
+        </Link>
+        {material.spec && <p className="line-clamp-2 text-sm text-slate">{material.spec}</p>}
+      </CardContent>
+
+      <CardFooter className="flex-col items-stretch gap-3 p-0">
+        <div>
           <span className="text-lg font-bold tabular-nums text-ink">
             {formatNaira(material.catalogPrice)}
           </span>
-          <span className="text-xs text-muted-foreground">/ {material.unit}</span>
+          <span className="ml-1 text-xs text-muted-foreground">/ {material.unit}</span>
         </div>
         <AddToCartButton material={material} />
       </CardFooter>
