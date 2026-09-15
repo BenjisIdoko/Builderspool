@@ -2,7 +2,7 @@
 
 import { useState } from 'react';
 import Link from 'next/link';
-import { MinusIcon, PlusIcon, XIcon } from '@phosphor-icons/react/ssr';
+import { MinusIcon, PlusIcon, ShoppingCartIcon, XIcon } from '@phosphor-icons/react/ssr';
 import { useCart } from '@/lib/cart/CartContext';
 import { formatNaira } from '@/lib/format';
 import { Button } from '@/components/ui/button';
@@ -25,16 +25,20 @@ export function CartSheet() {
   return (
     <Sheet open={open} onOpenChange={setOpen}>
       <SheetTrigger asChild>
-        <Button variant="outline" className="gap-2">
-          Cart
-          <Badge className="rounded-full">{itemCount}</Badge>
+        <Button variant="outline" size="icon" className="relative" aria-label={`Cart, ${itemCount} ${itemCount === 1 ? 'item' : 'items'}`}>
+          <ShoppingCartIcon className="size-4.5" />
+          {itemCount > 0 && (
+            <Badge className="absolute -top-1.5 -right-1.5 min-w-[1.1rem] justify-center rounded-full px-1 text-[10px]">
+              {itemCount}
+            </Badge>
+          )}
         </Button>
       </SheetTrigger>
 
       <SheetContent side="right" className="flex w-full flex-col gap-0 sm:max-w-md">
         <SheetHeader className="border-b border-border">
           <SheetTitle>
-            Cart (<span className="font-mono">{itemCount}</span> {itemCount === 1 ? 'item' : 'items'})
+            Cart (<span>{itemCount}</span> {itemCount === 1 ? 'item' : 'items'})
           </SheetTitle>
         </SheetHeader>
 
@@ -70,7 +74,7 @@ export function CartSheet() {
                       </Link>
                     </SheetClose>
                     <div className="text-xs text-muted-foreground">
-                      <span className="font-mono">{formatNaira(line.catalogPrice)}</span> / {line.unit}
+                      <span>{formatNaira(line.catalogPrice)}</span> / {line.unit}
                     </div>
 
                     <div className="mt-2 flex items-center justify-between">
@@ -85,7 +89,7 @@ export function CartSheet() {
                         >
                           <MinusIcon className="size-3" />
                         </Button>
-                        <span className="w-7 text-center text-sm font-mono tabular-nums text-ink">{line.quantity}</span>
+                        <span className="w-7 text-center text-sm tabular-nums text-ink">{line.quantity}</span>
                         <Button
                           type="button"
                           variant="ghost"
@@ -98,7 +102,7 @@ export function CartSheet() {
                         </Button>
                       </div>
 
-                      <span className="text-sm font-bold font-mono tabular-nums text-ink">
+                      <span className="text-sm font-bold tabular-nums text-ink">
                         {formatNaira(line.catalogPrice * line.quantity)}
                       </span>
                     </div>
@@ -121,7 +125,7 @@ export function CartSheet() {
             <SheetFooter className="border-t border-border">
               <div className="flex items-center justify-between text-sm">
                 <span className="text-slate">Subtotal</span>
-                <span className="font-bold font-mono tabular-nums text-ink">{formatNaira(subtotal)}</span>
+                <span className="font-bold tabular-nums text-ink">{formatNaira(subtotal)}</span>
               </div>
               <p className="text-xs text-muted-foreground">Delivery calculated at checkout.</p>
               <SheetClose asChild>

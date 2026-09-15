@@ -24,11 +24,11 @@ export default async function SellerDashboardPage() {
         <div className="flex items-center gap-2 rounded-full border border-border bg-well px-3.5 py-2">
           <TrophyIcon className="size-4 text-brand" />
           <span className="text-sm text-slate">Trust score</span>
-          <span className="font-mono text-sm font-bold text-ink">{profile!.trustScore}</span>
+          <span className="text-sm font-bold text-ink">{profile!.trustScore}</span>
         </div>
       </div>
 
-      <div className="mb-1 font-mono text-xs text-muted-foreground">Seller portal</div>
+      <div className="mb-1 text-xs text-muted-foreground">Seller portal</div>
       <h1 className="mb-1 text-xl font-bold tracking-tight text-ink">Open demand pools</h1>
       <p className="mb-6 text-sm text-muted-foreground">
         Blind bidding — you&apos;ll never see other sellers&apos; bids or buyer identities, only the
@@ -45,7 +45,7 @@ export default async function SellerDashboardPage() {
           {cycles.map((cycle) => (
             <div key={cycle.id} className="border-t border-r border-border p-6">
               <div className="mb-3 flex items-baseline justify-between gap-2">
-                <span className="font-mono text-[11px] font-semibold text-slate">
+                <span className="text-[11px] font-semibold text-slate">
                   {cycle.region ?? 'National'}
                 </span>
                 <span className="flex items-center gap-1 text-[11px] text-muted-foreground">
@@ -62,7 +62,7 @@ export default async function SellerDashboardPage() {
 
               <div className="mb-1 flex justify-between text-[13px]">
                 <span className="text-slate">Pooled demand</span>
-                <span className="font-mono font-semibold text-ink">
+                <span className="font-semibold text-ink">
                   {cycle.totalQuantityRequested} {cycle.material.unit}
                 </span>
               </div>
@@ -71,8 +71,8 @@ export default async function SellerDashboardPage() {
                 <div className="mt-3 flex items-start gap-1.5 rounded-md bg-well px-3 py-2.5 text-[12.5px] text-ink">
                   <CheckCircleIcon className="mt-0.5 size-3.5 shrink-0 text-brand" />
                   <span>
-                    Your bid: <span className="font-mono font-bold">{formatNaira(cycle.myBid.unitPrice)}</span> for{' '}
-                    <span className="font-mono font-bold">
+                    Your bid: <span className="font-bold">{formatNaira(cycle.myBid.unitPrice)}</span> for{' '}
+                    <span className="font-bold">
                       {cycle.myBid.quantityOffered} {cycle.material.unit}
                     </span>
                   </span>

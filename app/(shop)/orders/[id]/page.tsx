@@ -38,7 +38,7 @@ export default async function OrderConfirmationPage({ params }: { params: Promis
             </Badge>
           </div>
           <p className="mt-1 text-sm text-muted-foreground">
-            Order <span className="font-mono text-ink">{order.id}</span>
+            Order <span className="text-ink">{order.id}</span>
             {order.status === 'PENDING_PAYMENT' && ' — we\'ll confirm your payment shortly.'}
           </p>
         </div>
@@ -106,10 +106,10 @@ export default async function OrderConfirmationPage({ params }: { params: Promis
               <div className="flex-1">
                 <div className="font-medium text-ink">{item.material.name}</div>
                 <div className="text-sm text-muted-foreground">
-                  <span className="font-mono">{item.quantity}</span> {item.material.unit} × <span className="font-mono">{formatNaira(item.priceLocked)}</span>
+                  <span>{item.quantity}</span> {item.material.unit} × <span>{formatNaira(item.priceLocked)}</span>
                 </div>
               </div>
-              <div className="font-bold font-mono tabular-nums text-ink">
+              <div className="font-bold tabular-nums text-ink">
                 {formatNaira(item.priceLocked * item.quantity)}
               </div>
             </div>
@@ -118,15 +118,15 @@ export default async function OrderConfirmationPage({ params }: { params: Promis
         <div className="flex flex-col gap-1.5 border-t border-border px-5 py-4 text-sm">
           <div className="flex justify-between text-slate">
             <span>Subtotal</span>
-            <span className="font-bold font-mono tabular-nums">{formatNaira(subtotal)}</span>
+            <span className="font-bold tabular-nums">{formatNaira(subtotal)}</span>
           </div>
           <div className="flex justify-between text-slate">
             <span>Delivery</span>
-            <span className="font-bold font-mono tabular-nums">{deliveryTotal === 0 ? 'Free' : formatNaira(deliveryTotal)}</span>
+            <span className="font-bold tabular-nums">{deliveryTotal === 0 ? 'Free' : formatNaira(deliveryTotal)}</span>
           </div>
           <div className="flex justify-between pt-1 text-base font-bold text-ink">
             <span>Total</span>
-            <span className="font-mono tabular-nums">{formatNaira(subtotal + deliveryTotal)}</span>
+            <span className="tabular-nums">{formatNaira(subtotal + deliveryTotal)}</span>
           </div>
         </div>
       </div>

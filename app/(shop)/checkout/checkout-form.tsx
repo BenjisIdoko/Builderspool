@@ -73,7 +73,7 @@ export function CheckoutForm({ buyerId }: { buyerId: string }) {
   return (
     <form onSubmit={handleSubmit} className="grid grid-cols-1 gap-8 lg:grid-cols-[1fr_360px]">
       <div className="flex flex-col">
-        <div className="mb-3.5 font-mono text-[13px] font-bold text-slate">01 · Fulfillment</div>
+        <div className="mb-3.5 text-[13px] font-bold text-slate">01 · Fulfillment</div>
         <div className="mb-10 grid grid-cols-2 gap-3">
           {(['DELIVERY', 'PICKUP'] as const).map((method) => (
             <button
@@ -91,7 +91,7 @@ export function CheckoutForm({ buyerId }: { buyerId: string }) {
           ))}
         </div>
 
-        <div className="mb-3.5 font-mono text-[13px] font-bold text-slate">02 · Region</div>
+        <div className="mb-3.5 text-[13px] font-bold text-slate">02 · Region</div>
         <div className="mb-10 max-w-xs">
           <Label htmlFor="region" className="sr-only">
             Region
@@ -110,15 +110,15 @@ export function CheckoutForm({ buyerId }: { buyerId: string }) {
           </Select>
         </div>
 
-        <div className="mb-3.5 font-mono text-[13px] font-bold text-slate">03 · Items ({lines.length})</div>
+        <div className="mb-3.5 text-[13px] font-bold text-slate">03 · Items ({lines.length})</div>
         <div className="rounded-lg border border-border bg-surface p-5">
           <div className="flex flex-col gap-2">
             {lines.map((line) => (
               <div key={line.materialId} className="flex justify-between text-sm">
                 <span className="text-ink">
-                  {line.name} × <span className="font-mono">{line.quantity}</span>
+                  {line.name} × <span>{line.quantity}</span>
                 </span>
-                <span className="font-bold font-mono tabular-nums text-slate">{formatNaira(line.catalogPrice * line.quantity)}</span>
+                <span className="font-bold tabular-nums text-slate">{formatNaira(line.catalogPrice * line.quantity)}</span>
               </div>
             ))}
           </div>
@@ -136,15 +136,15 @@ export function CheckoutForm({ buyerId }: { buyerId: string }) {
         <div className="flex flex-col gap-1.5 text-sm">
           <div className="flex justify-between text-slate">
             <span>Subtotal</span>
-            <span className="font-bold font-mono tabular-nums">{formatNaira(subtotal)}</span>
+            <span className="font-bold tabular-nums">{formatNaira(subtotal)}</span>
           </div>
           <div className="flex justify-between text-slate">
             <span>Delivery</span>
-            <span className="font-bold font-mono tabular-nums">{deliveryCost === 0 ? 'Free' : formatNaira(deliveryCost)}</span>
+            <span className="font-bold tabular-nums">{deliveryCost === 0 ? 'Free' : formatNaira(deliveryCost)}</span>
           </div>
           <div className="flex justify-between border-t border-border pt-2.5 text-base font-bold text-ink">
             <span>Total</span>
-            <span className="font-mono tabular-nums">{formatNaira(total)}</span>
+            <span className="tabular-nums">{formatNaira(total)}</span>
           </div>
         </div>
 

@@ -45,7 +45,7 @@ export default async function SellerBidsPage() {
                     </Badge>
                   </div>
                   <div className="mt-1 flex flex-wrap items-center gap-x-4 gap-y-1 text-sm text-muted-foreground">
-                    <span className="flex items-center gap-1.5 font-mono">
+                    <span className="flex items-center gap-1.5">
                       <StackIcon className="size-3.5" />
                       {bid.quantityOffered} {bid.material.unit}
                     </span>
@@ -60,7 +60,7 @@ export default async function SellerBidsPage() {
                   </div>
                 </div>
 
-                <div className="font-bold font-mono tabular-nums text-ink">{formatNaira(bid.unitPrice)}</div>
+                <div className="font-bold tabular-nums text-ink">{formatNaira(bid.unitPrice)}</div>
 
                 {bid.status === 'SUBMITTED' && (
                   <form action={withdrawBid}>

@@ -22,7 +22,7 @@ export default async function CatalogPage({
         <h1 className="text-2xl font-bold tracking-tight text-ink">
           {q ? `Results for “${q}”` : category ? category : 'Catalogue'}
         </h1>
-        <span className="font-mono text-xs text-muted-foreground">
+        <span className="text-xs text-muted-foreground">
           {materials.length} {materials.length === 1 ? 'material' : 'materials'}
         </span>
       </div>
@@ -51,7 +51,7 @@ export default async function CatalogPage({
               </span>
             </div>
             <div className="mb-2 text-[15px] font-semibold text-ink">{material.name}</div>
-            <div className="font-mono text-base font-semibold text-ink">
+            <div className="text-base font-semibold text-ink">
               {formatNaira(material.catalogPrice)}
               <span className="ml-1 font-sans text-sm font-normal text-muted-foreground">/ {material.unit}</span>
             </div>

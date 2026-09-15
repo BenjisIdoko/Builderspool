@@ -26,7 +26,7 @@ export function MaterialCard({ material }: { material: BuyerMaterial }) {
       </Link>
       <CardFooter className="mt-auto flex-col items-stretch gap-3 border-t border-border bg-surface p-4">
         <div className="flex items-baseline justify-between">
-          <span className="text-lg font-bold font-mono tabular-nums text-ink">
+          <span className="text-lg font-bold tabular-nums text-ink">
             {formatNaira(material.catalogPrice)}
           </span>
           <span className="text-xs text-muted-foreground">/ {material.unit}</span>

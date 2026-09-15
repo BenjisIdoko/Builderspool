@@ -43,7 +43,7 @@ export function BidDialog({
           <DialogTitle className="text-lg">{cycle.material.name}</DialogTitle>
           <p className="text-sm text-slate">
             Consolidated pool:{' '}
-            <span className="font-mono font-bold text-ink">
+            <span className="font-bold text-ink">
               {cycle.totalQuantityRequested} {cycle.material.unit}
             </span>{' '}
             ({cycle.region ?? 'National'})
@@ -78,7 +78,6 @@ export function BidDialog({
               min="1"
               step="1"
               required
-              className="font-mono"
               value={unitPrice || ''}
               onChange={(e) => setUnitPrice(Number(e.target.value))}
             />
@@ -94,7 +93,6 @@ export function BidDialog({
                 min="1"
                 step="1"
                 required
-                className="font-mono"
                 value={quantity || ''}
                 onChange={(e) => setQuantity(Number(e.target.value))}
               />
@@ -109,7 +107,6 @@ export function BidDialog({
                 min="0"
                 step="1"
                 required
-                className="font-mono"
                 defaultValue={cycle.myBid?.estimatedDeliveryDays}
               />
               <p className="text-[11px] text-muted-foreground">Days to reach regional hub</p>
@@ -119,7 +116,7 @@ export function BidDialog({
           <div className="flex items-center justify-between border-t border-border pt-4">
             <div>
               <div className="text-[11.5px] text-muted-foreground">Total bid value</div>
-              <div className="font-mono text-lg font-bold text-ink">{formatNaira(totalBidValue)}</div>
+              <div className="text-lg font-bold text-ink">{formatNaira(totalBidValue)}</div>
             </div>
             <Button type="submit">{cycle.myBid ? 'Update bid' : 'Seal & submit bid'}</Button>
           </div>

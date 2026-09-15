@@ -1,8 +1,11 @@
+import { BellIcon } from '@phosphor-icons/react/ssr';
 import { getDemoBuyer } from '@/lib/demoBuyer';
 import { getOrdersForBuyer } from '@/lib/queries/orders';
+import { getPriceAlertsForBuyer } from '@/lib/queries/priceAlerts';
 import { formatNaira } from '@/lib/format';
 import { orderStatusTone, pillClass } from '@/lib/statusColors';
 import { updateBuyerProfile } from './actions';
+import { cancelPriceAlert } from '../catalog/actions';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -17,14 +20,17 @@ const STATUS_LABEL: Record<string, string> = {
 
 export default async function AccountPage() {
   const buyer = await getDemoBuyer();
-  const orders = await getOrdersForBuyer(buyer.id);
+  const [orders, priceAlerts] = await Promise.all([
+    getOrdersForBuyer(buyer.id),
+    getPriceAlertsForBuyer(buyer.id),
+  ]);
   const activeOrders = orders.filter((o) => o.status !== 'CANCELLED').length;
 
   return (
     <div className="mx-auto w-full max-w-3xl px-6 py-10">
       <h1 className="mb-1 text-2xl font-bold tracking-tight text-ink">Welcome back, {buyer.name}</h1>
       <p className="mb-8 text-sm text-slate">
-        <span className="font-mono">{activeOrders}</span> active {activeOrders === 1 ? 'order' : 'orders'} · buyer
+        <span>{activeOrders}</span> active {activeOrders === 1 ? 'order' : 'orders'} · buyer
         accounts aren&apos;t built yet, so edits below save to this one demo profile.
       </p>
 
@@ -84,7 +90,7 @@ export default async function AccountPage() {
               >
                 <div>
                   <div className="flex items-center gap-2">
-                    <span className="font-mono text-sm text-ink">{order.id}</span>
+                    <span className="text-sm text-ink">{order.id}</span>
                     <Badge variant="outline" className={pillClass(orderStatusTone(order.status))}>
                       {STATUS_LABEL[order.status] ?? order.status}
                     </Badge>
@@ -94,8 +100,53 @@ export default async function AccountPage() {
                     {order.itemCount} item{order.itemCount === 1 ? '' : 's'}
                   </div>
                 </div>
-                <div className="font-bold font-mono tabular-nums text-ink">{formatNaira(order.total)}</div>
+                <div className="font-bold tabular-nums text-ink">{formatNaira(order.total)}</div>
               </Link>
+            ))}
+          </div>
+        )}
+      </div>
+
+      <div className="mt-8 overflow-hidden rounded-lg border border-border bg-surface">
+        <div className="border-b border-border px-5 py-4">
+          <h2 className="flex items-center gap-1.5 text-sm font-bold text-slate">
+            <BellIcon className="size-4" />
+            Price alerts
+          </h2>
+        </div>
+        {priceAlerts.length === 0 ? (
+          <p className="p-5 text-sm text-muted-foreground">
+            No price alerts yet — set one from a material&apos;s technical specs panel.
+          </p>
+        ) : (
+          <div className="divide-y divide-border">
+            {priceAlerts.map((alert) => (
+              <div key={alert.id} className="flex items-center justify-between gap-4 px-5 py-4">
+                <div>
+                  <Link href={`/catalog/${alert.material.id}`} className="text-sm font-semibold text-ink hover:underline">
+                    {alert.material.name}
+                  </Link>
+                  <div className="mt-1 text-sm text-muted-foreground">
+                    Target {formatNaira(alert.targetPrice)} · currently {formatNaira(alert.material.catalogPrice)}
+                  </div>
+                </div>
+                <div className="flex items-center gap-3">
+                  {alert.reached ? (
+                    <Badge variant="outline" className="bg-success-soft text-success border-transparent">
+                      Target reached
+                    </Badge>
+                  ) : (
+                    <Badge variant="outline" className="border-border text-slate">
+                      Watching
+                    </Badge>
+                  )}
+                  <form action={cancelPriceAlert.bind(null, alert.id)}>
+                    <Button type="submit" variant="ghost" size="sm">
+                      Cancel
+                    </Button>
+                  </form>
+                </div>
+              </div>
             ))}
           </div>
         )}

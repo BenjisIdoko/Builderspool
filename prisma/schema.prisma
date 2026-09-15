@@ -75,6 +75,7 @@ model User {
   cartItems     CartItem[]
   orders        Order[]
   bids          Bid[]
+  priceAlerts   PriceAlert[]
 }
 
 // Seller-specific data. regionsServed feeds the geography eligibility filter;
@@ -104,7 +105,15 @@ model Material {
   name          String
   category      String
   unit          String // e.g. "50kg bag", "12mm x 12m length", "trip (5 tons)"
-  spec          String? // grade, size, brand-neutral spec description
+  spec          String? // grade, size, brand-neutral spec description (free text)
+  // Structured spec fields (2026-09-15) — same real information as `spec`
+  // above, broken into a fixed grid for display. Nullable and left blank
+  // rather than guessed where the source spec text doesn't clearly state
+  // it (e.g. no fabricated compliance/standard codes) — see prisma/seed.ts.
+  grade         String?
+  standard      String?
+  dimensions    String?
+  weight        String?
   imageUrl      String?
   catalogPrice  Decimal       @db.Decimal(12, 2) // buyer-facing fixed price
   sourcingScope SourcingScope @default(NATIONAL)
@@ -115,6 +124,7 @@ model Material {
   bids           Bid[]
   bidCycles      BidCycle[]
   priceSnapshots PriceSnapshot[]
+  priceAlerts    PriceAlert[]
 }
 
 // A record of what catalogPrice was at a point in time — buyer-safe price
@@ -253,4 +263,23 @@ model Allocation {
 
   bid       Bid       @relation(fields: [bidId], references: [id])
   orderItem OrderItem @relation(fields: [orderItemId], references: [id])
+}
+
+// A buyer's stored "notify me at this price" request. Stored only — there's
+// no email/SMS delivery infrastructure yet, so nothing actually sends a
+// notification. `active` lets a buyer cancel one; whether the target has
+// already been reached is computed at read time from the real catalogPrice,
+// never fabricated.
+model PriceAlert {
+  id          String    @id @default(cuid())
+  materialId  String
+  buyerId     String
+  targetPrice Decimal   @db.Decimal(12, 2)
+  active      Boolean   @default(true)
+  createdAt   DateTime  @default(now())
+
+  material Material @relation(fields: [materialId], references: [id])
+  buyer    User     @relation(fields: [buyerId], references: [id])
+
+  @@index([materialId, active])
 }

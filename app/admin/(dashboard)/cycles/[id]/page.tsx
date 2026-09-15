@@ -85,8 +85,8 @@ export default async function AdminCycleDetailPage({ params }: { params: Promise
                 <TableRow key={bid.id}>
                   <TableCell className="text-ink">{bid.rank ?? '—'}</TableCell>
                   <TableCell className="text-ink">{bid.sellerName}</TableCell>
-                  <TableCell className="font-mono font-bold text-ink">{formatNaira(bid.unitPrice)}</TableCell>
-                  <TableCell className="font-mono text-ink">
+                  <TableCell className="font-bold text-ink">{formatNaira(bid.unitPrice)}</TableCell>
+                  <TableCell className="text-ink">
                     {bid.quantityOffered} {cycle.material.unit}
                   </TableCell>
                   <TableCell className="text-ink">{bid.estimatedDeliveryDays}d</TableCell>
@@ -128,7 +128,7 @@ export default async function AdminCycleDetailPage({ params }: { params: Promise
                 bid.allocations.map((allocation) => (
                   <TableRow key={allocation.id}>
                     <TableCell className="text-ink">{bid.sellerName}</TableCell>
-                    <TableCell className="font-mono text-ink">
+                    <TableCell className="text-ink">
                       {allocation.quantityFilled} {cycle.material.unit}
                     </TableCell>
                     <TableCell>
@@ -139,7 +139,7 @@ export default async function AdminCycleDetailPage({ params }: { params: Promise
                     <TableCell>
                       {allocation.grnNumber ? (
                         <>
-                          <div className="font-mono text-xs text-ink">{allocation.grnNumber}</div>
+                          <div className="text-xs text-ink">{allocation.grnNumber}</div>
                           <div className="text-xs text-muted-foreground">
                             {allocation.receivedAt!.toLocaleString('en-NG', { dateStyle: 'medium', timeStyle: 'short' })}
                           </div>
@@ -153,7 +153,7 @@ export default async function AdminCycleDetailPage({ params }: { params: Promise
                         {PAYOUT_STATUS_LABEL[allocation.payoutStatus]}
                       </Badge>
                       {allocation.payoutStatus === 'PAID' && allocation.payoutReference && (
-                        <div className="mt-1 font-mono text-xs text-muted-foreground">{allocation.payoutReference}</div>
+                        <div className="mt-1 text-xs text-muted-foreground">{allocation.payoutReference}</div>
                       )}
                       {allocation.payoutStatus === 'ON_HOLD' && allocation.holdReason && (
                         <div className="mt-1 text-xs text-danger">{allocation.holdReason}</div>

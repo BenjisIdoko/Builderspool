@@ -57,7 +57,7 @@ export default async function SellerAllocationsPage() {
                 </div>
               </div>
 
-              <div className="font-mono text-ink">
+              <div className="text-ink">
                 {allocation.quantityFilled} {allocation.bid.material.unit}
               </div>
 
@@ -76,7 +76,7 @@ export default async function SellerAllocationsPage() {
                 {allocation.receivedAt && (
                   <div className="mt-1 text-xs text-brand">
                     Received {allocation.receivedAt.toLocaleString('en-NG', { dateStyle: 'medium', timeStyle: 'short' })}
-                    {allocation.grnNumber && <span className="ml-1 font-mono text-muted-foreground">{allocation.grnNumber}</span>}
+                    {allocation.grnNumber && <span className="ml-1 text-muted-foreground">{allocation.grnNumber}</span>}
                   </div>
                 )}
               </div>
@@ -86,7 +86,7 @@ export default async function SellerAllocationsPage() {
                   {PAYOUT_STATUS_LABEL[allocation.payoutStatus]}
                 </Badge>
                 {allocation.payoutStatus === 'PAID' && allocation.payoutReference && (
-                  <div className="mt-1 font-mono text-xs text-muted-foreground">{allocation.payoutReference}</div>
+                  <div className="mt-1 text-xs text-muted-foreground">{allocation.payoutReference}</div>
                 )}
                 {allocation.payoutStatus === 'ON_HOLD' && allocation.holdReason && (
                   <div className="mt-1 text-xs text-danger">{allocation.holdReason}</div>

@@ -1,7 +1,7 @@
 import { notFound } from 'next/navigation';
 import Link from 'next/link';
 import { CaretRightIcon } from '@phosphor-icons/react/ssr';
-import { getMaterialById, getPriceHistory } from '@/lib/queries/materials';
+import { getFulfillmentCenters, getMaterialById, getPriceHistory } from '@/lib/queries/materials';
 import { MaterialImage } from '@/components/material-image';
 import { ProductDetailPanel } from '@/components/product-detail-panel';
 
@@ -10,7 +10,10 @@ export default async function MaterialPage({ params }: { params: Promise<{ id: s
   const material = await getMaterialById(id);
   if (!material) notFound();
 
-  const priceHistory = await getPriceHistory(id);
+  const [priceHistory, fulfillmentCenters] = await Promise.all([
+    getPriceHistory(id),
+    getFulfillmentCenters(),
+  ]);
 
   return (
     <div className="mx-auto w-full max-w-6xl px-6 py-10">
@@ -34,7 +37,7 @@ export default async function MaterialPage({ params }: { params: Promise<{ id: s
           className="aspect-square w-full"
           sizes="(max-width: 1024px) 100vw, 50vw"
         />
-        <ProductDetailPanel material={material} priceHistory={priceHistory} />
+        <ProductDetailPanel material={material} priceHistory={priceHistory} fulfillmentCenters={fulfillmentCenters} />
       </div>
     </div>
   );

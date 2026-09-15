@@ -1,7 +1,7 @@
 'use client';
 
 import { useState } from 'react';
-import { MinusIcon, PlusIcon } from '@phosphor-icons/react/ssr';
+import { MinusIcon, PlusIcon, ShoppingCartIcon } from '@phosphor-icons/react/ssr';
 import { useCart } from '@/lib/cart/CartContext';
 import type { BuyerMaterial } from '@/lib/queries/materials';
 import { Button } from '@/components/ui/button';
@@ -24,7 +24,7 @@ export function AddToCartButton({ material }: { material: BuyerMaterial }) {
         >
           <MinusIcon className="size-3" />
         </Button>
-        <span className="w-7 text-center text-sm font-mono tabular-nums text-ink">{quantity}</span>
+        <span className="w-7 text-center text-sm tabular-nums text-ink">{quantity}</span>
         <Button
           type="button"
           variant="ghost"
@@ -39,7 +39,7 @@ export function AddToCartButton({ material }: { material: BuyerMaterial }) {
 
       <Button
         type="button"
-        className="flex-1"
+        className="flex-1 gap-1.5"
         onClick={() => {
           addItem(
             {
@@ -56,7 +56,14 @@ export function AddToCartButton({ material }: { material: BuyerMaterial }) {
           setTimeout(() => setAdded(false), 1200);
         }}
       >
-        {added ? 'Added' : 'Add to cart'}
+        {added ? (
+          'Added'
+        ) : (
+          <>
+            <ShoppingCartIcon className="size-4" />
+            Add
+          </>
+        )}
       </Button>
     </div>
   );

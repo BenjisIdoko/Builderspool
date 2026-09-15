@@ -230,6 +230,8 @@ Second phase of adopting the supplied high-fidelity design handoff (first phase:
 
 **Mono typography pass** — added JetBrains Mono to every price, quantity, and ID display sitewide (not just buyer-facing — seller bid amounts and admin tables too, for one consistent system), per the handoff's explicit "deliberate signature, don't drop it" instruction. Scoped to the actual numeric token in each case, not whole sentences containing one.
 
+*(Reverted 2026-09-14 — see below.)*
+
 Verified in-browser at 1440/1024/375px: full buyer path re-walked (browse → filter → PDP → specs modal → add to order → cart → checkout → confirmation+tracking) against the live database, plus the mobile menu opening correctly (confirmed via DOM inspection, not just a screenshot — this pane's screenshot timing has been unreliable after JS-triggered interactions all session). `next build` and lint clean throughout.
 
 ### Fable/Design handoff adoption — seller portal (2026-09-13, later same day)
@@ -264,6 +266,42 @@ Wired into `app/admin/(dashboard)/page.tsx` above the existing bid-cycles table:
 A Supabase session-pooler exhaustion (`EMAXCONNSESSION`, pool_size 15) blocked verification for close to 10 minutes during this phase with no local process responsible (confirmed repeatedly via `lsof`/`ps` — nothing was holding port 3000 or any local connection) — stale pooler-side connections, most likely left over from the app being quit mid-session earlier. No local action fixed it; it cleared on its own once enough real time had passed for Supabase's side to reclaim the stale sessions. Worth remembering if this recurs: don't chase a local fix that doesn't exist, and don't assume a fixed short backoff is enough — this one genuinely needed several minutes.
 
 Verified in-browser against the live database: KPI strip shows real GMV/margin/volume figures matching a hand-computed check against the same seeded orders and allocations used throughout this session's testing; Recent orders and the daily chart both reflect real rows. `next build` and lint clean.
+
+### Removed JetBrains Mono — reverted to one typeface sitewide (2026-09-14)
+
+After living with it, the user decided against the handoff's dual-typeface system and asked to remove JetBrains Mono entirely, back to Plus Jakarta Sans for all text including prices/quantities/IDs. This reverses only the "Mono typography pass" entry above — every other adoption from the four-phase Fable handoff pass (tokens, hairline components, layouts, Dialog, status pills, etc.) stays as built.
+
+Removed the `JetBrains_Mono` font load and `--font-jetbrains-mono` variable from `app/layout.tsx`, removed `--font-mono: var(--font-jetbrains-mono)` from `app/globals.css`'s `@theme inline` block, and stripped the `font-mono` utility class from all ~68 call sites across the buyer, seller, and admin portals (prices, quantities, order/GRN/payout IDs, KPI figures). `tabular-nums` was left in place wherever it was already paired with `font-mono` — that's a separate figure-alignment utility, not a font-family choice, and Plus Jakarta Sans supports it fine.
+
+Verified live: no element on the catalog, cart, checkout, seller bid dialog, or admin KPI strip resolves to a `jetbrains`-containing `font-family` anymore; `html`'s class list carries only the Plus Jakarta Sans variable. `next build`'s TypeScript pass and `npm run lint` both clean (the build itself hit the same known Supabase pooler `EMAXCONNSESSION` exhaustion documented in the phase-four entry above — unrelated to this change).
+
+### Soft blue background, cart/CTA copy simplification, catalog depth (2026-09-15)
+
+Four small, independent changes in one pass:
+
+**Sitewide gradient background** — replaced the flat `--color-canvas` body background with a soft blue-to-neutral wash (`--gradient-canvas`, `linear-gradient(180deg, #eef3fd → #f6f8fc → #fafbfc)`, `background-attachment: fixed` so it doesn't seam on scroll). Applied once on `body` in `app/globals.css`; every portal (buyer, seller, admin) inherits it since they all share the root layout. Surface cards/sections (`bg-surface`, white) sit on top unchanged.
+
+**Cart icon instead of text** — `components/cart-sheet.tsx`'s header trigger is now an icon-only button (`ShoppingCartIcon`, Phosphor) with the item count as a small badge overlaid top-right, replacing the old "Cart [N]" text+badge button.
+
+**"Add" replaces "Add to cart"** — `components/add-to-cart-button.tsx` (used on the homepage's Popular materials cards) now shows a cart icon + "Add" instead of the text "Add to cart".
+
+**PDP buttons simplified** — `components/product-detail-panel.tsx`'s two order buttons dropped their appended live price: the main action is now just "Place order", and the specs-modal confirm button is just "Confirm" (previously "Add to order — ₦X" / "Confirm & add to order — ₦X"). The unused `total` calculation was removed along with the price display in the button label — the live total is still shown elsewhere on the page (the price line, the specs modal's price card).
+
+**Catalog expanded to 20 materials** — added 10 more rows to `prisma/seed.ts`'s `MATERIALS` array (2 more each in Cement, Blocks, Rebar, Fittings; 2 more in Roofing) at the user's request, specifically to have more to click through end-to-end. These are real seeded database rows, not mock/fake UI data — same convention as the original 10: real brand names (Elephant, Ashaka), realistic specs/pricing, reusing the existing category stock photos (`/materials/{cement,blocks,rebar,fittings}.jpg`) rather than sourcing new images. The two new Roofing materials have no `imageUrl`, consistent with Roofing's existing photo gap (still an open TODO — see below). Applied via `npx prisma db seed` (idempotent, matches existing rows by name, safe to re-run).
+
+Verified live: catalog page shows "20 materials", all render with correct category/price/badge; lint clean.
+
+### Technical Specs modal, round two — schema change approved, all three pieces built (2026-09-15, later same day)
+
+Reopens the 2026-09-13 decision ("Skip all three for now") from the Fable buyer-storefront phase. The user asked for the fuller AI Studio–style specs modal after all; asked explicitly via `AskUserQuestion` whether to allow a schema change, and the answer was **"Allow schema changes, build all three"** — the broadest of three options offered. This is the one deliberate exception to this whole redesign's "don't touch the schema" instruction, made with the user's explicit, informed sign-off.
+
+**1. Structured spec grid (Grade / Standard / Dimensions / Weight)** — added four nullable columns to `Material` (`prisma/schema.prisma`, migration `20260915074205_add_material_specs_and_price_alerts`). Backfilled for all 20 materials in `prisma/seed.ts`, but conservatively: only relocated information already present in the existing free-text `spec`/`unit` fields (e.g. "Grade 42.5R, CEM II" → `grade: '42.5R', standard: 'CEM II'`), never invented a value that wasn't already there. In particular, no compliance/standard codes were fabricated for rebar or roofing — `standard` is left `null` for anything where the source spec text didn't already state a real classification, and the UI renders `null` fields as "—" rather than hiding them or guessing. `seedMaterials()` gained a backfill step matching the existing `imageUrl` backfill pattern (only fills currently-null columns, never overwrites a real edit). The modal's old free-text "Specification" block was replaced by this 4-cell grid in `components/product-detail-panel.tsx`.
+
+**2. Price alerts** — new `PriceAlert` model (materialId, buyerId, targetPrice, active) plus `app/(shop)/catalog/actions.ts` (`createPriceAlert`, `cancelPriceAlert`, both scoped to the demo buyer like the rest of the buyer side). Explicitly stored-only, exactly as approved — there's no email/SMS infrastructure, so "reached" is computed live in `lib/queries/priceAlerts.ts` by comparing the stored `targetPrice` against the material's real current `catalogPrice`, never a fabricated notification. The specs modal gained a "Notify me at a target price" mini-form; the account page (`app/(shop)/account/page.tsx`) gained a "Price alerts" section listing each buyer's active alerts with a real Watching/Target reached badge and a cancel button. Verified end-to-end live: set an alert on Dangote Cement at ₦7,000 (below its ₦7,500 catalog price) → appeared on `/account` as "Watching" → cancelled → list emptied.
+
+**3. Serving hubs** — deliberately built *without* a schema change, even though one was approved, because the honest answer didn't need one: `FulfillmentCenter` rows aren't tied to a specific `Material` anywhere in the existing schema (a `fulfilmentCenterId` is only assigned to an `OrderItem` post-checkout, based on the buyer's chosen region) — so inventing a fake one-to-one material→hub mapping would have been less honest than just showing the real centers. `getFulfillmentCenters()` (`lib/queries/materials.ts`) lists the 3 real seeded centers (Abuja/Lagos/Kano); the modal shows them all with a one-line explainer that differs by `sourcingScope` (national vs. regional framing), not a fabricated "this material ships from Abuja" claim.
+
+Verified live: TypeScript compiles clean and `npm run lint` clean on every pass. `next build`'s static generation hit the same known Supabase pooler `EMAXCONNSESSION` exhaustion documented earlier in this file — unrelated to this change, and confirmed as such by walking the full flow live instead (catalog → PDP → specs modal → spec grid renders real values with honest "—" for unset fields → serving hubs list the 3 real centers → set a price alert → confirm it on `/account` → cancel it). One incidental fix along the way: the long-running local dev server had a stale Prisma Client from before the migration (`Unknown field 'grade' for select statement`) — restarted it to pick up the regenerated client; this is a normal after-migration step, not a bug in the new code.
 
 ## Bidding Engine Design
 

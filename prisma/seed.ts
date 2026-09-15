@@ -76,6 +76,10 @@ const MATERIALS = [
     category: 'Cement',
     unit: '50kg bag',
     spec: 'Grade 42.5R, CEM II',
+    grade: '42.5R',
+    standard: 'CEM II',
+    dimensions: null,
+    weight: '50kg',
     catalogPrice: 7500,
     sourcingScope: SourcingScope.NATIONAL,
     imageUrl: '/materials/cement.jpg',
@@ -85,6 +89,10 @@ const MATERIALS = [
     category: 'Cement',
     unit: '50kg bag',
     spec: 'Grade 42.5R, CEM II',
+    grade: '42.5R',
+    standard: 'CEM II',
+    dimensions: null,
+    weight: '50kg',
     catalogPrice: 7200,
     sourcingScope: SourcingScope.NATIONAL,
     imageUrl: '/materials/cement.jpg',
@@ -94,6 +102,10 @@ const MATERIALS = [
     category: 'Blocks',
     unit: 'block',
     spec: '225mm, solid',
+    grade: 'Solid',
+    standard: null,
+    dimensions: '225mm',
+    weight: null,
     catalogPrice: 550,
     sourcingScope: SourcingScope.REGIONAL,
     imageUrl: '/materials/blocks.jpg',
@@ -103,6 +115,10 @@ const MATERIALS = [
     category: 'Blocks',
     unit: 'block',
     spec: '150mm, solid',
+    grade: 'Solid',
+    standard: null,
+    dimensions: '150mm',
+    weight: null,
     catalogPrice: 450,
     sourcingScope: SourcingScope.REGIONAL,
     imageUrl: '/materials/blocks.jpg',
@@ -112,6 +128,10 @@ const MATERIALS = [
     category: 'Rebar',
     unit: '12m length',
     spec: 'Y12 high-yield deformed bar',
+    grade: 'Y12',
+    standard: null,
+    dimensions: '12m length',
+    weight: null,
     catalogPrice: 9500,
     sourcingScope: SourcingScope.NATIONAL,
     imageUrl: '/materials/rebar.jpg',
@@ -121,6 +141,10 @@ const MATERIALS = [
     category: 'Rebar',
     unit: '12m length',
     spec: 'Y16 high-yield deformed bar',
+    grade: 'Y16',
+    standard: null,
+    dimensions: '12m length',
+    weight: null,
     catalogPrice: 16800,
     sourcingScope: SourcingScope.NATIONAL,
     imageUrl: '/materials/rebar.jpg',
@@ -130,6 +154,10 @@ const MATERIALS = [
     category: 'Roofing',
     unit: 'sheet',
     spec: '0.55mm gauge, long-span',
+    grade: 'Long-span',
+    standard: null,
+    dimensions: '0.55mm gauge',
+    weight: null,
     catalogPrice: 4200,
     sourcingScope: SourcingScope.REGIONAL,
   },
@@ -138,6 +166,10 @@ const MATERIALS = [
     category: 'Roofing',
     unit: 'sheet',
     spec: '1340mm x 420mm, classic profile',
+    grade: 'Classic profile',
+    standard: null,
+    dimensions: '1340mm x 420mm',
+    weight: null,
     catalogPrice: 8500,
     sourcingScope: SourcingScope.NATIONAL,
   },
@@ -146,6 +178,10 @@ const MATERIALS = [
     category: 'Fittings',
     unit: '3m length',
     spec: '20mm diameter, heavy gauge',
+    grade: 'Heavy gauge',
+    standard: null,
+    dimensions: '20mm diameter x 3m length',
+    weight: null,
     catalogPrice: 650,
     sourcingScope: SourcingScope.NATIONAL,
     imageUrl: '/materials/fittings.jpg',
@@ -155,7 +191,144 @@ const MATERIALS = [
     category: 'Fittings',
     unit: 'piece',
     spec: '20mm diameter, 90-degree',
+    grade: '90-degree',
+    standard: null,
+    dimensions: '20mm diameter',
+    weight: null,
     catalogPrice: 150,
+    sourcingScope: SourcingScope.NATIONAL,
+    imageUrl: '/materials/fittings.jpg',
+  },
+  // Added 2026-09-15 to give the catalog more depth for end-to-end testing —
+  // same real brands/specs/pricing conventions as above, reusing the existing
+  // category photos rather than sourcing new ones. Roofing still has no real
+  // photo (see the imageUrl-less entries above), so these stay consistent
+  // with that and render the category-icon placeholder like the others.
+  {
+    name: 'Elephant Cement 42.5R',
+    category: 'Cement',
+    unit: '50kg bag',
+    spec: 'Grade 42.5R, CEM II',
+    grade: '42.5R',
+    standard: 'CEM II',
+    dimensions: null,
+    weight: '50kg',
+    catalogPrice: 7300,
+    sourcingScope: SourcingScope.NATIONAL,
+    imageUrl: '/materials/cement.jpg',
+  },
+  {
+    name: 'Ashaka Cement 32.5R',
+    category: 'Cement',
+    unit: '50kg bag',
+    spec: 'Grade 32.5R, general purpose',
+    grade: '32.5R',
+    standard: null,
+    dimensions: null,
+    weight: '50kg',
+    catalogPrice: 6900,
+    sourcingScope: SourcingScope.NATIONAL,
+    imageUrl: '/materials/cement.jpg',
+  },
+  {
+    name: 'Sandcrete Block, 5 inch',
+    category: 'Blocks',
+    unit: 'block',
+    spec: '125mm, solid',
+    grade: 'Solid',
+    standard: null,
+    dimensions: '125mm',
+    weight: null,
+    catalogPrice: 380,
+    sourcingScope: SourcingScope.REGIONAL,
+    imageUrl: '/materials/blocks.jpg',
+  },
+  {
+    name: 'Hollow Block, 9 inch',
+    category: 'Blocks',
+    unit: 'block',
+    spec: '225mm, hollow',
+    grade: 'Hollow',
+    standard: null,
+    dimensions: '225mm',
+    weight: null,
+    catalogPrice: 500,
+    sourcingScope: SourcingScope.REGIONAL,
+    imageUrl: '/materials/blocks.jpg',
+  },
+  {
+    name: 'Reinforcement Rod, 10mm',
+    category: 'Rebar',
+    unit: '12m length',
+    spec: 'Y10 high-yield deformed bar',
+    grade: 'Y10',
+    standard: null,
+    dimensions: '12m length',
+    weight: null,
+    catalogPrice: 6800,
+    sourcingScope: SourcingScope.NATIONAL,
+    imageUrl: '/materials/rebar.jpg',
+  },
+  {
+    name: 'Reinforcement Rod, 20mm',
+    category: 'Rebar',
+    unit: '12m length',
+    spec: 'Y20 high-yield deformed bar',
+    grade: 'Y20',
+    standard: null,
+    dimensions: '12m length',
+    weight: null,
+    catalogPrice: 24500,
+    sourcingScope: SourcingScope.NATIONAL,
+    imageUrl: '/materials/rebar.jpg',
+  },
+  {
+    name: 'Zinc Aluminium Roofing Sheet, 0.45mm',
+    category: 'Roofing',
+    unit: 'sheet',
+    spec: '0.45mm gauge, long-span',
+    grade: 'Long-span',
+    standard: null,
+    dimensions: '0.45mm gauge',
+    weight: null,
+    catalogPrice: 3600,
+    sourcingScope: SourcingScope.REGIONAL,
+  },
+  {
+    name: 'Step Tile Roofing Sheet',
+    category: 'Roofing',
+    unit: 'sheet',
+    spec: '1250mm x 950mm, step-tile profile',
+    grade: 'Step-tile profile',
+    standard: null,
+    dimensions: '1250mm x 950mm',
+    weight: null,
+    catalogPrice: 7800,
+    sourcingScope: SourcingScope.NATIONAL,
+  },
+  {
+    name: 'PVC Tee Fitting, 20mm',
+    category: 'Fittings',
+    unit: 'piece',
+    spec: '20mm diameter, equal tee',
+    grade: 'Equal tee',
+    standard: null,
+    dimensions: '20mm diameter',
+    weight: null,
+    catalogPrice: 200,
+    sourcingScope: SourcingScope.NATIONAL,
+    imageUrl: '/materials/fittings.jpg',
+  },
+  {
+    name: 'PVC Conduit Pipe, 25mm',
+    category: 'Fittings',
+    unit: '3m length',
+    spec: '25mm diameter, heavy gauge',
+    grade: 'Heavy gauge',
+    standard: null,
+    dimensions: '25mm diameter x 3m length',
+    weight: null,
+    catalogPrice: 780,
     sourcingScope: SourcingScope.NATIONAL,
     imageUrl: '/materials/fittings.jpg',
   },
@@ -165,6 +338,7 @@ async function seedMaterials() {
   let created = 0;
   let imagesPatched = 0;
   let priceSnapshotsBackfilled = 0;
+  let specsPatched = 0;
   for (const material of MATERIALS) {
     const existing = await prisma.material.findFirst({
       where: { name: material.name },
@@ -189,6 +363,20 @@ async function seedMaterials() {
       imagesPatched++;
     }
 
+    // Backfill the structured spec grid (grade/standard/dimensions/weight)
+    // on rows seeded before those columns existed (2026-09-15) — only fills
+    // fields that are currently null, never overwrites a real edit.
+    const specUpdate: Record<string, string | null> = {};
+    for (const key of ['grade', 'standard', 'dimensions', 'weight'] as const) {
+      if (existing[key] === null && material[key] !== undefined) {
+        specUpdate[key] = material[key];
+      }
+    }
+    if (Object.keys(specUpdate).length > 0) {
+      await prisma.material.update({ where: { id: existing.id }, data: specUpdate });
+      specsPatched++;
+    }
+
     // Backfill a first PriceSnapshot on rows seeded before price history
     // existed — accurate, not fabricated, since catalogPrice has never
     // changed without a snapshot being recorded alongside it.
@@ -200,7 +388,7 @@ async function seedMaterials() {
       priceSnapshotsBackfilled++;
     }
   }
-  return { created, imagesPatched, priceSnapshotsBackfilled };
+  return { created, imagesPatched, priceSnapshotsBackfilled, specsPatched };
 }
 
 async function seedFulfillmentCenters() {
@@ -280,13 +468,13 @@ async function seedDemoAdmin() {
 }
 
 async function main() {
-  const { created: materialsCreated, imagesPatched, priceSnapshotsBackfilled } = await seedMaterials();
+  const { created: materialsCreated, imagesPatched, priceSnapshotsBackfilled, specsPatched } = await seedMaterials();
   const centersCreated = await seedFulfillmentCenters();
   const sellersCreated = await seedSellers();
   const buyerCreated = await seedDemoBuyer();
   const adminCreated = await seedDemoAdmin();
   console.log(
-    `Seeded ${materialsCreated} material(s) (${imagesPatched} image(s) backfilled, ${priceSnapshotsBackfilled} price snapshot(s) backfilled), ${centersCreated} fulfillment center(s), ${sellersCreated} seller profile(s), ${buyerCreated} demo buyer(s), ${adminCreated} demo admin(s).`
+    `Seeded ${materialsCreated} material(s) (${imagesPatched} image(s) backfilled, ${priceSnapshotsBackfilled} price snapshot(s) backfilled, ${specsPatched} spec grid(s) backfilled), ${centersCreated} fulfillment center(s), ${sellersCreated} seller profile(s), ${buyerCreated} demo buyer(s), ${adminCreated} demo admin(s).`
   );
 }
 

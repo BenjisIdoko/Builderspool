@@ -50,7 +50,7 @@ export default async function Home() {
         </div>
 
         <div className="relative mx-auto w-full max-w-7xl px-6 py-20 sm:py-24">
-          <div className="mb-6 font-mono text-xs tracking-wide text-white/60">
+          <div className="mb-6 text-xs tracking-wide text-white/60">
             Construction materials · sourced nationally
           </div>
           <h1 className="max-w-3xl text-5xl leading-[1.05] font-extrabold tracking-[-0.02em] text-white sm:text-6xl lg:text-[68px]">
@@ -72,7 +72,7 @@ export default async function Home() {
           <div className="relative mt-16 flex border-t border-white/15">
             {trustStats.map((ts) => (
               <div key={ts.label} className="flex-1 border-r border-white/15 px-4 pt-6 first:pl-0 last:border-r-0 sm:px-8">
-                <div className="font-mono text-3xl font-semibold tabular-nums text-white sm:text-4xl">{ts.value}</div>
+                <div className="text-3xl font-semibold tabular-nums text-white sm:text-4xl">{ts.value}</div>
                 <div className="mt-1.5 text-xs text-white/60 sm:text-sm">{ts.label}</div>
               </div>
             ))}
@@ -94,7 +94,7 @@ export default async function Home() {
       >
         <div className="mx-auto max-w-7xl">
           <div className="mb-16 max-w-xl">
-            <div className="mb-5 font-mono text-xs text-white/50">Product philosophy</div>
+            <div className="mb-5 text-xs text-white/50">Product philosophy</div>
             <h2 className="text-3xl font-bold tracking-tight sm:text-4xl">
               Simple for the buyer. Sophisticated behind the scenes.
             </h2>

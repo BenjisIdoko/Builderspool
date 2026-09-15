@@ -32,14 +32,14 @@ export default async function AdminCyclesPage() {
 
   return (
     <div className="mx-auto w-full max-w-6xl px-6 py-10">
-      <div className="mb-3 font-mono text-xs text-muted-foreground">Admin · ops desk</div>
+      <div className="mb-3 text-xs text-muted-foreground">Admin · ops desk</div>
       <h1 className="mb-8 text-2xl font-bold tracking-tight text-ink">Platform administration</h1>
 
       <div className="mb-14 grid grid-cols-2 gap-px overflow-hidden rounded-lg border border-border bg-border sm:grid-cols-5">
         {kpiCards.map((kpi) => (
           <div key={kpi.label} className="bg-surface p-5">
             <div className="mb-2.5 text-[11.5px] text-muted-foreground">{kpi.label}</div>
-            <div className="font-mono text-xl font-semibold text-ink">{kpi.value}</div>
+            <div className="text-xl font-semibold text-ink">{kpi.value}</div>
           </div>
         ))}
       </div>
@@ -55,14 +55,14 @@ export default async function AdminCyclesPage() {
           </div>
           {recentOrders.map((order) => (
             <div key={order.id} className="grid grid-cols-4 items-center gap-4 border-b border-border py-3.5 text-[13.5px]">
-              <div className="truncate font-mono text-muted-foreground">{order.id}</div>
+              <div className="truncate text-muted-foreground">{order.id}</div>
               <div className="truncate text-ink">
                 {order.material}
                 {order.extraItemCount > 0 && (
                   <span className="text-muted-foreground"> +{order.extraItemCount}</span>
                 )}
               </div>
-              <div className="font-mono text-ink">{formatNaira(order.amount)}</div>
+              <div className="text-ink">{formatNaira(order.amount)}</div>
               <div>
                 <Badge variant="outline" className={pillClass(orderStatusTone(order.status))}>
                   {ORDER_STATUS_LABEL[order.status] ?? order.status}
@@ -81,7 +81,7 @@ export default async function AdminCyclesPage() {
               return (
                 <div key={day.date.toISOString()} className="flex h-full flex-1 flex-col items-center justify-end">
                   {isLast && (
-                    <div className="mb-1.5 font-mono text-[11px] font-semibold text-brand">
+                    <div className="mb-1.5 text-[11px] font-semibold text-brand">
                       {formatNaira(day.total)}
                     </div>
                   )}
@@ -139,10 +139,10 @@ export default async function AdminCyclesPage() {
                   <TableCell className="text-ink">
                     {cycle.cutoffAt.toLocaleString('en-NG', { dateStyle: 'medium', timeStyle: 'short' })}
                   </TableCell>
-                  <TableCell className="font-mono text-ink">
+                  <TableCell className="text-ink">
                     {cycle.totalQuantityRequested} {cycle.material.unit}
                   </TableCell>
-                  <TableCell className="font-mono text-ink">{cycle.bidCount}</TableCell>
+                  <TableCell className="text-ink">{cycle.bidCount}</TableCell>
                   <TableCell>
                     <Badge variant="outline" className={pillClass(cycleStatusTone(cycle.status))}>
                       {cycle.status.toLowerCase()}

@@ -15,6 +15,10 @@ const BUYER_SAFE_SELECT = {
   category: true,
   unit: true,
   spec: true,
+  grade: true,
+  standard: true,
+  dimensions: true,
+  weight: true,
   imageUrl: true,
   catalogPrice: true,
   sourcingScope: true,
@@ -59,6 +63,18 @@ export async function getPriceHistory(materialId: string) {
     points.push({ date: now, price: last.price });
   }
   return points;
+}
+
+// Real fulfillment centers, for the PDP's "Serving hubs" block. There's no
+// per-material hub assignment in the schema (fulfilmentCenterId is set per
+// OrderItem, after checkout, based on the buyer's chosen region) — so rather
+// than invent a fake material->hub mapping, this lists the real centers that
+// could end up serving this material once a buyer picks a region.
+export async function getFulfillmentCenters() {
+  return prisma.fulfillmentCenter.findMany({
+    select: { name: true, region: true },
+    orderBy: { region: 'asc' },
+  });
 }
 
 export async function getCategories() {
