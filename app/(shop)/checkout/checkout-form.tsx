@@ -3,12 +3,20 @@
 import { useState } from 'react';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
+import { CheckCircleIcon, CircleIcon } from '@phosphor-icons/react/ssr';
 import { useCart } from '@/lib/cart/CartContext';
 import { formatNaira } from '@/lib/format';
 import { getDeliveryCost, type FulfillmentMethod } from '@/lib/checkout/deliveryCost';
+import { LogoMark } from '@/components/logo';
+import { MaterialImage } from '@/components/material-image';
 import { Button } from '@/components/ui/button';
 import { Label } from '@/components/ui/label';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
+
+const FULFILLMENT_OPTIONS: { method: FulfillmentMethod; label: string }[] = [
+  { method: 'DELIVERY', label: 'Delivery to site' },
+  { method: 'PICKUP', label: 'Pickup at center' },
+];
 
 const REGIONS = ['ABUJA', 'LAGOS', 'KANO'];
 
@@ -71,27 +79,9 @@ export function CheckoutForm({ buyerId }: { buyerId: string }) {
   }
 
   return (
-    <form onSubmit={handleSubmit} className="grid grid-cols-1 gap-8 lg:grid-cols-[1fr_360px]">
+    <form onSubmit={handleSubmit} className="grid grid-cols-1 gap-8 lg:grid-cols-[1fr_380px]">
       <div className="flex flex-col">
-        <div className="mb-3.5 text-[13px] font-bold text-slate">01 · Fulfillment</div>
-        <div className="mb-10 grid grid-cols-2 gap-3">
-          {(['DELIVERY', 'PICKUP'] as const).map((method) => (
-            <button
-              key={method}
-              type="button"
-              onClick={() => setFulfillmentMethod(method)}
-              className={`rounded-lg border p-4 text-left text-sm font-semibold transition-colors ${
-                fulfillmentMethod === method
-                  ? 'border-[1.5px] border-brand bg-brand/5 text-ink'
-                  : 'border-border text-ink hover:border-border-strong'
-              }`}
-            >
-              {method === 'DELIVERY' ? 'Delivery to site' : 'Pickup at center'}
-            </button>
-          ))}
-        </div>
-
-        <div className="mb-3.5 text-[13px] font-bold text-slate">02 · Region</div>
+        <div className="mb-3.5 text-[13px] font-bold text-slate">01 · Region</div>
         <div className="mb-10 max-w-xs">
           <Label htmlFor="region" className="sr-only">
             Region
@@ -110,18 +100,24 @@ export function CheckoutForm({ buyerId }: { buyerId: string }) {
           </Select>
         </div>
 
-        <div className="mb-3.5 text-[13px] font-bold text-slate">03 · Items ({lines.length})</div>
-        <div className="rounded-lg border border-border bg-surface p-5">
-          <div className="flex flex-col gap-2">
-            {lines.map((line) => (
-              <div key={line.materialId} className="flex justify-between text-sm">
-                <span className="text-ink">
-                  {line.name} × <span>{line.quantity}</span>
-                </span>
-                <span className="font-bold tabular-nums text-slate">{formatNaira(line.catalogPrice * line.quantity)}</span>
+        <div className="mb-3.5 text-[13px] font-bold text-slate">02 · Items ({lines.length})</div>
+        <div className="divide-y divide-border rounded-lg border border-border bg-surface">
+          {lines.map((line) => (
+            <div key={line.materialId} className="flex items-center gap-3 p-4">
+              <MaterialImage
+                imageUrl={line.imageUrl}
+                category={line.category}
+                alt={line.name}
+                className="size-12 shrink-0 rounded-md border border-border"
+                sizes="48px"
+              />
+              <div className="min-w-0 flex-1">
+                <div className="truncate text-sm font-semibold text-ink">{line.name}</div>
+                <div className="text-xs text-muted-foreground">Qty {line.quantity}</div>
               </div>
-            ))}
-          </div>
+              <span className="font-bold tabular-nums text-slate">{formatNaira(line.catalogPrice * line.quantity)}</span>
+            </div>
+          ))}
         </div>
 
         {state.status === 'error' && (
@@ -131,18 +127,50 @@ export function CheckoutForm({ buyerId }: { buyerId: string }) {
         )}
       </div>
 
-      <div className="h-fit rounded-lg border border-border bg-surface p-5 lg:sticky lg:top-24">
-        <h2 className="mb-4 text-sm font-bold text-slate">Order summary</h2>
-        <div className="flex flex-col gap-1.5 text-sm">
-          <div className="flex justify-between text-slate">
+      <div className="h-fit rounded-lg bg-ink p-5 text-white lg:sticky lg:top-24">
+        <div className="mb-5 flex items-center gap-2">
+          <LogoMark className="size-6" />
+          <span className="text-sm font-bold">Builders Pool</span>
+        </div>
+
+        <h2 className="mb-3 text-xs font-bold tracking-wide text-white/50 uppercase">Shipping method</h2>
+        <div className="mb-5 flex flex-col gap-2">
+          {FULFILLMENT_OPTIONS.map(({ method, label }) => {
+            const cost = getDeliveryCost(region, method);
+            const selected = fulfillmentMethod === method;
+            return (
+              <button
+                key={method}
+                type="button"
+                onClick={() => setFulfillmentMethod(method)}
+                className={`flex items-center justify-between gap-3 rounded-lg border p-3 text-left text-sm transition-colors ${
+                  selected ? 'border-brand bg-white/5' : 'border-white/10 hover:border-white/20'
+                }`}
+              >
+                <span className="flex items-center gap-2.5">
+                  {selected ? (
+                    <CheckCircleIcon weight="fill" className="size-4.5 shrink-0 text-brand" />
+                  ) : (
+                    <CircleIcon className="size-4.5 shrink-0 text-white/30" />
+                  )}
+                  <span className="font-semibold">{label}</span>
+                </span>
+                <span className="tabular-nums text-white/70">{cost === 0 ? 'Free' : formatNaira(cost)}</span>
+              </button>
+            );
+          })}
+        </div>
+
+        <div className="flex flex-col gap-1.5 border-t border-white/10 pt-4 text-sm">
+          <div className="flex justify-between text-white/60">
             <span>Subtotal</span>
-            <span className="font-bold tabular-nums">{formatNaira(subtotal)}</span>
+            <span className="tabular-nums">{formatNaira(subtotal)}</span>
           </div>
-          <div className="flex justify-between text-slate">
+          <div className="flex justify-between text-white/60">
             <span>Delivery</span>
-            <span className="font-bold tabular-nums">{deliveryCost === 0 ? 'Free' : formatNaira(deliveryCost)}</span>
+            <span className="tabular-nums">{deliveryCost === 0 ? 'Free' : formatNaira(deliveryCost)}</span>
           </div>
-          <div className="flex justify-between border-t border-border pt-2.5 text-base font-bold text-ink">
+          <div className="flex justify-between border-t border-white/10 pt-2.5 text-base font-bold">
             <span>Total</span>
             <span className="tabular-nums">{formatNaira(total)}</span>
           </div>

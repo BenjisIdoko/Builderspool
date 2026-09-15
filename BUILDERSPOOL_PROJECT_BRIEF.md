@@ -313,6 +313,19 @@ The user shared three reference screenshots: two of a "Church HR" admin dashboar
 
 Verified live at both a 4-column desktop width (1400px — confirmed via `getBoundingClientRect()` that all 4 cards sit in one row, equal width, no overflow) and mobile width, and on the admin dashboard across every KPI card, both chart cards, and the cycles search. Caught and fixed one real responsive bug along the way: the cycles-table header row overlapped the search box at narrow widths (`flex items-center justify-between` didn't stack) — changed to `flex-col sm:flex-row`. `npm run lint` clean throughout.
 
+### Checkout page — dark billing-summary layout adopted from a reference screenshot (2026-09-15, later same day)
+
+Reference was an e-commerce checkout (address form left, a black "Billing Summary" card right containing item thumbnails, subtotal/tax/discount, a shipping-method radio list with inline pricing, and the total + place-order action at the bottom of the dark card). Same rule as the last two adoptions: layout pattern only, our own tokens.
+
+`app/(shop)/checkout/checkout-form.tsx` was already a two-column layout (form + sticky summary), so this was a restructuring rather than a rebuild:
+
+- The order summary panel is now a dark card (`bg-ink`/`text-white`, the same dark treatment already used for the homepage's philosophy band — not a new color) instead of a plain bordered white panel, with a small brand row (`LogoMark` + "Builders Pool") at the top, mirroring the reference's store-name-in-summary row.
+- **Fulfillment method moved from a left-column button toggle into the dark summary card as a real radio-style list with inline per-method pricing** — each option calls the existing `getDeliveryCost(region, method)` live, so "Delivery to site" and "Pickup at center" each show their real price (or "Free") right on the option, not just after selecting. This is a genuine UX improvement the reference's pattern suggested, not a cosmetic copy — verified live that switching methods recomputes the total instantly (₦5,450 delivery → ₦450 pickup for the same cart) and that changing region recomputes the delivery-method price too (Abuja ₦5,000 → Lagos ₦7,500).
+- Items list gained real thumbnails (`MaterialImage`, using each line's actual `imageUrl`) — previously text-only.
+- Left column reduced to two real steps (Region, Items) instead of three, since Fulfillment now lives in the summary.
+
+Deliberately not adopted, all for the same reason as the last two passes — nothing to honestly back them: the free-shipping progress-bar upsell (no free-shipping-threshold feature), a full shipping address form (`Order` has no address columns, schema changes are out of scope for this pass), and tax/discount line items (no tax or coupon system exists). `npm run lint` clean; verified live end-to-end with a real cart item.
+
 ## Bidding Engine Design
 
 - **Weighted award scoring**, not simple lowest-price-wins: Price 40%, seller reliability/trust score 25%, capacity fit 20%, delivery speed 15%.
