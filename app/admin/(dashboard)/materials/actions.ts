@@ -37,6 +37,11 @@ export async function updateMaterialAction(formData: FormData) {
     where: { id },
     data: {
       catalogPrice: price,
+      // A real price change is what "review" means for a placeholder-
+      // priced row (see needsPriceReview's schema comment) — saving other
+      // fields alone doesn't clear it, so the row stays flagged until
+      // admin actually sets a real price.
+      needsPriceReview: priceChanged ? false : existing.needsPriceReview,
       sourcingScope,
       spec: optionalText(formData, 'spec'),
       grade: optionalText(formData, 'grade'),

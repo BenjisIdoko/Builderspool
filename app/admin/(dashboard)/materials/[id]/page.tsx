@@ -1,6 +1,6 @@
 import Link from 'next/link';
 import { notFound } from 'next/navigation';
-import { ArrowLeftIcon } from '@phosphor-icons/react/ssr';
+import { ArrowLeftIcon, WarningIcon } from '@phosphor-icons/react/ssr';
 import { getMaterialForAdmin } from '@/lib/queries/adminMaterials';
 import { getPriceHistory } from '@/lib/queries/materials';
 import { formatNaira } from '@/lib/format';
@@ -32,6 +32,14 @@ export default async function AdminMaterialEditPage({ params }: { params: Promis
         {lastSnapshot && ` · last recorded ${lastSnapshot.date.toLocaleDateString('en-NG', { dateStyle: 'medium' })}`}
         . Saving a new price writes a real price-history point the buyer-facing chart will show.
       </p>
+
+      {material.needsPriceReview && (
+        <div className="mb-6 flex items-center gap-2 rounded-lg border border-warning bg-warning-soft px-4 py-2.5 text-sm text-warning">
+          <WarningIcon className="size-4 shrink-0" />
+          Imported from the catalogue reference library with no researched price — this is a ₦
+          {material.catalogPrice} placeholder. Set a real price below to publish it properly.
+        </div>
+      )}
 
       <form action={updateMaterialAction} className="space-y-8">
         <input type="hidden" name="id" value={material.id} />

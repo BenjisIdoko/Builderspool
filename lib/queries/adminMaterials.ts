@@ -10,14 +10,17 @@ export async function getMaterialsForAdmin({
   category,
   query,
   page = 1,
+  needsReview,
 }: {
   category?: string;
   query?: string;
   page?: number;
+  needsReview?: boolean;
 }) {
   const where: Prisma.MaterialWhereInput = {
     category: category || undefined,
     name: query ? { contains: query, mode: 'insensitive' } : undefined,
+    needsPriceReview: needsReview ? true : undefined,
   };
 
   const [rows, total] = await Promise.all([
@@ -51,6 +54,13 @@ export async function getAdminMaterialCategories() {
     orderBy: { category: 'asc' },
   });
   return rows.map((r) => r.category);
+}
+
+// Powers the "Needs price review" quick filter — rows created with a
+// placeholder price by the catalogue-reference bulk import (see
+// prisma/seed.ts's seedMaterialsFromReference), not yet given a real price.
+export async function getMaterialsNeedingPriceReviewCount() {
+  return prisma.material.count({ where: { needsPriceReview: true } });
 }
 
 function toPlainMaterial<T extends { catalogPrice: unknown }>(material: T) {

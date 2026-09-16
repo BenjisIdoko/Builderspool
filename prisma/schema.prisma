@@ -121,6 +121,13 @@ model Material {
   // backfilled with anything not already a real, stored image.
   images        String[]      @default([])
   catalogPrice  Decimal       @db.Decimal(12, 2) // buyer-facing fixed price
+  // Set true only by the catalogue-reference bulk import (2026-09-16) for
+  // rows whose real research had no price data ("market rate — set via
+  // seller bidding") — catalogPrice is a real Decimal, so those rows get an
+  // unmistakable ₦1 placeholder plus this flag, rather than a plausible-
+  // looking fabricated number, until admin sets a real price via the
+  // materials editor. Never set true any other way.
+  needsPriceReview Boolean    @default(false)
   sourcingScope SourcingScope @default(NATIONAL)
   createdAt     DateTime      @default(now())
 

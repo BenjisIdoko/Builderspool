@@ -553,6 +553,78 @@ async function seedCatalogueReference() {
   return { categoriesUpserted, productsUpserted };
 }
 
+// Extracts a real single price from a researched "₦X–₦Y" (or multi-range,
+// e.g. budget/premium) priceNote by averaging the lowest and highest ₦
+// figures actually stated — a real derived number, not an invented one.
+// Returns null when the note has fewer than two ₦ figures to average (the
+// "Market rate — set via seller bidding; verify live" case, which is most
+// of the library).
+function parsePriceNote(priceNote: string | null): number | null {
+  if (!priceNote) return null;
+  const matches = priceNote.match(/₦[\d,]+/g);
+  if (!matches || matches.length < 2) return null;
+  const numbers = matches.map((m) => Number(m.replace(/[₦,]/g, '')));
+  return Math.round((Math.min(...numbers) + Math.max(...numbers)) / 2);
+}
+
+// Populates the live buyer catalog from the catalogue reference library
+// (2026-09-16, per explicit user direction: import all 134 products, use a
+// placeholder price where the research has none, admin corrects later via
+// the materials editor). Distinct from seedMaterials()'s hand-curated
+// MATERIALS array — this bulk-imports from catalogueReferenceData instead,
+// and is idempotent the same way (skip if a Material with that name
+// already exists), so re-running `prisma db seed` never creates
+// duplicates. Left alongside the original 20 curated materials rather than
+// replacing them — several reference products (e.g. BUA/Dangote cement)
+// describe the same real goods under slightly different names/categories,
+// which is a known, disclosed overlap for admin to consolidate over time
+// now that the materials editor exists, not something this script tries
+// to silently resolve.
+const PLACEHOLDER_PRICE = 1;
+
+async function seedMaterialsFromReference() {
+  const categories = (catalogueReferenceData as { categories: SeedCategory[] }).categories;
+  let created = 0;
+  let skippedExisting = 0;
+  let needingPriceReview = 0;
+
+  for (const cat of categories) {
+    for (const p of cat.products) {
+      const existing = await prisma.material.findFirst({ where: { name: p.name } });
+      if (existing) {
+        skippedExisting++;
+        continue;
+      }
+
+      const derivedPrice = parsePriceNote(p.priceNote);
+      const catalogPrice = derivedPrice ?? PLACEHOLDER_PRICE;
+      const needsPriceReview = derivedPrice === null;
+      if (needsPriceReview) needingPriceReview++;
+
+      const sourcingScope = p.sourcingModel === 'REGIONAL' ? SourcingScope.REGIONAL : SourcingScope.NATIONAL;
+
+      const row = await prisma.material.create({
+        data: {
+          name: p.name,
+          category: cat.name,
+          unit: p.packSize ? `${p.unitOfSale} (${p.packSize})` : p.unitOfSale,
+          spec: p.specification,
+          standard: p.standard,
+          catalogPrice,
+          needsPriceReview,
+          sourcingScope,
+        },
+      });
+      await prisma.priceSnapshot.create({
+        data: { materialId: row.id, price: row.catalogPrice, recordedAt: row.createdAt },
+      });
+      created++;
+    }
+  }
+
+  return { created, skippedExisting, needingPriceReview };
+}
+
 async function main() {
   const { created: materialsCreated, imagesPatched, priceSnapshotsBackfilled, specsPatched } = await seedMaterials();
   const centersCreated = await seedFulfillmentCenters();
@@ -560,11 +632,15 @@ async function main() {
   const buyerCreated = await seedDemoBuyer();
   const adminCreated = await seedDemoAdmin();
   const { categoriesUpserted, productsUpserted } = await seedCatalogueReference();
+  const { created: refMaterialsCreated, skippedExisting, needingPriceReview } = await seedMaterialsFromReference();
   console.log(
     `Seeded ${materialsCreated} material(s) (${imagesPatched} image(s) backfilled, ${priceSnapshotsBackfilled} price snapshot(s) backfilled, ${specsPatched} spec grid(s) backfilled), ${centersCreated} fulfillment center(s), ${sellersCreated} seller profile(s), ${buyerCreated} demo buyer(s), ${adminCreated} demo admin(s).`
   );
   console.log(
     `Catalogue reference library: ${categoriesUpserted} categories, ${productsUpserted} products upserted.`
+  );
+  console.log(
+    `Materials imported from reference library: ${refMaterialsCreated} created (${needingPriceReview} need a real price — currently ₦${PLACEHOLDER_PRICE} placeholder), ${skippedExisting} skipped (already exist).`
   );
 }
 

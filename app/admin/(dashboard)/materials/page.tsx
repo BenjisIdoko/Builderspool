@@ -1,6 +1,10 @@
 import Link from 'next/link';
-import { MagnifyingGlassIcon, PackageIcon, PencilSimpleIcon } from '@phosphor-icons/react/ssr';
-import { getMaterialsForAdmin, getAdminMaterialCategories } from '@/lib/queries/adminMaterials';
+import { MagnifyingGlassIcon, PackageIcon, PencilSimpleIcon, WarningIcon } from '@phosphor-icons/react/ssr';
+import {
+  getMaterialsForAdmin,
+  getAdminMaterialCategories,
+  getMaterialsNeedingPriceReviewCount,
+} from '@/lib/queries/adminMaterials';
 import { formatNaira } from '@/lib/format';
 import { Badge } from '@/components/ui/badge';
 import { Input } from '@/components/ui/input';
@@ -10,24 +14,28 @@ import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@
 export default async function AdminMaterialsPage({
   searchParams,
 }: {
-  searchParams: Promise<{ category?: string; q?: string; page?: string }>;
+  searchParams: Promise<{ category?: string; q?: string; page?: string; review?: string }>;
 }) {
-  const { category, q, page: pageParam } = await searchParams;
+  const { category, q, page: pageParam, review } = await searchParams;
   const page = Math.max(1, Number(pageParam) || 1);
+  const needsReview = review === '1';
 
-  const [{ materials, total, pageCount }, categories] = await Promise.all([
-    getMaterialsForAdmin({ category, query: q, page }),
+  const [{ materials, total, pageCount }, categories, needsReviewCount] = await Promise.all([
+    getMaterialsForAdmin({ category, query: q, page, needsReview }),
     getAdminMaterialCategories(),
+    getMaterialsNeedingPriceReviewCount(),
   ]);
 
-  function urlFor(overrides: { category?: string; q?: string; page?: number }) {
+  function urlFor(overrides: { category?: string; q?: string; page?: number; review?: boolean }) {
     const params = new URLSearchParams();
     const c = overrides.category !== undefined ? overrides.category : category;
     const query = overrides.q !== undefined ? overrides.q : q;
     const p = overrides.page ?? 1;
+    const r = overrides.review !== undefined ? overrides.review : needsReview;
     if (c) params.set('category', c);
     if (query) params.set('q', query);
     if (p > 1) params.set('page', String(p));
+    if (r) params.set('review', '1');
     const qs = params.toString();
     return `/admin/materials${qs ? `?${qs}` : ''}`;
   }
@@ -36,10 +44,26 @@ export default async function AdminMaterialsPage({
     <div className="mx-auto w-full max-w-6xl px-6 py-10">
       <div className="mb-1 text-xs text-muted-foreground">Admin · ops desk</div>
       <h1 className="mb-1 text-2xl font-bold tracking-tight text-ink">Catalog materials</h1>
-      <p className="mb-8 text-sm text-muted-foreground">
+      <p className="mb-4 text-sm text-muted-foreground">
         The live buyer catalog — {total} materials. Admin is the only place these can be edited; every
         price change is recorded as a real price-history point buyers can see.
       </p>
+
+      {needsReviewCount > 0 && (
+        <Link
+          href={urlFor({ review: !needsReview, category: '', page: 1 })}
+          className={`mb-6 flex items-center gap-2 rounded-lg border px-4 py-2.5 text-sm transition-colors ${
+            needsReview ? 'border-warning bg-warning-soft text-warning' : 'border-warning/40 bg-warning-soft/50 text-warning hover:bg-warning-soft'
+          }`}
+        >
+          <WarningIcon className="size-4 shrink-0" />
+          <span>
+            <strong>{needsReviewCount}</strong> material{needsReviewCount === 1 ? '' : 's'} imported from the
+            catalogue reference library still {needsReviewCount === 1 ? 'has' : 'have'} a placeholder price —{' '}
+            {needsReview ? 'showing only these' : 'click to review'}.
+          </span>
+        </Link>
+      )}
 
       <div className="mb-6 flex flex-wrap items-center justify-between gap-3">
         <div className="flex flex-wrap gap-1">
@@ -67,6 +91,7 @@ export default async function AdminMaterialsPage({
 
         <form className="flex max-w-xs flex-1 items-center gap-2">
           {category && <input type="hidden" name="category" value={category} />}
+          {needsReview && <input type="hidden" name="review" value="1" />}
           <div className="relative flex-1">
             <MagnifyingGlassIcon className="pointer-events-none absolute top-1/2 left-3 size-4 -translate-y-1/2 text-muted-foreground" />
             <Input name="q" defaultValue={q} placeholder="Search material name…" className="pl-9" />
@@ -104,7 +129,12 @@ export default async function AdminMaterialsPage({
                     <div className="text-xs text-muted-foreground">{m.category}</div>
                   </TableCell>
                   <TableCell className="py-3 text-ink">{m.unit}</TableCell>
-                  <TableCell className="py-3 font-semibold text-ink">{formatNaira(m.catalogPrice)}</TableCell>
+                  <TableCell className="py-3 font-semibold text-ink">
+                    <div className="flex items-center gap-1.5">
+                      {formatNaira(m.catalogPrice)}
+                      {m.needsPriceReview && <WarningIcon className="size-3.5 text-warning" />}
+                    </div>
+                  </TableCell>
                   <TableCell className="py-3">
                     <Badge variant="outline" className="w-fit border-border text-slate">
                       {m.sourcingScope === 'NATIONAL' ? 'National' : 'Regional'}
