@@ -17,11 +17,22 @@ const KYC_LABEL: Record<string, string> = {
   REJECTED: 'KYC rejected',
 };
 
-const LINKS = [
-  { href: '/seller', label: 'Open cycles', icon: GaugeIcon },
-  { href: '/seller/bids', label: 'My bids', icon: StackIcon },
-  { href: '/seller/allocations', label: 'Allocations', icon: TruckIcon },
-  { href: '/seller/kyc', label: 'KYC verification', icon: IdentificationCardIcon },
+const LINK_GROUPS = [
+  {
+    label: 'Overview',
+    links: [{ href: '/seller', label: 'Open cycles', icon: GaugeIcon }],
+  },
+  {
+    label: 'Commerce',
+    links: [
+      { href: '/seller/bids', label: 'My bids', icon: StackIcon },
+      { href: '/seller/allocations', label: 'Allocations', icon: TruckIcon },
+    ],
+  },
+  {
+    label: 'Account',
+    links: [{ href: '/seller/kyc', label: 'KYC verification', icon: IdentificationCardIcon }],
+  },
 ];
 
 export function SellerSidebar({
@@ -38,22 +49,31 @@ export function SellerSidebar({
         <span className="text-[15px] font-medium tracking-tight text-ink">Seller portal</span>
       </Link>
 
-      <nav className="flex flex-col gap-1 p-3">
-        {LINKS.map((link) => {
-          const active = pathname === link.href;
-          return (
-            <Link
-              key={link.href}
-              href={link.href}
-              className={`flex items-center gap-2.5 rounded-md px-3 py-2.5 text-sm font-medium transition-colors ${
-                active ? 'bg-brand/10 text-brand' : 'text-slate hover:bg-well hover:text-ink'
-              }`}
-            >
-              <link.icon className="size-4.5" />
-              {link.label}
-            </Link>
-          );
-        })}
+      <nav className="flex flex-col gap-5 p-3">
+        {LINK_GROUPS.map((group) => (
+          <div key={group.label}>
+            <div className="mb-1.5 px-3 text-[10.5px] font-bold tracking-wide text-muted-foreground uppercase">
+              {group.label}
+            </div>
+            <div className="flex flex-col gap-1">
+              {group.links.map((link) => {
+                const active = pathname === link.href;
+                return (
+                  <Link
+                    key={link.href}
+                    href={link.href}
+                    className={`flex items-center gap-2.5 rounded-md px-3 py-2.5 text-sm font-medium transition-colors ${
+                      active ? 'bg-brand/10 text-brand' : 'text-slate hover:bg-well hover:text-ink'
+                    }`}
+                  >
+                    <link.icon className="size-4.5" />
+                    {link.label}
+                  </Link>
+                );
+              })}
+            </div>
+          </div>
+        ))}
       </nav>
 
       <div className="mt-auto border-t border-border p-4">

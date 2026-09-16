@@ -8,12 +8,23 @@ import { LogoMark } from '@/components/logo';
 import { Avatar } from '@/components/avatar';
 import { Button } from '@/components/ui/button';
 
-const LINKS = [
-  { href: '/admin', label: 'Dashboard', icon: GaugeIcon },
-  { href: '/admin/orders', label: 'Orders', icon: ReceiptIcon },
-  { href: '/admin/materials', label: 'Materials', icon: PackageIcon },
-  { href: '/admin/catalogue-reference', label: 'Catalogue reference', icon: BooksIcon },
-  { href: '/admin/users', label: 'Users', icon: UsersIcon },
+const LINK_GROUPS = [
+  {
+    label: 'Overview',
+    links: [{ href: '/admin', label: 'Dashboard', icon: GaugeIcon }],
+  },
+  {
+    label: 'Commerce',
+    links: [
+      { href: '/admin/orders', label: 'Orders', icon: ReceiptIcon },
+      { href: '/admin/materials', label: 'Materials', icon: PackageIcon },
+      { href: '/admin/catalogue-reference', label: 'Catalogue reference', icon: BooksIcon },
+    ],
+  },
+  {
+    label: 'Account',
+    links: [{ href: '/admin/users', label: 'Users', icon: UsersIcon }],
+  },
 ];
 
 export function AdminSidebar({ adminName }: { adminName: string }) {
@@ -26,22 +37,31 @@ export function AdminSidebar({ adminName }: { adminName: string }) {
         <span className="text-[15px] font-medium tracking-tight text-ink">Ops admin</span>
       </Link>
 
-      <nav className="flex flex-col gap-1 p-3">
-        {LINKS.map((link) => {
-          const active = link.href === '/admin' ? pathname === '/admin' : pathname.startsWith(link.href);
-          return (
-            <Link
-              key={link.href}
-              href={link.href}
-              className={`flex items-center gap-2.5 rounded-md px-3 py-2.5 text-sm font-medium transition-colors ${
-                active ? 'bg-brand/10 text-brand' : 'text-slate hover:bg-well hover:text-ink'
-              }`}
-            >
-              <link.icon className="size-4.5" />
-              {link.label}
-            </Link>
-          );
-        })}
+      <nav className="flex flex-col gap-5 p-3">
+        {LINK_GROUPS.map((group) => (
+          <div key={group.label}>
+            <div className="mb-1.5 px-3 text-[10.5px] font-bold tracking-wide text-muted-foreground uppercase">
+              {group.label}
+            </div>
+            <div className="flex flex-col gap-1">
+              {group.links.map((link) => {
+                const active = link.href === '/admin' ? pathname === '/admin' : pathname.startsWith(link.href);
+                return (
+                  <Link
+                    key={link.href}
+                    href={link.href}
+                    className={`flex items-center gap-2.5 rounded-md px-3 py-2.5 text-sm font-medium transition-colors ${
+                      active ? 'bg-brand/10 text-brand' : 'text-slate hover:bg-well hover:text-ink'
+                    }`}
+                  >
+                    <link.icon className="size-4.5" />
+                    {link.label}
+                  </Link>
+                );
+              })}
+            </div>
+          </div>
+        ))}
       </nav>
 
       <div className="mt-auto border-t border-border p-4">

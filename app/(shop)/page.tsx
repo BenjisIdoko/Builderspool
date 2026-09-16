@@ -1,7 +1,7 @@
 import { createElement } from 'react';
 import Image from 'next/image';
 import Link from 'next/link';
-import { TagIcon, LockKeyIcon, TruckIcon, ArrowRightIcon } from '@phosphor-icons/react/ssr';
+import { TagIcon, LockKeyIcon, TruckIcon, ArrowRightIcon, ShieldCheckIcon } from '@phosphor-icons/react/ssr';
 import { getMaterials, getCategories } from '@/lib/queries/materials';
 import { getStorefrontStats } from '@/lib/queries/stats';
 import { getCurrentBuyer } from '@/lib/buyer/auth';
@@ -9,9 +9,15 @@ import { getCategoryIcon } from '@/lib/categoryIcons';
 import { MaterialCard } from '@/components/material-card';
 import { Button } from '@/components/ui/button';
 
+// A rare, deliberate exception to the sitewide hairline-border/no-shadow
+// rule (see DESIGN.md) — the same subtle shadow the Fable handoff uses on
+// buyer-marketing surfaces only (hero card, trust badges, category tiles),
+// never on routine controls or admin/seller tables.
+const CARD_SHADOW = 'shadow-[0_1px_2px_rgba(16,24,40,0.04)]';
+
 const TRUST_BADGES = [
+  { icon: LockKeyIcon, label: 'Escrow protected', body: 'Funds released only on fulfillment center receipt' },
   { icon: TagIcon, label: 'Fixed catalogue price', body: 'No back-and-forth negotiation' },
-  { icon: LockKeyIcon, label: 'Escrow-protected checkout', body: 'Funds held until fulfillment center receipt' },
   { icon: TruckIcon, label: 'Tracked haulage', body: 'Real dispatch status, not a black box' },
 ];
 
@@ -41,87 +47,92 @@ export default async function Home() {
 
   return (
     <div className="flex flex-1 flex-col">
-      <section className="relative flex min-h-[80svh] items-center overflow-hidden border-b border-border">
-        {/* Signature duotone: the brand's blue->indigo->amber gradient mapped
-            onto the photo's luminosity via mix-blend-color, rather than a
-            generic dark scrim. This is the one deliberately bold color
-            moment on the site — reserved for the hero only, not repeated on
-            routine controls. */}
-        <div className="absolute inset-0">
-          <Image
-            src="/materials/cement.jpg"
-            alt="Cement bag staged on a pallet in a fulfillment warehouse"
-            fill
-            sizes="100vw"
-            className="object-cover grayscale contrast-125"
-            priority
-          />
-          <div className="absolute inset-0 bg-gradient-to-br from-brand via-brand-deep to-brand-warm mix-blend-color" />
-          {/* Darkening is directional, not flat — strongest where the
-              headline sits (top-left) and fading out toward the amber
-              corner, so the copy stays legible without muting the gradient
-              everywhere. */}
-          <div className="absolute inset-0 bg-gradient-to-br from-ink/90 via-ink/60 to-ink/20" />
-        </div>
-
-        <div className="relative mx-auto w-full max-w-7xl px-6 py-20 sm:py-24">
-          <div className="mb-6 text-xs tracking-wide text-white/60">
-            Construction materials · sourced nationally
+      <section className="mx-auto w-full max-w-7xl px-6 pt-10 sm:pt-14">
+        {/* Signature duotone hero, now an inset rounded card rather than
+            full-bleed — matches the Fable handoff's composition. The
+            gradient + photo + decorative circles are the one deliberately
+            bold color moment on the site, reserved for the hero only. */}
+        <div className="relative min-h-[420px] overflow-hidden rounded-3xl p-10 shadow-[0_32px_64px_-12px_rgba(41,84,229,0.35),0_8px_24px_rgba(15,23,42,0.12)] sm:p-14">
+          <div className="absolute inset-0">
+            <Image
+              src="/materials/cement.jpg"
+              alt=""
+              fill
+              sizes="100vw"
+              className="object-cover opacity-35 mix-blend-multiply"
+              priority
+            />
+            <div className="absolute inset-0 bg-gradient-to-br from-brand via-brand-deep to-brand-warm" />
           </div>
-          <h1 className="max-w-3xl text-5xl leading-[1.05] font-extrabold tracking-[-0.02em] text-white sm:text-6xl lg:text-[68px]">
-            Construction materials,{' '}
-            <span className="bg-gradient-to-r from-[#8fb4ff] to-[#fdba74] bg-clip-text text-transparent">
-              delivered at a fair price.
-            </span>
-          </h1>
-          <p className="mt-6 max-w-lg text-lg text-white/80">
-            Cement, blocks, rebar, roofing and fittings — one fixed price, no back-and-forth.
-            Pick up at a fulfillment center or get it delivered to site.
-          </p>
-          <div className="mt-8 flex flex-wrap items-center gap-3">
-            <Button asChild size="lg" className="h-11 px-6 text-base">
-              <Link href="/catalog">Browse the catalog</Link>
-            </Button>
-          </div>
+          <div className="absolute -top-16 right-28 size-56 rounded-full bg-white/10" />
+          <div className="absolute -right-10 -bottom-20 size-64 rounded-full bg-brand-warm/25" />
 
-          <div className="relative mt-16 flex border-t border-white/15">
-            {trustStats.map((ts) => (
-              <div key={ts.label} className="flex-1 border-r border-white/15 px-4 pt-6 first:pl-0 last:border-r-0 sm:px-8">
-                <div className="text-3xl font-semibold tabular-nums text-white sm:text-4xl">{ts.value}</div>
-                <div className="mt-1.5 text-xs text-white/60 sm:text-sm">{ts.label}</div>
-              </div>
-            ))}
+          <div className="relative max-w-xl">
+            <div className="mb-4 inline-flex items-center gap-1.5 rounded-full bg-white/15 px-3 py-1.5 text-xs font-bold text-white">
+              <ShieldCheckIcon weight="fill" className="size-3.5" />
+              Escrow-protected · fixed catalogue price
+            </div>
+            <h1 className="text-[32px] leading-[1.12] font-extrabold tracking-[-0.02em] text-white sm:text-[42px]">
+              Construction materials, delivered at a fair price.
+            </h1>
+            <p className="mt-4 text-base leading-relaxed text-white/90">
+              Cement, blocks, rebar, roofing and fittings — one fixed price, no back-and-forth. Pick up
+              at a fulfillment center or get it delivered to site.
+            </p>
+            <div className="mt-7 flex flex-wrap gap-3">
+              <Button asChild size="lg" className="h-11 bg-white px-6 text-base text-ink hover:bg-white/90">
+                <Link href="/catalog">Browse the catalog</Link>
+              </Button>
+              {!buyer && (
+                <Button
+                  asChild
+                  variant="outline"
+                  size="lg"
+                  className="h-11 border-white/50 bg-transparent px-6 text-base text-white hover:bg-white/10"
+                >
+                  <Link href="/signup">Join Builders Pool</Link>
+                </Button>
+              )}
+            </div>
           </div>
         </div>
-      </section>
 
-      <section className="border-b border-border bg-surface">
-        <div className="mx-auto grid w-full max-w-7xl grid-cols-1 divide-y divide-border sm:grid-cols-3 sm:divide-x sm:divide-y-0">
+        <div className="mt-4 grid grid-cols-1 gap-3.5 sm:grid-cols-3">
           {TRUST_BADGES.map((badge) => (
-            <div key={badge.label} className="flex items-start gap-3 px-6 py-6">
-              <span className="flex size-9 shrink-0 items-center justify-center rounded-lg bg-info-soft text-info">
-                <badge.icon className="size-4.5" />
-              </span>
+            <div
+              key={badge.label}
+              className={`flex items-center gap-2.5 rounded-xl border border-border bg-surface px-4.5 py-3.5 ${CARD_SHADOW}`}
+            >
+              <badge.icon className="size-[18px] shrink-0 text-brand" />
               <div>
-                <div className="text-sm font-semibold text-ink">{badge.label}</div>
-                <div className="text-xs text-muted-foreground">{badge.body}</div>
+                <div className="text-[13px] font-bold text-ink">{badge.label}</div>
+                <div className="text-[11.5px] text-muted-foreground">{badge.body}</div>
               </div>
+            </div>
+          ))}
+        </div>
+
+        <div className="mt-10 flex border-t border-border">
+          {trustStats.map((ts) => (
+            <div key={ts.label} className="flex-1 border-r border-border px-4 pt-6 first:pl-0 last:border-r-0 sm:px-8">
+              <div className="text-2xl font-semibold tabular-nums text-ink sm:text-3xl">{ts.value}</div>
+              <div className="mt-1.5 text-xs text-muted-foreground sm:text-sm">{ts.label}</div>
             </div>
           ))}
         </div>
       </section>
 
       <section className="mx-auto w-full max-w-7xl px-6 py-16">
-        <h2 className="mb-8 text-2xl font-bold tracking-tight text-ink">Browse by category</h2>
+        <h2 className="mb-6 text-[22px] font-bold tracking-[-0.025em] text-ink">Primary building categories</h2>
         <div className="grid grid-cols-2 gap-3 sm:grid-cols-3 lg:grid-cols-4">
           {categories.map((c) => (
             <Link
               key={c.name}
               href={`/catalog?category=${encodeURIComponent(c.name)}`}
-              className="flex items-center gap-3 rounded-lg border border-border bg-surface p-4 transition-colors hover:border-border-strong"
+              className={`flex flex-col gap-2.5 rounded-xl border border-border bg-surface p-5 transition-colors hover:border-border-strong ${CARD_SHADOW}`}
             >
-              <span className="flex size-10 shrink-0 items-center justify-center rounded-lg bg-well text-brand">
-                {createElement(getCategoryIcon(c.name), { className: 'size-5' })}
+              <span className="flex size-9 shrink-0 items-center justify-center rounded-lg bg-well text-brand">
+                {createElement(getCategoryIcon(c.name), { className: 'size-4.5' })}
               </span>
               <div className="min-w-0">
                 <div className="truncate text-sm font-semibold text-ink">{c.name}</div>

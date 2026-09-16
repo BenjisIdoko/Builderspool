@@ -1,7 +1,7 @@
 'use client';
 
 import Link from 'next/link';
-import { MinusIcon, PlusIcon, TrashIcon } from '@phosphor-icons/react/ssr';
+import { LockKeyIcon, MinusIcon, PlusIcon, TrashIcon } from '@phosphor-icons/react/ssr';
 import { useCart } from '@/lib/cart/CartContext';
 import { formatNaira } from '@/lib/format';
 import { Button } from '@/components/ui/button';
@@ -33,8 +33,20 @@ export default function CartPage() {
         Cart <span className="font-normal text-muted-foreground">({itemCount} items)</span>
       </h1>
 
+      <div className="mb-6 flex items-start gap-2.5 rounded-lg bg-success-soft px-4 py-3.5 text-sm text-success">
+        <LockKeyIcon className="mt-0.5 size-4 shrink-0" />
+        <span>
+          <strong>Escrow protected.</strong> Funds stay held by Builders Pool and release to the fulfilling
+          supplier only after your fulfillment center confirms receipt.
+        </span>
+      </div>
+
       <div className="grid grid-cols-1 gap-8 lg:grid-cols-[1fr_340px]">
-        <div className="divide-y divide-border rounded-lg border border-border bg-surface">
+        <div>
+          <h2 className="mb-3 text-xs font-bold tracking-wide text-slate uppercase">
+            Materials · {lines.length} line {lines.length === 1 ? 'item' : 'items'}
+          </h2>
+          <div className="divide-y divide-border rounded-lg border border-border bg-surface">
           {lines.map((line) => (
             <div key={line.materialId} className="flex items-center gap-4 p-4">
               <MaterialImage
@@ -98,10 +110,12 @@ export default function CartPage() {
               </Button>
             </div>
           ))}
+          </div>
         </div>
 
-        <div className="h-fit rounded-lg border border-border bg-surface p-5 lg:sticky lg:top-24">
-          <h2 className="mb-4 text-sm font-bold text-slate">Order summary</h2>
+        <div className="h-fit">
+          <h2 className="mb-3 text-xs font-bold tracking-wide text-slate uppercase">Order summary</h2>
+          <div className="rounded-lg border border-border bg-surface p-5 lg:sticky lg:top-24">
           <div className="flex items-center justify-between text-sm">
             <span className="text-slate">Subtotal</span>
             <span className="font-bold tabular-nums text-ink">{formatNaira(subtotal)}</span>
@@ -111,6 +125,7 @@ export default function CartPage() {
           <Button asChild size="lg" className="mt-5 w-full">
             <Link href="/checkout">Continue to checkout</Link>
           </Button>
+          </div>
         </div>
       </div>
     </div>

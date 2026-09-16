@@ -1,6 +1,6 @@
 import Link from 'next/link';
 import { TruckIcon } from '@phosphor-icons/react/ssr';
-import { getMaterials, getCategories, MATERIAL_SORT_VALUES, type MaterialSort } from '@/lib/queries/materials';
+import { getMaterials, getCategories, getFulfillmentCenters, MATERIAL_SORT_VALUES, type MaterialSort } from '@/lib/queries/materials';
 import { formatNaira } from '@/lib/format';
 import { MaterialImage } from '@/components/material-image';
 import { CatalogSortSelect } from '@/components/catalog-sort-select';
@@ -23,10 +23,12 @@ export default async function CatalogPage({
   const sourcingScope = scopeParam === 'NATIONAL' || scopeParam === 'REGIONAL' ? scopeParam : undefined;
   const page = Math.max(1, Number(pageParam) || 1);
 
-  const [categories, { materials, total, pageCount }] = await Promise.all([
+  const [categories, centers, { materials, total, pageCount }] = await Promise.all([
     getCategories(),
+    getFulfillmentCenters(),
     getMaterials({ category, query: q, sort, sourcingScope, page, pageSize: PAGE_SIZE }),
   ]);
+  const regions = [...new Set(centers.map((c) => c.region))];
 
   function urlFor(overrides: { category?: string; sort?: MaterialSort; scope?: string; page?: number }) {
     const params = new URLSearchParams();
@@ -45,13 +47,20 @@ export default async function CatalogPage({
 
   return (
     <div className="mx-auto w-full max-w-7xl px-6 py-10">
-      <div className="mb-1 flex flex-wrap items-center gap-2 text-xs text-muted-foreground">
-        <TruckIcon className="size-3.5 text-brand" />
-        Delivery or pickup calculated at checkout — bonded haulage across every region we serve.
+      <div className="mb-3 flex flex-wrap items-start justify-between gap-3">
+        <div>
+          <div className="mb-1 text-xs font-semibold text-slate">Catalogue</div>
+          <h1 className="text-2xl font-bold tracking-tight text-ink sm:text-[28px]">
+            {q ? `Results for "${q}"` : category ? category : 'Building materials'}
+          </h1>
+        </div>
+        {regions.length > 0 && (
+          <span className="flex shrink-0 items-center gap-1.5 rounded-full bg-success-soft px-3 py-1.5 text-xs font-semibold text-success">
+            <TruckIcon className="size-3.5" />
+            Delivery available — {regions.map((r) => r.charAt(0) + r.slice(1).toLowerCase()).join(', ')}
+          </span>
+        )}
       </div>
-      <h1 className="mb-2 text-2xl font-bold tracking-tight text-ink">
-        {q ? `Results for "${q}"` : category ? category : 'Catalogue'}
-      </h1>
       <p className="mb-8 text-sm text-slate">Fixed catalogue price, {total} materials.</p>
 
       <div className="grid grid-cols-1 gap-10 lg:grid-cols-[220px_1fr]">

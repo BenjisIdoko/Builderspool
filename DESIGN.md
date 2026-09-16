@@ -19,7 +19,13 @@ Three rules govern every screen in this app, in priority order:
    input, and dialog is separated from its background with a single `1px` `border-border` line. This was
    an explicit, repeated correction during development — shadcn's default `Card` ships with
    `ring-1 ring-foreground/10`; it was patched out (see `components/ui/card.tsx`). Treat any shadow on a
-   static (non-hover, non-modal-overlay) element as a bug.
+   static (non-hover, non-modal-overlay) element as a bug — **with one narrow, deliberate exception**: the
+   buyer homepage's hero card, trust badges, and category tiles use a single, very subtle shadow value
+   (`shadow-[0_1px_2px_rgba(16,24,40,0.04)]` for cards; the hero itself additionally gets
+   `shadow-[0_32px_64px_-12px_rgba(41,84,229,0.35),0_8px_24px_rgba(15,23,42,0.12)]`), adopted from the
+   Fable design handoff for buyer-marketing surfaces only. Don't extend this to admin/seller tables,
+   dialogs, or routine controls — it's scoped to `app/(shop)/page.tsx`'s marketing sections, not a change
+   to the base rule.
 2. **Real data only.** Nothing in this app shows a number, chip, or chart it can't honestly derive from
    stored data. There is no fabricated "+12% vs last week," no placeholder avatar photo, no invented
    delivery ETA. When a value truly isn't known yet, the UI says so explicitly (an empty state, a "verify
@@ -209,7 +215,9 @@ icon set is used anywhere in the app.
 ### Seller & Admin portals (`app/seller/`, `app/admin/`)
 - **Fixed left sidebar** (`components/seller/seller-sidebar.tsx`, `components/admin/admin-sidebar.tsx`):
   `hidden lg:flex`, `w-60`, `border-r border-border bg-surface`. Logo + product name at top, nav links
-  with active-state highlight (`bg-brand/10 text-brand` on the current route, via `usePathname()`),
+  grouped under uppercase section labels (`text-[10.5px] font-bold tracking-wide text-muted-foreground
+  uppercase`, e.g. "Overview" / "Commerce" / "Account" — group by what the links are *for*, not one flat
+  list) with active-state highlight (`bg-brand/10 text-brand` on the current route, via `usePathname()`),
   profile block + sign-out pinned to the bottom via `mt-auto`.
 - **Mobile**: sidebar is replaced below `lg` by a `h-16` topbar (logo + `MobileNav` hamburger triggering a
   slide-over) — see `components/mobile-nav.tsx`'s `footer` prop for how sign-out surfaces in the mobile

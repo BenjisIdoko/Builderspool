@@ -645,6 +645,18 @@ Finished the 7 screens left over from the Fable handoff pass, per the user's exp
 
 `npx tsc --noEmit` and `npm run lint` clean after every file. Live-verified end to end: catalog sort actually reorders (₦1-placeholder rows correctly float to the top on price-ascending) and pagination's real "Next" link appears at 154÷24 materials; homepage's new sections render with real counts; PDP's escrow note shows; cart→checkout step indicator advances correctly across a real placed order (confirmed `paymentMethod` stored); seller dashboard's KYC banner correctly shows for an unverified seller and correctly hides for an approved one, and "Recent allocations" shows real materials/payout status with no buyer name anywhere in the DOM; both new admin KPI rows show accurate real numbers matching direct DB counts.
 
+### Fable handoff — real visual/structural recreation pass (2026-09-16, later still)
+
+User feedback: "so noticed every design from fable is not yet adopted." Fair — the previous pass added real *data* features (sort, pagination, KPI rows, escrow notes) onto the existing page shells without actually restructuring layouts to match the Fable screens' compositions. Fixed by rendering the actual `.dc.html` files (a local static server made them render for real, `support.js` and all — much more reliable than the earlier text-extraction-only review) and doing an honest side-by-side against the live pages.
+
+The single biggest gap: the homepage hero was full-bleed photo+gradient; the Fable reference is an **inset rounded card** (`rounded-3xl`, gradient + photo + two decorative circles, a soft shadow) sitting inside the page's normal margins. Rebuilt `app/(shop)/page.tsx`'s hero to match that composition exactly, which required one considered, disclosed exception to the "no shadow" rule (see `DESIGN.md` — a single subtle shadow value, scoped to the homepage's marketing surfaces only, never admin/seller). Also rebuilt: the trust-badge row and category grid as small bordered+shadowed cards (matching the reference's card treatment instead of the previous plain-border rows); Catalog's header (eyebrow + bold H1 + a real green "Delivery available — Abuja, Kano, Lagos" pill built from real `FulfillmentCenter` regions, replacing a vaguer "bonded haulage" line); Cart (a prominent green escrow banner, eyebrow section labels — "MATERIALS · N LINE ITEMS" style — matching the reference's `WAYBILL`-style structure honestly adapted).
+
+Also fixed, independent of any one screen: both `SellerSidebar` and `AdminSidebar` now group their nav links under uppercase section labels (Overview / Commerce / Account) instead of one flat list — a pattern the Fable *and* the earlier Stitch review both independently used, so treated as validated rather than arbitrary, and applied for real across every seller/admin page at once since the sidebar is shared.
+
+Reconfirmed the same fabrication boundaries as before while doing this closer comparison — the rendered Fable pages still name real-sounding merchants per product ("DANGOTE CEMENT PLC", "TIGER TMT MILLS") directly to the buyer, still assume MOQ/RFQ bulk-negotiation, and ProductDetail's "48 verified lots available" pill has no backing data — none of that got adopted, consistent with every earlier pass.
+
+`npx tsc --noEmit` and `npm run lint` clean throughout. Live-verified via real screenshots of both the rendered `.dc.html` reference and the live app, not just text diffs this time.
+
 ## Bidding Engine Design
 
 - **Weighted award scoring**, not simple lowest-price-wins: Price 40%, seller reliability/trust score 25%, capacity fit 20%, delivery speed 15%.
