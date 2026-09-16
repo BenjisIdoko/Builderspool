@@ -9,6 +9,7 @@ import {
 } from '@/lib/queries/materials';
 import { ProductGallery } from '@/components/product-gallery';
 import { ProductDetailPanel } from '@/components/product-detail-panel';
+import { ProductBuyBox } from '@/components/product-buy-box';
 import { MaterialCard } from '@/components/material-card';
 
 export default async function MaterialPage({ params }: { params: Promise<{ id: string }> }) {
@@ -36,9 +37,14 @@ export default async function MaterialPage({ params }: { params: Promise<{ id: s
         <span className="text-ink">{material.name}</span>
       </nav>
 
-      <div className="grid grid-cols-1 gap-16 lg:grid-cols-2">
-        <ProductGallery images={material.images} category={material.category} alt={material.name} />
-        <ProductDetailPanel material={material} priceHistory={priceHistory} fulfillmentCenters={fulfillmentCenters} />
+      <div className="grid grid-cols-1 gap-10 lg:grid-cols-[1fr_380px]">
+        <div>
+          <ProductGallery images={material.images} category={material.category} alt={material.name} />
+          <div className="mt-8">
+            <ProductDetailPanel material={material} priceHistory={priceHistory} fulfillmentCenters={fulfillmentCenters} />
+          </div>
+        </div>
+        <ProductBuyBox material={material} />
       </div>
 
       {related.length > 0 && (

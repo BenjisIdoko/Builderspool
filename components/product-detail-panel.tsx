@@ -1,16 +1,13 @@
 'use client';
 
 import { useState } from 'react';
-import { BellIcon, LockKeyIcon, MinusIcon, PlusIcon } from '@phosphor-icons/react/ssr';
-import { useCart } from '@/lib/cart/CartContext';
-import { formatNaira } from '@/lib/format';
+import { BellIcon } from '@phosphor-icons/react/ssr';
 import type { BuyerMaterial } from '@/lib/queries/materials';
 import { createPriceAlert } from '@/app/(shop)/catalog/actions';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Input } from '@/components/ui/input';
 import { PriceHistoryChart } from '@/components/price-history-chart';
-import { QuantityInput } from '@/components/quantity-input';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 
 const SPEC_FIELDS = [
@@ -20,6 +17,9 @@ const SPEC_FIELDS = [
   { key: 'weight', label: 'Weight' },
 ] as const;
 
+// Title + tabbed content only — lives in the left column alongside the
+// gallery, matching the Fable handoff's real structure. Purchase mechanics
+// (price/qty/button) moved to ProductBuyBox in the right rail.
 export function ProductDetailPanel({
   material,
   priceHistory,
@@ -29,9 +29,6 @@ export function ProductDetailPanel({
   priceHistory: { date: Date; price: number }[];
   fulfillmentCenters: { name: string; region: string }[];
 }) {
-  const { addItem } = useCart();
-  const [quantity, setQuantity] = useState(1);
-  const [added, setAdded] = useState(false);
   const [alertPrice, setAlertPrice] = useState('');
   const [alertState, setAlertState] = useState<'idle' | 'saving' | 'saved'>('idle');
 
@@ -52,75 +49,12 @@ export function ProductDetailPanel({
     setTimeout(() => setAlertState('idle'), 2000);
   }
 
-  function decrement() {
-    setQuantity((q) => Math.max(1, q - 1));
-  }
-  function increment() {
-    setQuantity((q) => q + 1);
-  }
-  function handleAdd() {
-    addItem(
-      {
-        materialId: material.id,
-        name: material.name,
-        unit: material.unit,
-        category: material.category,
-        catalogPrice: material.catalogPrice,
-        imageUrl: material.imageUrl,
-      },
-      quantity
-    );
-    setAdded(true);
-    setTimeout(() => setAdded(false), 1200);
-  }
-
   return (
     <div>
-      <div className="mb-2 flex items-center gap-2 text-xs text-muted-foreground">
+      <div className="mb-1.5 flex items-center gap-2 text-xs text-muted-foreground">
         {material.category} · {regionLabel}
       </div>
-      <h1 className="mb-5 text-[28px] font-bold tracking-tight text-ink">{material.name}</h1>
-      <div className="mb-7 text-3xl font-semibold text-ink">
-        {formatNaira(material.catalogPrice)}{' '}
-        <span className="font-sans text-sm font-medium text-muted-foreground">/ {material.unit}</span>
-      </div>
-
-      <div className="mb-5 flex items-center gap-3">
-        <div className="flex items-center rounded-md border border-border">
-          <button
-            type="button"
-            onClick={decrement}
-            aria-label={`Decrease quantity of ${material.name}`}
-            className="px-4 py-2.5 text-slate transition-colors hover:text-ink"
-          >
-            <MinusIcon className="size-3.5" />
-          </button>
-          <QuantityInput
-            value={quantity}
-            onChange={setQuantity}
-            label={material.name}
-            className="min-w-[2.5ch] border-x border-border px-2 text-sm font-semibold text-ink"
-          />
-          <button
-            type="button"
-            onClick={increment}
-            aria-label={`Increase quantity of ${material.name}`}
-            className="px-4 py-2.5 text-slate transition-colors hover:text-ink"
-          >
-            <PlusIcon className="size-3.5" />
-          </button>
-        </div>
-        <span className="text-sm text-muted-foreground">{material.unit}</span>
-      </div>
-
-      <Button type="button" className="mb-3 w-full gap-2" size="lg" onClick={handleAdd}>
-        <PlusIcon className="size-4" />
-        {added ? 'Added' : 'Place order'}
-      </Button>
-      <p className="mb-10 flex items-start gap-1.5 text-xs text-muted-foreground">
-        <LockKeyIcon className="mt-0.5 size-3.5 shrink-0" />
-        Held in escrow once paid — released only after the fulfillment center confirms receipt.
-      </p>
+      <h1 className="mb-6 text-[22px] font-extrabold tracking-[-0.02em] text-ink">{material.name}</h1>
 
       <Tabs defaultValue={defaultTab}>
         <TabsList variant="line" className="mb-6 h-auto w-full justify-start gap-6 border-b border-border pb-0">

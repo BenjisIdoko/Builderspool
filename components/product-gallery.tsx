@@ -27,7 +27,7 @@ export function ProductGallery({
       <button
         type="button"
         onClick={() => activeImage && setZoomOpen(true)}
-        className="group relative block w-full cursor-zoom-in overflow-hidden rounded-lg"
+        className="group relative block w-full cursor-zoom-in overflow-hidden rounded-2xl border border-border shadow-[0_1px_2px_rgba(16,24,40,0.04),0_12px_32px_rgba(16,24,40,0.06)]"
         disabled={!activeImage}
       >
         <MaterialImage imageUrl={activeImage} category={category} alt={alt} className="aspect-square w-full" />
@@ -39,17 +39,17 @@ export function ProductGallery({
       </button>
 
       {images.length > 1 && (
-        <div className="mt-3 flex gap-2">
+        <div className="mt-3 grid grid-cols-4 gap-2.5">
           {images.map((img, i) => (
             <button
               key={img + i}
               type="button"
               onClick={() => setActiveIndex(i)}
-              className={`overflow-hidden rounded-md border-2 ${
-                i === activeIndex ? 'border-brand' : 'border-transparent'
+              className={`overflow-hidden rounded-lg border-2 ${
+                i === activeIndex ? 'border-brand' : 'border-border'
               }`}
             >
-              <MaterialImage imageUrl={img} category={category} alt={`${alt} photo ${i + 1}`} className="size-16" />
+              <MaterialImage imageUrl={img} category={category} alt={`${alt} photo ${i + 1}`} className="aspect-square w-full" />
             </button>
           ))}
         </div>

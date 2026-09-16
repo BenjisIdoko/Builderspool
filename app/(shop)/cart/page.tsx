@@ -66,33 +66,29 @@ export default function CartPage() {
                 </div>
               </div>
 
-              <div className="flex items-center rounded-md border border-border-strong">
-                <Button
+              <div className="flex items-center overflow-hidden rounded-lg border border-border-strong">
+                <button
                   type="button"
-                  variant="ghost"
-                  size="icon-sm"
-                  className="rounded-r-none"
+                  className="flex size-[30px] items-center justify-center bg-well text-ink transition-colors hover:bg-border-strong/40"
                   onClick={() => updateQuantity(line.materialId, line.quantity - 1)}
                   aria-label={`Decrease quantity of ${line.name}`}
                 >
                   <MinusIcon className="size-3" />
-                </Button>
+                </button>
                 <QuantityInput
                   value={line.quantity}
                   onChange={(next) => updateQuantity(line.materialId, next)}
                   label={line.name}
-                  className="w-8 text-sm tabular-nums text-ink"
+                  className="w-9 text-sm font-bold text-ink"
                 />
-                <Button
+                <button
                   type="button"
-                  variant="ghost"
-                  size="icon-sm"
-                  className="rounded-l-none"
+                  className="flex size-[30px] items-center justify-center bg-well text-ink transition-colors hover:bg-border-strong/40"
                   onClick={() => updateQuantity(line.materialId, line.quantity + 1)}
                   aria-label={`Increase quantity of ${line.name}`}
                 >
                   <PlusIcon className="size-3" />
-                </Button>
+                </button>
               </div>
 
               <div className="w-24 text-right font-bold tabular-nums text-ink">
