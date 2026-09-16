@@ -1,16 +1,20 @@
+import Link from 'next/link';
 import {
   AlarmIcon,
   ClockIcon,
   StackIcon,
   TrophyIcon,
   CheckCircleIcon,
+  IdentificationCardIcon,
+  WarningIcon,
 } from '@phosphor-icons/react/ssr';
 import { getSellerIdFromSession } from '@/lib/seller/session';
 import { getSellerProfile, getOpenCyclesForSeller, getSellerBids, getSellerAllocations } from '@/lib/queries/sellerPortal';
 import { formatNaira } from '@/lib/format';
-import { pillClass } from '@/lib/statusColors';
+import { pillClass, payoutStatusTone } from '@/lib/statusColors';
 import { BidDialog } from '@/components/seller/bid-dialog';
 import { Badge } from '@/components/ui/badge';
+import { MaterialImage } from '@/components/material-image';
 
 export default async function SellerDashboardPage() {
   const sellerId = (await getSellerIdFromSession())!;
@@ -75,6 +79,31 @@ export default async function SellerDashboardPage() {
       <p className="mb-6 text-sm text-muted-foreground">
         Trust score {profile!.trustScore} · Serving {profile!.regionsServed.join(', ')}
       </p>
+
+      {profile!.kycStatus !== 'APPROVED' && (
+        <Link
+          href="/seller/kyc"
+          className={`mb-8 flex items-center gap-2.5 rounded-lg border px-4 py-3 text-sm transition-colors ${
+            profile!.kycStatus === 'PENDING'
+              ? 'border-warning/40 bg-warning-soft/60 text-warning hover:bg-warning-soft'
+              : 'border-danger/40 bg-danger-soft/60 text-danger hover:bg-danger-soft'
+          }`}
+        >
+          {profile!.kycStatus === 'PENDING' ? (
+            <IdentificationCardIcon className="size-4 shrink-0" />
+          ) : (
+            <WarningIcon className="size-4 shrink-0" />
+          )}
+          {profile!.kycStatus === 'PENDING'
+            ? 'Your KYC submission is pending admin review.'
+            : profile!.kycStatus === 'REJECTED'
+              ? `KYC rejected: ${profile!.kycRejectionReason ?? 'see details'} — resubmit to unlock payouts.`
+              : 'Complete KYC verification to unlock payouts.'}
+          <span className="ml-auto font-semibold underline">
+            {profile!.kycStatus === 'NOT_SUBMITTED' ? 'Start now' : 'View'} →
+          </span>
+        </Link>
+      )}
 
       <div className="mb-10 grid grid-cols-2 gap-4 lg:grid-cols-4">
         {kpiCards.map((kpi) => (
@@ -146,6 +175,38 @@ export default async function SellerDashboardPage() {
               </div>
             </div>
           ))}
+        </div>
+      )}
+
+      {allocations.length > 0 && (
+        <div className="mt-14">
+          <div className="mb-4 flex items-baseline justify-between">
+            <h2 className="text-xl font-bold tracking-tight text-ink">Recent allocations</h2>
+            <Link href="/seller/allocations" className="text-sm font-medium text-brand hover:underline">
+              View all →
+            </Link>
+          </div>
+          <div className="divide-y divide-border rounded-lg border border-border bg-surface">
+            {allocations.slice(0, 5).map((allocation) => (
+              <div key={allocation.id} className="flex items-center gap-3 p-4">
+                <MaterialImage
+                  imageUrl={allocation.bid.material.imageUrl}
+                  category={allocation.bid.material.category}
+                  alt={allocation.bid.material.name}
+                  className="size-10 shrink-0 rounded-md border border-border"
+                />
+                <div className="min-w-0 flex-1">
+                  <div className="truncate font-medium text-ink">{allocation.bid.material.name}</div>
+                  <div className="text-xs text-muted-foreground">
+                    {allocation.quantityFilled} {allocation.bid.material.unit}
+                  </div>
+                </div>
+                <Badge variant="outline" className={pillClass(payoutStatusTone(allocation.payoutStatus))}>
+                  {allocation.payoutStatus.replace('_', ' ').toLowerCase()}
+                </Badge>
+              </div>
+            ))}
+          </div>
         </div>
       )}
     </div>

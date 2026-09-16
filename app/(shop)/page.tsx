@@ -1,9 +1,19 @@
+import { createElement } from 'react';
 import Image from 'next/image';
 import Link from 'next/link';
-import { getMaterials } from '@/lib/queries/materials';
+import { TagIcon, LockKeyIcon, TruckIcon, ArrowRightIcon } from '@phosphor-icons/react/ssr';
+import { getMaterials, getCategories } from '@/lib/queries/materials';
 import { getStorefrontStats } from '@/lib/queries/stats';
+import { getCurrentBuyer } from '@/lib/buyer/auth';
+import { getCategoryIcon } from '@/lib/categoryIcons';
 import { MaterialCard } from '@/components/material-card';
 import { Button } from '@/components/ui/button';
+
+const TRUST_BADGES = [
+  { icon: TagIcon, label: 'Fixed catalogue price', body: 'No back-and-forth negotiation' },
+  { icon: LockKeyIcon, label: 'Escrow-protected checkout', body: 'Funds held until fulfillment center receipt' },
+  { icon: TruckIcon, label: 'Tracked haulage', body: 'Real dispatch status, not a black box' },
+];
 
 const FLOW_STEPS = [
   { title: 'Order confirmed', body: 'Fixed price, paid immediately.' },
@@ -14,7 +24,12 @@ const FLOW_STEPS = [
 ];
 
 export default async function Home() {
-  const [materials, stats] = await Promise.all([getMaterials(), getStorefrontStats()]);
+  const [{ materials }, stats, categories, buyer] = await Promise.all([
+    getMaterials(),
+    getStorefrontStats(),
+    getCategories(),
+    getCurrentBuyer(),
+  ]);
   const featured = materials.slice(0, 8);
 
   const trustStats = [
@@ -80,6 +95,43 @@ export default async function Home() {
         </div>
       </section>
 
+      <section className="border-b border-border bg-surface">
+        <div className="mx-auto grid w-full max-w-7xl grid-cols-1 divide-y divide-border sm:grid-cols-3 sm:divide-x sm:divide-y-0">
+          {TRUST_BADGES.map((badge) => (
+            <div key={badge.label} className="flex items-start gap-3 px-6 py-6">
+              <span className="flex size-9 shrink-0 items-center justify-center rounded-lg bg-info-soft text-info">
+                <badge.icon className="size-4.5" />
+              </span>
+              <div>
+                <div className="text-sm font-semibold text-ink">{badge.label}</div>
+                <div className="text-xs text-muted-foreground">{badge.body}</div>
+              </div>
+            </div>
+          ))}
+        </div>
+      </section>
+
+      <section className="mx-auto w-full max-w-7xl px-6 py-16">
+        <h2 className="mb-8 text-2xl font-bold tracking-tight text-ink">Browse by category</h2>
+        <div className="grid grid-cols-2 gap-3 sm:grid-cols-3 lg:grid-cols-4">
+          {categories.map((c) => (
+            <Link
+              key={c.name}
+              href={`/catalog?category=${encodeURIComponent(c.name)}`}
+              className="flex items-center gap-3 rounded-lg border border-border bg-surface p-4 transition-colors hover:border-border-strong"
+            >
+              <span className="flex size-10 shrink-0 items-center justify-center rounded-lg bg-well text-brand">
+                {createElement(getCategoryIcon(c.name), { className: 'size-5' })}
+              </span>
+              <div className="min-w-0">
+                <div className="truncate text-sm font-semibold text-ink">{c.name}</div>
+                <div className="text-xs text-muted-foreground">{c.count} materials</div>
+              </div>
+            </Link>
+          ))}
+        </div>
+      </section>
+
       {/* Dark philosophy band — full-bleed, distinct from the hero's photo,
           same restrained blueprint-grid texture in white at low opacity.
           Buyer-safe lifecycle copy throughout — no bidding/auction/scoring
@@ -130,6 +182,25 @@ export default async function Home() {
           ))}
         </div>
       </section>
+
+      {!buyer && (
+        <section className="mx-auto w-full max-w-7xl px-6 pb-16">
+          <div className="flex flex-col items-start justify-between gap-6 rounded-xl bg-ink px-8 py-10 sm:flex-row sm:items-center">
+            <div>
+              <h2 className="text-2xl font-bold text-white">Ready to order at a fixed price?</h2>
+              <p className="mt-2 max-w-md text-sm text-white/70">
+                Create a free account to check out, track orders, and set price alerts.
+              </p>
+            </div>
+            <Button asChild size="lg" className="h-11 shrink-0 gap-2 px-6 text-base">
+              <Link href="/signup">
+                Join Builders Pool
+                <ArrowRightIcon className="size-4" />
+              </Link>
+            </Button>
+          </div>
+        </section>
+      )}
     </div>
   );
 }

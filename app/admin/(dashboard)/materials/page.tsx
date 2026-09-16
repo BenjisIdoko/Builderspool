@@ -1,11 +1,21 @@
 import Link from 'next/link';
-import { MagnifyingGlassIcon, PackageIcon, PencilSimpleIcon, WarningIcon } from '@phosphor-icons/react/ssr';
+import {
+  MagnifyingGlassIcon,
+  PackageIcon,
+  PencilSimpleIcon,
+  WarningIcon,
+  StackIcon,
+  GlobeIcon,
+  MapPinIcon,
+} from '@phosphor-icons/react/ssr';
 import {
   getMaterialsForAdmin,
   getAdminMaterialCategories,
   getMaterialsNeedingPriceReviewCount,
+  getMaterialKpis,
 } from '@/lib/queries/adminMaterials';
 import { formatNaira } from '@/lib/format';
+import { pillClass } from '@/lib/statusColors';
 import { Badge } from '@/components/ui/badge';
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
@@ -20,11 +30,25 @@ export default async function AdminMaterialsPage({
   const page = Math.max(1, Number(pageParam) || 1);
   const needsReview = review === '1';
 
-  const [{ materials, total, pageCount }, categories, needsReviewCount] = await Promise.all([
+  const [{ materials, total, pageCount }, categories, needsReviewCount, kpis] = await Promise.all([
     getMaterialsForAdmin({ category, query: q, page, needsReview }),
     getAdminMaterialCategories(),
     getMaterialsNeedingPriceReviewCount(),
+    getMaterialKpis(),
   ]);
+
+  const kpiCards = [
+    { label: 'Total materials', value: String(kpis.total), icon: StackIcon, tone: 'info' as const, chip: 'Live catalog' },
+    {
+      label: 'Needs price review',
+      value: String(kpis.needsReview),
+      icon: WarningIcon,
+      tone: kpis.needsReview > 0 ? ('warning' as const) : ('success' as const),
+      chip: kpis.needsReview > 0 ? 'Placeholder price' : 'All priced',
+    },
+    { label: 'National supply', value: String(kpis.national), icon: GlobeIcon, tone: 'info' as const, chip: 'Ships anywhere' },
+    { label: 'Regional', value: String(kpis.regional), icon: MapPinIcon, tone: 'info' as const, chip: 'Region-limited' },
+  ];
 
   function urlFor(overrides: { category?: string; q?: string; page?: number; review?: boolean }) {
     const params = new URLSearchParams();
@@ -44,10 +68,25 @@ export default async function AdminMaterialsPage({
     <div className="mx-auto w-full max-w-6xl px-6 py-10">
       <div className="mb-1 text-xs text-muted-foreground">Admin · ops desk</div>
       <h1 className="mb-1 text-2xl font-bold tracking-tight text-ink">Catalog materials</h1>
-      <p className="mb-4 text-sm text-muted-foreground">
+      <p className="mb-8 text-sm text-muted-foreground">
         The live buyer catalog — {total} materials. Admin is the only place these can be edited; every
         price change is recorded as a real price-history point buyers can see.
       </p>
+
+      <div className="mb-8 grid grid-cols-2 gap-4 lg:grid-cols-4">
+        {kpiCards.map((kpi) => (
+          <div key={kpi.label} className="overflow-hidden rounded-lg border border-border bg-surface p-4">
+            <div className={`mb-3 flex size-8 items-center justify-center rounded-lg ${pillClass(kpi.tone)}`}>
+              <kpi.icon className="size-4" />
+            </div>
+            <div className="mb-1 text-[11px] text-muted-foreground">{kpi.label}</div>
+            <div className="mb-2 truncate text-lg font-semibold text-ink">{kpi.value}</div>
+            <Badge variant="outline" className={pillClass(kpi.tone)}>
+              {kpi.chip}
+            </Badge>
+          </div>
+        ))}
+      </div>
 
       {needsReviewCount > 0 && (
         <Link

@@ -63,6 +63,18 @@ export async function getMaterialsNeedingPriceReviewCount() {
   return prisma.material.count({ where: { needsPriceReview: true } });
 }
 
+// Real KPI strip for the Materials page — every count is a direct
+// aggregate, nothing derived from a fabricated market index.
+export async function getMaterialKpis() {
+  const [total, needsReview, national, regional] = await Promise.all([
+    prisma.material.count(),
+    prisma.material.count({ where: { needsPriceReview: true } }),
+    prisma.material.count({ where: { sourcingScope: 'NATIONAL' } }),
+    prisma.material.count({ where: { sourcingScope: 'REGIONAL' } }),
+  ]);
+  return { total, needsReview, national, regional };
+}
+
 function toPlainMaterial<T extends { catalogPrice: unknown }>(material: T) {
   return { ...material, catalogPrice: Number(material.catalogPrice) };
 }

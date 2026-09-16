@@ -1,7 +1,9 @@
-import { getReferenceCategories, getReferenceProducts } from '@/lib/queries/catalogueReference';
+import { BooksIcon, StackIcon, TagIcon } from '@phosphor-icons/react/ssr';
+import { getReferenceCategories, getReferenceProducts, getReferenceStats } from '@/lib/queries/catalogueReference';
 import { CatalogueFilterBar } from '@/components/admin/catalogue-filter-bar';
 import { ReferenceProductActions } from '@/components/admin/reference-product-actions';
 import { Badge } from '@/components/ui/badge';
+import { pillClass } from '@/lib/statusColors';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 
 export default async function CatalogueReferencePage({
@@ -10,12 +12,23 @@ export default async function CatalogueReferencePage({
   searchParams: Promise<{ category?: string; q?: string }>;
 }) {
   const { category, q } = await searchParams;
-  const [categories, products] = await Promise.all([
+  const [categories, products, stats] = await Promise.all([
     getReferenceCategories(),
     getReferenceProducts(category, q),
+    getReferenceStats(),
   ]);
 
-  const totalProducts = categories.reduce((sum, c) => sum + c.productCount, 0);
+  const kpiCards = [
+    { label: 'Total products', value: String(stats.totalProducts), icon: StackIcon, tone: 'info' as const, chip: 'Reference only' },
+    { label: 'Categories', value: String(stats.totalCategories), icon: BooksIcon, tone: 'info' as const, chip: 'Statutory taxonomy' },
+    {
+      label: 'With researched pricing',
+      value: `${stats.withPricing} / ${stats.totalProducts}`,
+      icon: TagIcon,
+      tone: 'success' as const,
+      chip: 'Real market survey',
+    },
+  ];
 
   return (
     <div className="mx-auto w-full max-w-6xl px-6 py-10">
@@ -23,9 +36,24 @@ export default async function CatalogueReferencePage({
       <h1 className="mb-1 text-2xl font-bold tracking-tight text-ink">Catalogue reference library</h1>
       <p className="mb-8 text-sm text-muted-foreground">
         Researched specs, standards, and common brands across the wider Nigerian construction-materials
-        market — {totalProducts} products in {categories.length} categories. Reference only, not the live
-        buyer catalog: most of these have no fixed price, since real pricing here comes from seller bidding.
+        market. Reference only, not the live buyer catalog: most of these have no fixed price, since real
+        pricing here comes from seller bidding.
       </p>
+
+      <div className="mb-8 grid grid-cols-1 gap-4 sm:grid-cols-3">
+        {kpiCards.map((kpi) => (
+          <div key={kpi.label} className="overflow-hidden rounded-lg border border-border bg-surface p-4">
+            <div className={`mb-3 flex size-8 items-center justify-center rounded-lg ${pillClass(kpi.tone)}`}>
+              <kpi.icon className="size-4" />
+            </div>
+            <div className="mb-1 text-[11px] text-muted-foreground">{kpi.label}</div>
+            <div className="mb-2 truncate text-lg font-semibold text-ink">{kpi.value}</div>
+            <Badge variant="outline" className={pillClass(kpi.tone)}>
+              {kpi.chip}
+            </Badge>
+          </div>
+        ))}
+      </div>
 
       <CatalogueFilterBar categories={categories} category={category} q={q} />
 

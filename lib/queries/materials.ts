@@ -1,4 +1,5 @@
 import { prisma } from '../prisma';
+import { Prisma } from '@prisma/client';
 
 // Buyer-facing catalog reads. These intentionally select only fields the
 // buyer is allowed to see — never bid cycles, scores, or anything else that
@@ -25,16 +26,55 @@ const BUYER_SAFE_SELECT = {
   sourcingScope: true,
 } as const;
 
-export async function getMaterials(category?: string, query?: string) {
-  const materials = await prisma.material.findMany({
-    where: {
-      category: category || undefined,
-      name: query ? { contains: query, mode: 'insensitive' } : undefined,
-    },
-    select: BUYER_SAFE_SELECT,
-    orderBy: [{ category: 'asc' }, { name: 'asc' }],
-  });
-  return materials.map(toPlainMaterial);
+export type MaterialSort = 'relevance' | 'price_asc' | 'price_desc' | 'name';
+export const MATERIAL_SORT_VALUES: MaterialSort[] = ['relevance', 'price_asc', 'price_desc', 'name'];
+
+function sortToOrderBy(sort: MaterialSort): Prisma.MaterialOrderByWithRelationInput[] {
+  switch (sort) {
+    case 'price_asc':
+      return [{ catalogPrice: 'asc' }];
+    case 'price_desc':
+      return [{ catalogPrice: 'desc' }];
+    case 'name':
+      return [{ name: 'asc' }];
+    case 'relevance':
+    default:
+      return [{ category: 'asc' }, { name: 'asc' }];
+  }
+}
+
+export async function getMaterials({
+  category,
+  query,
+  sourcingScope,
+  sort = 'relevance',
+  page = 1,
+  pageSize,
+}: {
+  category?: string;
+  query?: string;
+  sourcingScope?: 'NATIONAL' | 'REGIONAL';
+  sort?: MaterialSort;
+  page?: number;
+  pageSize?: number;
+} = {}) {
+  const where: Prisma.MaterialWhereInput = {
+    category: category || undefined,
+    sourcingScope: sourcingScope || undefined,
+    name: query ? { contains: query, mode: 'insensitive' } : undefined,
+  };
+  const orderBy = sortToOrderBy(sort);
+
+  if (!pageSize) {
+    const rows = await prisma.material.findMany({ where, select: BUYER_SAFE_SELECT, orderBy });
+    return { materials: rows.map(toPlainMaterial), total: rows.length, page: 1, pageCount: 1 };
+  }
+
+  const [rows, total] = await Promise.all([
+    prisma.material.findMany({ where, select: BUYER_SAFE_SELECT, orderBy, skip: (page - 1) * pageSize, take: pageSize }),
+    prisma.material.count({ where }),
+  ]);
+  return { materials: rows.map(toPlainMaterial), total, page, pageCount: Math.max(1, Math.ceil(total / pageSize)) };
 }
 
 // Powers the navbar's live search dropdown — a small, fast lookup, not the
@@ -106,16 +146,16 @@ export async function getFulfillmentCenters() {
 }
 
 export async function getCategories() {
-  const rows = await prisma.material.findMany({
-    select: { category: true },
-    distinct: ['category'],
+  const rows = await prisma.material.groupBy({
+    by: ['category'],
+    _count: { _all: true },
     orderBy: { category: 'asc' },
   });
-  return rows.map((r) => r.category);
+  return rows.map((r) => ({ name: r.category, count: r._count._all }));
 }
 
 function toPlainMaterial<T extends { catalogPrice: unknown }>(material: T) {
   return { ...material, catalogPrice: Number(material.catalogPrice) };
 }
 
-export type BuyerMaterial = Awaited<ReturnType<typeof getMaterials>>[number];
+export type BuyerMaterial = Awaited<ReturnType<typeof getMaterials>>['materials'][number];

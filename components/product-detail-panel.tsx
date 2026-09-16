@@ -1,7 +1,7 @@
 'use client';
 
 import { useState } from 'react';
-import { BellIcon, MinusIcon, PlusIcon } from '@phosphor-icons/react/ssr';
+import { BellIcon, LockKeyIcon, MinusIcon, PlusIcon } from '@phosphor-icons/react/ssr';
 import { useCart } from '@/lib/cart/CartContext';
 import { formatNaira } from '@/lib/format';
 import type { BuyerMaterial } from '@/lib/queries/materials';
@@ -113,10 +113,14 @@ export function ProductDetailPanel({
         <span className="text-sm text-muted-foreground">{material.unit}</span>
       </div>
 
-      <Button type="button" className="mb-10 w-full gap-2" size="lg" onClick={handleAdd}>
+      <Button type="button" className="mb-3 w-full gap-2" size="lg" onClick={handleAdd}>
         <PlusIcon className="size-4" />
         {added ? 'Added' : 'Place order'}
       </Button>
+      <p className="mb-10 flex items-start gap-1.5 text-xs text-muted-foreground">
+        <LockKeyIcon className="mt-0.5 size-3.5 shrink-0" />
+        Held in escrow once paid — released only after the fulfillment center confirms receipt.
+      </p>
 
       <Tabs defaultValue={defaultTab}>
         <TabsList variant="line" className="mb-6 h-auto w-full justify-start gap-6 border-b border-border pb-0">

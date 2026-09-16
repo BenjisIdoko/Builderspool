@@ -7,6 +7,7 @@ import { formatNaira } from '@/lib/format';
 import { Button } from '@/components/ui/button';
 import { MaterialImage } from '@/components/material-image';
 import { QuantityInput } from '@/components/quantity-input';
+import { CheckoutSteps } from '@/components/checkout-steps';
 
 export default function CartPage() {
   const { lines, subtotal, updateQuantity, removeItem } = useCart();
@@ -27,6 +28,7 @@ export default function CartPage() {
 
   return (
     <div className="mx-auto w-full max-w-6xl px-6 py-10">
+      <CheckoutSteps current={0} />
       <h1 className="mb-6 text-2xl font-bold tracking-tight text-ink">
         Cart <span className="font-normal text-muted-foreground">({itemCount} items)</span>
       </h1>

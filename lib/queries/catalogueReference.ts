@@ -55,3 +55,16 @@ export async function getReferenceProducts(categorySlug?: string, query?: string
 }
 
 export type ReferenceProduct = Awaited<ReturnType<typeof getReferenceProducts>>[number];
+
+// Real KPI strip for the reference-library page. "With researched pricing"
+// checks for a real ₦ figure in priceNote, not just any non-null note —
+// most rows have a note, but most of those just say "market rate, set via
+// seller bidding" rather than a real researched range.
+export async function getReferenceStats() {
+  const [totalProducts, totalCategories, withPricing] = await Promise.all([
+    prisma.product.count(),
+    prisma.category.count(),
+    prisma.product.count({ where: { priceNote: { contains: '₦' } } }),
+  ]);
+  return { totalProducts, totalCategories, withPricing };
+}
