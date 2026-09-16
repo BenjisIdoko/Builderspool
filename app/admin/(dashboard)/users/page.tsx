@@ -2,6 +2,7 @@ import Link from 'next/link';
 import { MagnifyingGlassIcon, UserCircleIcon, UsersIcon } from '@phosphor-icons/react/ssr';
 import { Role } from '@prisma/client';
 import { getUsersForAdmin, getUserRoleCounts } from '@/lib/queries/adminUsers';
+import { SellerKycReview } from '@/components/admin/seller-kyc-review';
 import { Badge } from '@/components/ui/badge';
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
@@ -117,6 +118,7 @@ export default async function AdminUsersPage({
                 <TableHead>Business</TableHead>
                 <TableHead>Location</TableHead>
                 <TableHead>Activity</TableHead>
+                <TableHead>KYC</TableHead>
                 <TableHead>Joined</TableHead>
               </TableRow>
             </TableHeader>
@@ -165,6 +167,13 @@ export default async function AdminUsersPage({
                         <UserCircleIcon className="size-4" />
                         Ops account
                       </span>
+                    )}
+                  </TableCell>
+                  <TableCell className="py-3">
+                    {u.role === 'SELLER' && u.sellerProfile ? (
+                      <SellerKycReview sellerName={u.businessName ?? u.name} profile={u.sellerProfile} />
+                    ) : (
+                      <span className="text-muted-foreground">—</span>
                     )}
                   </TableCell>
                   <TableCell className="py-3 text-muted-foreground">

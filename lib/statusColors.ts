@@ -1,4 +1,4 @@
-import { AllocationStatus, BidStatus, CycleStatus, OrderStatus, PayoutStatus } from '@prisma/client';
+import { AllocationStatus, BidStatus, CycleStatus, KycStatus, OrderStatus, PayoutStatus } from '@prisma/client';
 
 // One shared 4-category pill system (success / warning / info / danger),
 // light background + saturated text, never a solid fill — per the
@@ -63,6 +63,19 @@ export function allocationStatusTone(status: AllocationStatus): PillTone {
       return 'warning';
     case AllocationStatus.CANCELLED:
       return 'danger';
+  }
+}
+
+export function kycStatusTone(status: KycStatus): PillTone {
+  switch (status) {
+    case KycStatus.APPROVED:
+      return 'success';
+    case KycStatus.PENDING:
+      return 'warning';
+    case KycStatus.REJECTED:
+      return 'danger';
+    case KycStatus.NOT_SUBMITTED:
+      return 'neutral';
   }
 }
 

@@ -1,10 +1,10 @@
 import Link from 'next/link';
 import { CaretLeftIcon } from '@phosphor-icons/react/ssr';
-import { getDemoBuyer } from '@/lib/demoBuyer';
+import { requireBuyer } from '@/lib/buyer/auth';
 import { CheckoutForm } from './checkout-form';
 
 export default async function CheckoutPage() {
-  const buyer = await getDemoBuyer();
+  const buyer = await requireBuyer();
 
   return (
     <div className="mx-auto w-full max-w-5xl px-6 py-10">

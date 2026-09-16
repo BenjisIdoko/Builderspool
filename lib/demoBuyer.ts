@@ -1,12 +1,6 @@
-import { prisma } from './prisma';
-
-// There's no buyer auth/account creation yet (Phase 1 scope, not built) —
-// the buyer UI's checkout flow attaches orders to this single seeded
-// account (prisma/seed.ts) so the golden path is testable end-to-end
-// until real sign-in exists. Swap every call site for a real session
-// lookup once auth is built.
+// Identifies the original seeded demo buyer account for prisma/seed.ts.
+// Real buyer auth (2026-09-16, see lib/buyer/auth.ts) replaced the
+// hardcoded-lookup pattern this file used to also export — every real
+// call site now goes through a session-backed getCurrentBuyer()/
+// requireBuyer() instead.
 export const DEMO_BUYER_EMAIL = 'demo.buyer@builderspool.example';
-
-export async function getDemoBuyer() {
-  return prisma.user.findUniqueOrThrow({ where: { email: DEMO_BUYER_EMAIL } });
-}

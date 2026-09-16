@@ -2,14 +2,6 @@ import { prisma } from '../prisma';
 import { CycleStatus } from '@prisma/client';
 import { isSellerEligible } from '../bidding/scoring';
 
-export async function getSellerAccounts() {
-  const profiles = await prisma.sellerProfile.findMany({
-    include: { user: true },
-    orderBy: { user: { name: 'asc' } },
-  });
-  return profiles.map((p) => ({ ...p, trustScore: Number(p.trustScore) }));
-}
-
 export async function getSellerProfile(userId: string) {
   const profile = await prisma.sellerProfile.findUnique({
     where: { userId },

@@ -3,19 +3,35 @@
 import { cookies } from 'next/headers';
 import { redirect } from 'next/navigation';
 import { revalidatePath } from 'next/cache';
+// signInAdmin deliberately does NOT call redirect() itself — it's invoked
+// client-side (see components/admin-signin-form.tsx) inside a try/catch so
+// a wrong password shows an inline message instead of the error boundary;
+// redirect()'s internal throw would be swallowed by that catch. The client
+// navigates on success instead. signOutAdmin below is a plain form action
+// with no client wrapper, so it keeps calling redirect() directly.
 import { prisma } from '@/lib/prisma';
-import { CycleStatus } from '@prisma/client';
-import { getDemoAdmin } from '@/lib/demoAdmin';
+import { CycleStatus, Role } from '@prisma/client';
 import { ADMIN_COOKIE } from '@/lib/admin/session';
+import { verifyPassword } from '@/lib/auth/password';
 import { awardCycle } from '@/lib/bidding';
 import { issueGrn, disbursePayout, toggleAllocationHold } from '@/lib/fulfillment';
 
-export async function signInAdmin() {
-  await getDemoAdmin(); // throws if the seed hasn't run — fail loudly, not silently
+export async function signInAdmin(formData: FormData) {
+  const emailRaw = formData.get('email');
+  const passwordRaw = formData.get('password');
+  if (typeof emailRaw !== 'string' || typeof passwordRaw !== 'string' || !emailRaw || !passwordRaw) {
+    throw new Error('Enter your email and password.');
+  }
+
+  const admin = await prisma.user.findUnique({ where: { email: emailRaw.toLowerCase().trim() } });
+  if (!admin || admin.role !== Role.ADMIN || !admin.passwordHash) {
+    throw new Error('Incorrect email or password.');
+  }
+  const valid = await verifyPassword(passwordRaw, admin.passwordHash);
+  if (!valid) throw new Error('Incorrect email or password.');
 
   const store = await cookies();
   store.set(ADMIN_COOKIE, 'true', { httpOnly: true, sameSite: 'lax', path: '/' });
-  redirect('/admin');
 }
 
 export async function signOutAdmin() {

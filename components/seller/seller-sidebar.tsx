@@ -2,16 +2,26 @@
 
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
-import { GaugeIcon, MapPinIcon, SignOutIcon, StackIcon, TruckIcon } from '@phosphor-icons/react/ssr';
+import { GaugeIcon, IdentificationCardIcon, MapPinIcon, SignOutIcon, StackIcon, TruckIcon } from '@phosphor-icons/react/ssr';
 import { signOutSeller } from '@/app/seller/actions';
 import type { getSellerProfile } from '@/lib/queries/sellerPortal';
+import { kycStatusTone, pillClass } from '@/lib/statusColors';
 import { LogoMark } from '@/components/logo';
+import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
+
+const KYC_LABEL: Record<string, string> = {
+  NOT_SUBMITTED: 'KYC not started',
+  PENDING: 'KYC pending review',
+  APPROVED: 'KYC verified',
+  REJECTED: 'KYC rejected',
+};
 
 const LINKS = [
   { href: '/seller', label: 'Open cycles', icon: GaugeIcon },
   { href: '/seller/bids', label: 'My bids', icon: StackIcon },
   { href: '/seller/allocations', label: 'Allocations', icon: TruckIcon },
+  { href: '/seller/kyc', label: 'KYC verification', icon: IdentificationCardIcon },
 ];
 
 export function SellerSidebar({
@@ -50,10 +60,13 @@ export function SellerSidebar({
         <div className="mb-1 text-sm font-semibold text-ink">
           {profile.user.businessName ?? profile.user.name}
         </div>
-        <div className="mb-3 flex items-center gap-1.5 text-xs text-muted-foreground">
+        <div className="mb-2 flex items-center gap-1.5 text-xs text-muted-foreground">
           <MapPinIcon className="size-3.5" />
           {profile.regionsServed.join(', ')}
         </div>
+        <Badge variant="outline" className={`mb-3 w-fit ${pillClass(kycStatusTone(profile.kycStatus))}`}>
+          {KYC_LABEL[profile.kycStatus]}
+        </Badge>
         <form action={signOutSeller}>
           <Button type="submit" variant="ghost" size="sm" className="w-full justify-start gap-2 px-2">
             <SignOutIcon className="size-4" />

@@ -572,6 +572,40 @@ Six-part user request. Did the explicitly-sequenced first item, then the two oth
 
 Live-verified: search dropdown for "cement" returns real matches including the ₦1-placeholder rows, clicking one navigates to the real PDP; admin Users page shows accurate real counts (6 total: 1 admin, 1 buyer with 9 real orders, 4 sellers with their real trust scores), and `?role=SELLER&q=Dangote` correctly narrows to exactly one row.
 
+### Real password auth (buyer/seller/admin) + seller KYC (2026-09-16, later still)
+
+The other two items from the same six-part request, after scoping both explicitly with the user first (this was a genuine architecture decision, not a style choice): **"do all numbers 1 2 3"** for auth (real credential auth for all three roles, not just buyers, not a visual-only restyle) and **"start with option 1 but option 2 is needed but not an emergency"** for KYC (text/reference fields now, real file upload flagged as a real future need).
+
+This replaces the single-hardcoded-demo-account pattern that had been load-bearing since Phase 1 — every buyer/seller/admin page previously called `getDemoBuyer()`/`getDemoAdmin()`/a seller-picker with zero credential check.
+
+**Password infrastructure**:
+- Added `bcryptjs`. New `lib/auth/password.ts` (`hashPassword`/`verifyPassword`).
+- `User.passwordHash String?` (migration `add_password_auth_and_seller_kyc`) — nullable only because it predates real auth; sign-in refuses a null hash rather than treating it as "no password required."
+- `prisma/seed.ts`'s new `seedPasswords()` backfills a real bcrypt hash of one documented demo password (`DEMO_PASSWORD = "builderspool-demo"`) onto every seeded account that doesn't have one yet — not a fabricated per-account secret, the same known credential this whole demo has implicitly had, now actually enforced.
+
+**Buyer auth** (new, previously didn't exist at all — buyer had no cookie session of any kind):
+- `lib/buyer/session.ts` (`bp_buyer_id` cookie) + `lib/buyer/auth.ts` (`getCurrentBuyer()` nullable, `requireBuyer()` redirects to `/login`).
+- `app/login/actions.ts`: `signInBuyer`, `signUpBuyer`, `signOutBuyer`.
+- New `/login` and `/signup` pages using a shared `components/auth-split-screen.tsx` — the split-screen layout from the reference screenshot, rebuilt on this app's own brand tokens and the same real hero photo/duotone-gradient treatment the homepage already uses, **not** a stock illustration of people (this app has never used one — see DESIGN.md's Avatar rule). Forms (`components/buyer-signin-form.tsx`/`buyer-signup-form.tsx`) submit imperatively via `useTransition` so a wrong password shows an inline message instead of the Next.js error boundary.
+- Replaced `getDemoBuyer()` at all 6 real call sites (`site-header.tsx`, `checkout/page.tsx`, `account/page.tsx` + its `actions.ts`, `catalog/actions.ts`, `orders/[id]/page.tsx`) with `getCurrentBuyer()`/`requireBuyer()`. Header shows a "sign in" icon instead of the avatar when signed out.
+- **Real security fix required by this change**: `orders/[id]/page.tsx` had no ownership check — with one hardcoded buyer that was harmless, but with real multi-account auth it would let any signed-in buyer view any other buyer's order by URL. Added `order.buyerId !== buyer.id → notFound()`. Verified live: a freshly-signed-up second buyer hitting the first buyer's real order URL gets a clean 404, not the order.
+- Account page gained a real "Sign out" button (previously nothing signed anyone in, so nothing needed to sign them out); its stale "buyer accounts aren't built yet" copy was removed.
+
+**Seller auth**: seller already had a real cookie session (`bp_seller_id`) — only the *sign-in mechanism* was fake (`selectSeller()` set the cookie for any picked account, no password). Replaced with `signInSeller`/`signUpSeller` in `app/seller/actions.ts`, real `/seller/login` (password form, `components/seller-signin-form.tsx`) and new `/seller/signup` (`components/seller-signup-form.tsx`, business name/contact/email/region-select/password). New sellers start at `trustScore: 50` and empty-until-set KYC — real signals should move trust score over time, not a number invented at signup. Removed the now-dead `getSellerAccounts()` query the old picker page used.
+
+**Admin auth**: still a single seeded ops account by design (no admin self-registration) — `signInAdmin` now verifies a real password instead of the old one-click "Continue as Ops Admin" button. `components/admin-signin-form.tsx` + updated `app/admin/login/page.tsx`.
+
+**Seller KYC** (text/reference fields, per the user's explicit "option 1 now" scope — no file storage exists in this project):
+- `SellerProfile` gained `kycStatus` (`KycStatus`: NOT_SUBMITTED/PENDING/APPROVED/REJECTED), `businessRegNumber`, `cacNumber`, `idType`, `idNumber`, `documentUrl` (a link to something already hosted, not a real upload), `kycSubmittedAt`, `kycReviewedAt`, `kycRejectionReason`.
+- New `kycStatusTone()` in `lib/statusColors.ts`, same 4-tone system as everything else.
+- Seller-facing `/seller/kyc` (`app/seller/(dashboard)/kyc/`): editable form when `NOT_SUBMITTED`/`REJECTED` (shows the rejection reason), read-only submitted-values view when `PENDING`/`APPROVED`. Status badge added to both the sidebar footer and mobile-nav footer, and a "KYC verification" nav link.
+- Admin-facing: new "KYC" column on `/admin/users` for seller rows — `components/admin/seller-kyc-review.tsx` (a `Dialog` reusing the same view-then-act pattern as the catalogue-reference row actions) shows the full submission and lets admin Approve or Reject-with-reason (`app/admin/(dashboard)/users/actions.ts`).
+- Seeded demo data updated to give admin real varied states to review immediately rather than all-empty: Dangote & Northern Aggregates start `APPROVED`, Lekki Rebar starts `PENDING`, FCT Fittings & Roofing stays `NOT_SUBMITTED` — plausible-looking reference numbers (`RC…`, `CAC-…`) are fine here specifically because this is seed/fixture data for fictional seeded companies, the same category as their already-fabricated `.example` emails and trust scores — not the live-UI fabrication this project otherwise refuses.
+
+Live-verified end to end: signed in as the demo buyer, confirmed real order history and header avatar, signed out, confirmed `/checkout` redirects an unauthenticated visitor to `/login`; signed up a brand-new buyer and confirmed hitting another buyer's real order URL 404s instead of leaking it; signed in as a seeded seller (password auth) and confirmed the sidebar's real "KYC pending review" badge and the `/seller/kyc` read-only view matched the seeded data; signed in as admin with a real password, opened the KYC review dialog for that same seller, approved it, and watched the Users table update from "Pending" to "Verified" live; registered a brand-new seller account end to end (region select included) and landed on a working seller dashboard. `npx tsc --noEmit` and `npm run lint` both clean throughout. Removed now-dead code: `getDemoBuyer()` (kept only the `DEMO_BUYER_EMAIL` constant seed.ts still needs) and the unused `getSellerAccounts()` query.
+
+**Not built this pass, flagged explicitly**: real file upload for KYC documents (user said "needed but not an emergency" — would need a storage bucket, e.g. Supabase Storage, which isn't configured in this project yet); a "forgot password" flow (omitted rather than shown as a non-functional link — this app has no email delivery infrastructure to actually send a reset link, and a dead link would be exactly the kind of misleading UI this project avoids).
+
 ## Bidding Engine Design
 
 - **Weighted award scoring**, not simple lowest-price-wins: Price 40%, seller reliability/trust score 25%, capacity fit 20%, delivery speed 15%.
@@ -631,16 +665,20 @@ These are deliberate, clearly-marked placeholders — not oversights:
 - [x] Seed `Material` data — 10 materials in `prisma/seed.ts` spanning all five categories named in this brief (Cement, Blocks, Rebar, Roofing, Fittings), split between `NATIONAL` and `REGIONAL` sourcing scope so both pooling models have real catalog rows to check out against. Applied 2026-09-11.
 - [ ] Build the design mockups (home/catalog, listing, checkout) that establish the Design Direction token system — still don't exist as separate artifacts; the buyer UI was built directly against the tokens instead (see "What's Been Built" above)
 - [x] Install and adopt shadcn/ui — applied 2026-09-11 (see "What's Been Built" above for the token-collision fixes this required). `dropdown-menu`, `dialog`, `alert`, `tabs`, `textarea`, `checkbox`, and `avatar` aren't installed yet — add them as the admin dashboard and real-auth work need them, rather than installing everything speculatively now
-- [ ] Build real buyer accounts/auth — checkout currently attaches every order to one seeded demo buyer (`lib/demoBuyer.ts`); replace that lookup and move the cart from `localStorage` to a real per-account store once auth exists
+- [x] Build real buyer accounts/auth — applied 2026-09-16 (`lib/buyer/auth.ts`, `app/login/`, `app/signup/`; see the dated section above). The cart is still `localStorage`-based, not yet moved to a real per-account store — that's the one piece of this TODO still open.
 - [x] Add product images — applied 2026-09-11, Fittings added later the same day (see below). Cement, Blocks, Rebar, and Fittings all have real photos; Roofing still has none (no source photo existed) and renders the category-icon placeholder instead — add real photography for that category when available
 - [ ] Build order tracking history — needs order-status-over-time, which `Order.status` alone doesn't capture; deferred during the Stitch design import (2026-09-11)
 - [x] Build account/job-site settings — applied 2026-09-12. Built against the same demo-account pattern as the seller/admin sides rather than waiting on real buyer auth (see below).
 - [x] Build the seller portal (bid submission UI, pickup instructions) — `app/seller/`, applied 2026-09-11. Uses a seeded-account cookie session (`lib/seller/session.ts`), same TODO-and-replace pattern as the buyer side — build real seller auth here too, eventually.
-- [ ] Build real seller auth — `/seller/login` currently just lets you pick any seeded seller account with no credential check; replace `lib/seller/session.ts`'s cookie-only session
+- [x] Build real seller auth — applied 2026-09-16 (`signInSeller`/`signUpSeller` in `app/seller/actions.ts`; see the dated section above). Still a single global ops admin — admin self-registration was explicitly out of scope.
 - [x] Build the admin dashboard — bid cycles only so far (`app/admin/`), applied 2026-09-12. Expanded through 2026-09-16 (orders, materials CRUD, catalogue reference library, KPI/chart dashboard — see the dated sections above). Fulfillment center and dispute management CRUD are still not built.
 - [ ] Upgrade delivery cost from flat-rate to distance-based once volume justifies the API cost
 - [ ] `fallback.ts`'s exhausted-cascade case still only logs to console — no ops-facing flag/notification yet (unlike `award.ts`'s `needsAttention` field, which is now real)
 - [x] Seed `FulfillmentCenter` and `SellerProfile` data — `prisma/seed.ts` (run via `npx prisma db seed`), applied 2026-09-11. 3 fulfillment centers (Abuja/Lagos/Kano, matching the flat-rate regions in `lib/checkout/deliveryCost.ts`) and 4 sellers spanning a deliberate trust-score/region spread (one national high-trust, two regional mid-trust, one newly onboarded low-trust) so the award engine's scoring and geography filter both have real data to operate on. Idempotent — safe to re-run.
+- [x] Build seller KYC — applied 2026-09-16, text/reference fields only (see the dated section above). User confirmed real file upload "is needed but not an emergency."
+- [ ] Real file upload for KYC documents — needs a storage bucket (e.g. Supabase Storage) that isn't configured in this project yet; `SellerProfile.documentUrl` currently only accepts a link to something already hosted elsewhere
+- [ ] "Forgot password" flow — deliberately not built alongside the new buyer/seller/admin login forms (2026-09-16): this app has no email-delivery infrastructure to send a real reset link, and a link that doesn't work would be the kind of misleading UI this project avoids. Build once email delivery exists.
+- [ ] Move the buyer cart from `localStorage` to a real per-account store now that real buyer auth exists (2026-09-16) — the cart itself wasn't part of that pass
 
 ## Deferred / Explicitly Post-MVP
 

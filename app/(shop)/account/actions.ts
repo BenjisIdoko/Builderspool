@@ -2,7 +2,7 @@
 
 import { revalidatePath } from 'next/cache';
 import { prisma } from '@/lib/prisma';
-import { getDemoBuyer } from '@/lib/demoBuyer';
+import { requireBuyer } from '@/lib/buyer/auth';
 
 export async function updateBuyerProfile(formData: FormData) {
   const name = formData.get('name');
@@ -14,7 +14,7 @@ export async function updateBuyerProfile(formData: FormData) {
     throw new Error('Name is required.');
   }
 
-  const buyer = await getDemoBuyer();
+  const buyer = await requireBuyer();
   await prisma.user.update({
     where: { id: buyer.id },
     data: {

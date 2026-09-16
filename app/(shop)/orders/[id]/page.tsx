@@ -13,7 +13,7 @@ import {
   PhoneIcon,
 } from '@phosphor-icons/react/ssr';
 import { getOrderById, getOrderTrackingStages } from '@/lib/queries/orders';
-import { getDemoBuyer } from '@/lib/demoBuyer';
+import { requireBuyer } from '@/lib/buyer/auth';
 import { formatNaira, formatElapsedSince } from '@/lib/format';
 import { orderStatusTone, pillClass } from '@/lib/statusColors';
 import { Badge } from '@/components/ui/badge';
@@ -31,8 +31,8 @@ const STAGE_ICONS = [CheckCircleIcon, CurrencyNgnIcon, UsersThreeIcon, Handshake
 
 export default async function OrderConfirmationPage({ params }: { params: Promise<{ id: string }> }) {
   const { id } = await params;
-  const [order, buyer] = await Promise.all([getOrderById(id), getDemoBuyer()]);
-  if (!order) notFound();
+  const [order, buyer] = await Promise.all([getOrderById(id), requireBuyer()]);
+  if (!order || order.buyerId !== buyer.id) notFound();
 
   const subtotal = order.items.reduce((sum, item) => sum + item.priceLocked * item.quantity, 0);
   const deliveryTotal = order.items.reduce((sum, item) => sum + item.deliveryCost, 0) / (order.items.length || 1);

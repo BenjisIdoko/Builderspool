@@ -69,6 +69,12 @@ model User {
   phone        String?
   businessName String?
   location     String?
+  // Real bcrypt hash (2026-09-16) — nullable only because the seeded demo
+  // accounts predate real auth; lib/auth/password.ts + prisma/seed.ts
+  // backfill a real hash for every seeded row, and every account created
+  // through sign-up gets one at creation. Sign-in refuses a null hash
+  // rather than treating it as "no password required."
+  passwordHash String?
   createdAt    DateTime @default(now())
 
   sellerProfile SellerProfile?
@@ -76,6 +82,13 @@ model User {
   orders        Order[]
   bids          Bid[]
   priceAlerts   PriceAlert[]
+}
+
+enum KycStatus {
+  NOT_SUBMITTED
+  PENDING
+  APPROVED
+  REJECTED
 }
 
 // Seller-specific data. regionsServed feeds the geography eligibility filter;
@@ -86,6 +99,21 @@ model SellerProfile {
   regionsServed String[]
   trustScore    Float    @default(50)
   createdAt     DateTime @default(now())
+
+  // KYC (2026-09-16) — text/reference fields only, deliberately: this app
+  // has no file-storage infra yet, so documentUrl is a link to something
+  // already hosted elsewhere rather than a real upload. Real file upload
+  // is a flagged follow-up (see BUILDERSPOOL_PROJECT_BRIEF.md), not a
+  // fabricated "upload" control that doesn't actually store anything.
+  kycStatus          KycStatus @default(NOT_SUBMITTED)
+  businessRegNumber  String?
+  cacNumber          String?
+  idType             String? // e.g. "NIN", "International passport", "Driver's licence"
+  idNumber           String?
+  documentUrl        String?
+  kycSubmittedAt     DateTime?
+  kycReviewedAt      DateTime?
+  kycRejectionReason String?
 
   user User @relation(fields: [userId], references: [id])
 }

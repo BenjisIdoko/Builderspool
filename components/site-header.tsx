@@ -1,6 +1,7 @@
 import Link from 'next/link';
+import { UserCircleIcon } from '@phosphor-icons/react/ssr';
 import { getCategories } from '@/lib/queries/materials';
-import { getDemoBuyer } from '@/lib/demoBuyer';
+import { getCurrentBuyer } from '@/lib/buyer/auth';
 import { CartSheet } from './cart-sheet';
 import { MobileNav } from './mobile-nav';
 import { HeaderSearch } from './header-search';
@@ -8,7 +9,7 @@ import { Avatar } from './avatar';
 import { Logo } from './logo';
 
 export async function SiteHeader() {
-  const [categories, buyer] = await Promise.all([getCategories(), getDemoBuyer()]);
+  const [categories, buyer] = await Promise.all([getCategories(), getCurrentBuyer()]);
   const links = [
     { href: '/catalog', label: 'All materials' },
     ...categories.map((category) => ({
@@ -37,9 +38,15 @@ export async function SiteHeader() {
 
           <div className="ml-auto flex shrink-0 items-center gap-3">
             <HeaderSearch />
-            <Link href="/account" aria-label="Account">
-              <Avatar name={buyer.name} />
-            </Link>
+            {buyer ? (
+              <Link href="/account" aria-label="Account">
+                <Avatar name={buyer.name} />
+              </Link>
+            ) : (
+              <Link href="/login" aria-label="Sign in" className="text-slate hover:text-ink">
+                <UserCircleIcon className="size-6" />
+              </Link>
+            )}
             <CartSheet />
           </div>
         </div>

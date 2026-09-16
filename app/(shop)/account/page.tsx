@@ -1,11 +1,12 @@
 import { BellIcon } from '@phosphor-icons/react/ssr';
-import { getDemoBuyer } from '@/lib/demoBuyer';
+import { requireBuyer } from '@/lib/buyer/auth';
 import { getOrdersForBuyer } from '@/lib/queries/orders';
 import { getPriceAlertsForBuyer } from '@/lib/queries/priceAlerts';
 import { formatNaira } from '@/lib/format';
 import { orderStatusTone, pillClass } from '@/lib/statusColors';
 import { updateBuyerProfile } from './actions';
 import { cancelPriceAlert } from '../catalog/actions';
+import { signOutBuyer as signOutBuyerAction } from '@/app/login/actions';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -19,7 +20,7 @@ const STATUS_LABEL: Record<string, string> = {
 };
 
 export default async function AccountPage() {
-  const buyer = await getDemoBuyer();
+  const buyer = await requireBuyer();
   const [orders, priceAlerts] = await Promise.all([
     getOrdersForBuyer(buyer.id),
     getPriceAlertsForBuyer(buyer.id),
@@ -28,11 +29,19 @@ export default async function AccountPage() {
 
   return (
     <div className="mx-auto w-full max-w-3xl px-6 py-10">
-      <h1 className="mb-1 text-2xl font-bold tracking-tight text-ink">Welcome back, {buyer.name}</h1>
-      <p className="mb-8 text-sm text-slate">
-        <span>{activeOrders}</span> active {activeOrders === 1 ? 'order' : 'orders'} · buyer
-        accounts aren&apos;t built yet, so edits below save to this one demo profile.
-      </p>
+      <div className="mb-8 flex items-start justify-between gap-4">
+        <div>
+          <h1 className="mb-1 text-2xl font-bold tracking-tight text-ink">Welcome back, {buyer.name}</h1>
+          <p className="text-sm text-slate">
+            {activeOrders} active {activeOrders === 1 ? 'order' : 'orders'}
+          </p>
+        </div>
+        <form action={signOutBuyerAction}>
+          <Button type="submit" variant="outline" size="sm">
+            Sign out
+          </Button>
+        </form>
+      </div>
 
       <div className="mb-8 rounded-lg border border-border bg-surface p-5">
         <h2 className="mb-4 text-sm font-bold text-slate">Profile</h2>

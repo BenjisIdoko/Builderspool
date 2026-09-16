@@ -1,7 +1,14 @@
-import { PrismaClient, Role, SourcingScope, ProjectScale, SourcingModel } from '@prisma/client';
+import { PrismaClient, Role, SourcingScope, ProjectScale, SourcingModel, KycStatus } from '@prisma/client';
 import { DEMO_BUYER_EMAIL } from '../lib/demoBuyer';
 import { DEMO_ADMIN_EMAIL } from '../lib/demoAdmin';
+import { hashPassword } from '../lib/auth/password';
 import catalogueReferenceData from './catalogue-reference-data.json';
+
+// One real, documented demo password for every seeded account (buyer,
+// sellers, admin) — not a fabricated-looking per-account secret, just the
+// single known credential this whole demo has always implicitly had,
+// now backed by a real bcrypt hash instead of no password check at all.
+export const DEMO_PASSWORD = 'builderspool-demo';
 
 const prisma = new PrismaClient();
 
@@ -38,6 +45,7 @@ const SELLERS = [
     location: 'Lagos',
     regionsServed: ['ABUJA', 'LAGOS', 'KANO'],
     trustScore: 92,
+    kycStatus: KycStatus.APPROVED,
   },
   {
     name: 'Northern Aggregates Co',
@@ -46,6 +54,7 @@ const SELLERS = [
     location: 'Kano',
     regionsServed: ['KANO', 'ABUJA'],
     trustScore: 74,
+    kycStatus: KycStatus.APPROVED,
   },
   {
     name: 'Lekki Rebar Supplies',
@@ -54,6 +63,7 @@ const SELLERS = [
     location: 'Lagos',
     regionsServed: ['LAGOS'],
     trustScore: 68,
+    kycStatus: KycStatus.PENDING,
   },
   {
     name: 'FCT Fittings & Roofing',
@@ -62,6 +72,7 @@ const SELLERS = [
     location: 'Abuja',
     regionsServed: ['ABUJA'],
     trustScore: 40,
+    kycStatus: KycStatus.NOT_SUBMITTED,
   },
 ];
 
@@ -437,13 +448,39 @@ async function seedSellers() {
     const existingProfile = await prisma.sellerProfile.findUnique({
       where: { userId: user.id },
     });
-    if (existingProfile) continue;
+    if (existingProfile) {
+      // Backfill KYC demo fields on profiles seeded before KYC existed
+      // (2026-09-16) — only when still at the schema default, never
+      // overwrites a real submission/review.
+      if (existingProfile.kycStatus === KycStatus.NOT_SUBMITTED && seller.kycStatus !== KycStatus.NOT_SUBMITTED) {
+        await prisma.sellerProfile.update({
+          where: { id: existingProfile.id },
+          data: {
+            kycStatus: seller.kycStatus,
+            kycSubmittedAt: new Date(),
+            kycReviewedAt: seller.kycStatus === KycStatus.PENDING ? null : new Date(),
+            businessRegNumber: `RC${1200000 + created}`,
+            cacNumber: `CAC-${seller.location.slice(0, 3).toUpperCase()}-${1000 + created}`,
+            idType: 'International passport',
+            idNumber: `A${10000000 + created}`,
+          },
+        });
+      }
+      continue;
+    }
 
     await prisma.sellerProfile.create({
       data: {
         userId: user.id,
         regionsServed: seller.regionsServed,
         trustScore: seller.trustScore,
+        kycStatus: seller.kycStatus,
+        kycSubmittedAt: seller.kycStatus === KycStatus.NOT_SUBMITTED ? null : new Date(),
+        kycReviewedAt: seller.kycStatus === KycStatus.PENDING || seller.kycStatus === KycStatus.NOT_SUBMITTED ? null : new Date(),
+        businessRegNumber: seller.kycStatus === KycStatus.NOT_SUBMITTED ? null : `RC${1200000 + created}`,
+        cacNumber: seller.kycStatus === KycStatus.NOT_SUBMITTED ? null : `CAC-${seller.location.slice(0, 3).toUpperCase()}-${1000 + created}`,
+        idType: seller.kycStatus === KycStatus.NOT_SUBMITTED ? null : 'International passport',
+        idNumber: seller.kycStatus === KycStatus.NOT_SUBMITTED ? null : `A${10000000 + created}`,
       },
     });
     created++;
@@ -625,12 +662,24 @@ async function seedMaterialsFromReference() {
   return { created, skippedExisting, needingPriceReview };
 }
 
+// Backfills a real bcrypt hash of DEMO_PASSWORD onto any seeded account
+// created before real auth existed — never overwrites a hash a real
+// sign-up already set. Idempotent: does nothing once every row has one.
+async function seedPasswords() {
+  const users = await prisma.user.findMany({ where: { passwordHash: null }, select: { id: true } });
+  if (users.length === 0) return 0;
+  const passwordHash = await hashPassword(DEMO_PASSWORD);
+  await prisma.user.updateMany({ where: { id: { in: users.map((u) => u.id) } }, data: { passwordHash } });
+  return users.length;
+}
+
 async function main() {
   const { created: materialsCreated, imagesPatched, priceSnapshotsBackfilled, specsPatched } = await seedMaterials();
   const centersCreated = await seedFulfillmentCenters();
   const sellersCreated = await seedSellers();
   const buyerCreated = await seedDemoBuyer();
   const adminCreated = await seedDemoAdmin();
+  const passwordsBackfilled = await seedPasswords();
   const { categoriesUpserted, productsUpserted } = await seedCatalogueReference();
   const { created: refMaterialsCreated, skippedExisting, needingPriceReview } = await seedMaterialsFromReference();
   console.log(
@@ -642,6 +691,7 @@ async function main() {
   console.log(
     `Materials imported from reference library: ${refMaterialsCreated} created (${needingPriceReview} need a real price — currently ₦${PLACEHOLDER_PRICE} placeholder), ${skippedExisting} skipped (already exist).`
   );
+  console.log(`Passwords backfilled for ${passwordsBackfilled} account(s) — demo password: "${DEMO_PASSWORD}".`);
 }
 
 main()

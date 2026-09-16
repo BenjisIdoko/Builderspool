@@ -4,16 +4,26 @@ import { MapPinIcon, SignOutIcon } from '@phosphor-icons/react/ssr';
 import { getSellerIdFromSession } from '@/lib/seller/session';
 import { getSellerProfile } from '@/lib/queries/sellerPortal';
 import { signOutSeller } from '@/app/seller/actions';
+import { kycStatusTone, pillClass } from '@/lib/statusColors';
 import { SellerSidebar } from '@/components/seller/seller-sidebar';
 import { MobileNav } from '@/components/mobile-nav';
 import { LogoMark } from '@/components/logo';
+import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 
 const LINKS = [
   { href: '/seller', label: 'Open cycles' },
   { href: '/seller/bids', label: 'My bids' },
   { href: '/seller/allocations', label: 'Allocations' },
+  { href: '/seller/kyc', label: 'KYC verification' },
 ];
+
+const KYC_LABEL: Record<string, string> = {
+  NOT_SUBMITTED: 'KYC not started',
+  PENDING: 'KYC pending review',
+  APPROVED: 'KYC verified',
+  REJECTED: 'KYC rejected',
+};
 
 export default async function SellerDashboardLayout({ children }: { children: React.ReactNode }) {
   const sellerId = await getSellerIdFromSession();
@@ -36,10 +46,13 @@ export default async function SellerDashboardLayout({ children }: { children: Re
                 <div className="mb-1 text-sm font-semibold text-ink">
                   {profile.user.businessName ?? profile.user.name}
                 </div>
-                <div className="mb-3 flex items-center gap-1.5 text-xs text-muted-foreground">
+                <div className="mb-2 flex items-center gap-1.5 text-xs text-muted-foreground">
                   <MapPinIcon className="size-3.5" />
                   {profile.regionsServed.join(', ')}
                 </div>
+                <Badge variant="outline" className={`mb-3 w-fit ${pillClass(kycStatusTone(profile.kycStatus))}`}>
+                  {KYC_LABEL[profile.kycStatus]}
+                </Badge>
                 <form action={signOutSeller}>
                   <Button type="submit" variant="ghost" size="sm" className="w-full justify-start gap-2 px-2">
                     <SignOutIcon className="size-4" />

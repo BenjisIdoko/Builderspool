@@ -4,20 +4,61 @@ import { cookies } from 'next/headers';
 import { redirect } from 'next/navigation';
 import { revalidatePath } from 'next/cache';
 import { prisma } from '@/lib/prisma';
-import { BidStatus, CycleStatus } from '@prisma/client';
+import { BidStatus, CycleStatus, Role } from '@prisma/client';
 import { SELLER_COOKIE } from '@/lib/seller/session';
 import { isSellerEligible } from '@/lib/bidding/scoring';
+import { hashPassword, verifyPassword } from '@/lib/auth/password';
 
-export async function selectSeller(formData: FormData) {
-  const userId = formData.get('userId');
-  if (typeof userId !== 'string' || !userId) throw new Error('Missing seller id.');
+function requiredText(formData: FormData, key: string): string {
+  const value = formData.get(key);
+  if (typeof value !== 'string' || value.trim().length === 0) {
+    throw new Error(`Missing ${key}.`);
+  }
+  return value.trim();
+}
 
-  const profile = await prisma.sellerProfile.findUnique({ where: { userId } });
-  if (!profile) throw new Error('Not a seller account.');
+export async function signInSeller(formData: FormData) {
+  const email = requiredText(formData, 'email').toLowerCase();
+  const password = requiredText(formData, 'password');
+
+  const user = await prisma.user.findUnique({ where: { email } });
+  if (!user || user.role !== Role.SELLER || !user.passwordHash) {
+    throw new Error('No seller account matches that email and password.');
+  }
+  const valid = await verifyPassword(password, user.passwordHash);
+  if (!valid) throw new Error('No seller account matches that email and password.');
 
   const store = await cookies();
-  store.set(SELLER_COOKIE, userId, { httpOnly: true, sameSite: 'lax', path: '/' });
-  redirect('/seller');
+  store.set(SELLER_COOKIE, user.id, { httpOnly: true, sameSite: 'lax', path: '/' });
+}
+
+export async function signUpSeller(formData: FormData) {
+  const name = requiredText(formData, 'name');
+  const businessName = requiredText(formData, 'businessName');
+  const email = requiredText(formData, 'email').toLowerCase();
+  const location = requiredText(formData, 'location');
+  const password = requiredText(formData, 'password');
+  const confirmPassword = requiredText(formData, 'confirmPassword');
+
+  if (password.length < 8) throw new Error('Password must be at least 8 characters.');
+  if (password !== confirmPassword) throw new Error('Passwords do not match.');
+
+  const existing = await prisma.user.findUnique({ where: { email } });
+  if (existing) throw new Error('An account with that email already exists.');
+
+  const passwordHash = await hashPassword(password);
+  const user = await prisma.user.create({
+    data: { role: Role.SELLER, name, email, businessName, location, passwordHash },
+  });
+  // New sellers start with no served region and a neutral trust score —
+  // real signals (real deliveries, real GRNs) are what should move
+  // trustScore over time, not a number chosen at signup.
+  await prisma.sellerProfile.create({
+    data: { userId: user.id, regionsServed: [location.toUpperCase()], trustScore: 50 },
+  });
+
+  const store = await cookies();
+  store.set(SELLER_COOKIE, user.id, { httpOnly: true, sameSite: 'lax', path: '/' });
 }
 
 export async function signOutSeller() {
