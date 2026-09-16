@@ -431,6 +431,14 @@ User asked for three PDP additions: a product gallery, a Description/Details sec
 
 Verified live: gallery zoom opens/closes correctly on a material with a real photo and is correctly disabled (no zoom button) on one without; Description/Details/price-history/serving-hubs/price-alert all render inline with no modal; "More from Cement" shows 3 real related materials with working Add buttons; homepage and account pages (which also use `BuyerMaterial`/`MaterialCard`) unaffected by the new `images` field. `npm run lint` and `tsc --noEmit` clean.
 
+### PDP content sections became tabs, from a full-page e-commerce reference (2026-09-16, later still)
+
+User shared a fuller product-page reference (gallery + variant swatches + rating/order-count + a seller card + a "Description / Reviews / Company / Usage guide" tab strip) but scoped the ask explicitly: "consider this largely for the product description tabs." So only the tab pattern was adopted — everything else in that reference has nothing real behind it here and was skipped: color/variant swatches (no product variants exist), star rating + order count (no review system), and — most importantly — the seller card ("Guanjoi Trading LLC," a seller profile link). **That last one specifically can't ever appear on a catalog/PDP page in this system**: which seller fulfills an order is only decided later through blind bidding, and showing a seller identity on the product page before any bid happens would be a direct violation of the blind-bidding invariant this project has enforced all session.
+
+Installed `components/ui/tabs.tsx` (shadcn, `line` variant — underline-style, matches the reference and has no shadow by construction, same as every other component here). The three content blocks the previous pass had just placed inline on the page (Description, Details, and price-history/serving-hubs/price-alert combined as "Pricing & delivery") became tabs instead of stacked sections — same real, content-backed conditional rendering as before (a tab only exists if `material.spec` or any spec field is actually set), just reorganized so a buyer isn't scrolling past all of it linearly. Default tab is whichever real content exists first (Description → Details → Pricing & delivery).
+
+Verified live at both desktop and true 375px mobile width — all three tabs fit on one line without wrapping, switching between them works, and each retains exactly the same real content and empty-state handling it had as a stacked section. `npm run lint` and `tsc --noEmit` clean.
+
 ## Bidding Engine Design
 
 - **Weighted award scoring**, not simple lowest-price-wins: Price 40%, seller reliability/trust score 25%, capacity fit 20%, delivery speed 15%.
