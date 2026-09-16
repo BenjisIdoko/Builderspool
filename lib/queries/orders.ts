@@ -1,28 +1,31 @@
 import { prisma } from '../prisma';
+import { Prisma } from '@prisma/client';
 
-export async function getOrderById(id: string) {
-  const order = await prisma.order.findUnique({
-    where: { id },
+// Shared with lib/queries/adminOrders.ts — same real fields whether a buyer
+// is viewing their own order or an admin is viewing any order, just a
+// different set of rows selected at the call site.
+export const ORDER_DETAIL_INCLUDE = {
+  buyer: { select: { name: true, email: true, phone: true, businessName: true } },
+  items: {
     include: {
-      items: {
-        include: {
-          material: { select: { id: true, name: true, category: true, unit: true, imageUrl: true, catalogPrice: true } },
-          fulfillmentCenter: { select: { name: true, address: true, region: true } },
-          bidCycle: { select: { status: true } },
-          allocations: {
-            select: {
-              createdAt: true,
-              receivedAt: true,
-              grnNumber: true,
-              bid: { select: { estimatedDeliveryDays: true } },
-            },
-          },
+      material: { select: { id: true, name: true, category: true, unit: true, imageUrl: true, catalogPrice: true } },
+      fulfillmentCenter: { select: { name: true, address: true, region: true } },
+      bidCycle: { select: { status: true } },
+      allocations: {
+        select: {
+          createdAt: true,
+          receivedAt: true,
+          grnNumber: true,
+          bid: { select: { estimatedDeliveryDays: true } },
         },
       },
     },
-  });
-  if (!order) return null;
+  },
+} satisfies Prisma.OrderInclude;
 
+type OrderWithDetails = Prisma.OrderGetPayload<{ include: typeof ORDER_DETAIL_INCLUDE }>;
+
+export function toPlainOrder(order: OrderWithDetails) {
   return {
     ...order,
     items: order.items.map((item) => ({
@@ -32,6 +35,16 @@ export async function getOrderById(id: string) {
       material: { ...item.material, catalogPrice: Number(item.material.catalogPrice) },
     })),
   };
+}
+
+export async function getOrderById(id: string) {
+  const order = await prisma.order.findUnique({
+    where: { id },
+    include: ORDER_DETAIL_INCLUDE,
+  });
+  if (!order) return null;
+
+  return toPlainOrder(order);
 }
 
 export type BuyerOrder = NonNullable<Awaited<ReturnType<typeof getOrderById>>>;

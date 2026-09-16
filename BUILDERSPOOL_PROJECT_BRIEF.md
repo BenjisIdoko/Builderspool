@@ -461,6 +461,24 @@ Follow-up to the above — user asked for the admin-side browse view. New `lib/q
 
 Read-only, admin-only (sits inside the existing `app/admin/(dashboard)/` auth-guarded layout) — no create/edit/delete, since nothing asked for that and this is reference data ops consults, not a CMS. Verified live: category pills filter correctly (13 real Cement & Binders products), search for "Dangote" correctly matches both name and `commonBrands` hits (7 real results), nav link works. `npm run lint` and `tsc --noEmit` clean.
 
+### Admin Orders page, order detail, export, and a login-page pass (2026-09-16, later still)
+
+User shared two more admin-dashboard references (an order-queue table with KPI cards, and an orders list with a slide-in detail drawer) captioned "Several Suggestions" — reviewed against what's real here first (most of the KPI-strip ideas were already adopted from an earlier Church HR reference), then asked which of the genuinely-buildable pieces to build. Answer: all of them. Skipped, same reasoning as every pass before this one: an "auto-refreshing" ticker (no polling infra), a "Sync" button (nothing external to sync with), "New Order" (admin doesn't place buyer orders), a "Channel" column (single storefront), bulk checkbox actions (no bulk operations exist) — and especially a **Refund button**, since there's no refund flow or payment gateway at all; a button that does nothing would be exactly the fake affordance this project has avoided all session.
+
+**Shared plumbing** (`lib/queries/orders.ts`) — extracted `ORDER_DETAIL_INCLUDE` and `toPlainOrder()` (typed via `Prisma.OrderGetPayload`, not a hand-rolled generic — an earlier generic version produced confusing type errors inside `getOrderTrackingStages`) so the admin order views reuse the *exact* same real data shape and tracking-stage derivation the buyer's own order page already has, rather than a second, possibly-inconsistent implementation. `getOrderById` now also selects the buyer's real contact fields (additive — the buyer-facing page that already calls it is unaffected).
+
+**New `lib/queries/adminOrders.ts`** — `getOrdersForAdmin()` (real pagination, status + search filtering across order ID and buyer name/business), `getOrderStatusCounts()` for the filter-pill counts.
+
+**New `/admin/orders`** — status pills with real counts, search, a table with a real derived "Fulfillment" column (same stage logic as the buyer tracking timeline), and real pagination (no page-count fabrication — computed from the actual row count).
+
+**New `/admin/orders/[id]`** — same real tracking timeline as the buyer's own order page (icons, real per-stage timestamps), plus a buyer contact card with `mailto:`/`tel:`/`wa.me` quick-actions — all real, zero-backend links using the buyer's actually-stored email/phone. **Caught and fixed a real bug during verification**: the WhatsApp link initially used the raw locally-formatted phone number (`08012345678`); `wa.me` requires full international format with no leading zero, so it would have opened the wrong contact. Fixed with a real `0` → `234` (Nigeria) conversion, verified against the actual `wa.me/2348012345678` URL produced.
+
+**New `/api/admin/orders/export`** — real CSV/JSON download of order data honoring the current status/search filter, paging through every matching row (not just one page). Route handlers aren't covered by the `(dashboard)` layout's redirect, so this checks `isAdminSignedIn()` itself — verified both directions live: the signed-in admin's real request succeeds (real httpOnly session cookie sent automatically), an explicit unauthenticated request (`credentials: 'omit'`) correctly gets a 401.
+
+**Also**: gave the admin login page a pass per the user's follow-up ("Admin Auth Login page... UI inspiration and data pattern to clone") — wrapped it in a bordered card and added the admin's real initials `Avatar` (reusing the component built for the buyer header) above the sign-in button.
+
+Verified live throughout: status filter pills, search, pagination math, the fulfillment-stage column, the order detail page's contact links (with the WhatsApp fix), and both export formats (including that the status filter is honored in the export). `npm run lint` and `tsc --noEmit` clean.
+
 ## Bidding Engine Design
 
 - **Weighted award scoring**, not simple lowest-price-wins: Price 40%, seller reliability/trust score 25%, capacity fit 20%, delivery speed 15%.

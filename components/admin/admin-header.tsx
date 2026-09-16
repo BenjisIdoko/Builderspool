@@ -6,6 +6,7 @@ import { MobileNav } from '@/components/mobile-nav';
 
 const LINKS = [
   { href: '/admin', label: 'Bid cycles' },
+  { href: '/admin/orders', label: 'Orders' },
   { href: '/admin/catalogue-reference', label: 'Catalogue reference' },
 ];
 
