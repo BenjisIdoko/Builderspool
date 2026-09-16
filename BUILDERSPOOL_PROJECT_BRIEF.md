@@ -381,6 +381,16 @@ User-reported: "check it on mobile it's not sitting properly." Checked every sel
 
 Verified live at 375px: Allocations renders as clean stacked cards with labels, no overflow; mobile menu now shows the seller's real business name, regions, and a working sign-out button pinned to the bottom. Re-verified the desktop table view is unchanged. `npm run lint` and `tsc --noEmit` clean.
 
+### Full end-to-end flow verified live (2026-09-16)
+
+Walked the entire buyer → payment → seller → admin → payout loop through the real app and database, no shortcuts other than the one gap that's an open TODO (payment gateway):
+
+Buyer added Elephant Cement 42.5R to cart, checked out (Abuja, delivery) → order created `PENDING_PAYMENT`. Since there's no real gateway yet, simulated the webhook with a throwaway script that calls the exact same real function the webhook does (`joinCycleForOrderItem`) — order marked `PAID`, item joined a new National bid cycle. Logged in as seller Dangote, saw the pool appear on the dashboard KPI strip, submitted a blind bid (₦6,500, 1 bag, 2-day delivery) via `BidDialog` — confirmed the cycle detail page showed it unscored/unranked (`—`) before award, preserving the blind-bidding invariant. Logged in as admin, force-awarded the cycle — the real scoring engine picked Dangote (score 0.980) and created an allocation — then issued the GRN and disbursed the payout, both via the real admin actions. Verified the result propagated everywhere it should: seller's allocations page showed "Payout sent"; buyer's order tracking page correctly advanced through Order confirmed → Payment confirmed → Demand pooled → Supplier assigned → **Out for delivery** (current stage, since `receivedAt` was set and the order used delivery), with Delivered honestly left pending — there's still no real signal for final drop-off. The throwaway payment-simulation script was deleted immediately after use; no code changes were needed since everything it exercised was already real, working functionality.
+
+### Quantity input: added arrow-key support (2026-09-16, later same day)
+
+User-reported: quantity fields (`components/quantity-input.tsx`) only responded to the +/- buttons, not the keyboard's Up/Down arrow keys — a reasonable expectation on a numeric field. Added `ArrowUp`/`ArrowDown` handling to the existing `onKeyDown` (alongside the existing `Enter`-to-commit handling): each press reads the field's current text, clamps it to `min`, and commits value±1 through the same `commit()` path typing and the +/- buttons already use — so it stays in sync with both. Verified live: ArrowUp×3 took a field from 1→4, ArrowDown×2 took it back to 2, and ArrowDown×5 from there correctly clamped at 1 rather than going negative. `tsc --noEmit` and `npm run lint` clean.
+
 ## Bidding Engine Design
 
 - **Weighted award scoring**, not simple lowest-price-wins: Price 40%, seller reliability/trust score 25%, capacity fit 20%, delivery speed 15%.

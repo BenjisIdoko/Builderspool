@@ -52,6 +52,14 @@ export function QuantityInput({
           e.preventDefault();
           commit(e.currentTarget.value);
           e.currentTarget.blur();
+        } else if (e.key === 'ArrowUp') {
+          e.preventDefault();
+          const current = Math.max(min, Math.floor(Number(e.currentTarget.value)) || min);
+          commit(String(current + 1));
+        } else if (e.key === 'ArrowDown') {
+          e.preventDefault();
+          const current = Math.max(min, Math.floor(Number(e.currentTarget.value)) || min);
+          commit(String(Math.max(min, current - 1)));
         }
       }}
       aria-label={`Quantity of ${label}`}
