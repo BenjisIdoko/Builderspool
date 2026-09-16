@@ -391,6 +391,22 @@ Buyer added Elephant Cement 42.5R to cart, checked out (Abuja, delivery) → ord
 
 User-reported: quantity fields (`components/quantity-input.tsx`) only responded to the +/- buttons, not the keyboard's Up/Down arrow keys — a reasonable expectation on a numeric field. Added `ArrowUp`/`ArrowDown` handling to the existing `onKeyDown` (alongside the existing `Enter`-to-commit handling): each press reads the field's current text, clamps it to `min`, and commits value±1 through the same `commit()` path typing and the +/- buttons already use — so it stays in sync with both. Verified live: ArrowUp×3 took a field from 1→4, ArrowDown×2 took it back to 2, and ArrowDown×5 from there correctly clamped at 1 rather than going negative. `tsc --noEmit` and `npm run lint` clean.
 
+### Order tracking page redesigned, from two reference screenshots (2026-09-16, later same day)
+
+References were a B2B order-details page (order header + Reorder/Print actions, a Contact Person card, an activity timeline, an invoice-style item table) and a consumer delivery-tracking widget (a "total time" stat, a location-stamped vertical stepper, receipt/destination fields). Same rule as every prior pass: real data only, existing tokens — and this one had more to skip than usual (a Gantt-style Fast/Slowed/Deadlock fleet-tracking chart, Call/Message buttons, an Attachments tab, a vendor-email activity item, surcharge/tax lines) since none of that has anything real behind it in this system.
+
+**Real per-stage timestamps** — `getOrderTrackingStages()` (`lib/queries/orders.ts`) now returns an `at: Date | null` per stage, sourced from an actual dedicated field wherever one exists: `order.createdAt` (confirmed), `order.paidAt` (payment confirmed), the earliest `allocation.createdAt` across the order's items (supplier assigned), the earliest `allocation.receivedAt` (out for delivery/ready for pickup). **"Demand pooled" deliberately gets no timestamp** — `BidCycle.createdAt` describes when the cycle itself was created, not necessarily when this specific item joined it (it may have joined an already-existing cycle), so showing it would be a borrowed timestamp dressed up as a precise one. The stepper UI (`app/(shop)/orders/[id]/page.tsx`) now shows a real icon per stage (mirroring the reference's icon-per-step pattern) and the real timestamp text below each achieved stage's title.
+
+**Reorder** (`components/order-actions.tsx`, new) — genuinely re-adds every line to the cart, not just a cosmetic button. Deliberately uses each item's *current* `catalogPrice` (added to the `material` select in `getOrderById`), not the order's historical `priceLocked` — a reorder is a new order and prices may have moved since the original one. **Print** is a plain `window.print()`, no backend needed.
+
+**FROM / SHIP TO / Contact cards** — FROM is the real fulfillment center; SHIP TO/PICKUP FOR is the buyer's real business name + region (no fabricated street address, since `Order` still has no address columns); Contact shows the buyer's real email/phone, already-collected account fields, not an invented separate "contact person."
+
+**"Time since order placed"** — new `formatElapsedSince()` in `lib/format.ts`, deliberately taking a `Date` and calling `Date.now()` internally rather than in the page component's render body (the latter trips `react-hooks/purity`'s ESLint rule about impure calls during render).
+
+**Real bug caught during verification**: the GRN receipt line was initially keyed only on "does *any* item on this order have a GRN," so a two-item order where one item had arrived and the other hadn't showed a receipt number under "Ready for pickup" even though that stage wasn't actually achieved yet for the order as a whole (order-level stage is the *minimum* across items). Fixed by gating the receipt line on `stage.achieved` too. Caught by deliberately checking a real multi-item order with mixed per-item progress, not just the single-item happy path.
+
+Verified live across three different real orders (an unpaid single-item order, a fully-processed single-item order with a GRN, and a two-item pickup order with one item still pending) — each rendered the honestly-appropriate subset of timestamps/receipts for its actual state. `npm run lint` and `tsc --noEmit` clean.
+
 ## Bidding Engine Design
 
 - **Weighted award scoring**, not simple lowest-price-wins: Price 40%, seller reliability/trust score 25%, capacity fit 20%, delivery speed 15%.

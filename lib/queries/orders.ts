@@ -6,10 +6,17 @@ export async function getOrderById(id: string) {
     include: {
       items: {
         include: {
-          material: { select: { name: true, category: true, unit: true, imageUrl: true } },
+          material: { select: { id: true, name: true, category: true, unit: true, imageUrl: true, catalogPrice: true } },
           fulfillmentCenter: { select: { name: true, address: true, region: true } },
           bidCycle: { select: { status: true } },
-          allocations: { select: { receivedAt: true } },
+          allocations: {
+            select: {
+              createdAt: true,
+              receivedAt: true,
+              grnNumber: true,
+              bid: { select: { estimatedDeliveryDays: true } },
+            },
+          },
         },
       },
     },
@@ -22,6 +29,7 @@ export async function getOrderById(id: string) {
       ...item,
       priceLocked: Number(item.priceLocked),
       deliveryCost: Number(item.deliveryCost),
+      material: { ...item.material, catalogPrice: Number(item.material.catalogPrice) },
     })),
   };
 }
@@ -33,6 +41,11 @@ export interface TrackingStage {
   title: string;
   achieved: boolean;
   current: boolean;
+  // Real timestamp for this exact stage, only when a dedicated field backs
+  // it — null rather than an approximated/borrowed timestamp. "Demand
+  // pooled" has no dedicated field (BidCycle.createdAt describes the cycle,
+  // not necessarily this item's join moment), so it's always null.
+  at: Date | null;
 }
 
 // Derived entirely from data we already have — no OrderStatus enum change.
@@ -56,6 +69,13 @@ export function getOrderTrackingStages(order: BuyerOrder): TrackingStage[] {
   const currentIndex =
     order.items.length === 0 ? 0 : Math.min(...order.items.map(itemStageIndex));
 
+  // Earliest real timestamp across items for stages 3/4 — "as far along as
+  // the least-advanced item" for the stage index, matched by the earliest
+  // moment any item actually reached it.
+  const allAllocations = order.items.flatMap((item) => item.allocations);
+  const assignedAt = minDate(allAllocations.map((a) => a.createdAt));
+  const receivedAt = minDate(allAllocations.filter((a) => a.receivedAt).map((a) => a.receivedAt!));
+
   const titles = [
     'Order confirmed',
     'Payment confirmed',
@@ -64,13 +84,19 @@ export function getOrderTrackingStages(order: BuyerOrder): TrackingStage[] {
     isPickup ? 'Ready for pickup' : 'Out for delivery',
     isPickup ? 'Picked up' : 'Delivered',
   ];
+  const timestamps: (Date | null)[] = [order.createdAt, order.paidAt, null, assignedAt, receivedAt, null];
 
   return titles.map((title, i) => ({
     key: title,
     title,
     achieved: i <= currentIndex,
     current: i === currentIndex,
+    at: i <= currentIndex ? timestamps[i] : null,
   }));
+}
+
+function minDate(dates: Date[]): Date | null {
+  return dates.length === 0 ? null : new Date(Math.min(...dates.map((d) => d.getTime())));
 }
 
 export async function getOrdersForBuyer(buyerId: string) {
