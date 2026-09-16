@@ -14,6 +14,7 @@ export async function approveKycAction(formData: FormData) {
   });
 
   revalidatePath('/admin/users');
+  revalidatePath('/admin/verification');
 }
 
 export async function rejectKycAction(formData: FormData) {
@@ -28,4 +29,5 @@ export async function rejectKycAction(formData: FormData) {
   });
 
   revalidatePath('/admin/users');
+  revalidatePath('/admin/verification');
 }

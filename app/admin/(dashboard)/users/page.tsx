@@ -2,7 +2,7 @@ import Link from 'next/link';
 import { MagnifyingGlassIcon, UserCircleIcon, UsersIcon } from '@phosphor-icons/react/ssr';
 import { Role } from '@prisma/client';
 import { getUsersForAdmin, getUserRoleCounts } from '@/lib/queries/adminUsers';
-import { SellerKycReview } from '@/components/admin/seller-kyc-review';
+import { kycStatusTone, pillClass } from '@/lib/statusColors';
 import { Badge } from '@/components/ui/badge';
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
@@ -19,6 +19,13 @@ const ROLE_TONE: Record<Role, 'info' | 'success' | 'neutral'> = {
   BUYER: 'info',
   SELLER: 'success',
   ADMIN: 'neutral',
+};
+
+const KYC_LABEL: Record<string, string> = {
+  NOT_SUBMITTED: 'Not submitted',
+  PENDING: 'Pending',
+  APPROVED: 'Verified',
+  REJECTED: 'Rejected',
 };
 
 const ROLE_FILTERS = [
@@ -171,7 +178,11 @@ export default async function AdminUsersPage({
                   </TableCell>
                   <TableCell className="py-3">
                     {u.role === 'SELLER' && u.sellerProfile ? (
-                      <SellerKycReview sellerName={u.businessName ?? u.name} profile={u.sellerProfile} />
+                      <Link href="/admin/verification" className="hover:underline">
+                        <Badge variant="outline" className={pillClass(kycStatusTone(u.sellerProfile.kycStatus))}>
+                          {KYC_LABEL[u.sellerProfile.kycStatus]}
+                        </Badge>
+                      </Link>
                     ) : (
                       <span className="text-muted-foreground">—</span>
                     )}

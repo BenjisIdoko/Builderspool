@@ -1,10 +1,4 @@
-// Next.js App Router route-level loading UI — shown automatically while
-// orders/page.tsx (or orders/[id]/page.tsx, which inherits this boundary)
-// fetches its real data. Shape mirrors the real page so there's no layout
-// shift once data arrives.
-function Skeleton({ className = '' }: { className?: string }) {
-  return <div className={`animate-pulse rounded bg-well ${className}`} />;
-}
+import { Skeleton } from '@/components/ui/skeleton';
 
 export default function OrdersLoading() {
   return (

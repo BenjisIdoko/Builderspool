@@ -76,6 +76,7 @@ export async function issueGrnAction(formData: FormData) {
   await issueGrn(allocationId);
 
   revalidatePath(`/admin/cycles/${cycleId}`);
+  revalidatePath('/admin/escrow');
   revalidatePath('/seller/allocations');
 }
 
@@ -84,6 +85,7 @@ export async function disbursePayoutAction(formData: FormData) {
   await disbursePayout(allocationId);
 
   revalidatePath(`/admin/cycles/${cycleId}`);
+  revalidatePath('/admin/escrow');
   revalidatePath('/seller/allocations');
 }
 
@@ -94,5 +96,6 @@ export async function toggleAllocationHoldAction(formData: FormData) {
   await toggleAllocationHold(allocationId, typeof reason === 'string' ? reason : undefined);
 
   revalidatePath(`/admin/cycles/${cycleId}`);
+  revalidatePath('/admin/escrow');
   revalidatePath('/seller/allocations');
 }

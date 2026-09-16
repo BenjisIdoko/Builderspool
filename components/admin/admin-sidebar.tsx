@@ -2,7 +2,17 @@
 
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
-import { BooksIcon, GaugeIcon, PackageIcon, ReceiptIcon, SignOutIcon, UsersIcon } from '@phosphor-icons/react/ssr';
+import {
+  BooksIcon,
+  GaugeIcon,
+  LockKeyIcon,
+  PackageIcon,
+  ReceiptIcon,
+  ShieldCheckIcon,
+  SignOutIcon,
+  TruckIcon,
+  UsersIcon,
+} from '@phosphor-icons/react/ssr';
 import { signOutAdmin } from '@/app/admin/actions';
 import { LogoMark } from '@/components/logo';
 import { Avatar } from '@/components/avatar';
@@ -19,11 +29,16 @@ const LINK_GROUPS = [
       { href: '/admin/orders', label: 'Orders', icon: ReceiptIcon },
       { href: '/admin/materials', label: 'Materials', icon: PackageIcon },
       { href: '/admin/catalogue-reference', label: 'Catalogue reference', icon: BooksIcon },
+      { href: '/admin/haulage', label: 'Haulage & dispatch', icon: TruckIcon },
+      { href: '/admin/escrow', label: 'Escrow settlement', icon: LockKeyIcon },
     ],
   },
   {
     label: 'Account',
-    links: [{ href: '/admin/users', label: 'Users', icon: UsersIcon }],
+    links: [
+      { href: '/admin/users', label: 'Users', icon: UsersIcon },
+      { href: '/admin/verification', label: 'Vendor verification', icon: ShieldCheckIcon },
+    ],
   },
 ];
 
