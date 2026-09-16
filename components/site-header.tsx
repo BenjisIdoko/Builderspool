@@ -1,6 +1,5 @@
 import Link from 'next/link';
 import { UserCircleIcon } from '@phosphor-icons/react/ssr';
-import { getCategories } from '@/lib/queries/materials';
 import { getCurrentBuyer } from '@/lib/buyer/auth';
 import { CartSheet } from './cart-sheet';
 import { MobileNav } from './mobile-nav';
@@ -8,15 +7,14 @@ import { HeaderSearch } from './header-search';
 import { Avatar } from './avatar';
 import { Logo } from './logo';
 
+// Category browsing lives on the catalog page's own tab bar
+// (components/category-nav.tsx), not the navbar — with 20+ categories now
+// in the catalog, listing every one as a nav link overflowed the header.
+// One real link here ("All materials" -> /catalog) is enough.
+const links = [{ href: '/catalog', label: 'All materials' }];
+
 export async function SiteHeader() {
-  const [categories, buyer] = await Promise.all([getCategories(), getCurrentBuyer()]);
-  const links = [
-    { href: '/catalog', label: 'All materials' },
-    ...categories.map((category) => ({
-      href: `/catalog?category=${encodeURIComponent(category)}`,
-      label: category,
-    })),
-  ];
+  const buyer = await getCurrentBuyer();
 
   return (
     <div className="sticky top-4 z-10 px-4 sm:px-6">
