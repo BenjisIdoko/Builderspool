@@ -1,13 +1,14 @@
 import Link from 'next/link';
-import { UserIcon } from '@phosphor-icons/react/ssr';
 import { getCategories } from '@/lib/queries/materials';
+import { getDemoBuyer } from '@/lib/demoBuyer';
 import { CartSheet } from './cart-sheet';
 import { MobileNav } from './mobile-nav';
 import { HeaderSearch } from './header-search';
+import { Avatar } from './avatar';
 import { Logo } from './logo';
 
 export async function SiteHeader() {
-  const categories = await getCategories();
+  const [categories, buyer] = await Promise.all([getCategories(), getDemoBuyer()]);
   const links = [
     { href: '/catalog', label: 'All materials' },
     ...categories.map((category) => ({
@@ -17,34 +18,32 @@ export async function SiteHeader() {
   ];
 
   return (
-    <header className="sticky top-0 z-10 border-b border-border bg-canvas/90 backdrop-blur">
-      <div className="mx-auto flex h-16 max-w-7xl items-center gap-6 px-6">
-        <MobileNav links={links} title="Builders Pool" />
+    <div className="sticky top-4 z-10 px-4 sm:px-6">
+      <header className="mx-auto max-w-7xl rounded-full border border-border bg-surface/80 backdrop-blur-md">
+        <div className="flex h-16 items-center gap-6 px-4 sm:px-6">
+          <MobileNav links={links} title="Builders Pool" />
 
-        <Link href="/" className="flex shrink-0 items-center">
-          <Logo />
-        </Link>
-
-        <nav className="hidden shrink-0 items-center gap-7 text-[13.5px] font-medium text-slate lg:flex">
-          {links.map((link) => (
-            <Link key={link.href} href={link.href} className="transition-colors hover:text-ink">
-              {link.label}
-            </Link>
-          ))}
-        </nav>
-
-        <div className="ml-auto flex shrink-0 items-center gap-3">
-          <HeaderSearch />
-          <Link
-            href="/account"
-            className="flex items-center gap-1.5 text-sm font-medium text-slate transition-colors hover:text-ink"
-          >
-            <UserIcon className="size-4.5" />
-            <span className="hidden sm:inline">Account</span>
+          <Link href="/" className="flex shrink-0 items-center">
+            <Logo />
           </Link>
-          <CartSheet />
+
+          <nav className="hidden shrink-0 items-center gap-7 text-[13.5px] font-medium text-slate lg:flex">
+            {links.map((link) => (
+              <Link key={link.href} href={link.href} className="transition-colors hover:text-ink">
+                {link.label}
+              </Link>
+            ))}
+          </nav>
+
+          <div className="ml-auto flex shrink-0 items-center gap-3">
+            <HeaderSearch />
+            <Link href="/account" aria-label="Account">
+              <Avatar name={buyer.name} />
+            </Link>
+            <CartSheet />
+          </div>
         </div>
-      </div>
-    </header>
+      </header>
+    </div>
   );
 }

@@ -407,6 +407,16 @@ References were a B2B order-details page (order header + Reorder/Print actions, 
 
 Verified live across three different real orders (an unpaid single-item order, a fully-processed single-item order with a GRN, and a two-item pickup order with one item still pending) — each rendered the honestly-appropriate subset of timestamps/receipts for its actual state. `npm run lint` and `tsc --noEmit` clean.
 
+### Floating rounded header with an avatar (2026-09-16, later same day)
+
+The user shared a Google Store navbar for review first ("do not commit, give opinions"). Most of it — plain text nav, icon-only right-side actions, a translucent/blurred backdrop — was already how `site-header.tsx` worked; the two ideas flagged as not worth copying were the apps-grid ecosystem-switcher icon (no other apps to switch to) and a store-locator pin (buyers pick region at checkout, not a header link). The one idea worth taking was a circular avatar instead of the plain icon+"Account" label — the user then asked for that plus a floating, rounded, blurred bar shape specifically.
+
+**New `components/avatar.tsx`** — initials-only, deterministic from a real name (first letter of first word + first letter of last word), on the existing brand-blue token. No photo upload exists anywhere in this system, so a stock/placeholder photo would be a fabricated identity; initials from the buyer's real name aren't. First tried the buyer's `businessName` ("Demo Construction Ltd" → "DL"), but switched to the personal `name` field ("Demo Buyer" → "DB") since a personal avatar reads more naturally from a person's own name than a company name's initials.
+
+**Floating shape** (`components/site-header.tsx`) — wrapped the header in an outer `sticky top-4 px-4 sm:px-6` container so the bar sits with a visible gap from the viewport edges on all sides, and changed the bar itself to `rounded-full border border-border bg-surface/80 backdrop-blur-md` (no shadow — same "hairline borders, not shadows" rule as everywhere else in this system, a floating pill doesn't need one once it has a border and blur). Internal content/spacing is unchanged.
+
+Verified live at mobile (375px), tablet-ish (1280px desktop nav), and against the checkout page's sticky dark summary panel (which now clears the shorter effective header height with no overlap). Mobile menu (hamburger sheet) unaffected. `npm run lint` and `tsc --noEmit` clean.
+
 ## Bidding Engine Design
 
 - **Weighted award scoring**, not simple lowest-price-wins: Price 40%, seller reliability/trust score 25%, capacity fit 20%, delivery speed 15%.
