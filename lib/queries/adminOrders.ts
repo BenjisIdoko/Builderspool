@@ -4,17 +4,34 @@ import { ORDER_DETAIL_INCLUDE, toPlainOrder, getOrderTrackingStages } from './or
 
 const PAGE_SIZE = 10;
 
+export const ORDER_SORT_FIELDS = ['id', 'buyer', 'items', 'total', 'status', 'stage', 'date'] as const;
+export type OrderSortField = (typeof ORDER_SORT_FIELDS)[number];
+export type SortDir = 'asc' | 'desc';
+
 // Admin-only order list — every real order, not scoped to one buyer.
 // Reuses the exact same include/mapping as the buyer-facing getOrderById so
 // the derived fulfillment stage is computed identically on both sides.
+//
+// total and fulfillmentStage aren't stored columns — they're derived from
+// items/allocations after the fetch — so sorting by them (or filtering by
+// query, which also spans buyer name) can't be pushed down to a Prisma
+// orderBy/skip/take. Given this app's real order volume (dozens, not
+// millions), it's honestly simpler and just as correct to fetch every
+// matching row, sort in JS, then paginate in JS, rather than maintain two
+// different sort code paths (DB-level for stored fields, JS-level for
+// derived ones).
 export async function getOrdersForAdmin({
   status,
   query,
   page = 1,
+  sort = 'date',
+  dir = 'desc',
 }: {
   status?: OrderStatus;
   query?: string;
   page?: number;
+  sort?: OrderSortField;
+  dir?: SortDir;
 }) {
   const where: Prisma.OrderWhereInput = {
     status: status || undefined,
@@ -27,25 +44,41 @@ export async function getOrdersForAdmin({
       : undefined,
   };
 
-  const [rows, total] = await Promise.all([
-    prisma.order.findMany({
-      where,
-      include: ORDER_DETAIL_INCLUDE,
-      orderBy: { createdAt: 'desc' },
-      skip: (page - 1) * PAGE_SIZE,
-      take: PAGE_SIZE,
-    }),
-    prisma.order.count({ where }),
-  ]);
+  const rows = await prisma.order.findMany({ where, include: ORDER_DETAIL_INCLUDE, orderBy: { createdAt: 'desc' } });
 
-  const orders = rows.map(toPlainOrder).map((order) => {
+  let orders = rows.map(toPlainOrder).map((order) => {
     const stages = getOrderTrackingStages(order);
     const currentStage = stages.find((s) => s.current)!;
     const total = order.items.reduce((sum, item) => sum + item.priceLocked * item.quantity + item.deliveryCost, 0);
     return { ...order, total, fulfillmentStage: currentStage.title };
   });
 
-  return { orders, total, page, pageSize: PAGE_SIZE, pageCount: Math.max(1, Math.ceil(total / PAGE_SIZE)) };
+  const sign = dir === 'asc' ? 1 : -1;
+  orders = orders.sort((a, b) => {
+    switch (sort) {
+      case 'id':
+        return sign * a.id.localeCompare(b.id);
+      case 'buyer':
+        return sign * (a.buyer.businessName ?? a.buyer.name).localeCompare(b.buyer.businessName ?? b.buyer.name);
+      case 'items':
+        return sign * (a.items.length - b.items.length);
+      case 'total':
+        return sign * (a.total - b.total);
+      case 'status':
+        return sign * a.status.localeCompare(b.status);
+      case 'stage':
+        return sign * a.fulfillmentStage.localeCompare(b.fulfillmentStage);
+      case 'date':
+      default:
+        return sign * (a.createdAt.getTime() - b.createdAt.getTime());
+    }
+  });
+
+  const total = orders.length;
+  const pageCount = Math.max(1, Math.ceil(total / PAGE_SIZE));
+  const paged = orders.slice((page - 1) * PAGE_SIZE, page * PAGE_SIZE);
+
+  return { orders: paged, total, page, pageSize: PAGE_SIZE, pageCount };
 }
 
 export type AdminOrder = Awaited<ReturnType<typeof getOrdersForAdmin>>['orders'][number];

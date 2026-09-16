@@ -1,5 +1,8 @@
 import Link from 'next/link';
 import {
+  CaretDownIcon,
+  CaretUpIcon,
+  CaretUpDownIcon,
   ChartLineUpIcon,
   ClockIcon,
   CurrencyNgnIcon,
@@ -9,13 +12,21 @@ import {
   SealCheckIcon,
 } from '@phosphor-icons/react/ssr';
 import { OrderStatus } from '@prisma/client';
-import { getOrdersForAdmin, getOrderStatusCounts, getOrderQuickStats } from '@/lib/queries/adminOrders';
+import {
+  getOrdersForAdmin,
+  getOrderStatusCounts,
+  getOrderQuickStats,
+  ORDER_SORT_FIELDS,
+  type OrderSortField,
+  type SortDir,
+} from '@/lib/queries/adminOrders';
 import { formatNaira } from '@/lib/format';
 import { orderStatusTone, fulfillmentStageTone, pillClass } from '@/lib/statusColors';
 import { Badge } from '@/components/ui/badge';
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
 import { Avatar } from '@/components/avatar';
+import { OrderRowActions } from '@/components/admin/order-row-actions';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 
 const STATUS_LABEL: Record<string, string> = {
@@ -42,14 +53,18 @@ function shortOrderNumber(id: string) {
 export default async function AdminOrdersPage({
   searchParams,
 }: {
-  searchParams: Promise<{ status?: string; q?: string; page?: string }>;
+  searchParams: Promise<{ status?: string; q?: string; page?: string; sort?: string; dir?: string }>;
 }) {
-  const { status, q, page: pageParam } = await searchParams;
+  const { status, q, page: pageParam, sort: sortParam, dir: dirParam } = await searchParams;
   const page = Math.max(1, Number(pageParam) || 1);
   const validStatus = status && status in OrderStatus ? (status as OrderStatus) : undefined;
+  const sort: OrderSortField = ORDER_SORT_FIELDS.includes(sortParam as OrderSortField)
+    ? (sortParam as OrderSortField)
+    : 'date';
+  const dir: SortDir = dirParam === 'asc' ? 'asc' : 'desc';
 
   const [{ orders, total, pageCount }, counts, quickStats] = await Promise.all([
-    getOrdersForAdmin({ status: validStatus, query: q, page }),
+    getOrdersForAdmin({ status: validStatus, query: q, page, sort, dir }),
     getOrderStatusCounts(),
     getOrderQuickStats(),
   ]);
@@ -74,16 +89,45 @@ export default async function AdminOrdersPage({
     },
   ];
 
-  function urlFor(overrides: { status?: string; q?: string; page?: number }) {
+  function urlFor(overrides: { status?: string; q?: string; page?: number; sort?: OrderSortField; dir?: SortDir }) {
     const params = new URLSearchParams();
     const s = overrides.status !== undefined ? overrides.status : status;
     const query = overrides.q !== undefined ? overrides.q : q;
     const p = overrides.page ?? 1;
+    const sortField = overrides.sort ?? sort;
+    const sortDir = overrides.dir ?? dir;
     if (s) params.set('status', s);
     if (query) params.set('q', query);
     if (p > 1) params.set('page', String(p));
+    if (sortField !== 'date') params.set('sort', sortField);
+    if (sortDir !== 'desc') params.set('dir', sortDir);
     const qs = params.toString();
     return `/admin/orders${qs ? `?${qs}` : ''}`;
+  }
+
+  function sortUrlFor(field: OrderSortField) {
+    const nextDir: SortDir = sort === field && dir === 'desc' ? 'asc' : 'desc';
+    return urlFor({ sort: field, dir: nextDir, page: 1 });
+  }
+
+  function sortableHead(field: OrderSortField, label: string) {
+    const active = sort === field;
+    return (
+      <TableHead key={field}>
+        <Link href={sortUrlFor(field)} className="inline-flex items-center gap-1 hover:text-ink">
+          {label}
+          {active ? (
+            dir === 'asc' ? (
+              <CaretUpIcon className="size-3" />
+            ) : (
+              <CaretDownIcon className="size-3" />
+            )
+          ) : (
+            <CaretUpDownIcon className="size-3 text-muted-foreground/60" />
+          )}
+        </Link>
+      </TableHead>
+    );
   }
 
   return (
@@ -175,14 +219,14 @@ export default async function AdminOrdersPage({
           <Table>
             <TableHeader>
               <TableRow>
-                <TableHead>Order</TableHead>
-                <TableHead>Buyer</TableHead>
-                <TableHead>Items</TableHead>
-                <TableHead>Total</TableHead>
-                <TableHead>Payment</TableHead>
-                <TableHead>Fulfillment</TableHead>
-                <TableHead>Date</TableHead>
-                <TableHead />
+                {sortableHead('id', 'Order')}
+                {sortableHead('buyer', 'Buyer')}
+                {sortableHead('items', 'Items')}
+                {sortableHead('total', 'Total')}
+                {sortableHead('status', 'Payment')}
+                {sortableHead('stage', 'Fulfillment')}
+                {sortableHead('date', 'Date')}
+                <TableHead className="text-right">Action</TableHead>
               </TableRow>
             </TableHeader>
             <TableBody>
@@ -215,12 +259,11 @@ export default async function AdminOrdersPage({
                       </Badge>
                     </TableCell>
                     <TableCell className="py-3 text-muted-foreground">
-                      {order.createdAt.toLocaleDateString('en-NG', { dateStyle: 'medium' })}
+                      <div>{order.createdAt.toLocaleDateString('en-NG', { dateStyle: 'medium' })}</div>
+                      <div className="text-xs">{order.createdAt.toLocaleTimeString('en-NG', { timeStyle: 'short' })}</div>
                     </TableCell>
                     <TableCell className="py-3 text-right">
-                      <Link href={`/admin/orders/${order.id}`} className="text-sm text-brand hover:underline">
-                        View
-                      </Link>
+                      <OrderRowActions orderId={order.id} />
                     </TableCell>
                   </TableRow>
                 );
