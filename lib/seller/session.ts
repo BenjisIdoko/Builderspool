@@ -1,9 +1,8 @@
 import { cookies } from 'next/headers';
 
-// There's no seller auth yet (Phase 1 scope, not built) — this cookie is a
-// placeholder "session" holding the signed-in seller's User id, set by
-// app/seller/actions.ts's selectSeller(). Replace with real auth before
-// this is anything but a demo.
+// Holds the signed-in seller's real User id, set by app/seller/actions.ts's
+// signInSeller()/signUpSeller() after a real password check/hash — see
+// lib/auth/password.ts.
 export const SELLER_COOKIE = 'bp_seller_id';
 
 export async function getSellerIdFromSession(): Promise<string | null> {

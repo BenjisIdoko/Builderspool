@@ -61,6 +61,72 @@ enum PayoutStatus {
   ON_HOLD     // an ops exception (quality/count dispute) blocks disbursement
 }
 
+// Captured at checkout (2026-09-16) — a real, stored buyer choice, not a
+// fabricated one. Doesn't route to a real payment processor yet: same
+// honest stub as the rest of checkout (see app/api/checkout/route.ts's
+// initiatePayment() TODO). The "escrow" framing this powers is otherwise
+// real: Order.status===PAID is the real "funds held" moment, and
+// Allocation.payoutStatus's existing PENDING_GRN->PROCESSED->PAID
+// lifecycle is the real "release to seller" moment — see
+// lib/queries/escrow.ts's getEscrowStatus(), which derives an escrow
+// state from those two already-real fields rather than duplicating them.
+enum PaymentMethod {
+  BANK_TRANSFER
+  CARD
+  USSD
+}
+
+enum DispatchStatus {
+  ASSIGNED
+  AT_PICKUP
+  IN_TRANSIT
+  DELIVERED
+  CANCELLED
+}
+
+// Real haulage tracking (2026-09-16) — a genuinely new logistics
+// subsystem, not a reframe of something that already existed (unlike
+// escrow above). One Dispatch per OrderItem that actually needs
+// transport (deliveryCost > 0 — a pickup OrderItem never gets one).
+// currentLocation is free text ops enters manually; there is no live
+// GPS/telemetry integration, so this never fabricates a percentage or
+// map position the vehicle hasn't actually reported.
+model Vehicle {
+  id           String   @id @default(cuid())
+  plateNumber  String   @unique
+  type         String // e.g. "10-ton flatbed truck", "Dropside truck", "Cargo tricycle"
+  capacityTons Float?
+  createdAt    DateTime @default(now())
+
+  driver     Driver?
+  dispatches Dispatch[]
+}
+
+model Driver {
+  id            String   @id @default(cuid())
+  name          String
+  phone         String
+  licenseNumber String?
+  vehicleId     String?  @unique
+  createdAt     DateTime @default(now())
+
+  vehicle Vehicle? @relation(fields: [vehicleId], references: [id])
+}
+
+model Dispatch {
+  id              String         @id @default(cuid())
+  orderItemId     String         @unique
+  vehicleId       String?
+  status          DispatchStatus @default(ASSIGNED)
+  dispatchedAt    DateTime?
+  deliveredAt     DateTime?
+  currentLocation String?
+  createdAt       DateTime       @default(now())
+
+  orderItem OrderItem @relation(fields: [orderItemId], references: [id])
+  vehicle   Vehicle?  @relation(fields: [vehicleId], references: [id])
+}
+
 model User {
   id           String   @id @default(cuid())
   role         Role
@@ -203,12 +269,13 @@ model CartItem {
 // The buyer-facing checkout transaction. region is persisted here specifically
 // so bid-cycle assignment can read it back after payment confirms.
 model Order {
-  id        String      @id @default(cuid())
-  buyerId   String
-  region    String
-  status    OrderStatus @default(PENDING_PAYMENT)
-  createdAt DateTime    @default(now())
-  paidAt    DateTime?
+  id            String         @id @default(cuid())
+  buyerId       String
+  region        String
+  status        OrderStatus    @default(PENDING_PAYMENT)
+  paymentMethod PaymentMethod?
+  createdAt     DateTime       @default(now())
+  paidAt        DateTime?
 
   buyer User        @relation(fields: [buyerId], references: [id])
   items OrderItem[]
@@ -233,6 +300,7 @@ model OrderItem {
   fulfillmentCenter FulfillmentCenter? @relation(fields: [fulfilmentCenterId], references: [id])
   bidCycle          BidCycle?          @relation(fields: [bidCycleId], references: [id])
   allocations       Allocation[]
+  dispatch          Dispatch?
 }
 
 // One per material, per region (null = national), per day.

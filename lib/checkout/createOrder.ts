@@ -1,5 +1,5 @@
 import { prisma } from '../prisma';
-import { OrderStatus } from '@prisma/client';
+import { OrderStatus, type PaymentMethod } from '@prisma/client';
 import { getDeliveryCost, type FulfillmentMethod } from './deliveryCost';
 import { findServingCenter } from './findServingCenter';
 
@@ -7,6 +7,7 @@ export interface CheckoutInput {
   buyerId: string;
   region: string;
   fulfillmentMethod: FulfillmentMethod;
+  paymentMethod: PaymentMethod;
   items: { materialId: string; quantity: number }[];
 }
 
@@ -40,6 +41,7 @@ export async function createOrder(input: CheckoutInput) {
         buyerId: input.buyerId,
         region: input.region,
         status: OrderStatus.PENDING_PAYMENT,
+        paymentMethod: input.paymentMethod,
       },
     });
 

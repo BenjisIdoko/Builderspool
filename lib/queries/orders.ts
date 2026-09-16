@@ -16,7 +16,22 @@ export const ORDER_DETAIL_INCLUDE = {
           createdAt: true,
           receivedAt: true,
           grnNumber: true,
+          payoutStatus: true,
           bid: { select: { estimatedDeliveryDays: true } },
+        },
+      },
+      // Real haulage tracking (2026-09-16) — the platform's own dispatch,
+      // not seller-attributed, so surfacing it to the buyer never leaks
+      // which seller is fulfilling the order.
+      dispatch: {
+        select: {
+          status: true,
+          dispatchedAt: true,
+          deliveredAt: true,
+          currentLocation: true,
+          vehicle: {
+            select: { plateNumber: true, type: true, driver: { select: { name: true, phone: true } } },
+          },
         },
       },
     },

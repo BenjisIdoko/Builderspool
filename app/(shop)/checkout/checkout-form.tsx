@@ -3,7 +3,8 @@
 import { useState } from 'react';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
-import { CheckCircleIcon, CircleIcon, MapPinIcon, TruckIcon } from '@phosphor-icons/react/ssr';
+import { BankIcon, CheckCircleIcon, CircleIcon, DeviceMobileIcon, MapPinIcon, TruckIcon, CreditCardIcon, LockKeyIcon } from '@phosphor-icons/react/ssr';
+import type { PaymentMethod } from '@prisma/client';
 import { useCart } from '@/lib/cart/CartContext';
 import { formatNaira } from '@/lib/format';
 import { getDeliveryCost, type FulfillmentMethod } from '@/lib/checkout/deliveryCost';
@@ -17,6 +18,12 @@ const FULFILLMENT_OPTIONS: { method: FulfillmentMethod; label: string }[] = [
   { method: 'PICKUP', label: 'Pickup at center' },
 ];
 
+const PAYMENT_OPTIONS: { method: PaymentMethod; label: string; icon: typeof BankIcon }[] = [
+  { method: 'BANK_TRANSFER', label: 'Bank transfer', icon: BankIcon },
+  { method: 'CARD', label: 'Card', icon: CreditCardIcon },
+  { method: 'USSD', label: 'USSD', icon: DeviceMobileIcon },
+];
+
 const REGIONS = ['ABUJA', 'LAGOS', 'KANO'];
 
 type SubmitState = { status: 'idle' } | { status: 'submitting' } | { status: 'error'; message: string };
@@ -26,6 +33,7 @@ export function CheckoutForm({ buyerId }: { buyerId: string }) {
   const { lines, subtotal, clear } = useCart();
   const [region, setRegion] = useState(REGIONS[0]);
   const [fulfillmentMethod, setFulfillmentMethod] = useState<FulfillmentMethod>('DELIVERY');
+  const [paymentMethod, setPaymentMethod] = useState<PaymentMethod>('BANK_TRANSFER');
   const [state, setState] = useState<SubmitState>({ status: 'idle' });
 
   const deliveryCost = getDeliveryCost(region, fulfillmentMethod);
@@ -55,6 +63,7 @@ export function CheckoutForm({ buyerId }: { buyerId: string }) {
           buyerId,
           region,
           fulfillmentMethod,
+          paymentMethod,
           items: lines.map((l) => ({ materialId: l.materialId, quantity: l.quantity })),
         }),
       });
@@ -171,6 +180,39 @@ export function CheckoutForm({ buyerId }: { buyerId: string }) {
               </button>
             );
           })}
+        </div>
+
+        <h2 className="mb-3 text-xs font-bold tracking-wide text-white/50 uppercase">Payment method</h2>
+        <div className="mb-5 flex flex-col gap-2">
+          {PAYMENT_OPTIONS.map(({ method, label, icon: Icon }) => {
+            const selected = paymentMethod === method;
+            return (
+              <button
+                key={method}
+                type="button"
+                onClick={() => setPaymentMethod(method)}
+                className={`flex items-center gap-2.5 rounded-lg border p-3 text-left text-sm transition-colors ${
+                  selected ? 'border-brand bg-white/5' : 'border-white/10 hover:border-white/20'
+                }`}
+              >
+                {selected ? (
+                  <CheckCircleIcon weight="fill" className="size-4.5 shrink-0 text-brand" />
+                ) : (
+                  <CircleIcon className="size-4.5 shrink-0 text-white/30" />
+                )}
+                <Icon className="size-4 shrink-0 text-white/60" />
+                <span className="font-semibold">{label}</span>
+              </button>
+            );
+          })}
+        </div>
+
+        <div className="mb-5 flex items-start gap-2 rounded-lg bg-white/5 p-3 text-xs text-white/60">
+          <LockKeyIcon className="mt-0.5 size-4 shrink-0" />
+          <span>
+            Funds are held by Builders Pool once payment confirms, and released to the fulfilling
+            supplier only after the fulfillment center confirms receipt — never before.
+          </span>
         </div>
 
         <div className="flex flex-col gap-1.5 border-t border-white/10 pt-4 text-sm">

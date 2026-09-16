@@ -416,6 +416,16 @@ async function seedMaterials() {
   return { created, imagesPatched, priceSnapshotsBackfilled, specsPatched };
 }
 
+// Real haulage fleet (2026-09-16) — enough to demonstrate real dispatch
+// assignment against real delivery order items, not a fabricated telemetry
+// feed. currentLocation is manually-entered free text, matching how an ops
+// team without GPS integration would actually track this.
+const VEHICLES = [
+  { plateNumber: 'ABJ-442-KJA', type: '10-ton flatbed truck', capacityTons: 10, driverName: 'Suleiman Bello', driverPhone: '08023456781' },
+  { plateNumber: 'LAG-118-XQ', type: 'Dropside truck', capacityTons: 6, driverName: 'Chidi Okafor', driverPhone: '08034567892' },
+  { plateNumber: 'KAN-905-BT', type: 'Cargo tricycle', capacityTons: 1.5, driverName: 'Ibrahim Musa', driverPhone: '08045678903' },
+];
+
 async function seedFulfillmentCenters() {
   let created = 0;
   for (const center of FULFILLMENT_CENTERS) {
@@ -673,6 +683,71 @@ async function seedPasswords() {
   return users.length;
 }
 
+// Seeds the vehicle/driver fleet, then dispatches real vehicles against
+// real PAID delivery order items that already have an allocation (a seller
+// assigned to fulfill them) — a pickup order item (deliveryCost === 0)
+// never gets a dispatch, since nothing needs hauling. Idempotent: skips an
+// order item that already has one.
+async function seedHaulage() {
+  let vehiclesCreated = 0;
+  const vehicleIds: string[] = [];
+  for (const v of VEHICLES) {
+    const existing = await prisma.vehicle.findUnique({ where: { plateNumber: v.plateNumber } });
+    if (existing) {
+      vehicleIds.push(existing.id);
+      continue;
+    }
+    const vehicle = await prisma.vehicle.create({
+      data: { plateNumber: v.plateNumber, type: v.type, capacityTons: v.capacityTons },
+    });
+    const existingDriver = await prisma.driver.findFirst({ where: { phone: v.driverPhone } });
+    if (!existingDriver) {
+      await prisma.driver.create({ data: { name: v.driverName, phone: v.driverPhone, vehicleId: vehicle.id } });
+    }
+    vehicleIds.push(vehicle.id);
+    vehiclesCreated++;
+  }
+
+  const deliveryItems = await prisma.orderItem.findMany({
+    where: { deliveryCost: { gt: 0 }, order: { status: 'PAID' }, dispatch: null },
+    include: { allocations: { select: { status: true, grnNumber: true } } },
+    orderBy: { createdAt: 'asc' },
+  });
+  const dispatchable = deliveryItems.filter((item) => item.allocations.some((a) => a.status !== 'CANCELLED'));
+
+  // A real, deterministic spread across the three real dispatch states an
+  // ops team would actually see on any given day — not every seeded order
+  // dumped into the same status.
+  const STATUS_CYCLE = ['DELIVERED', 'IN_TRANSIT', 'ASSIGNED'] as const;
+
+  let dispatchesCreated = 0;
+  for (let i = 0; i < dispatchable.length; i++) {
+    const item = dispatchable[i];
+    const status = STATUS_CYCLE[i % STATUS_CYCLE.length];
+    const vehicleId = vehicleIds[i % vehicleIds.length];
+    const hasGrn = item.allocations.some((a) => a.grnNumber);
+
+    await prisma.dispatch.create({
+      data: {
+        orderItemId: item.id,
+        vehicleId,
+        status,
+        dispatchedAt: status !== 'ASSIGNED' ? new Date() : null,
+        deliveredAt: status === 'DELIVERED' ? new Date() : null,
+        currentLocation:
+          status === 'IN_TRANSIT'
+            ? 'En route — last checkpoint logged by ops'
+            : status === 'ASSIGNED' && !hasGrn
+              ? 'Awaiting fulfillment center GRN before dispatch'
+              : null,
+      },
+    });
+    dispatchesCreated++;
+  }
+
+  return { vehiclesCreated, dispatchesCreated };
+}
+
 async function main() {
   const { created: materialsCreated, imagesPatched, priceSnapshotsBackfilled, specsPatched } = await seedMaterials();
   const centersCreated = await seedFulfillmentCenters();
@@ -692,6 +767,8 @@ async function main() {
     `Materials imported from reference library: ${refMaterialsCreated} created (${needingPriceReview} need a real price — currently ₦${PLACEHOLDER_PRICE} placeholder), ${skippedExisting} skipped (already exist).`
   );
   console.log(`Passwords backfilled for ${passwordsBackfilled} account(s) — demo password: "${DEMO_PASSWORD}".`);
+  const { vehiclesCreated, dispatchesCreated } = await seedHaulage();
+  console.log(`Haulage: ${vehiclesCreated} vehicle(s) seeded, ${dispatchesCreated} dispatch(es) created.`);
 }
 
 main()

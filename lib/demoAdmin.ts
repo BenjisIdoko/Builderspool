@@ -1,9 +1,9 @@
 import { prisma } from './prisma';
 
-// There's no admin auth yet (Phase 1 scope, not built) — the admin
-// dashboard's login is a single seeded account behind a session cookie
-// (lib/admin/session.ts), same TODO-and-replace pattern as the buyer and
-// seller demo accounts.
+// Identifies the single seeded ops account — real password auth exists
+// (lib/admin/session.ts, app/admin/actions.ts's signInAdmin()), but there's
+// still only ever one admin account by design, so this lookup-by-email
+// stays a valid way to fetch "the" admin for display purposes.
 export const DEMO_ADMIN_EMAIL = 'ops@builderspool.example';
 
 export async function getDemoAdmin() {

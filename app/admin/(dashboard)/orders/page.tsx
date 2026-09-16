@@ -20,8 +20,9 @@ import {
   type OrderSortField,
   type SortDir,
 } from '@/lib/queries/adminOrders';
+import { ESCROW_STATUS_LABEL } from '@/lib/queries/escrow';
 import { formatNaira } from '@/lib/format';
-import { orderStatusTone, fulfillmentStageTone, pillClass } from '@/lib/statusColors';
+import { orderStatusTone, fulfillmentStageTone, escrowStatusTone, pillClass } from '@/lib/statusColors';
 import { Badge } from '@/components/ui/badge';
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
@@ -224,6 +225,7 @@ export default async function AdminOrdersPage({
                 {sortableHead('items', 'Items')}
                 {sortableHead('total', 'Total')}
                 {sortableHead('status', 'Payment')}
+                <TableHead>Escrow</TableHead>
                 {sortableHead('stage', 'Fulfillment')}
                 {sortableHead('date', 'Date')}
                 <TableHead className="text-right">Action</TableHead>
@@ -251,6 +253,11 @@ export default async function AdminOrdersPage({
                     <TableCell className="py-3">
                       <Badge variant="outline" className={pillClass(orderStatusTone(order.status))}>
                         {STATUS_LABEL[order.status] ?? order.status}
+                      </Badge>
+                    </TableCell>
+                    <TableCell className="py-3">
+                      <Badge variant="outline" className={pillClass(escrowStatusTone(order.escrowStatus))}>
+                        {ESCROW_STATUS_LABEL[order.escrowStatus]}
                       </Badge>
                     </TableCell>
                     <TableCell className="py-3">

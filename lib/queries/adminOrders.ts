@@ -1,6 +1,7 @@
 import { prisma } from '../prisma';
 import { OrderStatus, Prisma } from '@prisma/client';
 import { ORDER_DETAIL_INCLUDE, toPlainOrder, getOrderTrackingStages } from './orders';
+import { getEscrowStatus } from './escrow';
 
 const PAGE_SIZE = 10;
 
@@ -50,7 +51,7 @@ export async function getOrdersForAdmin({
     const stages = getOrderTrackingStages(order);
     const currentStage = stages.find((s) => s.current)!;
     const total = order.items.reduce((sum, item) => sum + item.priceLocked * item.quantity + item.deliveryCost, 0);
-    return { ...order, total, fulfillmentStage: currentStage.title };
+    return { ...order, total, fulfillmentStage: currentStage.title, escrowStatus: getEscrowStatus(order) };
   });
 
   const sign = dir === 'asc' ? 1 : -1;

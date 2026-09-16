@@ -11,11 +11,14 @@ import {
   ClockIcon,
   EnvelopeSimpleIcon,
   PhoneIcon,
+  LockKeyIcon,
+  SteeringWheelIcon,
 } from '@phosphor-icons/react/ssr';
 import { getOrderById, getOrderTrackingStages } from '@/lib/queries/orders';
+import { getEscrowStatus, ESCROW_STATUS_LABEL } from '@/lib/queries/escrow';
 import { requireBuyer } from '@/lib/buyer/auth';
 import { formatNaira, formatElapsedSince } from '@/lib/format';
-import { orderStatusTone, pillClass } from '@/lib/statusColors';
+import { orderStatusTone, pillClass, escrowStatusTone, dispatchStatusTone } from '@/lib/statusColors';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { MaterialImage } from '@/components/material-image';
@@ -24,6 +27,14 @@ import { OrderActions } from '@/components/order-actions';
 const STATUS_LABEL: Record<string, string> = {
   PENDING_PAYMENT: 'Awaiting payment',
   PAID: 'Paid',
+  CANCELLED: 'Cancelled',
+};
+
+const DISPATCH_LABEL: Record<string, string> = {
+  ASSIGNED: 'Assigned',
+  AT_PICKUP: 'At pickup',
+  IN_TRANSIT: 'In transit',
+  DELIVERED: 'Delivered',
   CANCELLED: 'Cancelled',
 };
 
@@ -41,6 +52,8 @@ export default async function OrderConfirmationPage({ params }: { params: Promis
   const stages = getOrderTrackingStages(order);
   const grnNumber = order.items.flatMap((i) => i.allocations).find((a) => a.grnNumber)?.grnNumber;
   const elapsed = formatElapsedSince(order.createdAt);
+  const escrowStatus = getEscrowStatus(order);
+  const dispatchItems = order.items.filter((item) => item.deliveryCost > 0 && item.dispatch);
 
   return (
     <div className="mx-auto w-full max-w-3xl px-6 py-12">
@@ -54,6 +67,10 @@ export default async function OrderConfirmationPage({ params }: { params: Promis
               <h1 className="text-xl font-bold text-ink">Order confirmed</h1>
               <Badge variant="outline" className={pillClass(orderStatusTone(order.status))}>
                 {STATUS_LABEL[order.status] ?? order.status}
+              </Badge>
+              <Badge variant="outline" className={pillClass(escrowStatusTone(escrowStatus))}>
+                <LockKeyIcon className="size-3" />
+                {ESCROW_STATUS_LABEL[escrowStatus]}
               </Badge>
             </div>
             <p className="mt-1 text-sm text-muted-foreground">
@@ -154,6 +171,35 @@ export default async function OrderConfirmationPage({ params }: { params: Promis
           </div>
         </div>
       </div>
+
+      {dispatchItems.length > 0 && (
+        <div className="mb-8 rounded-lg border border-border bg-surface p-6">
+          <div className="mb-1 flex items-center gap-2">
+            <TruckIcon className="size-4.5 text-slate" />
+            <h2 className="text-sm font-bold text-slate">Delivery tracking</h2>
+          </div>
+          <p className="mb-5 text-xs text-muted-foreground">
+            No live GPS yet — status reflects what our fulfillment team last logged.
+          </p>
+          <div className="divide-y divide-border">
+            {dispatchItems.map((item) => (
+              <div key={item.id} className="flex items-center justify-between gap-4 py-3 text-sm">
+                <div className="min-w-0">
+                  <div className="truncate font-medium text-ink">{item.material.name}</div>
+                  <div className="flex items-center gap-1.5 text-xs text-muted-foreground">
+                    <SteeringWheelIcon className="size-3.5" />
+                    {item.dispatch!.vehicle?.type ?? 'Vehicle to be assigned'}
+                    {item.dispatch!.currentLocation && ` · ${item.dispatch!.currentLocation}`}
+                  </div>
+                </div>
+                <Badge variant="outline" className={pillClass(dispatchStatusTone(item.dispatch!.status))}>
+                  {DISPATCH_LABEL[item.dispatch!.status]}
+                </Badge>
+              </div>
+            ))}
+          </div>
+        </div>
+      )}
 
       <div className="rounded-lg border border-border bg-surface">
         <div className="border-b border-border px-5 py-4">

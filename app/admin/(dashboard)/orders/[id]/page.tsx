@@ -12,13 +12,31 @@ import {
   EnvelopeSimpleIcon,
   PhoneIcon,
   WhatsappLogoIcon,
+  LockKeyIcon,
+  SteeringWheelIcon,
 } from '@phosphor-icons/react/ssr';
 import { getOrderById, getOrderTrackingStages } from '@/lib/queries/orders';
+import { getEscrowStatus, ESCROW_STATUS_LABEL } from '@/lib/queries/escrow';
 import { formatNaira } from '@/lib/format';
-import { orderStatusTone, pillClass } from '@/lib/statusColors';
+import { orderStatusTone, pillClass, payoutStatusTone, escrowStatusTone, dispatchStatusTone } from '@/lib/statusColors';
 import { Badge } from '@/components/ui/badge';
 import { Avatar } from '@/components/avatar';
 import { MaterialImage } from '@/components/material-image';
+
+const PAYOUT_LABEL: Record<string, string> = {
+  PENDING_GRN: 'Awaiting GRN',
+  PROCESSED: 'Cleared for payout',
+  PAID: 'Disbursed',
+  ON_HOLD: 'On hold',
+};
+
+const DISPATCH_LABEL: Record<string, string> = {
+  ASSIGNED: 'Assigned',
+  AT_PICKUP: 'At pickup',
+  IN_TRANSIT: 'In transit',
+  DELIVERED: 'Delivered',
+  CANCELLED: 'Cancelled',
+};
 
 const STATUS_LABEL: Record<string, string> = {
   PENDING_PAYMENT: 'Awaiting payment',
@@ -54,6 +72,9 @@ export default async function AdminOrderDetailPage({ params }: { params: Promise
   const deliveryTotal = order.items.reduce((sum, item) => sum + item.deliveryCost, 0) / (order.items.length || 1);
   const stages = getOrderTrackingStages(order);
   const buyerName = order.buyer.businessName ?? order.buyer.name;
+  const escrowStatus = getEscrowStatus(order);
+  const allAllocations = order.items.flatMap((item) => item.allocations.map((a) => ({ ...a, material: item.material })));
+  const dispatchItems = order.items.filter((item) => item.deliveryCost > 0);
 
   return (
     <div className="mx-auto w-full max-w-4xl px-6 py-10">
@@ -72,10 +93,15 @@ export default async function AdminOrderDetailPage({ params }: { params: Promise
             <Badge variant="outline" className={pillClass(orderStatusTone(order.status))}>
               {STATUS_LABEL[order.status] ?? order.status}
             </Badge>
+            <Badge variant="outline" className={pillClass(escrowStatusTone(escrowStatus))}>
+              <LockKeyIcon className="size-3" />
+              {ESCROW_STATUS_LABEL[escrowStatus]}
+            </Badge>
           </div>
           <div className="mt-1 text-sm text-muted-foreground">
             Placed {order.createdAt.toLocaleString('en-NG', { dateStyle: 'medium', timeStyle: 'short' })} ·{' '}
             {order.region}
+            {order.paymentMethod && ` · ${order.paymentMethod.replace('_', ' ').toLowerCase()}`}
           </div>
         </div>
       </div>
@@ -162,6 +188,82 @@ export default async function AdminOrderDetailPage({ params }: { params: Promise
           </div>
         </div>
       </div>
+
+      <div className="mb-8 rounded-lg border border-border bg-surface p-6">
+        <div className="mb-1 flex items-center gap-2">
+          <LockKeyIcon className="size-4.5 text-slate" />
+          <h2 className="text-sm font-bold text-slate">Escrow ledger</h2>
+        </div>
+        <p className="mb-5 text-xs text-muted-foreground">
+          Buyer funds are held once payment confirms and released per allocation only after that
+          fulfillment center issues a GRN — the same real payout pipeline as{' '}
+          <Link href={`/admin/orders`} className="text-brand hover:underline">
+            every other order
+          </Link>
+          , not a separate ledger.
+        </p>
+        {allAllocations.length === 0 ? (
+          <p className="text-sm text-muted-foreground">
+            No allocation yet — funds are locked but not yet assigned to a seller.
+          </p>
+        ) : (
+          <div className="divide-y divide-border">
+            {allAllocations.map((a, i) => (
+              <div key={i} className="flex items-center justify-between gap-4 py-3 text-sm">
+                <div className="min-w-0">
+                  <div className="truncate font-medium text-ink">{a.material.name}</div>
+                  <div className="text-xs text-muted-foreground">
+                    {a.grnNumber ? `GRN ${a.grnNumber}` : 'Awaiting fulfillment center GRN'}
+                  </div>
+                </div>
+                <Badge variant="outline" className={pillClass(payoutStatusTone(a.payoutStatus))}>
+                  {PAYOUT_LABEL[a.payoutStatus]}
+                </Badge>
+              </div>
+            ))}
+          </div>
+        )}
+      </div>
+
+      {dispatchItems.length > 0 && (
+        <div className="mb-8 rounded-lg border border-border bg-surface p-6">
+          <div className="mb-1 flex items-center gap-2">
+            <TruckIcon className="size-4.5 text-slate" />
+            <h2 className="text-sm font-bold text-slate">Haulage</h2>
+          </div>
+          <p className="mb-5 text-xs text-muted-foreground">
+            Real dispatch assignment and status — no live GPS, so location is what ops last logged
+            manually.
+          </p>
+          <div className="divide-y divide-border">
+            {dispatchItems.map((item) => (
+              <div key={item.id} className="flex items-center justify-between gap-4 py-3 text-sm">
+                <div className="min-w-0">
+                  <div className="truncate font-medium text-ink">{item.material.name}</div>
+                  {item.dispatch ? (
+                    <div className="flex items-center gap-1.5 text-xs text-muted-foreground">
+                      <SteeringWheelIcon className="size-3.5" />
+                      {item.dispatch.vehicle
+                        ? `${item.dispatch.vehicle.type} · ${item.dispatch.vehicle.plateNumber}${
+                            item.dispatch.vehicle.driver ? ` · ${item.dispatch.vehicle.driver.name}` : ''
+                          }`
+                        : 'No vehicle assigned yet'}
+                      {item.dispatch.currentLocation && ` · ${item.dispatch.currentLocation}`}
+                    </div>
+                  ) : (
+                    <div className="text-xs text-muted-foreground">Not yet dispatched</div>
+                  )}
+                </div>
+                {item.dispatch && (
+                  <Badge variant="outline" className={pillClass(dispatchStatusTone(item.dispatch.status))}>
+                    {DISPATCH_LABEL[item.dispatch.status]}
+                  </Badge>
+                )}
+              </div>
+            ))}
+          </div>
+        </div>
+      )}
 
       {order.items[0]?.fulfillmentCenter && (
         <div className="mb-8 flex items-start gap-3 rounded-lg border border-border bg-surface p-5">

@@ -1,4 +1,5 @@
-import { AllocationStatus, BidStatus, CycleStatus, KycStatus, OrderStatus, PayoutStatus } from '@prisma/client';
+import { AllocationStatus, BidStatus, CycleStatus, DispatchStatus, KycStatus, OrderStatus, PayoutStatus } from '@prisma/client';
+import type { EscrowStatus } from './queries/escrow';
 
 // One shared 4-category pill system (success / warning / info / danger),
 // light background + saturated text, never a solid fill — per the
@@ -88,6 +89,33 @@ export function payoutStatusTone(status: PayoutStatus): PillTone {
     case PayoutStatus.PENDING_GRN:
       return 'warning';
     case PayoutStatus.ON_HOLD:
+      return 'danger';
+  }
+}
+
+export function escrowStatusTone(status: EscrowStatus): PillTone {
+  switch (status) {
+    case 'RELEASED':
+      return 'success';
+    case 'PARTIALLY_RELEASED':
+      return 'info';
+    case 'FUNDS_LOCKED':
+      return 'warning';
+    case 'FUNDING_PENDING':
+      return 'neutral';
+  }
+}
+
+export function dispatchStatusTone(status: DispatchStatus): PillTone {
+  switch (status) {
+    case DispatchStatus.DELIVERED:
+      return 'success';
+    case DispatchStatus.IN_TRANSIT:
+      return 'info';
+    case DispatchStatus.ASSIGNED:
+    case DispatchStatus.AT_PICKUP:
+      return 'warning';
+    case DispatchStatus.CANCELLED:
       return 'danger';
   }
 }

@@ -17,8 +17,7 @@ export default async function CheckoutPage() {
       </Link>
       <h1 className="mb-2 text-2xl font-bold tracking-tight text-ink">Checkout</h1>
       <p className="mb-8 text-sm text-muted-foreground">
-        Ordering as {buyer.name} ({buyer.email}) — buyer accounts aren&apos;t built yet, so every
-        checkout uses this demo account for now.
+        Ordering as {buyer.name} ({buyer.email}).
       </p>
       <CheckoutForm buyerId={buyer.id} />
     </div>
