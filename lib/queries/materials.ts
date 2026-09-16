@@ -20,6 +20,7 @@ const BUYER_SAFE_SELECT = {
   dimensions: true,
   weight: true,
   imageUrl: true,
+  images: true,
   catalogPrice: true,
   sourcingScope: true,
 } as const;
@@ -42,6 +43,18 @@ export async function getMaterialById(id: string) {
     select: BUYER_SAFE_SELECT,
   });
   return material ? toPlainMaterial(material) : null;
+}
+
+// Real cross-sell, not a recommendation engine — same category, excluding
+// the material being viewed, newest first.
+export async function getRelatedMaterials(materialId: string, category: string, limit = 4) {
+  const materials = await prisma.material.findMany({
+    where: { category, id: { not: materialId } },
+    select: BUYER_SAFE_SELECT,
+    orderBy: { createdAt: 'desc' },
+    take: limit,
+  });
+  return materials.map(toPlainMaterial);
 }
 
 // Buyer-safe by construction — PriceSnapshot only ever records catalogPrice

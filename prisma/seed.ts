@@ -345,7 +345,9 @@ async function seedMaterials() {
     });
 
     if (!existing) {
-      const row = await prisma.material.create({ data: material });
+      const row = await prisma.material.create({
+        data: { ...material, images: material.imageUrl ? [material.imageUrl] : [] },
+      });
       await prisma.priceSnapshot.create({
         data: { materialId: row.id, price: row.catalogPrice, recordedAt: row.createdAt },
       });
@@ -360,7 +362,18 @@ async function seedMaterials() {
         where: { id: existing.id },
         data: { imageUrl: material.imageUrl },
       });
+      existing.imageUrl = material.imageUrl;
       imagesPatched++;
+    }
+
+    // Room for a real gallery (2026-09-16) — `images` only ever gets the
+    // one real photo this row already has, duplicated as a single entry.
+    // Never invents additional angles/photos that don't exist.
+    if (existing.images.length === 0 && existing.imageUrl) {
+      await prisma.material.update({
+        where: { id: existing.id },
+        data: { images: [existing.imageUrl] },
+      });
     }
 
     // Backfill the structured spec grid (grade/standard/dimensions/weight)

@@ -417,6 +417,20 @@ The user shared a Google Store navbar for review first ("do not commit, give opi
 
 Verified live at mobile (375px), tablet-ish (1280px desktop nav), and against the checkout page's sticky dark summary panel (which now clears the shorter effective header height with no overlap). Mobile menu (hamburger sheet) unaffected. `npm run lint` and `tsc --noEmit` clean.
 
+### Product detail page: gallery, inline Description/Details, related products (2026-09-16, later same day)
+
+User asked for three PDP additions: a product gallery, a Description/Details section, and suggested/related products. Two were straightforward with data already on hand; the gallery needed a real decision first (Material only ever stored one `imageUrl`) — asked, and the answer was "add zoom on the current image, and make schema room for a real gallery for later."
+
+**Schema**: added `Material.images String[] @default([])` (migration `20260916065909_add_material_images_gallery`) alongside the existing `imageUrl` (kept as the fallback everywhere else — catalog cards, cart, order items, seller/admin views — since those only ever need one thumbnail). `seedMaterials()` backfills `images` as `[imageUrl]` for every material that has a real photo, `[]` for the ones that don't (Roofing) — never invents a second angle. Every material today has at most one real entry in `images`; the field exists so a future real upload doesn't need another migration.
+
+**New `components/product-gallery.tsx`** — real gallery mechanics (active-image state, a thumbnail strip) gated on `images.length > 1`, which is honestly always false right now, plus a genuinely new, real feature regardless of image count: click-to-zoom into a lightbox (`Dialog`). Falls back to the existing placeholder icon when a material has no photo at all, with the zoom affordance correctly disabled in that case.
+
+**Description/Details moved out of the modal onto the page** — `product-detail-panel.tsx`'s "Technical specs" `Dialog` is gone; "Description" (the real free-text `spec`) and "Details" (the real Grade/Standard/Dimensions/Weight grid) are now inline sections on the page itself, alongside price history/serving hubs/price alert (also promoted from the modal). This matches how every mainstream PDP actually works — specs aren't usually modal-gated — and removes a click most buyers shouldn't have needed in the first place. Both sections only render when there's real content (`material.spec` / any non-null spec field), never an empty "Description" heading over nothing.
+
+**New `getRelatedMaterials()`** (`lib/queries/materials.ts`) — real cross-sell, not a recommendation engine: same category, excluding the material being viewed, newest first, limit 4. Rendered via the existing `MaterialCard` (so related items get real Add-to-cart, not a static teaser) under a "More from {category}" heading, catalog/[id]/page.tsx, shown only when at least one related material exists.
+
+Verified live: gallery zoom opens/closes correctly on a material with a real photo and is correctly disabled (no zoom button) on one without; Description/Details/price-history/serving-hubs/price-alert all render inline with no modal; "More from Cement" shows 3 real related materials with working Add buttons; homepage and account pages (which also use `BuyerMaterial`/`MaterialCard`) unaffected by the new `images` field. `npm run lint` and `tsc --noEmit` clean.
+
 ## Bidding Engine Design
 
 - **Weighted award scoring**, not simple lowest-price-wins: Price 40%, seller reliability/trust score 25%, capacity fit 20%, delivery speed 15%.

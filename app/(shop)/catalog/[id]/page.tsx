@@ -1,18 +1,25 @@
 import { notFound } from 'next/navigation';
 import Link from 'next/link';
 import { CaretRightIcon } from '@phosphor-icons/react/ssr';
-import { getFulfillmentCenters, getMaterialById, getPriceHistory } from '@/lib/queries/materials';
-import { MaterialImage } from '@/components/material-image';
+import {
+  getFulfillmentCenters,
+  getMaterialById,
+  getPriceHistory,
+  getRelatedMaterials,
+} from '@/lib/queries/materials';
+import { ProductGallery } from '@/components/product-gallery';
 import { ProductDetailPanel } from '@/components/product-detail-panel';
+import { MaterialCard } from '@/components/material-card';
 
 export default async function MaterialPage({ params }: { params: Promise<{ id: string }> }) {
   const { id } = await params;
   const material = await getMaterialById(id);
   if (!material) notFound();
 
-  const [priceHistory, fulfillmentCenters] = await Promise.all([
+  const [priceHistory, fulfillmentCenters, related] = await Promise.all([
     getPriceHistory(id),
     getFulfillmentCenters(),
+    getRelatedMaterials(id, material.category),
   ]);
 
   return (
@@ -30,15 +37,20 @@ export default async function MaterialPage({ params }: { params: Promise<{ id: s
       </nav>
 
       <div className="grid grid-cols-1 gap-16 lg:grid-cols-2">
-        <MaterialImage
-          imageUrl={material.imageUrl}
-          category={material.category}
-          alt={material.name}
-          className="aspect-square w-full"
-          sizes="(max-width: 1024px) 100vw, 50vw"
-        />
+        <ProductGallery images={material.images} category={material.category} alt={material.name} />
         <ProductDetailPanel material={material} priceHistory={priceHistory} fulfillmentCenters={fulfillmentCenters} />
       </div>
+
+      {related.length > 0 && (
+        <div className="mt-16 border-t border-border pt-10">
+          <h2 className="mb-6 text-lg font-bold tracking-tight text-ink">More from {material.category}</h2>
+          <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-4">
+            {related.map((item) => (
+              <MaterialCard key={item.id} material={item} />
+            ))}
+          </div>
+        </div>
+      )}
     </div>
   );
 }
