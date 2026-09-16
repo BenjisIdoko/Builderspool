@@ -7,14 +7,31 @@ import {
   CheckCircleIcon,
   IdentificationCardIcon,
   WarningIcon,
+  SealCheckIcon,
+  ChartLineUpIcon,
+  ArrowRightIcon,
 } from '@phosphor-icons/react/ssr';
 import { getSellerIdFromSession } from '@/lib/seller/session';
 import { getSellerProfile, getOpenCyclesForSeller, getSellerBids, getSellerAllocations } from '@/lib/queries/sellerPortal';
 import { formatNaira } from '@/lib/format';
 import { pillClass, payoutStatusTone } from '@/lib/statusColors';
 import { BidDialog } from '@/components/seller/bid-dialog';
+import { KpiCard } from '@/components/kpi-card';
 import { Badge } from '@/components/ui/badge';
-import { MaterialImage } from '@/components/material-image';
+import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
+
+const PAYOUT_LABEL: Record<string, string> = {
+  PENDING_GRN: 'Awaiting GRN',
+  PROCESSED: 'Cleared',
+  PAID: 'Paid',
+  ON_HOLD: 'On hold',
+};
+
+const QUICK_ACTIONS = [
+  { href: '/seller', label: 'View open demand pools' },
+  { href: '/seller/bids', label: 'Review my bids' },
+  { href: '/seller/allocations', label: 'View payout schedule' },
+];
 
 export default async function SellerDashboardPage() {
   const sellerId = (await getSellerIdFromSession())!;
@@ -40,45 +57,61 @@ export default async function SellerDashboardPage() {
   const kpiCards = [
     {
       label: 'Open demand pools',
-      value: cycles.length,
+      value: String(cycles.length),
       icon: StackIcon,
-      chip: { text: `${cycles.filter((c) => c.myBid).length} bid on`, tone: 'info' as const },
+      tone: 'info' as const,
+      chip: `${cycles.filter((c) => c.myBid).length} bid on`,
     },
     {
       label: 'Closing today',
-      value: closingToday,
+      value: String(closingToday),
       icon: AlarmIcon,
-      chip:
-        closingToday > 0
-          ? { text: 'Urgent', tone: 'danger' as const }
-          : { text: 'None today', tone: 'success' as const },
+      tone: closingToday > 0 ? ('danger' as const) : ('success' as const),
+      chip: closingToday > 0 ? 'Urgent' : 'None today',
     },
     {
       label: 'Bids submitted',
-      value: bids.length,
+      value: String(bids.length),
       icon: ClockIcon,
-      chip: { text: `${openBids} still open`, tone: 'info' as const },
+      tone: 'info' as const,
+      chip: `${openBids} still open`,
     },
     {
       label: 'Awarded',
-      value: allocations.length,
+      value: String(allocations.length),
       icon: TrophyIcon,
-      chip:
-        pendingPayouts > 0
-          ? { text: `${pendingPayouts} pending payout`, tone: 'warning' as const }
-          : { text: 'All paid out', tone: 'success' as const },
+      tone: pendingPayouts > 0 ? ('warning' as const) : ('success' as const),
+      chip: pendingPayouts > 0 ? `${pendingPayouts} pending payout` : 'All paid out',
     },
   ];
 
   return (
     <div className="mx-auto w-full max-w-6xl px-6 py-12">
-      <div className="mb-1 text-xs text-muted-foreground">Seller portal</div>
-      <h1 className="mb-1 text-xl font-bold tracking-tight text-ink">
-        Welcome back, {profile!.user.businessName ?? profile!.user.name}
+      <div className="mb-2.5 flex flex-wrap items-center gap-2">
+        {profile!.kycStatus === 'APPROVED' ? (
+          <Badge variant="outline" className={pillClass('success')}>
+            <SealCheckIcon weight="fill" className="size-3" />
+            KYC verified
+          </Badge>
+        ) : (
+          <Link href="/seller/kyc">
+            <Badge
+              variant="outline"
+              className={pillClass(profile!.kycStatus === 'PENDING' ? 'warning' : 'neutral')}
+            >
+              {profile!.kycStatus === 'PENDING' ? 'KYC pending review' : 'KYC not started'}
+            </Badge>
+          </Link>
+        )}
+        <Badge variant="outline" className={pillClass('info')}>
+          <ChartLineUpIcon weight="fill" className="size-3" />
+          Trust score {profile!.trustScore}
+        </Badge>
+      </div>
+      <h1 className="mb-1 text-2xl font-bold tracking-tight text-ink">
+        {profile!.user.businessName ?? profile!.user.name}
       </h1>
-      <p className="mb-6 text-sm text-muted-foreground">
-        Trust score {profile!.trustScore} · Serving {profile!.regionsServed.join(', ')}
-      </p>
+      <p className="mb-7 text-sm text-muted-foreground">Serving {profile!.regionsServed.join(', ')}</p>
 
       {profile!.kycStatus !== 'APPROVED' && (
         <Link
@@ -105,19 +138,80 @@ export default async function SellerDashboardPage() {
         </Link>
       )}
 
-      <div className="mb-10 grid grid-cols-2 gap-4 lg:grid-cols-4">
+      <div className="mb-8 grid grid-cols-2 gap-3.5 lg:grid-cols-4">
         {kpiCards.map((kpi) => (
-          <div key={kpi.label} className="rounded-lg border border-border bg-surface p-5">
-            <div className={`mb-4 flex size-9 items-center justify-center rounded-lg ${pillClass(kpi.chip.tone)}`}>
-              <kpi.icon className="size-4.5" />
-            </div>
-            <div className="mb-1.5 text-[11.5px] text-muted-foreground">{kpi.label}</div>
-            <div className="mb-2.5 text-xl font-semibold text-ink">{kpi.value}</div>
-            <Badge variant="outline" className={pillClass(kpi.chip.tone)}>
-              {kpi.chip.text}
-            </Badge>
-          </div>
+          <KpiCard key={kpi.label} {...kpi} />
         ))}
+      </div>
+
+      <div className="mb-14 grid grid-cols-1 gap-5 lg:grid-cols-[1fr_280px] lg:items-start">
+        <div>
+          <div className="mb-3 flex items-baseline justify-between">
+            <h2 className="text-xs font-bold tracking-wide text-slate uppercase">Real-time order stream</h2>
+            <Link href="/seller/allocations" className="text-sm font-semibold text-brand hover:underline">
+              View all →
+            </Link>
+          </div>
+          {allocations.length === 0 ? (
+            <div className="rounded-2xl border border-border bg-surface px-6 py-14 text-center shadow-[0_1px_2px_rgba(16,24,40,0.04),0_8px_24px_rgba(16,24,40,0.05)]">
+              <p className="text-sm text-muted-foreground">Nothing awarded to you yet.</p>
+            </div>
+          ) : (
+            <div className="overflow-hidden rounded-2xl border border-border bg-surface shadow-[0_1px_2px_rgba(16,24,40,0.04),0_8px_24px_rgba(16,24,40,0.05)]">
+              <Table>
+                <TableHeader>
+                  <TableRow>
+                    <TableHead>Requisition</TableHead>
+                    <TableHead>Material</TableHead>
+                    <TableHead className="text-right">Escrow amount</TableHead>
+                    <TableHead>Status</TableHead>
+                  </TableRow>
+                </TableHeader>
+                <TableBody>
+                  {allocations.slice(0, 6).map((a) => (
+                    <TableRow key={a.id}>
+                      <TableCell className="py-3 font-semibold text-ink" title={a.id}>
+                        #{a.id.slice(-6).toUpperCase()}
+                      </TableCell>
+                      <TableCell className="py-3 text-ink">
+                        <div className="max-w-40 truncate">{a.bid.material.name}</div>
+                        <div className="text-xs text-muted-foreground">
+                          {a.quantityFilled} {a.bid.material.unit}
+                        </div>
+                      </TableCell>
+                      <TableCell className="py-3 text-right font-bold tabular-nums text-ink">
+                        {formatNaira(Number(a.bid.unitPrice) * a.quantityFilled)}
+                      </TableCell>
+                      <TableCell className="py-3">
+                        <Badge variant="outline" className={pillClass(payoutStatusTone(a.payoutStatus))}>
+                          {PAYOUT_LABEL[a.payoutStatus]}
+                        </Badge>
+                      </TableCell>
+                    </TableRow>
+                  ))}
+                </TableBody>
+              </Table>
+            </div>
+          )}
+        </div>
+
+        <div className="rounded-2xl border border-border bg-surface p-4.5 shadow-[0_1px_2px_rgba(16,24,40,0.04)]">
+          <div className="mb-3 text-xs font-bold tracking-wide text-slate uppercase">Quick actions</div>
+          <div className="flex flex-col">
+            {QUICK_ACTIONS.map((action, i) => (
+              <Link
+                key={action.href}
+                href={action.href}
+                className={`flex items-center justify-between gap-2 py-2.5 text-sm font-medium text-ink hover:text-brand ${
+                  i < QUICK_ACTIONS.length - 1 ? 'border-b border-border' : ''
+                }`}
+              >
+                {action.label}
+                <ArrowRightIcon className="size-3.5 text-muted-foreground" />
+              </Link>
+            ))}
+          </div>
+        </div>
       </div>
 
       <h2 className="mb-1 text-xl font-bold tracking-tight text-ink">Open demand pools</h2>
@@ -175,38 +269,6 @@ export default async function SellerDashboardPage() {
               </div>
             </div>
           ))}
-        </div>
-      )}
-
-      {allocations.length > 0 && (
-        <div className="mt-14">
-          <div className="mb-4 flex items-baseline justify-between">
-            <h2 className="text-xl font-bold tracking-tight text-ink">Recent allocations</h2>
-            <Link href="/seller/allocations" className="text-sm font-medium text-brand hover:underline">
-              View all →
-            </Link>
-          </div>
-          <div className="divide-y divide-border rounded-lg border border-border bg-surface">
-            {allocations.slice(0, 5).map((allocation) => (
-              <div key={allocation.id} className="flex items-center gap-3 p-4">
-                <MaterialImage
-                  imageUrl={allocation.bid.material.imageUrl}
-                  category={allocation.bid.material.category}
-                  alt={allocation.bid.material.name}
-                  className="size-10 shrink-0 rounded-md border border-border"
-                />
-                <div className="min-w-0 flex-1">
-                  <div className="truncate font-medium text-ink">{allocation.bid.material.name}</div>
-                  <div className="text-xs text-muted-foreground">
-                    {allocation.quantityFilled} {allocation.bid.material.unit}
-                  </div>
-                </div>
-                <Badge variant="outline" className={pillClass(payoutStatusTone(allocation.payoutStatus))}>
-                  {allocation.payoutStatus.replace('_', ' ').toLowerCase()}
-                </Badge>
-              </div>
-            ))}
-          </div>
         </div>
       )}
     </div>

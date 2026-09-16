@@ -5,10 +5,12 @@ import { MagnifyingGlassPlusIcon } from '@phosphor-icons/react/ssr';
 import { MaterialImage } from '@/components/material-image';
 import { Dialog, DialogContent } from '@/components/ui/dialog';
 
-// Every material has at most one real photo today (see prisma/seed.ts) —
-// this renders correctly for that case, but the thumbnail strip and active-
-// image state are already real gallery mechanics, not a placeholder,
-// so nothing here needs rebuilding once materials carry more than one image.
+// Every material has at most one real photo today (see prisma/seed.ts). The
+// thumbnail strip always shows 4 slots — real photos first, then
+// MaterialImage's existing category-icon placeholder (not a broken image or
+// fake stock photo) for any slot we don't have a real photo for — so the
+// gallery layout matches the reference instead of disappearing when a
+// material has fewer than 2 real photos, which is the common case today.
 export function ProductGallery({
   images,
   category,
@@ -21,6 +23,7 @@ export function ProductGallery({
   const [activeIndex, setActiveIndex] = useState(0);
   const [zoomOpen, setZoomOpen] = useState(false);
   const activeImage = images[activeIndex] ?? null;
+  const slots = Array.from({ length: Math.max(images.length, 4) }, (_, i) => images[i] ?? null);
 
   return (
     <div>
@@ -38,22 +41,21 @@ export function ProductGallery({
         )}
       </button>
 
-      {images.length > 1 && (
-        <div className="mt-3 grid grid-cols-4 gap-2.5">
-          {images.map((img, i) => (
-            <button
-              key={img + i}
-              type="button"
-              onClick={() => setActiveIndex(i)}
-              className={`overflow-hidden rounded-lg border-2 ${
-                i === activeIndex ? 'border-brand' : 'border-border'
-              }`}
-            >
-              <MaterialImage imageUrl={img} category={category} alt={`${alt} photo ${i + 1}`} className="aspect-square w-full" />
-            </button>
-          ))}
-        </div>
-      )}
+      <div className="mt-3 grid grid-cols-4 gap-2.5">
+        {slots.map((img, i) => (
+          <button
+            key={i}
+            type="button"
+            onClick={() => img && setActiveIndex(i)}
+            disabled={!img}
+            className={`overflow-hidden rounded-lg border-2 ${
+              img && i === activeIndex ? 'border-brand' : 'border-border'
+            } ${!img ? 'cursor-default' : ''}`}
+          >
+            <MaterialImage imageUrl={img} category={category} alt={`${alt} photo ${i + 1}`} className="aspect-square w-full" />
+          </button>
+        ))}
+      </div>
 
       <Dialog open={zoomOpen} onOpenChange={setZoomOpen}>
         <DialogContent className="border-none bg-transparent p-0 shadow-none sm:max-w-3xl">

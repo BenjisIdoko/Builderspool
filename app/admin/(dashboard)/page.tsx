@@ -16,6 +16,7 @@ import { formatNaira } from '@/lib/format';
 import { orderStatusTone, cycleStatusTone, pillClass } from '@/lib/statusColors';
 import { Badge } from '@/components/ui/badge';
 import { Avatar } from '@/components/avatar';
+import { KpiCard } from '@/components/kpi-card';
 import { CyclesTable } from '@/components/admin/cycles-table';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 
@@ -51,34 +52,36 @@ export default async function AdminDashboardPage() {
       label: 'Platform GMV',
       value: formatNaira(kpis.platformGmv),
       icon: CurrencyNgnIcon,
-      chip: { text: 'All-time', tone: 'info' as const },
+      tone: 'info' as const,
+      chip: 'All-time',
     },
     {
       label: 'Builders Pool margin',
       value: formatNaira(kpis.margin),
       icon: TrendUpIcon,
-      chip: { text: `${marginPct.toFixed(1)}% of GMV`, tone: 'success' as const },
+      tone: 'success' as const,
+      chip: `${marginPct.toFixed(1)}% of GMV`,
     },
     {
       label: 'Active demand pools',
       value: `${kpis.activeDemandPools} open`,
       icon: ClockIcon,
-      chip: { text: 'Live count', tone: 'info' as const },
+      tone: 'info' as const,
+      chip: 'Live count',
     },
     {
       label: 'Material volume',
       value: `${kpis.materialVolume} units`,
       icon: PackageIcon,
-      chip: { text: 'All-time', tone: 'info' as const },
+      tone: 'info' as const,
+      chip: 'All-time',
     },
     {
       label: 'Pending hub GRNs',
       value: `${kpis.pendingGrnCount} arriving`,
       icon: ClipboardTextIcon,
-      chip:
-        kpis.pendingGrnCount > 0
-          ? { text: 'Needs receipt', tone: 'warning' as const }
-          : { text: 'All clear', tone: 'success' as const },
+      tone: kpis.pendingGrnCount > 0 ? ('warning' as const) : ('success' as const),
+      chip: kpis.pendingGrnCount > 0 ? 'Needs receipt' : 'All clear',
     },
   ];
 
@@ -101,16 +104,7 @@ export default async function AdminDashboardPage() {
 
       <div className="mb-14 grid grid-cols-2 gap-4 sm:grid-cols-5">
         {kpiCards.map((kpi) => (
-          <div key={kpi.label} className="overflow-hidden rounded-lg border border-border bg-surface p-5">
-            <div className={`mb-4 flex size-9 items-center justify-center rounded-lg ${pillClass(kpi.chip.tone)}`}>
-              <kpi.icon className="size-4.5" />
-            </div>
-            <div className="mb-1.5 text-[11.5px] text-muted-foreground">{kpi.label}</div>
-            <div className="mb-2.5 truncate text-xl font-semibold text-ink">{kpi.value}</div>
-            <Badge variant="outline" className={pillClass(kpi.chip.tone)}>
-              {kpi.chip.text}
-            </Badge>
-          </div>
+          <KpiCard key={kpi.label} {...kpi} />
         ))}
       </div>
 

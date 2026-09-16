@@ -15,8 +15,8 @@ import {
   getMaterialKpis,
 } from '@/lib/queries/adminMaterials';
 import { formatNaira } from '@/lib/format';
-import { pillClass } from '@/lib/statusColors';
 import { Badge } from '@/components/ui/badge';
+import { KpiCard } from '@/components/kpi-card';
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
@@ -75,16 +75,7 @@ export default async function AdminMaterialsPage({
 
       <div className="mb-8 grid grid-cols-2 gap-4 lg:grid-cols-4">
         {kpiCards.map((kpi) => (
-          <div key={kpi.label} className="overflow-hidden rounded-lg border border-border bg-surface p-4">
-            <div className={`mb-3 flex size-8 items-center justify-center rounded-lg ${pillClass(kpi.tone)}`}>
-              <kpi.icon className="size-4" />
-            </div>
-            <div className="mb-1 text-[11px] text-muted-foreground">{kpi.label}</div>
-            <div className="mb-2 truncate text-lg font-semibold text-ink">{kpi.value}</div>
-            <Badge variant="outline" className={pillClass(kpi.tone)}>
-              {kpi.chip}
-            </Badge>
-          </div>
+          <KpiCard key={kpi.label} {...kpi} size="compact" />
         ))}
       </div>
 

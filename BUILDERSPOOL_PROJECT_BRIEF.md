@@ -671,6 +671,18 @@ Deliberately **not** adopted in this pass, still fabricated/out of scope: the re
 
 `npx tsc --noEmit` and `npm run lint` clean after every file. Live-verified each fix against a locally-served render of the actual `.dc.html` files (not just reading the markup) — radio buttons, filled quantity buttons, the buy-box split, and the white checkout card all confirmed via screenshot/DOM inspection, not assumed.
 
+### Seller dashboard rebuilt against the real Fable reference; shared `KpiCard` extracted (2026-09-16, later still)
+
+User: "check the seller dashboard too" — same measure-against-the-real-markup discipline as the buttons/catalog/quantity-input/checkout/PDP pass, applied to `app/seller/(dashboard)/page.tsx`. Rebuilt to match `SellerDashboard.dc.html`: a real verification-badge row (KYC status badge, linking to `/seller/kyc` when not yet approved; real trust-score badge) above the H1, a 4-card KPI row, a two-column "Real-time order stream" table (Requisition/Material/Escrow amount/Status — no buyer identity, consistent with blind bidding applying in both directions) plus a "Quick actions" card, with the existing "Open demand pools" bidding section unchanged below.
+
+Doing this surfaced that the reference's subtle KPI-card shadow (`shadow-[0_1px_2px_rgba(16,24,40,0.04),0_8px_24px_rgba(16,24,40,0.05)]`) isn't scoped to buyer marketing surfaces the way the previous pass's `DESIGN.md` note claimed — it's the same treatment on admin/seller KPI cards too. Rather than re-copy the same markup a fifth time, extracted a shared `components/kpi-card.tsx` and swapped it into all five pages that had near-identical KPI-card blocks: the new seller dashboard, and admin's dashboard/orders/materials/catalogue-reference pages (`size="compact"` for the four list-style admin pages, default size for the two full dashboards). `DESIGN.md`'s shadow-exception note needs a follow-up correction to reflect the broader real scope — noted, not yet done.
+
+Also fixed a live user-flagged gap on the PDP: the gallery's thumbnail strip only rendered when a material had 2+ real photos (`images.length > 1`), so with today's real data (materials have 0 or 1 photo) it never showed at all. `components/product-gallery.tsx` now always renders a 4-slot strip, padding with `MaterialImage`'s existing category-icon placeholder (not a broken image or fabricated stock photo) for any slot without a real photo — placeholder slots are visually present but inert (disabled, no active-border state), matching the reference's 4-thumbnail layout without inventing photos that don't exist.
+
+One real TS fix along the way: the new order-stream table computed `a.bid.unitPrice * a.quantityFilled` — `unitPrice` is a Prisma `Decimal`, not a plain number — fixed with `Number(a.bid.unitPrice) * a.quantityFilled`. Two dead `pillClass` imports removed from the admin materials/catalogue-reference pages once their inline KPI markup was replaced by `KpiCard`.
+
+`npx tsc --noEmit` and `npm run lint` clean. Live-verified: seller dashboard (screenshot — KPI shadow/radius, order-stream table, quick actions all correct), all four admin pages (screenshot each — KpiCard swap didn't break any layout), and the PDP gallery (screenshot — real photo highlighted + 3 inert placeholder thumbnails, clicking a placeholder is a no-op).
+
 ## Bidding Engine Design
 
 - **Weighted award scoring**, not simple lowest-price-wins: Price 40%, seller reliability/trust score 25%, capacity fit 20%, delivery speed 15%.

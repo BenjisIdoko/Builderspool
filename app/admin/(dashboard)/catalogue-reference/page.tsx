@@ -3,7 +3,7 @@ import { getReferenceCategories, getReferenceProducts, getReferenceStats } from 
 import { CatalogueFilterBar } from '@/components/admin/catalogue-filter-bar';
 import { ReferenceProductActions } from '@/components/admin/reference-product-actions';
 import { Badge } from '@/components/ui/badge';
-import { pillClass } from '@/lib/statusColors';
+import { KpiCard } from '@/components/kpi-card';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 
 export default async function CatalogueReferencePage({
@@ -42,16 +42,7 @@ export default async function CatalogueReferencePage({
 
       <div className="mb-8 grid grid-cols-1 gap-4 sm:grid-cols-3">
         {kpiCards.map((kpi) => (
-          <div key={kpi.label} className="overflow-hidden rounded-lg border border-border bg-surface p-4">
-            <div className={`mb-3 flex size-8 items-center justify-center rounded-lg ${pillClass(kpi.tone)}`}>
-              <kpi.icon className="size-4" />
-            </div>
-            <div className="mb-1 text-[11px] text-muted-foreground">{kpi.label}</div>
-            <div className="mb-2 truncate text-lg font-semibold text-ink">{kpi.value}</div>
-            <Badge variant="outline" className={pillClass(kpi.tone)}>
-              {kpi.chip}
-            </Badge>
-          </div>
+          <KpiCard key={kpi.label} {...kpi} size="compact" />
         ))}
       </div>
 

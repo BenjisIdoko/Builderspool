@@ -27,6 +27,7 @@ import { Badge } from '@/components/ui/badge';
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
 import { Avatar } from '@/components/avatar';
+import { KpiCard } from '@/components/kpi-card';
 import { OrderRowActions } from '@/components/admin/order-row-actions';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 
@@ -158,16 +159,7 @@ export default async function AdminOrdersPage({
       <h2 className="mb-3 text-xs font-bold tracking-wide text-slate uppercase">Quick stats</h2>
       <div className="mb-10 grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-5">
         {kpiCards.map((kpi) => (
-          <div key={kpi.label} className="overflow-hidden rounded-lg border border-border bg-surface p-4">
-            <div className={`mb-3 flex size-8 items-center justify-center rounded-lg ${pillClass(kpi.tone)}`}>
-              <kpi.icon className="size-4" />
-            </div>
-            <div className="mb-1 text-[11px] text-muted-foreground">{kpi.label}</div>
-            <div className="mb-2 truncate text-lg font-semibold text-ink">{kpi.value}</div>
-            <Badge variant="outline" className={pillClass(kpi.tone)}>
-              {kpi.chip}
-            </Badge>
-          </div>
+          <KpiCard key={kpi.label} {...kpi} size="compact" />
         ))}
       </div>
 
