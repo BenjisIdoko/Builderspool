@@ -135,8 +135,8 @@ export function CheckoutForm({ buyerId }: { buyerId: string }) {
         )}
       </div>
 
-      <div className="h-fit rounded-lg bg-ink p-5 text-white lg:sticky lg:top-24">
-        <div className="mb-5 rounded-lg bg-gradient-to-br from-brand via-brand-deep to-brand-warm p-4">
+      <div className="h-fit rounded-2xl border border-border bg-surface p-6 shadow-[0_1px_2px_rgba(16,24,40,0.04),0_16px_40px_rgba(16,24,40,0.08)] lg:sticky lg:top-24">
+        <div className="mb-5 rounded-lg bg-gradient-to-br from-brand via-brand-deep to-brand-warm p-4 text-white">
           <div className="flex items-center gap-2 text-xs font-medium text-white/80">
             {fulfillmentMethod === 'DELIVERY' ? (
               <TruckIcon className="size-4" />
@@ -150,11 +150,11 @@ export function CheckoutForm({ buyerId }: { buyerId: string }) {
           </div>
         </div>
 
-        <div className="mb-5 text-2xl font-bold">
+        <div className="mb-5 text-xl font-bold text-ink">
           {lines.length} {lines.length === 1 ? 'item' : 'items'}
         </div>
 
-        <h2 className="mb-3 text-xs font-bold tracking-wide text-white/50 uppercase">Shipping method</h2>
+        <h2 className="mb-3 text-xs font-bold tracking-wide text-muted-foreground uppercase">Shipping method</h2>
         <div className="mb-5 flex flex-col gap-2">
           {FULFILLMENT_OPTIONS.map(({ method, label }) => {
             const cost = getDeliveryCost(region, method);
@@ -165,24 +165,24 @@ export function CheckoutForm({ buyerId }: { buyerId: string }) {
                 type="button"
                 onClick={() => setFulfillmentMethod(method)}
                 className={`flex items-center justify-between gap-3 rounded-lg border p-3 text-left text-sm transition-colors ${
-                  selected ? 'border-brand bg-white/5' : 'border-white/10 hover:border-white/20'
+                  selected ? 'border-brand bg-info-soft' : 'border-border hover:border-border-strong'
                 }`}
               >
                 <span className="flex items-center gap-2.5">
                   {selected ? (
                     <CheckCircleIcon weight="fill" className="size-4.5 shrink-0 text-brand" />
                   ) : (
-                    <CircleIcon className="size-4.5 shrink-0 text-white/30" />
+                    <CircleIcon className="size-4.5 shrink-0 text-muted-foreground" />
                   )}
-                  <span className="font-semibold">{label}</span>
+                  <span className="font-semibold text-ink">{label}</span>
                 </span>
-                <span className="tabular-nums text-white/70">{cost === 0 ? 'Free' : formatNaira(cost)}</span>
+                <span className="tabular-nums text-slate">{cost === 0 ? 'Free' : formatNaira(cost)}</span>
               </button>
             );
           })}
         </div>
 
-        <h2 className="mb-3 text-xs font-bold tracking-wide text-white/50 uppercase">Payment method</h2>
+        <h2 className="mb-3 text-xs font-bold tracking-wide text-muted-foreground uppercase">Escrow funding channel</h2>
         <div className="mb-5 flex flex-col gap-2">
           {PAYMENT_OPTIONS.map(({ method, label, icon: Icon }) => {
             const selected = paymentMethod === method;
@@ -192,22 +192,22 @@ export function CheckoutForm({ buyerId }: { buyerId: string }) {
                 type="button"
                 onClick={() => setPaymentMethod(method)}
                 className={`flex items-center gap-2.5 rounded-lg border p-3 text-left text-sm transition-colors ${
-                  selected ? 'border-brand bg-white/5' : 'border-white/10 hover:border-white/20'
+                  selected ? 'border-brand bg-info-soft' : 'border-border hover:border-border-strong'
                 }`}
               >
                 {selected ? (
                   <CheckCircleIcon weight="fill" className="size-4.5 shrink-0 text-brand" />
                 ) : (
-                  <CircleIcon className="size-4.5 shrink-0 text-white/30" />
+                  <CircleIcon className="size-4.5 shrink-0 text-muted-foreground" />
                 )}
-                <Icon className="size-4 shrink-0 text-white/60" />
-                <span className="font-semibold">{label}</span>
+                <Icon className="size-4 shrink-0 text-slate" />
+                <span className="font-semibold text-ink">{label}</span>
               </button>
             );
           })}
         </div>
 
-        <div className="mb-5 flex items-start gap-2 rounded-lg bg-white/5 p-3 text-xs text-white/60">
+        <div className="mb-5 flex items-start gap-2 rounded-lg bg-success-soft p-3 text-xs text-success">
           <LockKeyIcon className="mt-0.5 size-4 shrink-0" />
           <span>
             Funds are held by Builders Pool once payment confirms, and released to the fulfilling
@@ -215,23 +215,23 @@ export function CheckoutForm({ buyerId }: { buyerId: string }) {
           </span>
         </div>
 
-        <div className="flex flex-col gap-1.5 border-t border-white/10 pt-4 text-sm">
-          <div className="flex justify-between text-white/60">
-            <span>Subtotal</span>
-            <span className="tabular-nums">{formatNaira(subtotal)}</span>
+        <div className="flex flex-col gap-1.5 border-t border-border pt-4 text-sm">
+          <div className="flex justify-between text-slate">
+            <span>Materials subtotal</span>
+            <span className="tabular-nums font-bold text-ink">{formatNaira(subtotal)}</span>
           </div>
-          <div className="flex justify-between text-white/60">
-            <span>Delivery</span>
-            <span className="tabular-nums">{deliveryCost === 0 ? 'Free' : formatNaira(deliveryCost)}</span>
+          <div className="flex justify-between text-slate">
+            <span>Haulage &amp; logistics</span>
+            <span className="tabular-nums font-bold text-ink">{deliveryCost === 0 ? 'Free' : formatNaira(deliveryCost)}</span>
           </div>
-          <div className="flex justify-between border-t border-white/10 pt-2.5 text-base font-bold">
-            <span>Total</span>
+          <div className="flex justify-between border-t border-border pt-2.5 text-base font-bold text-ink">
+            <span>Total escrow requisition</span>
             <span className="tabular-nums">{formatNaira(total)}</span>
           </div>
         </div>
 
         <Button type="submit" size="lg" className="mt-5 w-full" disabled={state.status === 'submitting'}>
-          {state.status === 'submitting' ? 'Placing order…' : 'Place order →'}
+          {state.status === 'submitting' ? 'Placing order…' : `Fund escrow & dispatch — ${formatNaira(total)}`}
         </Button>
       </div>
     </form>

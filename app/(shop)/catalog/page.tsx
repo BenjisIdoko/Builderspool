@@ -67,25 +67,20 @@ export default async function CatalogPage({
         <aside className="flex flex-col gap-8">
           <div>
             <h2 className="mb-3 text-xs font-bold tracking-wide text-slate uppercase">Category</h2>
-            <div className="flex flex-col gap-1">
-              <Link
-                href={urlFor({ category: '', page: 1 })}
-                className={`rounded-md px-2.5 py-1.5 text-sm transition-colors ${
-                  !category ? 'bg-well font-semibold text-ink' : 'text-slate hover:bg-well hover:text-ink'
-                }`}
-              >
+            <div className="flex flex-col gap-2.5">
+              <Link href={urlFor({ category: '', page: 1 })} className="flex cursor-pointer items-center gap-2 text-sm text-ink">
+                <input type="radio" readOnly checked={!category} className="size-3.5 accent-brand" />
                 All materials
               </Link>
               {categories.map((c) => (
                 <Link
                   key={c.name}
                   href={urlFor({ category: c.name, page: 1 })}
-                  className={`flex items-center justify-between gap-2 rounded-md px-2.5 py-1.5 text-sm transition-colors ${
-                    category === c.name ? 'bg-well font-semibold text-ink' : 'text-slate hover:bg-well hover:text-ink'
-                  }`}
+                  className="flex cursor-pointer items-center gap-2 text-sm text-ink"
                 >
+                  <input type="radio" readOnly checked={category === c.name} className="size-3.5 accent-brand" />
                   <span className="truncate">{c.name}</span>
-                  <span className="text-xs text-muted-foreground">{c.count}</span>
+                  <span className="ml-auto text-[11.5px] text-muted-foreground/70">{c.count}</span>
                 </Link>
               ))}
             </div>
@@ -93,15 +88,14 @@ export default async function CatalogPage({
 
           <div>
             <h2 className="mb-3 text-xs font-bold tracking-wide text-slate uppercase">Sourcing</h2>
-            <div className="flex flex-col gap-1">
+            <div className="flex flex-col gap-2.5">
               {SCOPE_OPTIONS.map((opt) => (
                 <Link
                   key={opt.label}
                   href={urlFor({ scope: opt.value ?? '', page: 1 })}
-                  className={`rounded-md px-2.5 py-1.5 text-sm transition-colors ${
-                    sourcingScope === opt.value ? 'bg-well font-semibold text-ink' : 'text-slate hover:bg-well hover:text-ink'
-                  }`}
+                  className="flex cursor-pointer items-center gap-2 text-sm text-ink"
                 >
+                  <input type="radio" readOnly checked={sourcingScope === opt.value} className="size-3.5 accent-brand" />
                   {opt.label}
                 </Link>
               ))}
@@ -124,28 +118,30 @@ export default async function CatalogPage({
               </p>
             </div>
           ) : (
-            <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3">
+            <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 xl:grid-cols-3">
               {materials.map((material) => (
                 <Link
                   key={material.id}
                   href={`/catalog/${material.id}`}
-                  className="group border-t border-r border-border p-6"
+                  className="flex flex-col overflow-hidden rounded-[14px] border border-border bg-surface shadow-[0_1px_2px_rgba(16,24,40,0.04)] transition-[transform,box-shadow] duration-150 hover:-translate-y-1 hover:shadow-[0_16px_32px_rgba(16,24,40,0.12)]"
                 >
-                  <div className="relative mb-4 overflow-hidden">
+                  <div className="relative">
                     <MaterialImage
                       imageUrl={material.imageUrl}
                       category={material.category}
                       alt={material.name}
-                      className="aspect-[5/4] w-full transition-[filter] duration-150 group-hover:brightness-[.96]"
+                      className="aspect-[5/4] w-full"
                     />
                     <span className="absolute top-2.5 left-2.5 rounded-full bg-white/92 px-2.5 py-1 text-[10.5px] font-semibold text-slate">
                       {material.sourcingScope === 'NATIONAL' ? 'National supply' : 'Regional'}
                     </span>
                   </div>
-                  <div className="mb-2 text-[15px] font-semibold text-ink">{material.name}</div>
-                  <div className="text-base font-semibold text-ink">
-                    {formatNaira(material.catalogPrice)}
-                    <span className="ml-1 font-sans text-sm font-normal text-muted-foreground">/ {material.unit}</span>
+                  <div className="flex flex-col gap-1 px-4 py-3.5">
+                    <div className="text-sm leading-snug font-bold text-ink">{material.name}</div>
+                    <div className="mt-0.5 text-[15px] font-extrabold text-ink">
+                      {formatNaira(material.catalogPrice)}
+                      <span className="ml-1 text-xs font-semibold text-muted-foreground">/ {material.unit}</span>
+                    </div>
                   </div>
                 </Link>
               ))}

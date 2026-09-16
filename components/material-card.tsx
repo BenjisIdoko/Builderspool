@@ -8,7 +8,7 @@ import { Badge } from '@/components/ui/badge';
 
 export function MaterialCard({ material }: { material: BuyerMaterial }) {
   return (
-    <Card className="gap-3 p-3">
+    <Card className="gap-3 rounded-[14px] p-3 shadow-[0_1px_2px_rgba(16,24,40,0.04)] transition-[transform,box-shadow] duration-150 hover:-translate-y-1 hover:shadow-[0_16px_32px_rgba(16,24,40,0.12)]">
       <Link href={`/catalog/${material.id}`} className="relative block overflow-hidden rounded-lg">
         <MaterialImage
           imageUrl={material.imageUrl}
