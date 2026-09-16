@@ -1,6 +1,7 @@
-import { PrismaClient, Role, SourcingScope } from '@prisma/client';
+import { PrismaClient, Role, SourcingScope, ProjectScale, SourcingModel } from '@prisma/client';
 import { DEMO_BUYER_EMAIL } from '../lib/demoBuyer';
 import { DEMO_ADMIN_EMAIL } from '../lib/demoAdmin';
+import catalogueReferenceData from './catalogue-reference-data.json';
 
 const prisma = new PrismaClient();
 
@@ -480,14 +481,90 @@ async function seedDemoAdmin() {
   return 1;
 }
 
+// Catalogue reference library — see the schema comment on Category/Product
+// in schema.prisma. Sourced from an external research file (2026-09-16),
+// entirely separate from the live Material catalog above; upserts on
+// Category.slug / Product.sku so it's safe to re-run after editing the data.
+type SeedProduct = {
+  sku: string;
+  name: string;
+  slug: string;
+  description: string | null;
+  specification: string | null;
+  standard: string | null;
+  commonBrands: string | null;
+  brand: string | null;
+  unitOfSale: string;
+  packSize: string | null;
+  projectScale: keyof typeof ProjectScale;
+  sourcingModel: keyof typeof SourcingModel;
+  priceNote: string | null;
+  imageSearchTerm: string | null;
+  notes: string | null;
+};
+
+type SeedCategory = {
+  name: string;
+  slug: string;
+  sortOrder: number;
+  products: SeedProduct[];
+};
+
+async function seedCatalogueReference() {
+  const categories = (catalogueReferenceData as { categories: SeedCategory[] }).categories;
+  let categoriesUpserted = 0;
+  let productsUpserted = 0;
+
+  for (const cat of categories) {
+    const category = await prisma.category.upsert({
+      where: { slug: cat.slug },
+      update: { name: cat.name, sortOrder: cat.sortOrder },
+      create: { name: cat.name, slug: cat.slug, sortOrder: cat.sortOrder },
+    });
+    categoriesUpserted++;
+
+    for (const p of cat.products) {
+      const data = {
+        name: p.name,
+        slug: p.slug,
+        description: p.description,
+        specification: p.specification,
+        standard: p.standard,
+        commonBrands: p.commonBrands,
+        brand: p.brand,
+        unitOfSale: p.unitOfSale,
+        packSize: p.packSize,
+        projectScale: ProjectScale[p.projectScale],
+        sourcingModel: SourcingModel[p.sourcingModel],
+        priceNote: p.priceNote,
+        imageSearchTerm: p.imageSearchTerm,
+        notes: p.notes,
+        categoryId: category.id,
+      };
+      await prisma.product.upsert({
+        where: { sku: p.sku },
+        update: data,
+        create: { sku: p.sku, ...data },
+      });
+      productsUpserted++;
+    }
+  }
+
+  return { categoriesUpserted, productsUpserted };
+}
+
 async function main() {
   const { created: materialsCreated, imagesPatched, priceSnapshotsBackfilled, specsPatched } = await seedMaterials();
   const centersCreated = await seedFulfillmentCenters();
   const sellersCreated = await seedSellers();
   const buyerCreated = await seedDemoBuyer();
   const adminCreated = await seedDemoAdmin();
+  const { categoriesUpserted, productsUpserted } = await seedCatalogueReference();
   console.log(
     `Seeded ${materialsCreated} material(s) (${imagesPatched} image(s) backfilled, ${priceSnapshotsBackfilled} price snapshot(s) backfilled, ${specsPatched} spec grid(s) backfilled), ${centersCreated} fulfillment center(s), ${sellersCreated} seller profile(s), ${buyerCreated} demo buyer(s), ${adminCreated} demo admin(s).`
+  );
+  console.log(
+    `Catalogue reference library: ${categoriesUpserted} categories, ${productsUpserted} products upserted.`
   );
 }
 

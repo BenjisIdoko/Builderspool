@@ -439,6 +439,22 @@ Installed `components/ui/tabs.tsx` (shadcn, `line` variant — underline-style, 
 
 Verified live at both desktop and true 375px mobile width — all three tabs fit on one line without wrapping, switching between them works, and each retains exactly the same real content and empty-state handling it had as a stacked section. `npm run lint` and `tsc --noEmit` clean.
 
+### Catalogue reference library — Category/Product added from external research files (2026-09-16, later still)
+
+User provided a zip (`Buikding files.zip`) with a schema addition, a seed script, and a genuinely well-researched reference dataset — 17 categories, 134 construction-material product types across the wider Nigerian market, with real standards (NIS 444-1, ASTM C150...), real brand names, and market context — and asked to integrate it, resolving naming conflicts.
+
+**The real conflicts, surfaced before touching anything:**
+1. The zip's own `seed.ts` was a complete standalone script with its own `main()` — dropping it in as `prisma/seed.ts` would have silently overwritten the real seed script this whole app depends on (Materials, FulfillmentCenters, Sellers, demo accounts). Never at risk of happening — merged in as an additional function instead.
+2. The new `Product` model conceptually overlaps with the real, live `Material` model, but **125 of the 134 products have no fixed price** — their source data explicitly says "Market rate — set via seller bidding; verify live" (the other 9 give only a range). `Material.catalogPrice` is required; honoring this would have meant fabricating a specific number for the large majority of them.
+
+Asked the user how to reconcile this; the answer was to keep it as a **separate, standalone reference library** — real spec/standard/brand data for ops/admin to consult, not connected to the live buyer catalog at all, so no price needs inventing.
+
+**What landed**: `Category` and `Product` models (+ `ProjectScale`/`SourcingModel` enums) appended to `schema.prisma`, migration `20260916073348_add_catalogue_reference_library`. No relation to `Material`/`Order`/anything buyer-facing — fully standalone, zero risk to the live catalog. Dropped the zip's `@@map("categories")`/`@@map("products")` overrides for consistency — nothing else in this schema uses `@@map`. `SourcingModel` is deliberately a separate enum from `Material`'s `SourcingScope` (documented in the schema comment) — reference metadata with a real `BOTH` value, not the operational field that drives bid-cycle pooling.
+
+The reference JSON was renamed `prisma/catalogue-reference-data.json` (was `materials-seed-data.json` in the zip — the original name risked being confused with the real material-seeding data already in `prisma/seed.ts`) and its seeding logic merged into a new `seedCatalogueReference()` function in the existing `prisma/seed.ts`, called from `main()` alongside the existing steps — not a separate script, one seed command still does everything. Upserts on `Category.slug`/`Product.sku`, verified idempotent by running `npx prisma db seed` twice and confirming the count stayed at 17/134 both times.
+
+**No UI reads this yet** — it's schema + seed data only, exactly matching what was asked (integrate into the schema and project structure). Verified live that the real buyer catalog is completely unaffected: still exactly 20 priced materials, same as before this change. `npm run lint` and `tsc --noEmit` clean.
+
 ## Bidding Engine Design
 
 - **Weighted award scoring**, not simple lowest-price-wins: Price 40%, seller reliability/trust score 25%, capacity fit 20%, delivery speed 15%.

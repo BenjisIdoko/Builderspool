@@ -288,3 +288,70 @@ model PriceAlert {
 
   @@index([materialId, active])
 }
+
+// ─────────────────────────────────────────────────────────────
+// Catalogue reference library (2026-09-16) — a researched spec/standard/
+// brand reference for the wider Nigerian construction-materials market
+// (17 categories, ~134 products), sourced from an external data file, NOT
+// the live buyer catalog. Deliberately standalone — no relation to Material
+// or anything buyer-facing. Most of these products have no fixed price
+// (their source notes say "market rate — set via seller bidding; verify
+// live"), so they can't honestly become real, orderable Material rows
+// without a price; this exists so ops/admin has real spec data to work
+// from when they do add one by hand. No UI reads this yet — it's schema +
+// seed data only until an admin-facing browse view is built.
+//
+// SourcingModel is intentionally its own enum, not Material's
+// SourcingScope — this is reference metadata (BOTH is a real value here)
+// describing how a product type is typically sourced across the market,
+// not the operational field that drives actual bid-cycle pooling.
+enum ProjectScale {
+  SMALL
+  MEGA
+  BOTH
+}
+
+enum SourcingModel {
+  NATIONAL
+  REGIONAL
+  BOTH
+}
+
+model Category {
+  id        String    @id @default(cuid())
+  name      String    @unique
+  slug      String    @unique
+  sortOrder Int       @default(0)
+  products  Product[]
+  createdAt DateTime  @default(now())
+  updatedAt DateTime  @updatedAt
+}
+
+model Product {
+  id              String        @id @default(cuid())
+  sku             String        @unique
+  name            String
+  slug            String        @unique
+  description     String?
+  specification   String? // e.g. "Nominal dia. 12mm; Grade 460"
+  standard        String? // e.g. "BS 4449", "NIS 87:2004"
+  commonBrands    String? // free-text list of brands that satisfy this spec — split on comma in the UI if needed
+  brand           String? // set only for a brand-specific SKU; null = generic/any conforming brand
+  unitOfSale      String // "Bag", "Length", "m²", "Trip", "Piece", etc.
+  packSize        String? // typical bundle/pallet/load size
+  projectScale    ProjectScale  @default(BOTH)
+  sourcingModel   SourcingModel @default(BOTH)
+  priceNote       String? // reference only — never a real catalogPrice; most say "set via seller bidding"
+  imageSearchTerm String? // starting query for sourcing a product photo
+  imageUrl        String? // populate once real photography/licensed images are sourced
+  notes           String?
+
+  categoryId String
+  category   Category @relation(fields: [categoryId], references: [id])
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@index([categoryId])
+  @@index([brand])
+}
