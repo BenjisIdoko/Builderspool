@@ -479,6 +479,23 @@ User shared two more admin-dashboard references (an order-queue table with KPI c
 
 Verified live throughout: status filter pills, search, pagination math, the fulfillment-stage column, the order detail page's contact links (with the WhatsApp fix), and both export formats (including that the status filter is honored in the export). `npm run lint` and `tsc --noEmit` clean.
 
+### Admin dashboard structural rebuild — sidebar/topbar rhythm, full state coverage (2026-09-16, later still)
+
+The same two references came back with a more literal, structural ask: match the reference's sidebar+topbar structure, card density, table row height, type pairings, and spacing rhythm; use "my DESIGN.md tokens" for color; cover loading/empty/error/long-text states; build the mobile reflow; screenshot both a populated and an empty view. Checked first — **no `DESIGN.md` exists anywhere in this project** (a few turned up elsewhere on the machine, in unrelated projects like a gas-finder app and a legal-services redesign — clearly not this one). Used this project's actual existing token system (`app/globals.css`) instead, which is the real equivalent here.
+
+**Sidebar/topbar structure** — the admin portal had a top-only nav (`components/admin/admin-header.tsx`) while the seller portal already had a real sidebar (built earlier this session). Gave admin the same treatment for consistency: new `components/admin/admin-sidebar.tsx` (mirrors `seller-sidebar.tsx`'s exact pattern — logo, active-link highlighting via `usePathname()`, real admin name + `Avatar` + sign-out in the footer), wired into `app/admin/(dashboard)/layout.tsx` alongside a slim `lg:hidden` mobile topbar (logo + the existing `MobileNav` sheet, footer content mirrored from the sidebar). `admin-header.tsx` deleted — fully superseded, nothing left referencing it. Every existing admin page (dashboard, cycles detail, catalogue reference) verified working unchanged under the new shell.
+
+**Density/rhythm** — added a real initials `Avatar` per row in the Orders table (buyer's actual name, matching the reference's avatar+two-line-name/email cell pattern) and defensive `truncate`/`max-w-*` on the order ID, buyer name/email, and fulfillment-stage cells.
+
+**Full state coverage**:
+- **Loading** — `app/admin/(dashboard)/orders/loading.tsx`, a real Next.js App Router route-level loading boundary (automatic on any slow load — including the exact Supabase pooler-exhaustion scenarios documented throughout this file — not something screenshottable on a fast local DB, but framework-guaranteed once the file exists, which it does).
+- **Empty** — already honestly testable with real data: the "Cancelled" filter has 0 real orders. Polished the empty-state UI (icon + status-aware message) rather than fabricating a scenario.
+- **Error** — new `app/admin/(dashboard)/orders/error.tsx`, a real Next.js error boundary with a "Try again" `reset()` button — genuinely useful given how often this session has hit real DB pooler errors.
+- **Long text** — verified via a DOM-only, non-persisted override (never touched the database) that the truncation classes hold up against a deliberately long buyer name/email/fulfillment string with no layout break.
+- **Mobile reflow** — verified at 375px: sidebar collapses to the mobile topbar + sheet (same links, footer with avatar/sign-out), filter pills and search wrap, table scrolls horizontally (existing convention from the bid-cycles table), order detail's contact icons wrap cleanly.
+
+Two screenshots taken and shown: the populated Orders table (9 real orders, avatars, real fulfillment stages) and the real empty state (Cancelled filter, 0 real orders). `npm run lint` and `tsc --noEmit` clean throughout.
+
 ## Bidding Engine Design
 
 - **Weighted award scoring**, not simple lowest-price-wins: Price 40%, seller reliability/trust score 25%, capacity fit 20%, delivery speed 15%.

@@ -1,5 +1,5 @@
 import Link from 'next/link';
-import { DownloadSimpleIcon, MagnifyingGlassIcon } from '@phosphor-icons/react/ssr';
+import { DownloadSimpleIcon, MagnifyingGlassIcon, ReceiptIcon } from '@phosphor-icons/react/ssr';
 import { OrderStatus } from '@prisma/client';
 import { getOrdersForAdmin, getOrderStatusCounts } from '@/lib/queries/adminOrders';
 import { formatNaira } from '@/lib/format';
@@ -7,6 +7,7 @@ import { orderStatusTone, pillClass } from '@/lib/statusColors';
 import { Badge } from '@/components/ui/badge';
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
+import { Avatar } from '@/components/avatar';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 
 const STATUS_LABEL: Record<string, string> = {
@@ -103,8 +104,15 @@ export default async function AdminOrdersPage({
       </div>
 
       {orders.length === 0 ? (
-        <div className="rounded-lg border border-border bg-surface px-6 py-16 text-center">
-          <p className="text-sm text-muted-foreground">{q ? `No orders match "${q}".` : 'No orders yet.'}</p>
+        <div className="flex flex-col items-center gap-3 rounded-lg border border-border bg-surface px-6 py-16 text-center">
+          <ReceiptIcon className="size-8 text-muted-foreground" />
+          <p className="text-sm text-muted-foreground">
+            {q
+              ? `No orders match "${q}".`
+              : validStatus
+                ? `No ${(STATUS_LABEL[validStatus] ?? validStatus).toLowerCase()} orders right now.`
+                : 'No orders yet.'}
+          </p>
         </div>
       ) : (
         <div className="overflow-hidden rounded-lg border border-border bg-surface">
@@ -122,31 +130,39 @@ export default async function AdminOrdersPage({
               </TableRow>
             </TableHeader>
             <TableBody>
-              {orders.map((order) => (
-                <TableRow key={order.id}>
-                  <TableCell className="text-muted-foreground">{order.id}</TableCell>
-                  <TableCell className="text-ink">
-                    {order.buyer.businessName ?? order.buyer.name}
-                    <div className="text-xs text-muted-foreground">{order.buyer.email}</div>
-                  </TableCell>
-                  <TableCell className="text-ink">{order.items.length}</TableCell>
-                  <TableCell className="text-ink">{formatNaira(order.total)}</TableCell>
-                  <TableCell>
-                    <Badge variant="outline" className={pillClass(orderStatusTone(order.status))}>
-                      {STATUS_LABEL[order.status] ?? order.status}
-                    </Badge>
-                  </TableCell>
-                  <TableCell className="text-ink">{order.fulfillmentStage}</TableCell>
-                  <TableCell className="text-muted-foreground">
-                    {order.createdAt.toLocaleDateString('en-NG', { dateStyle: 'medium' })}
-                  </TableCell>
-                  <TableCell className="text-right">
-                    <Link href={`/admin/orders/${order.id}`} className="text-sm text-brand hover:underline">
-                      View
-                    </Link>
-                  </TableCell>
-                </TableRow>
-              ))}
+              {orders.map((order) => {
+                const buyerName = order.buyer.businessName ?? order.buyer.name;
+                return (
+                  <TableRow key={order.id}>
+                    <TableCell className="max-w-32 truncate text-muted-foreground">{order.id}</TableCell>
+                    <TableCell className="text-ink">
+                      <div className="flex items-center gap-2.5">
+                        <Avatar name={order.buyer.name} className="size-8 shrink-0 text-[10px]" />
+                        <div className="min-w-0">
+                          <div className="max-w-40 truncate font-medium">{buyerName}</div>
+                          <div className="max-w-40 truncate text-xs text-muted-foreground">{order.buyer.email}</div>
+                        </div>
+                      </div>
+                    </TableCell>
+                    <TableCell className="text-ink">{order.items.length}</TableCell>
+                    <TableCell className="text-ink">{formatNaira(order.total)}</TableCell>
+                    <TableCell>
+                      <Badge variant="outline" className={pillClass(orderStatusTone(order.status))}>
+                        {STATUS_LABEL[order.status] ?? order.status}
+                      </Badge>
+                    </TableCell>
+                    <TableCell className="max-w-36 truncate text-ink">{order.fulfillmentStage}</TableCell>
+                    <TableCell className="text-muted-foreground">
+                      {order.createdAt.toLocaleDateString('en-NG', { dateStyle: 'medium' })}
+                    </TableCell>
+                    <TableCell className="text-right">
+                      <Link href={`/admin/orders/${order.id}`} className="text-sm text-brand hover:underline">
+                        View
+                      </Link>
+                    </TableCell>
+                  </TableRow>
+                );
+              })}
             </TableBody>
           </Table>
         </div>
