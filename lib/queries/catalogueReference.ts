@@ -13,6 +13,9 @@ export async function getReferenceCategories() {
   return categories.map((c) => ({ id: c.id, name: c.name, slug: c.slug, productCount: c._count.products }));
 }
 
+// Selects every editable field, not just what the table displays — the
+// admin edit/view modals render straight from these rows with no second
+// fetch, since the reference library is small (134 rows) and admin-only.
 export async function getReferenceProducts(categorySlug?: string, query?: string) {
   const products = await prisma.product.findMany({
     where: {
@@ -29,13 +32,21 @@ export async function getReferenceProducts(categorySlug?: string, query?: string
       id: true,
       sku: true,
       name: true,
+      slug: true,
+      description: true,
+      specification: true,
       standard: true,
       commonBrands: true,
+      brand: true,
       unitOfSale: true,
       packSize: true,
       projectScale: true,
       sourcingModel: true,
       priceNote: true,
+      imageUrl: true,
+      imageSearchTerm: true,
+      notes: true,
+      categoryId: true,
       category: { select: { name: true, slug: true } },
     },
     orderBy: [{ category: { sortOrder: 'asc' } }, { name: 'asc' }],

@@ -1,5 +1,6 @@
 import { getReferenceCategories, getReferenceProducts } from '@/lib/queries/catalogueReference';
 import { CatalogueFilterBar } from '@/components/admin/catalogue-filter-bar';
+import { ReferenceProductActions } from '@/components/admin/reference-product-actions';
 import { Badge } from '@/components/ui/badge';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 
@@ -46,6 +47,7 @@ export default async function CatalogueReferencePage({
                 <TableHead>Unit</TableHead>
                 <TableHead>Scope</TableHead>
                 <TableHead>Price note</TableHead>
+                <TableHead />
               </TableRow>
             </TableHeader>
             <TableBody>
@@ -73,6 +75,9 @@ export default async function CatalogueReferencePage({
                     </div>
                   </TableCell>
                   <TableCell className="max-w-64 text-xs text-muted-foreground">{p.priceNote ?? '—'}</TableCell>
+                  <TableCell className="py-2">
+                    <ReferenceProductActions product={p} categories={categories} />
+                  </TableCell>
                 </TableRow>
               ))}
             </TableBody>
