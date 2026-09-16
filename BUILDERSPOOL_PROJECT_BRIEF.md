@@ -455,6 +455,12 @@ The reference JSON was renamed `prisma/catalogue-reference-data.json` (was `mate
 
 **No UI reads this yet** — it's schema + seed data only, exactly matching what was asked (integrate into the schema and project structure). Verified live that the real buyer catalog is completely unaffected: still exactly 20 priced materials, same as before this change. `npm run lint` and `tsc --noEmit` clean.
 
+### Admin browse view for the catalogue reference library (2026-09-16, later still)
+
+Follow-up to the above — user asked for the admin-side browse view. New `lib/queries/catalogueReference.ts` (`getReferenceCategories()` with real product counts per category, `getReferenceProducts(categorySlug?, query?)` filtering by category and/or a search term across name/SKU/`commonBrands`) and `app/admin/(dashboard)/catalogue-reference/page.tsx`: category filter pills (real counts, e.g. "Cement & Binders (13)"), a search box, and a table (SKU, name, standard, common brands, unit, project scale + sourcing model badges, price note). Plain `?category=&q=` searchParams, same GET-form pattern as the buyer catalog's own search — no client state needed. Added "Catalogue reference" to the admin nav (`components/admin/admin-header.tsx`).
+
+Read-only, admin-only (sits inside the existing `app/admin/(dashboard)/` auth-guarded layout) — no create/edit/delete, since nothing asked for that and this is reference data ops consults, not a CMS. Verified live: category pills filter correctly (13 real Cement & Binders products), search for "Dangote" correctly matches both name and `commonBrands` hits (7 real results), nav link works. `npm run lint` and `tsc --noEmit` clean.
+
 ## Bidding Engine Design
 
 - **Weighted award scoring**, not simple lowest-price-wins: Price 40%, seller reliability/trust score 25%, capacity fit 20%, delivery speed 15%.

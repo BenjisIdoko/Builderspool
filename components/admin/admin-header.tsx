@@ -4,7 +4,10 @@ import { Button } from '@/components/ui/button';
 import { LogoMark } from '@/components/logo';
 import { MobileNav } from '@/components/mobile-nav';
 
-const LINKS = [{ href: '/admin', label: 'Bid cycles' }];
+const LINKS = [
+  { href: '/admin', label: 'Bid cycles' },
+  { href: '/admin/catalogue-reference', label: 'Catalogue reference' },
+];
 
 export function AdminHeader() {
   return (
