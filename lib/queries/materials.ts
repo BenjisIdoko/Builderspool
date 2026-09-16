@@ -37,6 +37,21 @@ export async function getMaterials(category?: string, query?: string) {
   return materials.map(toPlainMaterial);
 }
 
+// Powers the navbar's live search dropdown — a small, fast lookup, not the
+// full catalog page's paginated getMaterials(). Same buyer-safe fields,
+// capped to `limit` so the dropdown never grows past a scrollable handful.
+export async function searchMaterialsLive(query: string, limit = 6) {
+  const trimmed = query.trim();
+  if (!trimmed) return [];
+  const materials = await prisma.material.findMany({
+    where: { name: { contains: trimmed, mode: 'insensitive' } },
+    select: BUYER_SAFE_SELECT,
+    orderBy: [{ name: 'asc' }],
+    take: limit,
+  });
+  return materials.map(toPlainMaterial);
+}
+
 export async function getMaterialById(id: string) {
   const material = await prisma.material.findUnique({
     where: { id },

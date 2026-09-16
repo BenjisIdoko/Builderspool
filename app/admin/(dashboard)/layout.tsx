@@ -14,6 +14,7 @@ const LINKS = [
   { href: '/admin/orders', label: 'Orders' },
   { href: '/admin/materials', label: 'Materials' },
   { href: '/admin/catalogue-reference', label: 'Catalogue reference' },
+  { href: '/admin/users', label: 'Users' },
 ];
 
 export default async function AdminDashboardLayout({ children }: { children: React.ReactNode }) {

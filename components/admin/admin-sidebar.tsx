@@ -2,7 +2,7 @@
 
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
-import { BooksIcon, GaugeIcon, PackageIcon, ReceiptIcon, SignOutIcon } from '@phosphor-icons/react/ssr';
+import { BooksIcon, GaugeIcon, PackageIcon, ReceiptIcon, SignOutIcon, UsersIcon } from '@phosphor-icons/react/ssr';
 import { signOutAdmin } from '@/app/admin/actions';
 import { LogoMark } from '@/components/logo';
 import { Avatar } from '@/components/avatar';
@@ -13,6 +13,7 @@ const LINKS = [
   { href: '/admin/orders', label: 'Orders', icon: ReceiptIcon },
   { href: '/admin/materials', label: 'Materials', icon: PackageIcon },
   { href: '/admin/catalogue-reference', label: 'Catalogue reference', icon: BooksIcon },
+  { href: '/admin/users', label: 'Users', icon: UsersIcon },
 ];
 
 export function AdminSidebar({ adminName }: { adminName: string }) {
