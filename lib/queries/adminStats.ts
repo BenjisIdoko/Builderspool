@@ -40,13 +40,17 @@ export async function getRecentOrders(limit = 6) {
   const orders = await prisma.order.findMany({
     orderBy: { createdAt: 'desc' },
     take: limit,
-    include: { items: { select: { priceLocked: true, deliveryCost: true, quantity: true, material: { select: { name: true } } } } },
+    include: {
+      buyer: { select: { name: true, businessName: true, email: true } },
+      items: { select: { priceLocked: true, deliveryCost: true, quantity: true, material: { select: { name: true } } } },
+    },
   });
 
   return orders.map((order) => ({
     id: order.id,
     status: order.status,
     createdAt: order.createdAt,
+    buyer: order.buyer,
     material: order.items[0]?.material.name ?? '—',
     extraItemCount: Math.max(0, order.items.length - 1),
     amount: order.items.reduce((s, item) => s + Number(item.priceLocked) * item.quantity + Number(item.deliveryCost), 0),

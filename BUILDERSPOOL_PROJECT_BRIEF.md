@@ -511,6 +511,22 @@ Fixes to `app/admin/(dashboard)/orders/page.tsx`:
 
 `npm run lint` and `tsc --noEmit` clean.
 
+### Admin made the real source of truth — materials CRUD, dashboard depth, table redesigns, avatar (2026-09-16, later still)
+
+User framing: "The Admin is Total Source of Truth for everything on the App," with four concrete asks. All four built in one pass:
+
+1. **Catalog materials can now be edited by admin** — previously there was no CRUD UI at all for `Material` rows (only `prisma/seed.ts` could touch them; the schema even carried a comment noting this gap). Built `app/admin/(dashboard)/materials/page.tsx` (searchable, category-filterable, paginated list — `lib/queries/adminMaterials.ts`) and `app/admin/(dashboard)/materials/[id]/page.tsx` (edit form: price, sourcing scope, the structured spec fields, image URL). `updateMaterialAction` (`app/admin/(dashboard)/materials/actions.ts`) writes the update **and** a real `PriceSnapshot` row when the price actually changes, so a price edited here is not just a silent field update — it's the same real price-history mechanic the buyer-facing PDP chart already reads. Verified live: edited Hollow Block 9" from ₦500→₦525, confirmed the new price on the buyer catalog page immediately.
+2. **Dashboard overview deepened** (`app/admin/(dashboard)/page.tsx`) — added a second real chart ("Bid cycles by status": Open/Closed/Awarded counts, derived from the same cycles already loaded, no new query) alongside the existing GMV bar chart; added a dedicated **"Open bids"** section — cycles currently `OPEN` for bidding, soonest cutoff first, separate from the full history table below it (previously "open" cycles had no distinct surface, only buried inside the full all-cycles table).
+3. **Table redesigns with real filter/search, pill wall removed**:
+   - `/admin/catalogue-reference`: the 17-pill category wall is gone, replaced by `components/admin/catalogue-filter-bar.tsx` — a single dropdown (categories + counts) + the existing search box. Same filtering power, far less visual noise.
+   - Dashboard's "Recent orders" widget rebuilt onto the shared `Table` component (was a hand-rolled `grid`) with `Avatar` per row and a "View all orders →" link to `/admin/orders`, rather than duplicating full filter UI for a 6-row preview — the honest read of the reference intent was "make it consistent and useful," not "build two competing filter bars for the same data."
+   - Bid cycles table (`CyclesTable`) and the full Orders table already had real search/filters from earlier passes — reviewed, left as-is (no regression, no redundant rebuild).
+4. **Admin avatar at the extreme right** — added a persistent top bar (`app/admin/(dashboard)/layout.tsx`): `hidden lg:flex` row above `<main>` with admin name + `Avatar` at the far right on desktop, and the same `Avatar` added to the existing mobile topbar's right edge. Sidebar footer's avatar+sign-out block was left in place (sign-out needs to stay reachable); this is additive, not a replacement.
+
+Also added "Materials" to `components/admin/admin-sidebar.tsx` and the mobile nav's `LINKS`; renamed the "Bid cycles" nav label to "Dashboard" since that page is no longer just the cycles table.
+
+`npx tsc --noEmit` and `npm run lint` both clean. Live-verified: materials edit → price-history write → buyer catalog reflects it; catalogue-reference dropdown filters correctly (134→9 products on "Roofing Materials"); dashboard's Open bids/charts/recent-orders render with real data (including the honest empty state when zero cycles are open); admin avatar confirmed present in both the desktop top bar and mobile header via DOM inspection (the pane's viewport-emulation tool under-reported its own width again this session — confirmed the real rendered width with `window.innerWidth` rather than trusting the screenshot, per the now-recurring workaround for that tool).
+
 ## Bidding Engine Design
 
 - **Weighted award scoring**, not simple lowest-price-wins: Price 40%, seller reliability/trust score 25%, capacity fit 20%, delivery speed 15%.
@@ -576,7 +592,7 @@ These are deliberate, clearly-marked placeholders — not oversights:
 - [x] Build account/job-site settings — applied 2026-09-12. Built against the same demo-account pattern as the seller/admin sides rather than waiting on real buyer auth (see below).
 - [x] Build the seller portal (bid submission UI, pickup instructions) — `app/seller/`, applied 2026-09-11. Uses a seeded-account cookie session (`lib/seller/session.ts`), same TODO-and-replace pattern as the buyer side — build real seller auth here too, eventually.
 - [ ] Build real seller auth — `/seller/login` currently just lets you pick any seeded seller account with no credential check; replace `lib/seller/session.ts`'s cookie-only session
-- [x] Build the admin dashboard — bid cycles only so far (`app/admin/`), applied 2026-09-12. Materials, fulfillment centers, and disputes management are still not built — see the new section below for scope and what's left.
+- [x] Build the admin dashboard — bid cycles only so far (`app/admin/`), applied 2026-09-12. Expanded through 2026-09-16 (orders, materials CRUD, catalogue reference library, KPI/chart dashboard — see the dated sections above). Fulfillment center and dispute management CRUD are still not built.
 - [ ] Upgrade delivery cost from flat-rate to distance-based once volume justifies the API cost
 - [ ] `fallback.ts`'s exhausted-cascade case still only logs to console — no ops-facing flag/notification yet (unlike `award.ts`'s `needsAttention` field, which is now real)
 - [x] Seed `FulfillmentCenter` and `SellerProfile` data — `prisma/seed.ts` (run via `npx prisma db seed`), applied 2026-09-11. 3 fulfillment centers (Abuja/Lagos/Kano, matching the flat-rate regions in `lib/checkout/deliveryCost.ts`) and 4 sellers spanning a deliberate trust-score/region spread (one national high-trust, two regional mid-trust, one newly onboarded low-trust) so the award engine's scoring and geography filter both have real data to operate on. Idempotent — safe to re-run.

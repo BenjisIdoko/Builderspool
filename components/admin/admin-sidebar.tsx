@@ -2,15 +2,16 @@
 
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
-import { BooksIcon, GaugeIcon, ReceiptIcon, SignOutIcon } from '@phosphor-icons/react/ssr';
+import { BooksIcon, GaugeIcon, PackageIcon, ReceiptIcon, SignOutIcon } from '@phosphor-icons/react/ssr';
 import { signOutAdmin } from '@/app/admin/actions';
 import { LogoMark } from '@/components/logo';
 import { Avatar } from '@/components/avatar';
 import { Button } from '@/components/ui/button';
 
 const LINKS = [
-  { href: '/admin', label: 'Bid cycles', icon: GaugeIcon },
+  { href: '/admin', label: 'Dashboard', icon: GaugeIcon },
   { href: '/admin/orders', label: 'Orders', icon: ReceiptIcon },
+  { href: '/admin/materials', label: 'Materials', icon: PackageIcon },
   { href: '/admin/catalogue-reference', label: 'Catalogue reference', icon: BooksIcon },
 ];
 

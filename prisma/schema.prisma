@@ -133,10 +133,11 @@ model Material {
 }
 
 // A record of what catalogPrice was at a point in time — buyer-safe price
-// history, deliberately separate from anything bidding-related. There's no
-// materials-CRUD UI yet to actually change catalogPrice, so every material
-// starts with exactly one snapshot (backfilled at its createdAt); a second
-// row only ever appears once a real price change happens.
+// history, deliberately separate from anything bidding-related. Every
+// material starts with exactly one snapshot (backfilled at its createdAt);
+// a new row is appended whenever catalogPrice actually changes — either via
+// the admin materials editor (app/admin/(dashboard)/materials) or a future
+// re-seed.
 model PriceSnapshot {
   id         String   @id @default(cuid())
   materialId String

@@ -1,9 +1,6 @@
-import Link from 'next/link';
-import { MagnifyingGlassIcon } from '@phosphor-icons/react/ssr';
 import { getReferenceCategories, getReferenceProducts } from '@/lib/queries/catalogueReference';
+import { CatalogueFilterBar } from '@/components/admin/catalogue-filter-bar';
 import { Badge } from '@/components/ui/badge';
-import { Input } from '@/components/ui/input';
-import { Button } from '@/components/ui/button';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 
 export default async function CatalogueReferencePage({
@@ -29,40 +26,7 @@ export default async function CatalogueReferencePage({
         buyer catalog: most of these have no fixed price, since real pricing here comes from seller bidding.
       </p>
 
-      <div className="mb-6 flex flex-wrap gap-2">
-        <Link href="/admin/catalogue-reference">
-          <Badge
-            variant="outline"
-            className={!category ? 'border-brand bg-info-soft text-info' : 'border-border text-slate'}
-          >
-            All ({totalProducts})
-          </Badge>
-        </Link>
-        {categories.map((c) => (
-          <Link
-            key={c.slug}
-            href={`/admin/catalogue-reference?category=${encodeURIComponent(c.slug)}${q ? `&q=${encodeURIComponent(q)}` : ''}`}
-          >
-            <Badge
-              variant="outline"
-              className={category === c.slug ? 'border-brand bg-info-soft text-info' : 'border-border text-slate'}
-            >
-              {c.name} ({c.productCount})
-            </Badge>
-          </Link>
-        ))}
-      </div>
-
-      <form className="mb-6 flex max-w-sm items-center gap-2">
-        {category && <input type="hidden" name="category" value={category} />}
-        <div className="relative flex-1">
-          <MagnifyingGlassIcon className="pointer-events-none absolute top-1/2 left-3 size-4 -translate-y-1/2 text-muted-foreground" />
-          <Input name="q" defaultValue={q} placeholder="Search name, SKU, or brand…" className="pl-9" />
-        </div>
-        <Button type="submit" variant="outline">
-          Search
-        </Button>
-      </form>
+      <CatalogueFilterBar categories={categories} category={category} q={q} />
 
       {products.length === 0 ? (
         <div className="rounded-lg border border-border bg-surface px-6 py-16 text-center">

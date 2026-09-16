@@ -10,8 +10,9 @@ import { Avatar } from '@/components/avatar';
 import { Button } from '@/components/ui/button';
 
 const LINKS = [
-  { href: '/admin', label: 'Bid cycles' },
+  { href: '/admin', label: 'Dashboard' },
   { href: '/admin/orders', label: 'Orders' },
+  { href: '/admin/materials', label: 'Materials' },
   { href: '/admin/catalogue-reference', label: 'Catalogue reference' },
 ];
 
@@ -48,7 +49,17 @@ export default async function AdminDashboardLayout({ children }: { children: Rea
             <LogoMark className="size-7" />
             <span className="text-sm font-medium tracking-tight text-ink">Ops admin</span>
           </Link>
+          <Avatar name={admin.name} className="ml-auto size-8 text-xs" />
         </header>
+        <div className="hidden h-16 shrink-0 items-center justify-end border-b border-border bg-surface px-6 lg:flex">
+          <div className="flex items-center gap-2.5">
+            <div className="text-right">
+              <div className="text-sm font-semibold text-ink">{admin.name}</div>
+              <div className="text-xs text-muted-foreground">Ops admin</div>
+            </div>
+            <Avatar name={admin.name} className="size-9 text-xs" />
+          </div>
+        </div>
         <main className="flex flex-1 flex-col">{children}</main>
       </div>
     </div>
