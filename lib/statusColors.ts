@@ -78,3 +78,24 @@ export function payoutStatusTone(status: PayoutStatus): PillTone {
       return 'danger';
   }
 }
+
+// Real derived stage titles from getOrderTrackingStages() (lib/queries/orders.ts)
+// — matched by title text since those titles are the actual real values
+// stored/rendered, not a separate enum. Later stages read as "more done"
+// (success), earlier ones as "still moving" (info/warning), keeping the
+// same visual grammar as every other status pill in the app.
+export function fulfillmentStageTone(title: string): PillTone {
+  switch (title) {
+    case 'Delivered':
+    case 'Picked up':
+      return 'success';
+    case 'Out for delivery':
+    case 'Ready for pickup':
+      return 'info';
+    case 'Supplier assigned':
+    case 'Demand pooled':
+      return 'warning';
+    default:
+      return 'neutral';
+  }
+}

@@ -496,6 +496,21 @@ The same two references came back with a more literal, structural ask: match the
 
 Two screenshots taken and shown: the populated Orders table (9 real orders, avatars, real fulfillment stages) and the real empty state (Cancelled filter, 0 real orders). `npm run lint` and `tsc --noEmit` clean throughout.
 
+### Orders page tightened after "far from the screenshots" feedback (2026-09-16, later still)
+
+The structural rebuild above still didn't land — user feedback was blunt: "This UI far from the screenshots shared." Went back to the two references and found the real gap wasn't the sidebar (that part was already close) but **page composition**: the reference's "Order Queue" page shows KPI stats *and* the order table together on one page; this build had split them across two separate admin pages (`/admin` for KPIs, `/admin/orders` for the table). That's most of why it read as a different app.
+
+Fixes to `app/admin/(dashboard)/orders/page.tsx`:
+- **Added a real "Quick stats" KPI row directly on the Orders page** — new `getOrderQuickStats()` (`lib/queries/adminOrders.ts`): real revenue and average order value, computed from real `PAID` orders only (not a fabricated "vs yesterday" delta this system has no rollup table to honestly support).
+- **Solid active-filter pill** (`bg-ink text-canvas`) replacing the earlier light-tint-outline version, which read as too timid next to the reference's confident solid pill.
+- **Colored fulfillment badges** — new `fulfillmentStageTone()` (`lib/statusColors.ts`), a real tone mapping over the actual stage titles `getOrderTrackingStages()` already produces (later stages read as more "done"/success, earlier as still-moving/neutral) — previously plain text.
+- **Short, readable order numbers** (`#RT218P` instead of the full cuid) — honestly derived from the real id's own last 6 characters, not an invented separate numbering scheme; the full id is still the link target and shows on hover.
+- Uppercase section labels ("QUICK STATS", "ALL ORDERS · N MATCHING") matching the reference's section-header convention.
+
+**Caught a real mobile bug via static analysis, not a screenshot** — the viewport-resize tool stopped applying emulation reliably mid-task (confirmed via `window.innerWidth` staying at the pane's actual width regardless of the requested size — an environment/tooling issue, not app code), so screenshots at claimed mobile widths couldn't be trusted. Read the actual CSS instead: `Badge` is `w-fit shrink-0 whitespace-nowrap` by design, so a real chip string like "Confirmed revenue" inside a `grid-cols-2` KPI card at ~155px would overflow the card without wrapping. Fixed by making the KPI grid `grid-cols-1` below the `sm` breakpoint (not 2-up until there's room) and adding `overflow-hidden` to the card as a defensive backstop. Verified via `window.innerWidth`/`document.body.scrollWidth` at the one narrow width the tool did apply (520px, still below `sm`) — no overflow — and confirmed visually once a trustworthy screenshot was obtainable again.
+
+`npm run lint` and `tsc --noEmit` clean.
+
 ## Bidding Engine Design
 
 - **Weighted award scoring**, not simple lowest-price-wins: Price 40%, seller reliability/trust score 25%, capacity fit 20%, delivery speed 15%.

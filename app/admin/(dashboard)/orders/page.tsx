@@ -1,9 +1,17 @@
 import Link from 'next/link';
-import { DownloadSimpleIcon, MagnifyingGlassIcon, ReceiptIcon } from '@phosphor-icons/react/ssr';
+import {
+  ChartLineUpIcon,
+  ClockIcon,
+  CurrencyNgnIcon,
+  DownloadSimpleIcon,
+  MagnifyingGlassIcon,
+  ReceiptIcon,
+  SealCheckIcon,
+} from '@phosphor-icons/react/ssr';
 import { OrderStatus } from '@prisma/client';
-import { getOrdersForAdmin, getOrderStatusCounts } from '@/lib/queries/adminOrders';
+import { getOrdersForAdmin, getOrderStatusCounts, getOrderQuickStats } from '@/lib/queries/adminOrders';
 import { formatNaira } from '@/lib/format';
-import { orderStatusTone, pillClass } from '@/lib/statusColors';
+import { orderStatusTone, fulfillmentStageTone, pillClass } from '@/lib/statusColors';
 import { Badge } from '@/components/ui/badge';
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
@@ -23,6 +31,14 @@ const STATUS_FILTERS = [
   { value: OrderStatus.CANCELLED, label: 'Cancelled', countKey: 'cancelled' as const },
 ];
 
+// A short, readable stand-in for the real cuid — same idea as a "#390561"
+// order number in the reference, but honestly derived from the real id
+// (its own last 6 characters) rather than a separate invented numbering
+// scheme. The full real id is still the link target and shows on hover.
+function shortOrderNumber(id: string) {
+  return `#${id.slice(-6).toUpperCase()}`;
+}
+
 export default async function AdminOrdersPage({
   searchParams,
 }: {
@@ -32,10 +48,31 @@ export default async function AdminOrdersPage({
   const page = Math.max(1, Number(pageParam) || 1);
   const validStatus = status && status in OrderStatus ? (status as OrderStatus) : undefined;
 
-  const [{ orders, total, pageCount }, counts] = await Promise.all([
+  const [{ orders, total, pageCount }, counts, quickStats] = await Promise.all([
     getOrdersForAdmin({ status: validStatus, query: q, page }),
     getOrderStatusCounts(),
+    getOrderQuickStats(),
   ]);
+
+  const kpiCards = [
+    { label: 'Total orders', value: String(counts.total), icon: ReceiptIcon, tone: 'info' as const, chip: 'All-time' },
+    {
+      label: 'Awaiting payment',
+      value: String(counts.pending),
+      icon: ClockIcon,
+      tone: counts.pending > 0 ? ('warning' as const) : ('success' as const),
+      chip: counts.pending > 0 ? 'Needs follow-up' : 'All clear',
+    },
+    { label: 'Paid', value: String(counts.paid), icon: SealCheckIcon, tone: 'success' as const, chip: 'Confirmed revenue' },
+    { label: 'Revenue', value: formatNaira(quickStats.revenue), icon: CurrencyNgnIcon, tone: 'info' as const, chip: 'From paid orders' },
+    {
+      label: 'Avg order value',
+      value: formatNaira(quickStats.avgOrderValue),
+      icon: ChartLineUpIcon,
+      tone: 'info' as const,
+      chip: `Across ${quickStats.paidCount} paid`,
+    },
+  ];
 
   function urlFor(overrides: { status?: string; q?: string; page?: number }) {
     const params = new URLSearchParams();
@@ -51,13 +88,11 @@ export default async function AdminOrdersPage({
 
   return (
     <div className="mx-auto w-full max-w-6xl px-6 py-10">
-      <div className="mb-8 flex flex-wrap items-start justify-between gap-4">
+      <div className="mb-6 flex flex-wrap items-start justify-between gap-4">
         <div>
           <div className="mb-1 text-xs text-muted-foreground">Admin · ops desk</div>
           <h1 className="mb-1 text-2xl font-bold tracking-tight text-ink">Orders</h1>
-          <p className="text-sm text-muted-foreground">
-            Every real checkout, across every buyer — {total} matching {total === 1 ? 'order' : 'orders'}.
-          </p>
+          <p className="text-sm text-muted-foreground">Every real checkout, across every buyer.</p>
         </div>
         <div className="flex gap-2">
           <Button asChild variant="outline" className="gap-2">
@@ -75,20 +110,41 @@ export default async function AdminOrdersPage({
         </div>
       </div>
 
-      <div className="mb-6 flex flex-wrap items-center justify-between gap-4">
-        <div className="flex flex-wrap gap-2">
-          {STATUS_FILTERS.map((f) => (
-            <Link key={f.label} href={urlFor({ status: f.value ?? '', page: 1 })}>
-              <Badge
-                variant="outline"
-                className={
-                  validStatus === f.value ? 'border-brand bg-info-soft text-info' : 'border-border text-slate'
-                }
-              >
-                {f.label} ({counts[f.countKey]})
-              </Badge>
-            </Link>
-          ))}
+      <h2 className="mb-3 text-xs font-bold tracking-wide text-slate uppercase">Quick stats</h2>
+      <div className="mb-10 grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-5">
+        {kpiCards.map((kpi) => (
+          <div key={kpi.label} className="overflow-hidden rounded-lg border border-border bg-surface p-4">
+            <div className={`mb-3 flex size-8 items-center justify-center rounded-lg ${pillClass(kpi.tone)}`}>
+              <kpi.icon className="size-4" />
+            </div>
+            <div className="mb-1 text-[11px] text-muted-foreground">{kpi.label}</div>
+            <div className="mb-2 truncate text-lg font-semibold text-ink">{kpi.value}</div>
+            <Badge variant="outline" className={pillClass(kpi.tone)}>
+              {kpi.chip}
+            </Badge>
+          </div>
+        ))}
+      </div>
+
+      <h2 className="mb-3 text-xs font-bold tracking-wide text-slate uppercase">
+        All orders · {total} matching
+      </h2>
+      <div className="mb-4 flex flex-wrap items-center justify-between gap-4">
+        <div className="flex flex-wrap gap-1">
+          {STATUS_FILTERS.map((f) => {
+            const active = validStatus === f.value;
+            return (
+              <Link key={f.label} href={urlFor({ status: f.value ?? '', page: 1 })}>
+                <span
+                  className={`inline-flex items-center rounded-full px-3 py-1.5 text-xs font-semibold transition-colors ${
+                    active ? 'bg-ink text-canvas' : 'text-slate hover:bg-well hover:text-ink'
+                  }`}
+                >
+                  {f.label} ({counts[f.countKey]})
+                </span>
+              </Link>
+            );
+          })}
         </div>
 
         <form className="flex max-w-xs flex-1 items-center gap-2">
@@ -134,8 +190,10 @@ export default async function AdminOrdersPage({
                 const buyerName = order.buyer.businessName ?? order.buyer.name;
                 return (
                   <TableRow key={order.id}>
-                    <TableCell className="max-w-32 truncate text-muted-foreground">{order.id}</TableCell>
-                    <TableCell className="text-ink">
+                    <TableCell className="py-3 font-semibold text-ink" title={order.id}>
+                      {shortOrderNumber(order.id)}
+                    </TableCell>
+                    <TableCell className="py-3 text-ink">
                       <div className="flex items-center gap-2.5">
                         <Avatar name={order.buyer.name} className="size-8 shrink-0 text-[10px]" />
                         <div className="min-w-0">
@@ -144,18 +202,22 @@ export default async function AdminOrdersPage({
                         </div>
                       </div>
                     </TableCell>
-                    <TableCell className="text-ink">{order.items.length}</TableCell>
-                    <TableCell className="text-ink">{formatNaira(order.total)}</TableCell>
-                    <TableCell>
+                    <TableCell className="py-3 text-ink">{order.items.length}</TableCell>
+                    <TableCell className="py-3 font-semibold text-ink">{formatNaira(order.total)}</TableCell>
+                    <TableCell className="py-3">
                       <Badge variant="outline" className={pillClass(orderStatusTone(order.status))}>
                         {STATUS_LABEL[order.status] ?? order.status}
                       </Badge>
                     </TableCell>
-                    <TableCell className="max-w-36 truncate text-ink">{order.fulfillmentStage}</TableCell>
-                    <TableCell className="text-muted-foreground">
+                    <TableCell className="py-3">
+                      <Badge variant="outline" className={`w-fit max-w-36 truncate ${pillClass(fulfillmentStageTone(order.fulfillmentStage))}`}>
+                        {order.fulfillmentStage}
+                      </Badge>
+                    </TableCell>
+                    <TableCell className="py-3 text-muted-foreground">
                       {order.createdAt.toLocaleDateString('en-NG', { dateStyle: 'medium' })}
                     </TableCell>
-                    <TableCell className="text-right">
+                    <TableCell className="py-3 text-right">
                       <Link href={`/admin/orders/${order.id}`} className="text-sm text-brand hover:underline">
                         View
                       </Link>
@@ -171,7 +233,7 @@ export default async function AdminOrdersPage({
       {pageCount > 1 && (
         <div className="mt-4 flex items-center justify-between text-sm text-muted-foreground">
           <span>
-            Page {page} of {pageCount}
+            Showing page {page} of {pageCount}
           </span>
           <div className="flex gap-2">
             {page <= 1 ? (
