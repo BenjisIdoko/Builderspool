@@ -17,48 +17,61 @@ function requiredText(formData: FormData, key: string): string {
   return value.trim();
 }
 
-export async function signInSeller(formData: FormData) {
-  const email = requiredText(formData, 'email').toLowerCase();
-  const password = requiredText(formData, 'password');
+// Errors are caught and returned as plain data (not thrown across the
+// server/client boundary) — Next.js redacts a thrown Server Action error's
+// message in production builds, replacing it with a generic digest-only
+// message on the client. Returning { error } instead sidesteps that
+// entirely, since it's just normal serializable data, not an exception.
+export async function signInSeller(formData: FormData): Promise<{ error: string } | undefined> {
+  try {
+    const email = requiredText(formData, 'email').toLowerCase();
+    const password = requiredText(formData, 'password');
 
-  const user = await prisma.user.findUnique({ where: { email } });
-  if (!user || user.role !== Role.SELLER || !user.passwordHash) {
-    throw new Error('No seller account matches that email and password.');
+    const user = await prisma.user.findUnique({ where: { email } });
+    if (!user || user.role !== Role.SELLER || !user.passwordHash) {
+      throw new Error('No seller account matches that email and password.');
+    }
+    const valid = await verifyPassword(password, user.passwordHash);
+    if (!valid) throw new Error('No seller account matches that email and password.');
+
+    const store = await cookies();
+    store.set(SELLER_COOKIE, user.id, { httpOnly: true, sameSite: 'lax', path: '/' });
+  } catch (err) {
+    return { error: err instanceof Error ? err.message : 'Could not sign in.' };
   }
-  const valid = await verifyPassword(password, user.passwordHash);
-  if (!valid) throw new Error('No seller account matches that email and password.');
-
-  const store = await cookies();
-  store.set(SELLER_COOKIE, user.id, { httpOnly: true, sameSite: 'lax', path: '/' });
 }
 
-export async function signUpSeller(formData: FormData) {
-  const name = requiredText(formData, 'name');
-  const businessName = requiredText(formData, 'businessName');
-  const email = requiredText(formData, 'email').toLowerCase();
-  const location = requiredText(formData, 'location');
-  const password = requiredText(formData, 'password');
-  const confirmPassword = requiredText(formData, 'confirmPassword');
+export async function signUpSeller(formData: FormData): Promise<{ error: string } | undefined> {
+  try {
+    const name = requiredText(formData, 'name');
+    const businessName = requiredText(formData, 'businessName');
+    const email = requiredText(formData, 'email').toLowerCase();
+    const location = requiredText(formData, 'location');
+    const password = requiredText(formData, 'password');
+    const confirmPassword = requiredText(formData, 'confirmPassword');
 
-  if (password.length < 8) throw new Error('Password must be at least 8 characters.');
-  if (password !== confirmPassword) throw new Error('Passwords do not match.');
+    if (password.length < 8) throw new Error('Password must be at least 8 characters.');
+    if (password !== confirmPassword) throw new Error('Passwords do not match.');
 
-  const existing = await prisma.user.findUnique({ where: { email } });
-  if (existing) throw new Error('An account with that email already exists.');
+    const existing = await prisma.user.findUnique({ where: { email } });
+    if (existing) throw new Error('An account with that email already exists.');
 
-  const passwordHash = await hashPassword(password);
-  const user = await prisma.user.create({
-    data: { role: Role.SELLER, name, email, businessName, location, passwordHash },
-  });
-  // New sellers start with no served region and a neutral trust score —
-  // real signals (real deliveries, real GRNs) are what should move
-  // trustScore over time, not a number chosen at signup.
-  await prisma.sellerProfile.create({
-    data: { userId: user.id, regionsServed: [location.toUpperCase()], trustScore: 50 },
-  });
+    const passwordHash = await hashPassword(password);
+    const user = await prisma.user.create({
+      data: { role: Role.SELLER, name, email, businessName, location, passwordHash },
+    });
+    // New sellers start with no served region and a neutral trust score —
+    // real signals (real deliveries, real GRNs) are what should move
+    // trustScore over time, not a number chosen at signup.
+    await prisma.sellerProfile.create({
+      data: { userId: user.id, regionsServed: [location.toUpperCase()], trustScore: 50 },
+    });
 
-  const store = await cookies();
-  store.set(SELLER_COOKIE, user.id, { httpOnly: true, sameSite: 'lax', path: '/' });
+    const store = await cookies();
+    store.set(SELLER_COOKIE, user.id, { httpOnly: true, sameSite: 'lax', path: '/' });
+  } catch (err) {
+    return { error: err instanceof Error ? err.message : 'Could not create your seller account.' };
+  }
 }
 
 export async function signOutSeller() {

@@ -18,12 +18,12 @@ export function SellerSignInForm() {
     setError(null);
     const formData = new FormData(e.currentTarget);
     startTransition(async () => {
-      try {
-        await signInSeller(formData);
+      const result = await signInSeller(formData);
+      if (result?.error) {
+        setError(result.error);
+      } else {
         router.push('/seller');
         router.refresh();
-      } catch (err) {
-        setError(err instanceof Error ? err.message : 'Could not sign in.');
       }
     });
   }

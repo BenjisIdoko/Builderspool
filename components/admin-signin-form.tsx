@@ -17,12 +17,12 @@ export function AdminSignInForm() {
     setError(null);
     const formData = new FormData(e.currentTarget);
     startTransition(async () => {
-      try {
-        await signInAdmin(formData);
+      const result = await signInAdmin(formData);
+      if (result?.error) {
+        setError(result.error);
+      } else {
         router.push('/admin');
         router.refresh();
-      } catch (err) {
-        setError(err instanceof Error ? err.message : 'Could not sign in.');
       }
     });
   }

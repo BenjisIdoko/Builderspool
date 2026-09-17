@@ -18,12 +18,12 @@ export function BuyerSignUpForm() {
     setError(null);
     const formData = new FormData(e.currentTarget);
     startTransition(async () => {
-      try {
-        await signUpBuyer(formData);
+      const result = await signUpBuyer(formData);
+      if (result?.error) {
+        setError(result.error);
+      } else {
         router.push('/account');
         router.refresh();
-      } catch (err) {
-        setError(err instanceof Error ? err.message : 'Could not create your account.');
       }
     });
   }

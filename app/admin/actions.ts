@@ -16,22 +16,31 @@ import { verifyPassword } from '@/lib/auth/password';
 import { awardCycle } from '@/lib/bidding';
 import { issueGrn, disbursePayout, toggleAllocationHold } from '@/lib/fulfillment';
 
-export async function signInAdmin(formData: FormData) {
-  const emailRaw = formData.get('email');
-  const passwordRaw = formData.get('password');
-  if (typeof emailRaw !== 'string' || typeof passwordRaw !== 'string' || !emailRaw || !passwordRaw) {
-    throw new Error('Enter your email and password.');
-  }
+// Errors are caught and returned as plain data (not thrown across the
+// server/client boundary) — Next.js redacts a thrown Server Action error's
+// message in production builds, replacing it with a generic digest-only
+// message on the client. Returning { error } instead sidesteps that
+// entirely, since it's just normal serializable data, not an exception.
+export async function signInAdmin(formData: FormData): Promise<{ error: string } | undefined> {
+  try {
+    const emailRaw = formData.get('email');
+    const passwordRaw = formData.get('password');
+    if (typeof emailRaw !== 'string' || typeof passwordRaw !== 'string' || !emailRaw || !passwordRaw) {
+      throw new Error('Enter your email and password.');
+    }
 
-  const admin = await prisma.user.findUnique({ where: { email: emailRaw.toLowerCase().trim() } });
-  if (!admin || admin.role !== Role.ADMIN || !admin.passwordHash) {
-    throw new Error('Incorrect email or password.');
-  }
-  const valid = await verifyPassword(passwordRaw, admin.passwordHash);
-  if (!valid) throw new Error('Incorrect email or password.');
+    const admin = await prisma.user.findUnique({ where: { email: emailRaw.toLowerCase().trim() } });
+    if (!admin || admin.role !== Role.ADMIN || !admin.passwordHash) {
+      throw new Error('Incorrect email or password.');
+    }
+    const valid = await verifyPassword(passwordRaw, admin.passwordHash);
+    if (!valid) throw new Error('Incorrect email or password.');
 
-  const store = await cookies();
-  store.set(ADMIN_COOKIE, 'true', { httpOnly: true, sameSite: 'lax', path: '/' });
+    const store = await cookies();
+    store.set(ADMIN_COOKIE, 'true', { httpOnly: true, sameSite: 'lax', path: '/' });
+  } catch (err) {
+    return { error: err instanceof Error ? err.message : 'Could not sign in.' };
+  }
 }
 
 export async function signOutAdmin() {
