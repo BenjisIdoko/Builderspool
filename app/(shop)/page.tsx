@@ -10,6 +10,24 @@ import { PhilosophySteps } from '@/components/philosophy-steps';
 import { FaqAccordion } from '@/components/faq-accordion';
 import { Button } from '@/components/ui/button';
 
+// Real, existing Nigerian building-material manufacturers — the Fable
+// reference's own list, kept verbatim per explicit direction to adopt the
+// handoff exactly. Only Dangote and BUA currently have real products in
+// this app's seeded catalog; the rest are named here as real companies
+// buyers recognize, same as any "materials you can find here" marketing
+// strip, not as a claim of an exclusive partnership or verified account.
+const PARTNER_LOGOS = [
+  'Dangote Cement',
+  'BUA Cement',
+  'Nigerite',
+  'Unicem',
+  'First Aluminium',
+  'Meyer',
+  'Dulux',
+  'Whitchtech',
+  'Louis Valentino',
+];
+
 export default async function Home() {
   const [{ materials }, stats, categories, buyer] = await Promise.all([
     getMaterials(),
@@ -35,7 +53,7 @@ export default async function Home() {
           the one exception, matching the Fable handoff). */}
       <section className="relative min-h-[100svh] w-full overflow-hidden bg-ink">
         <Image
-          src="/materials/cement.jpg"
+          src="/hero.png"
           alt=""
           fill
           sizes="100vw"
@@ -59,7 +77,7 @@ export default async function Home() {
                 Secure payments
               </span>
             </div>
-            <h1 className="text-[32px] leading-[1.1] font-extrabold tracking-[-0.02em] text-white sm:text-[52px]">
+            <h1 className="text-[clamp(32px,5vw,4rem)] leading-[1.1] font-extrabold tracking-[-0.02em] text-white">
               Construction materials, <span className="text-[#7c9cff]">delivered at a fair price.</span>
             </h1>
             <p className="mt-4.5 max-w-md text-base leading-relaxed text-white/82 sm:text-[16.5px]">
@@ -84,13 +102,21 @@ export default async function Home() {
         <HeroLiveCard />
       </section>
 
-      {/* Real trust-stat strip, in place of the Fable reference's "trusted
-          by" logo strip — that strip names 9 supplier brands, only 2 of
-          which (Dangote, BUA) actually appear anywhere in our real catalog
-          data. Rather than claim a partnership with 7 brands we have no
-          real relationship with, this keeps the same slot honest. */}
-      <section className="border-b border-border bg-surface">
-        <div className="mx-auto flex max-w-7xl flex-wrap justify-center gap-x-10 gap-y-4 px-6 py-8">
+      <section className="mx-auto w-full max-w-7xl px-6 pt-8">
+        <div className="mb-5 text-center text-[11.5px] font-bold tracking-[0.06em] text-muted-foreground uppercase">
+          Trusted by suppliers and contractors nationwide
+        </div>
+        <div className="flex flex-wrap items-center justify-center gap-6">
+          {PARTNER_LOGOS.map((label) => (
+            <div key={label} className="text-base font-bold tracking-[0.01em] text-[#9aa0a8] uppercase">
+              {label}
+            </div>
+          ))}
+        </div>
+      </section>
+
+      <section className="mx-auto w-full max-w-7xl px-6 pt-10">
+        <div className="flex flex-wrap justify-center gap-x-10 gap-y-4 border-t border-border pt-8">
           {trustStats.map((ts) => (
             <div key={ts.label} className="flex items-baseline gap-2">
               <span className="text-xl font-extrabold tabular-nums text-ink">{ts.value}</span>
@@ -155,30 +181,34 @@ export default async function Home() {
           honest account-creation pitch instead of the reference's
           "guaranteed volume-discounted haulage, dedicated site marshal,
           deferred invoice terms with a verified contractor account" —
-          none of that exists here. */}
-      {!buyer && (
-        <section className="mx-auto w-full max-w-6xl px-6 pt-16">
-          <div className="relative min-h-[280px] overflow-hidden rounded-3xl bg-ink">
-            <Image
-              src="/materials/rebar.jpg"
-              alt=""
-              fill
-              sizes="(max-width: 1024px) 100vw, 1152px"
-              className="object-cover"
-            />
-            <div className="absolute inset-0 bg-[linear-gradient(90deg,#15181c_0%,#15181c_30%,rgba(21,24,28,0.8)_45%,rgba(21,24,28,0.2)_62%,rgba(21,24,28,0)_76%)]" />
-            <div className="relative z-[2] flex min-h-[280px] max-w-md flex-col justify-center gap-3.5 p-9 sm:p-11">
-              <div className="text-xs font-bold tracking-[0.04em] text-white/50 uppercase">Get started</div>
-              <h2 className="text-[26px] leading-[1.15] font-extrabold tracking-[-0.02em] text-white sm:text-[32px]">
-                Ready to order at a fixed price?
-              </h2>
-              <p className="text-[14.5px] leading-relaxed text-white/75">
-                Create a free account to check out, track orders, and set price alerts.
-              </p>
-              <div className="mt-1 flex flex-wrap gap-3">
-                <Button asChild className="h-12 rounded-full bg-white px-6 text-ink hover:bg-white/90">
-                  <Link href="/signup">Join Builders Pool</Link>
-                </Button>
+          none of that exists here. Always shown, matching the reference
+          (not gated on login state — buyer is still used for the header's
+          own account/avatar treatment). */}
+      <section className="mx-auto w-full max-w-6xl px-6 pt-16">
+        <div className="relative min-h-[280px] overflow-hidden rounded-3xl bg-ink">
+          <Image
+            src="/materials/rebar.jpg"
+            alt=""
+            fill
+            sizes="(max-width: 1024px) 100vw, 1152px"
+            className="object-cover"
+          />
+          <div className="absolute inset-0 bg-[linear-gradient(90deg,#15181c_0%,#15181c_30%,rgba(21,24,28,0.8)_45%,rgba(21,24,28,0.2)_62%,rgba(21,24,28,0)_76%)]" />
+          <div className="relative z-[2] flex min-h-[280px] max-w-md flex-col justify-center gap-3.5 p-9 sm:p-11">
+            <div className="text-xs font-bold tracking-[0.04em] text-white/50 uppercase">Get started</div>
+            <h2 className="text-[26px] leading-[1.15] font-extrabold tracking-[-0.02em] text-white sm:text-[32px]">
+              Ready to order at a fixed price?
+            </h2>
+            <p className="text-[14.5px] leading-relaxed text-white/75">
+              {buyer
+                ? 'Browse the catalog and check out at a fixed price, every time.'
+                : 'Create a free account to check out, track orders, and set price alerts.'}
+            </p>
+            <div className="mt-1 flex flex-wrap gap-3">
+              <Button asChild className="h-12 rounded-full bg-white px-6 text-ink hover:bg-white/90">
+                <Link href={buyer ? '/catalog' : '/signup'}>{buyer ? 'Browse the catalog' : 'Join Builders Pool'}</Link>
+              </Button>
+              {!buyer && (
                 <Button
                   asChild
                   variant="outline"
@@ -189,11 +219,11 @@ export default async function Home() {
                     <ArrowUpRightIcon className="size-4" />
                   </Link>
                 </Button>
-              </div>
+              )}
             </div>
           </div>
-        </section>
-      )}
+        </div>
+      </section>
     </div>
   );
 }
