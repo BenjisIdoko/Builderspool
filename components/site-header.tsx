@@ -1,11 +1,11 @@
 import Link from 'next/link';
-import { UserCircleIcon } from '@phosphor-icons/react/ssr';
 import { getCurrentBuyer } from '@/lib/buyer/auth';
 import { CartSheet } from './cart-sheet';
 import { MobileNav } from './mobile-nav';
 import { HeaderSearch } from './header-search';
 import { HeaderNavLinks } from './header-nav-links';
 import { Avatar } from './avatar';
+import { Button } from './ui/button';
 
 // Real page-level nav (not category browsing, which lives on the catalog
 // page's own tab bar) — only used by MobileNav's sheet, since the pill's
@@ -42,15 +42,22 @@ export async function SiteHeader() {
           <MobileNav links={links} title="Builders Pool" hideFrom="lg" />
           <HeaderSearch />
           {buyer ? (
-            <Link href="/account" aria-label="Account">
-              <Avatar name={buyer.name} className="size-8" />
-            </Link>
+            <>
+              <Link href="/account" aria-label="Account">
+                <Avatar name={buyer.name} className="size-8" />
+              </Link>
+              <CartSheet />
+            </>
           ) : (
-            <Link href="/login" aria-label="Sign in" className="text-slate hover:text-ink">
-              <UserCircleIcon className="size-6" />
-            </Link>
+            <>
+              <Link href="/login" className="px-1 text-sm font-semibold text-slate hover:text-ink">
+                Log in
+              </Link>
+              <Button asChild size="sm" className="h-[34px] rounded-full px-4.5 text-[13.5px] font-bold">
+                <Link href="/signup">Sign up</Link>
+              </Button>
+            </>
           )}
-          <CartSheet />
         </div>
       </header>
     </div>
