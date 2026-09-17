@@ -24,7 +24,7 @@ export default async function MaterialPage({ params }: { params: Promise<{ id: s
   ]);
 
   return (
-    <div className="mx-auto w-full max-w-6xl px-6 pt-28 pb-10">
+    <div className="mx-auto w-full max-w-6xl px-6 pt-36 pb-10">
       <nav className="mb-6 flex items-center gap-1.5 text-sm text-muted-foreground">
         <Link href="/catalog" className="hover:text-ink">
           Catalogue

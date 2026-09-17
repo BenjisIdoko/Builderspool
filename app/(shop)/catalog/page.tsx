@@ -46,7 +46,7 @@ export default async function CatalogPage({
   }
 
   return (
-    <div className="mx-auto w-full max-w-7xl px-6 pt-28 pb-10">
+    <div className="mx-auto w-full max-w-7xl px-6 pt-36 pb-10">
       <div className="mb-3 flex flex-wrap items-start justify-between gap-3">
         <div>
           <div className="mb-1 text-xs font-semibold text-slate">Catalogue</div>

@@ -56,7 +56,7 @@ export default async function OrderConfirmationPage({ params }: { params: Promis
   const dispatchItems = order.items.filter((item) => item.deliveryCost > 0 && item.dispatch);
 
   return (
-    <div className="mx-auto w-full max-w-3xl px-6 pt-28 pb-12">
+    <div className="mx-auto w-full max-w-3xl px-6 pt-36 pb-12">
       <div className="mb-8 flex flex-wrap items-start justify-between gap-4 rounded-lg border border-border bg-surface p-6">
         <div className="flex items-start gap-4">
           <span className="flex size-10 shrink-0 items-center justify-center rounded-md bg-success/10 text-success">
