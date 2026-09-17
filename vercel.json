@@ -4,6 +4,10 @@
     {
       "path": "/api/cron/close-cycles",
       "schedule": "5 18 * * *"
+    },
+    {
+      "path": "/api/cron/notify-closing-soon",
+      "schedule": "0 17 * * *"
     }
   ]
 }

@@ -748,6 +748,51 @@ async function seedHaulage() {
   return { vehiclesCreated, dispatchesCreated };
 }
 
+// Backfills real notification history from bids/allocations that already
+// existed before the notification system did — real material names, real
+// quantities, real timestamps, nothing invented. Skipped per-seller once
+// they have any notification at all, so this never re-runs or duplicates
+// once real live events start creating their own.
+async function seedNotifications() {
+  const sellers = await prisma.user.findMany({
+    where: { role: 'SELLER', bids: { some: {} } },
+    include: {
+      bids: {
+        where: { status: { in: ['FILLED', 'PARTIALLY_FILLED', 'REJECTED'] } },
+        include: { material: true, allocations: { select: { status: true, quantityFilled: true } } },
+      },
+      notifications: { select: { id: true }, take: 1 },
+    },
+  });
+
+  let created = 0;
+  for (const seller of sellers) {
+    if (seller.notifications.length > 0) continue;
+    for (const bid of seller.bids) {
+      const filled = bid.allocations.reduce(
+        (sum, a) => sum + (a.status !== 'CANCELLED' ? a.quantityFilled : 0),
+        0
+      );
+      await prisma.notification.create({
+        data: {
+          userId: seller.id,
+          type: filled > 0 ? 'BID_WON' : 'BID_LOST',
+          title: filled > 0 ? 'Bid awarded' : 'Bid not awarded',
+          body:
+            filled > 0
+              ? `You were awarded ${filled} ${bid.material.unit} of ${bid.material.name}.`
+              : `Your bid for ${bid.material.name} wasn't selected this cycle.`,
+          link: filled > 0 ? '/seller/allocations' : '/seller/bids',
+          read: true, // historical backfill — not a new/unread event
+          createdAt: bid.submittedAt,
+        },
+      });
+      created++;
+    }
+  }
+  return created;
+}
+
 async function main() {
   const { created: materialsCreated, imagesPatched, priceSnapshotsBackfilled, specsPatched } = await seedMaterials();
   const centersCreated = await seedFulfillmentCenters();
@@ -769,6 +814,8 @@ async function main() {
   console.log(`Passwords backfilled for ${passwordsBackfilled} account(s) — demo password: "${DEMO_PASSWORD}".`);
   const { vehiclesCreated, dispatchesCreated } = await seedHaulage();
   console.log(`Haulage: ${vehiclesCreated} vehicle(s) seeded, ${dispatchesCreated} dispatch(es) created.`);
+  const notificationsCreated = await seedNotifications();
+  console.log(`Notifications: ${notificationsCreated} backfilled from existing real bid outcomes.`);
 }
 
 main()

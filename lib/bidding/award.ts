@@ -1,6 +1,7 @@
 import { prisma } from '../prisma';
 import { AllocationStatus, BidStatus, CycleStatus } from '@prisma/client';
 import { getEligibleBidsForCycle, scoreBids } from './scoring';
+import { notifyBidWon, notifyBidLost } from '../notifications';
 import type { CycleCloseReport } from './types';
 
 /**
@@ -82,6 +83,24 @@ export async function awardCycle(cycleId: string): Promise<CycleCloseReport> {
   if (needsAttention) {
     console.warn(
       `[bidding] cycle ${cycleId} awarded with unmet demand: ${totalQuantityRequested - totalQuantityAllocated} units unfilled — needs ops attention`
+    );
+  }
+
+  // Real award outcome per bid, after the transaction has actually
+  // committed — every seller who bid in this cycle finds out whether they
+  // won (and how much) or lost, not just the ones who check back later.
+  if (bidCapacities.length > 0) {
+    const material = await prisma.material.findUniqueOrThrow({
+      where: { id: ranked[0].bid.materialId },
+      select: { name: true, unit: true },
+    });
+    await Promise.all(
+      bidCapacities.map((cap) => {
+        const scored = ranked.find((r) => r.bid.id === cap.bidId)!;
+        return cap.filled > 0
+          ? notifyBidWon(scored.bid.sellerId, material.name, cap.filled, material.unit)
+          : notifyBidLost(scored.bid.sellerId, material.name);
+      })
     );
   }
 

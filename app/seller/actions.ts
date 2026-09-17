@@ -8,6 +8,7 @@ import { BidStatus, CycleStatus, Role } from '@prisma/client';
 import { SELLER_COOKIE } from '@/lib/seller/session';
 import { isSellerEligible } from '@/lib/bidding/scoring';
 import { hashPassword, verifyPassword } from '@/lib/auth/password';
+import { markNotificationRead, markAllNotificationsRead } from '@/lib/notifications';
 
 function requiredText(formData: FormData, key: string): string {
   const value = formData.get(key);
@@ -142,4 +143,21 @@ export async function withdrawBid(formData: FormData) {
 
   revalidatePath('/seller');
   revalidatePath('/seller/bids');
+}
+
+export async function markNotificationReadAction(formData: FormData) {
+  const id = formData.get('id');
+  const sellerId = formData.get('sellerId');
+  if (typeof id !== 'string' || typeof sellerId !== 'string') return;
+
+  await markNotificationRead(id, sellerId);
+  revalidatePath('/seller', 'layout');
+}
+
+export async function markAllNotificationsReadAction(formData: FormData) {
+  const sellerId = formData.get('sellerId');
+  if (typeof sellerId !== 'string') return;
+
+  await markAllNotificationsRead(sellerId);
+  revalidatePath('/seller', 'layout');
 }

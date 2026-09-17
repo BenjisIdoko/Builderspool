@@ -12,8 +12,14 @@ generator client {
 }
 
 datasource db {
-  provider = "postgresql"
-  url      = env("DATABASE_URL")
+  provider  = "postgresql"
+  url       = env("DATABASE_URL")
+  // DATABASE_URL points at Supabase's transaction pooler (pgbouncer=true),
+  // required for serverless runtime but incompatible with `prisma migrate`'s
+  // DDL/advisory-lock needs — migrate hangs indefinitely against it.
+  // DIRECT_URL points at the session pooler instead, used only by the CLI
+  // for migrations, never at runtime.
+  directUrl = env("DIRECT_URL")
 }
 
 enum Role {
@@ -148,6 +154,7 @@ model User {
   orders        Order[]
   bids          Bid[]
   priceAlerts   PriceAlert[]
+  notifications Notification[]
 }
 
 enum KycStatus {
@@ -347,6 +354,33 @@ model Bid {
   allocations Allocation[]
 
   @@index([materialId, cycleId, unitPrice])
+}
+
+enum NotificationType {
+  CYCLE_OPENED
+  CYCLE_CLOSING_SOON
+  BID_WON
+  BID_LOST
+}
+
+// Real, event-driven in-app alerts — created only from an actual bidding
+// event (a cycle a seller is eligible for opening/closing soon, or their
+// own bid's real award outcome), never a synthetic/sample notification.
+// No email/SMS delivery exists in this app (see BUILDERSPOOL_PROJECT_BRIEF.md),
+// so this is in-app only for now.
+model Notification {
+  id        String           @id @default(cuid())
+  userId    String
+  type      NotificationType
+  title     String
+  body      String
+  link      String? // where "View" should take the recipient
+  read      Boolean          @default(false)
+  createdAt DateTime         @default(now())
+
+  user User @relation(fields: [userId], references: [id])
+
+  @@index([userId, read])
 }
 
 // The resolved link: how much of a winning Bid fills a specific OrderItem.

@@ -4,8 +4,10 @@ import { MapPinIcon, SignOutIcon } from '@phosphor-icons/react/ssr';
 import { getSellerIdFromSession } from '@/lib/seller/session';
 import { getSellerProfile } from '@/lib/queries/sellerPortal';
 import { signOutSeller } from '@/app/seller/actions';
+import { getNotificationsForSeller } from '@/lib/notifications';
 import { kycStatusTone, pillClass } from '@/lib/statusColors';
 import { SellerSidebar } from '@/components/seller/seller-sidebar';
+import { NotificationBell } from '@/components/seller/notification-bell';
 import { MobileNav } from '@/components/mobile-nav';
 import { LogoMark } from '@/components/logo';
 import { Badge } from '@/components/ui/badge';
@@ -32,9 +34,11 @@ export default async function SellerDashboardLayout({ children }: { children: Re
   const profile = await getSellerProfile(sellerId);
   if (!profile) redirect('/seller/login');
 
+  const { notifications, unreadCount } = await getNotificationsForSeller(sellerId);
+
   return (
     <div className="flex flex-1">
-      <SellerSidebar profile={profile} />
+      <SellerSidebar profile={profile} sellerId={sellerId} notifications={notifications} unreadCount={unreadCount} />
       <div className="flex flex-1 flex-col">
         <header className="flex h-16 items-center gap-3 border-b border-border bg-surface/95 px-5 backdrop-blur lg:hidden">
           <MobileNav
@@ -66,6 +70,9 @@ export default async function SellerDashboardLayout({ children }: { children: Re
             <LogoMark className="size-7" />
             <span className="text-sm font-medium tracking-tight text-ink">Seller portal</span>
           </Link>
+          <div className="ml-auto">
+            <NotificationBell sellerId={sellerId} notifications={notifications} unreadCount={unreadCount} />
+          </div>
         </header>
         <main className="flex flex-1 flex-col">{children}</main>
       </div>

@@ -1,6 +1,7 @@
 import { prisma } from '../prisma';
 import { CycleStatus, SourcingScope } from '@prisma/client';
 import { getCycleWindowForDate } from './cycleWindow';
+import { notifyCycleOpened } from '../notifications';
 
 /**
  * Assigns a paid OrderItem to its BidCycle, creating the cycle if it's the
@@ -33,6 +34,10 @@ export async function joinCycleForOrderItem(orderItemId: string) {
         status: CycleStatus.OPEN,
       },
     });
+    // Real event, fired once per cycle (not per order item that joins it
+    // afterward) — every eligible seller finds out a pool actually opened,
+    // not on a fixed schedule they'd have to poll for.
+    await notifyCycleOpened(cycle, orderItem.material.name);
   }
 
   return prisma.orderItem.update({

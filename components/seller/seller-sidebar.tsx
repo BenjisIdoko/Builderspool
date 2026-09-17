@@ -5,10 +5,12 @@ import { usePathname } from 'next/navigation';
 import { GaugeIcon, IdentificationCardIcon, MapPinIcon, SignOutIcon, StackIcon, TruckIcon } from '@phosphor-icons/react/ssr';
 import { signOutSeller } from '@/app/seller/actions';
 import type { getSellerProfile } from '@/lib/queries/sellerPortal';
+import type { getNotificationsForSeller } from '@/lib/notifications';
 import { kycStatusTone, pillClass } from '@/lib/statusColors';
 import { LogoMark } from '@/components/logo';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
+import { NotificationBell } from './notification-bell';
 
 const KYC_LABEL: Record<string, string> = {
   NOT_SUBMITTED: 'KYC not started',
@@ -37,17 +39,26 @@ const LINK_GROUPS = [
 
 export function SellerSidebar({
   profile,
+  sellerId,
+  notifications,
+  unreadCount,
 }: {
   profile: NonNullable<Awaited<ReturnType<typeof getSellerProfile>>>;
+  sellerId: string;
+  notifications: Awaited<ReturnType<typeof getNotificationsForSeller>>['notifications'];
+  unreadCount: number;
 }) {
   const pathname = usePathname();
 
   return (
     <aside className="hidden w-60 shrink-0 flex-col border-r border-border bg-surface lg:flex">
-      <Link href="/seller" className="flex items-center gap-2 border-b border-border px-5 py-5">
-        <LogoMark className="size-8" />
-        <span className="text-[15px] font-medium tracking-tight text-ink">Seller portal</span>
-      </Link>
+      <div className="flex items-center justify-between gap-2 border-b border-border px-5 py-5">
+        <Link href="/seller" className="flex min-w-0 items-center gap-2">
+          <LogoMark className="size-8 shrink-0" />
+          <span className="truncate text-[15px] font-medium tracking-tight text-ink">Seller portal</span>
+        </Link>
+        <NotificationBell sellerId={sellerId} notifications={notifications} unreadCount={unreadCount} />
+      </div>
 
       <nav className="flex flex-col gap-5 p-3">
         {LINK_GROUPS.map((group) => (

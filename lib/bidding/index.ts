@@ -4,3 +4,4 @@ export * from './award';
 export * from './fallback';
 export * from './cycleWindow';
 export * from './joinCycle';
+export * from './closingSoon';
