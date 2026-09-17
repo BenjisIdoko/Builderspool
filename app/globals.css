@@ -121,10 +121,10 @@ body {
 
 @layer base {
   html {
-    /* Fluid base: 16px on narrow viewports up to 18px on wide ones, per
-       Design Direction — deliberate, not a drift from the original fixed
-       16px/1rem call, which this supersedes. */
-    font-size: clamp(1rem, 0.9561rem + 0.1876vw, 1.125rem);
+    /* Flat 100% (1rem = 16px) — every rem-based size in the type scale
+       resolves from this. A fluid 16-18px root was tried and reverted
+       per explicit instruction; back to the plain baseline. */
+    font-size: 100%;
   }
   * {
     @apply border-border outline-ring/50;

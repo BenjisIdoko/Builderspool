@@ -87,9 +87,13 @@ export function HeroLiveCard() {
             : 'left 750ms cubic-bezier(0.22,1,0.36,1), top 750ms cubic-bezier(0.22,1,0.36,1), opacity 450ms cubic-bezier(0.22,1,0.36,1), transform 450ms cubic-bezier(0.22,1,0.36,1)',
         }}
       >
+        {/* "Success" phases use the brand-warm amber (the same hero-only
+            accent token used in the signature gradient) instead of green
+            — a pale mint on this translucent glass card washed out
+            against a bright photo and was flagged as hard to read. */}
         <div
           className="mb-1.5 flex items-center gap-1.5 text-[10.5px] font-bold tracking-[0.04em] uppercase [text-shadow:0_1px_3px_rgba(0,0,0,0.55)]"
-          style={{ color: current.success ? '#34d399' : 'rgba(255,255,255,0.85)' }}
+          style={{ color: current.success ? '#ea580c' : 'rgba(255,255,255,0.85)' }}
         >
           <Icon weight="fill" className="size-3" />
           {current.label}

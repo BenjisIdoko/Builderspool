@@ -8,7 +8,7 @@ export default async function CheckoutPage() {
   const buyer = await requireBuyer();
 
   return (
-    <div className="mx-auto w-full max-w-5xl px-6 pt-36 pb-10">
+    <div className="mx-auto w-full max-w-5xl px-6 pt-32 pb-10">
       <Link
         href="/cart"
         className="mb-4 inline-flex items-center gap-1 text-sm text-muted-foreground transition-colors hover:text-ink"

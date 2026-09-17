@@ -66,7 +66,7 @@ export default async function Home() {
         <div className="absolute inset-0 bg-[linear-gradient(180deg,rgba(21,24,28,0)_50%,rgba(21,24,28,0.4)_100%)]" />
 
         <div className="relative z-[2] mx-auto flex min-h-[100svh] max-w-7xl flex-col justify-center px-6 py-12">
-          <div className="max-w-xl">
+          <div className="max-w-2xl">
             <div className="mb-5 flex flex-wrap items-center gap-2.5 text-[13px] text-white/85">
               <span className="flex items-center gap-1.5 font-semibold">
                 <CertificateIcon weight="fill" className="size-4" />
@@ -79,7 +79,9 @@ export default async function Home() {
               </span>
             </div>
             <h1 className="text-[clamp(32px,5vw,4rem)] leading-[1.1] font-extrabold tracking-[-0.02em] text-white">
-              Construction materials, <span className="text-[#7c9cff]">delivered at a fair price.</span>
+              Construction materials,
+              <br />
+              <span className="text-[#7c9cff]">delivered at a fair price.</span>
             </h1>
             <p className="mt-4.5 max-w-md text-base leading-relaxed text-white/82 sm:text-[16.5px]">
               Cement, blocks, rebar, roofing and fittings — one fixed price, no back-and-forth. Pick up

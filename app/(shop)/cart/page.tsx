@@ -14,7 +14,7 @@ export default function CartPage() {
 
   if (lines.length === 0) {
     return (
-      <div className="mx-auto flex w-full max-w-3xl flex-1 flex-col items-center justify-center gap-4 px-6 pt-36 pb-24 text-center">
+      <div className="mx-auto flex w-full max-w-3xl flex-1 flex-col items-center justify-center gap-4 px-6 pt-32 pb-24 text-center">
         <h1 className="text-xl font-bold text-ink">Your cart is empty</h1>
         <p className="text-slate">Add materials from the catalog to get started.</p>
         <Button asChild size="lg">
@@ -27,7 +27,7 @@ export default function CartPage() {
   const itemCount = lines.reduce((sum, l) => sum + l.quantity, 0);
 
   return (
-    <div className="mx-auto w-full max-w-6xl px-6 pt-36 pb-10">
+    <div className="mx-auto w-full max-w-6xl px-6 pt-32 pb-10">
       <CheckoutSteps current={0} />
       <h1 className="mb-6 text-2xl font-bold tracking-tight text-ink">
         Cart <span className="font-normal text-muted-foreground">({itemCount} items)</span>
