@@ -1,6 +1,6 @@
 import Image from 'next/image';
 import Link from 'next/link';
-import { CertificateIcon, LockKeyIcon, ArrowUpRightIcon, PhoneIcon, MapPinIcon } from '@phosphor-icons/react/ssr';
+import { CertificateIcon, LockKeyIcon, ArrowUpRightIcon, PhoneIcon, MapPinIcon, EnvelopeSimpleIcon } from '@phosphor-icons/react/ssr';
 import { getMaterials, getCategories, getFulfillmentCenters } from '@/lib/queries/materials';
 import { getStorefrontStats } from '@/lib/queries/stats';
 import { getCurrentBuyer } from '@/lib/buyer/auth';
@@ -226,21 +226,28 @@ export default async function Home() {
         </div>
       </section>
 
-      {/* Get in touch — the reference's phone number is real (confirmed by
-          the user); its email address isn't yet, since the domain hasn't
-          been registered, so that card is left out rather than shown as a
-          working contact channel. Depot addresses use real fulfillment
-          center data instead of the reference's fictional cities. */}
+      {/* Get in touch — real, active contact details confirmed by the
+          user (not the reference's placeholder phone/email). Depot
+          addresses use real fulfillment center data instead of the
+          reference's fictional cities. */}
       <section className="mx-auto w-full max-w-6xl px-6 pt-16 pb-16">
         <h2 className="mb-5 text-[22px] font-bold tracking-[-0.025em] text-ink">Get in touch</h2>
-        <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
+        <div className="grid grid-cols-1 gap-4 sm:grid-cols-3">
           <a
-            href="tel:+2349030621787"
+            href="tel:+2348133941775"
             className="flex flex-col gap-2.5 rounded-2xl border border-border bg-surface p-5.5 text-ink no-underline transition-colors hover:border-border-strong"
           >
             <PhoneIcon className="size-5.5 text-brand" />
             <div className="text-sm font-bold">Procurement desk</div>
-            <div className="text-[13px] text-slate">+234 903 0621 787</div>
+            <div className="text-[13px] text-slate">+234 813 394 1775</div>
+          </a>
+          <a
+            href="mailto:info@builderspool.com.ng"
+            className="flex flex-col gap-2.5 rounded-2xl border border-border bg-surface p-5.5 text-ink no-underline transition-colors hover:border-border-strong"
+          >
+            <EnvelopeSimpleIcon className="size-5.5 text-brand" />
+            <div className="text-sm font-bold">Email us</div>
+            <div className="text-[13px] text-slate">info@builderspool.com.ng</div>
           </a>
           <div className="flex flex-col gap-2.5 rounded-2xl border border-border bg-surface p-5.5">
             <MapPinIcon className="size-5.5 text-brand" />
