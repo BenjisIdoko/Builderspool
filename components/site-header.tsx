@@ -6,6 +6,7 @@ import { HeaderSearch } from './header-search';
 import { HeaderNavLinks } from './header-nav-links';
 import { Avatar } from './avatar';
 import { Button } from './ui/button';
+import { LogoMark } from './logo';
 
 // Real page-level nav (not category browsing, which lives on the catalog
 // page's own tab bar) — only used by MobileNav's sheet, since the pill's
@@ -29,9 +30,7 @@ export async function SiteHeader() {
       <header className="mx-auto flex max-w-6xl items-center justify-between gap-4 rounded-full border border-border/70 bg-surface/85 px-3.5 py-5 shadow-[0_12px_32px_rgba(15,23,42,0.08),0_2px_6px_rgba(15,23,42,0.04)] backdrop-blur-[14px] sm:gap-6 sm:px-4.5">
         <div className="flex min-w-0 items-center gap-8">
           <Link href="/" className="flex shrink-0 items-center gap-2">
-            <span className="flex size-6.5 shrink-0 items-center justify-center rounded-lg bg-brand text-[13px] font-extrabold text-white">
-              BP
-            </span>
+            <LogoMark className="size-7 shrink-0" />
             <span className="hidden text-[1.5rem] leading-none font-extrabold sm:inline">
               <span className="text-ink">Builders</span> <span className="text-brand">Pool</span>
             </span>
