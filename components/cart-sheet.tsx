@@ -26,10 +26,15 @@ export function CartSheet() {
   return (
     <Sheet open={open} onOpenChange={setOpen}>
       <SheetTrigger asChild>
-        <Button variant="outline" size="icon" className="relative" aria-label={`Cart, ${itemCount} ${itemCount === 1 ? 'item' : 'items'}`}>
+        <Button
+          variant="ghost"
+          size="icon-sm"
+          className="relative rounded-full text-slate"
+          aria-label={`Cart, ${itemCount} ${itemCount === 1 ? 'item' : 'items'}`}
+        >
           <ShoppingCartIcon className="size-4.5" />
           {itemCount > 0 && (
-            <Badge className="absolute -top-1.5 -right-1.5 min-w-[1.1rem] justify-center rounded-full px-1 text-[10px]">
+            <Badge className="absolute -top-0.5 -right-0.5 min-w-[1rem] justify-center rounded-full px-1 text-[10px]">
               {itemCount}
             </Badge>
           )}

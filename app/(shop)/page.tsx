@@ -1,33 +1,14 @@
-import { createElement } from 'react';
 import Image from 'next/image';
 import Link from 'next/link';
-import { TagIcon, LockKeyIcon, TruckIcon, ArrowRightIcon, ShieldCheckIcon } from '@phosphor-icons/react/ssr';
+import { CertificateIcon, LockKeyIcon, ArrowUpRightIcon } from '@phosphor-icons/react/ssr';
 import { getMaterials, getCategories } from '@/lib/queries/materials';
 import { getStorefrontStats } from '@/lib/queries/stats';
 import { getCurrentBuyer } from '@/lib/buyer/auth';
-import { getCategoryIcon } from '@/lib/categoryIcons';
 import { MaterialCard } from '@/components/material-card';
+import { HeroLiveCard } from '@/components/hero-live-card';
+import { PhilosophySteps } from '@/components/philosophy-steps';
+import { FaqAccordion } from '@/components/faq-accordion';
 import { Button } from '@/components/ui/button';
-
-// A rare, deliberate exception to the sitewide hairline-border/no-shadow
-// rule (see DESIGN.md) — the same subtle shadow the Fable handoff uses on
-// buyer-marketing surfaces only (hero card, trust badges, category tiles),
-// never on routine controls or admin/seller tables.
-const CARD_SHADOW = 'shadow-[0_1px_2px_rgba(16,24,40,0.04)]';
-
-const TRUST_BADGES = [
-  { icon: LockKeyIcon, label: 'Escrow protected', body: 'Funds released only on fulfillment center receipt' },
-  { icon: TagIcon, label: 'Fixed catalogue price', body: 'No back-and-forth negotiation' },
-  { icon: TruckIcon, label: 'Tracked haulage', body: 'Real dispatch status, not a black box' },
-];
-
-const FLOW_STEPS = [
-  { title: 'Order confirmed', body: 'Fixed price, paid immediately.' },
-  { title: 'Demand pooled', body: 'Combined daily with other buyers.' },
-  { title: 'Procurement negotiated', body: 'Sellers compete to supply the pool.' },
-  { title: 'Materials prepared', body: 'Routed to the nearest fulfillment center.' },
-  { title: 'Delivered', body: 'To your site, or ready for pickup.' },
-];
 
 export default async function Home() {
   const [{ materials }, stats, categories, buyer] = await Promise.all([
@@ -37,6 +18,7 @@ export default async function Home() {
     getCurrentBuyer(),
   ]);
   const featured = materials.slice(0, 8);
+  const categoryLoop = [...categories, ...categories];
 
   const trustStats = [
     { value: stats.materialCount, label: 'Materials listed' },
@@ -47,144 +29,113 @@ export default async function Home() {
 
   return (
     <div className="flex flex-1 flex-col">
-      <section className="mx-auto w-full max-w-7xl px-6 pt-10 sm:pt-14">
-        {/* Signature duotone hero, now an inset rounded card rather than
-            full-bleed — matches the Fable handoff's composition. The
-            gradient + photo + decorative circles are the one deliberately
-            bold color moment on the site, reserved for the hero only. */}
-        <div className="relative min-h-[420px] overflow-hidden rounded-3xl p-10 shadow-[0_32px_64px_-12px_rgba(41,84,229,0.35),0_8px_24px_rgba(15,23,42,0.12)] sm:p-14">
-          <div className="absolute inset-0">
-            <Image
-              src="/materials/cement.jpg"
-              alt=""
-              fill
-              sizes="100vw"
-              className="object-cover opacity-35 mix-blend-multiply"
-              priority
-            />
-            <div className="absolute inset-0 bg-gradient-to-br from-brand via-brand-deep to-brand-warm" />
-          </div>
-          <div className="absolute -top-16 right-28 size-56 rounded-full bg-white/10" />
-          <div className="absolute -right-10 -bottom-20 size-64 rounded-full bg-brand-warm/25" />
+      {/* Full-bleed hero, min-h-[100svh] — the fixed SiteHeader floats over
+          it with a blurred pill, so this section deliberately gets no top
+          padding (every other page reserves pt-28 for the header; this is
+          the one exception, matching the Fable handoff). */}
+      <section className="relative min-h-[100svh] w-full overflow-hidden bg-ink">
+        <Image
+          src="/materials/cement.jpg"
+          alt=""
+          fill
+          sizes="100vw"
+          className="object-cover"
+          style={{ objectPosition: 'center 25%' }}
+          priority
+        />
+        <div className="absolute inset-0 bg-[linear-gradient(100deg,rgba(21,24,28,0.88)_0%,rgba(21,24,28,0.55)_38%,rgba(21,24,28,0.1)_62%,rgba(21,24,28,0)_78%)]" />
+        <div className="absolute inset-0 bg-[linear-gradient(180deg,rgba(21,24,28,0)_55%,rgba(21,24,28,0.45)_100%)]" />
 
-          <div className="relative max-w-xl">
-            <div className="mb-4 inline-flex items-center gap-1.5 rounded-full bg-white/15 px-3 py-1.5 text-xs font-bold text-white">
-              <ShieldCheckIcon weight="fill" className="size-3.5" />
-              Escrow-protected · fixed catalogue price
+        <div className="relative z-[2] mx-auto flex min-h-[100svh] max-w-7xl flex-col justify-center px-6 py-12">
+          <div className="max-w-xl">
+            <div className="mb-5 flex flex-wrap items-center gap-2.5 text-[13px] text-white/85">
+              <span className="flex items-center gap-1.5 font-semibold">
+                <CertificateIcon weight="fill" className="size-4" />
+                SON &amp; NIS certified
+              </span>
+              <span className="h-3.5 w-px bg-white/30" />
+              <span className="flex items-center gap-1.5 font-semibold">
+                <LockKeyIcon weight="fill" className="size-4" />
+                Secure payments
+              </span>
             </div>
-            <h1 className="text-[32px] leading-[1.12] font-extrabold tracking-[-0.02em] text-white sm:text-[42px]">
-              Construction materials, delivered at a fair price.
+            <h1 className="text-[32px] leading-[1.1] font-extrabold tracking-[-0.02em] text-white sm:text-[52px]">
+              Construction materials, <span className="text-[#7c9cff]">delivered at a fair price.</span>
             </h1>
-            <p className="mt-4 text-base leading-relaxed text-white/90">
+            <p className="mt-4.5 max-w-md text-base leading-relaxed text-white/82 sm:text-[16.5px]">
               Cement, blocks, rebar, roofing and fittings — one fixed price, no back-and-forth. Pick up
               at a fulfillment center or get it delivered to site.
             </p>
             <div className="mt-7 flex flex-wrap gap-3">
-              <Button asChild size="lg" className="h-11 bg-white px-6 text-base text-ink hover:bg-white/90">
-                <Link href="/catalog">Browse the catalog</Link>
+              <Button asChild className="h-[46px] rounded-full bg-brand px-6.5 text-[14.5px] font-bold shadow-[0_10px_24px_rgba(41,84,229,0.4)]">
+                <Link href="/catalog">Start Procuring</Link>
               </Button>
-              {!buyer && (
-                <Button
-                  asChild
-                  variant="outline"
-                  size="lg"
-                  className="h-11 border-white/50 bg-transparent px-6 text-base text-white hover:bg-white/10"
-                >
-                  <Link href="/signup">Join Builders Pool</Link>
-                </Button>
-              )}
+              <Button
+                asChild
+                variant="outline"
+                className="h-[46px] rounded-full border-white/40 bg-transparent px-6.5 text-[14.5px] font-bold text-white hover:bg-white/10"
+              >
+                <Link href="#how-it-works">See How It Works</Link>
+              </Button>
             </div>
           </div>
         </div>
 
-        <div className="mt-4 grid grid-cols-1 gap-3.5 sm:grid-cols-3">
-          {TRUST_BADGES.map((badge) => (
-            <div
-              key={badge.label}
-              className={`flex items-center gap-2.5 rounded-xl border border-border bg-surface px-4.5 py-3.5 ${CARD_SHADOW}`}
-            >
-              <badge.icon className="size-[18px] shrink-0 text-brand" />
-              <div>
-                <div className="text-[13px] font-bold text-ink">{badge.label}</div>
-                <div className="text-[11.5px] text-muted-foreground">{badge.body}</div>
-              </div>
-            </div>
-          ))}
-        </div>
+        <HeroLiveCard />
+      </section>
 
-        <div className="mt-10 flex border-t border-border">
+      {/* Real trust-stat strip, in place of the Fable reference's "trusted
+          by" logo strip — that strip names 9 supplier brands, only 2 of
+          which (Dangote, BUA) actually appear anywhere in our real catalog
+          data. Rather than claim a partnership with 7 brands we have no
+          real relationship with, this keeps the same slot honest. */}
+      <section className="border-b border-border bg-surface">
+        <div className="mx-auto flex max-w-7xl flex-wrap justify-center gap-x-10 gap-y-4 px-6 py-8">
           {trustStats.map((ts) => (
-            <div key={ts.label} className="flex-1 border-r border-border px-4 pt-6 first:pl-0 last:border-r-0 sm:px-8">
-              <div className="text-2xl font-semibold tabular-nums text-ink sm:text-3xl">{ts.value}</div>
-              <div className="mt-1.5 text-xs text-muted-foreground sm:text-sm">{ts.label}</div>
+            <div key={ts.label} className="flex items-baseline gap-2">
+              <span className="text-xl font-extrabold tabular-nums text-ink">{ts.value}</span>
+              <span className="text-[13px] text-muted-foreground">{ts.label}</span>
             </div>
           ))}
         </div>
       </section>
 
-      <section className="mx-auto w-full max-w-7xl px-6 py-16">
-        <h2 className="mb-6 text-[22px] font-bold tracking-[-0.025em] text-ink">Primary building categories</h2>
-        <div className="grid grid-cols-2 gap-3 sm:grid-cols-3 lg:grid-cols-4">
-          {categories.map((c) => (
-            <Link
-              key={c.name}
-              href={`/catalog?category=${encodeURIComponent(c.name)}`}
-              className={`flex flex-col gap-2.5 rounded-xl border border-border bg-surface p-5 transition-colors hover:border-border-strong ${CARD_SHADOW}`}
+      {/* Category marquee — infinite CSS scroll, real category names from
+          the live catalog, doubled so the loop point is invisible. */}
+      <section className="px-6 pt-16">
+        <div className="mx-auto max-w-6xl overflow-hidden rounded-[32px] bg-brand py-6.5">
+          <div className="[mask-image:linear-gradient(90deg,transparent,#fff_4%,#fff_96%,transparent)] overflow-hidden">
+            <div
+              className="flex w-max items-center"
+              style={{ animation: 'bp-marquee 28s linear infinite' }}
             >
-              <span className="flex size-9 shrink-0 items-center justify-center rounded-lg bg-well text-brand">
-                {createElement(getCategoryIcon(c.name), { className: 'size-4.5' })}
-              </span>
-              <div className="min-w-0">
-                <div className="truncate text-sm font-semibold text-ink">{c.name}</div>
-                <div className="text-xs text-muted-foreground">{c.count} materials</div>
-              </div>
-            </Link>
-          ))}
-        </div>
-      </section>
-
-      {/* Dark philosophy band — full-bleed, distinct from the hero's photo,
-          same restrained blueprint-grid texture in white at low opacity.
-          Buyer-safe lifecycle copy throughout — no bidding/auction/scoring
-          language, matching every other buyer-facing surface in this app. */}
-      <section
-        className="relative bg-ink px-6 py-24 text-white"
-        style={{
-          backgroundImage:
-            'linear-gradient(rgba(255,255,255,0.04) 1px, transparent 1px), linear-gradient(90deg, rgba(255,255,255,0.04) 1px, transparent 1px)',
-          backgroundSize: '64px 64px',
-        }}
-      >
-        <div className="mx-auto max-w-7xl">
-          <div className="mb-16 max-w-xl">
-            <div className="mb-5 text-xs text-white/50">Product philosophy</div>
-            <h2 className="text-3xl font-bold tracking-tight sm:text-4xl">
-              Simple for the buyer. Sophisticated behind the scenes.
-            </h2>
-          </div>
-
-          <div className="relative flex flex-col gap-10 sm:flex-row sm:items-start">
-            <div className="absolute top-[6.5px] right-0 left-0 hidden h-px bg-white/25 sm:block" />
-            {FLOW_STEPS.map((step, i) => (
-              <div key={step.title} className="relative flex-1 sm:pr-5">
-                <div
-                  className={`relative z-10 mb-5 size-3.5 rounded-full border-2 border-ink ${
-                    i === FLOW_STEPS.length - 1 ? 'bg-brand' : 'bg-canvas'
-                  }`}
-                />
-                <div className="mb-1.5 text-sm font-semibold">{step.title}</div>
-                <div className="text-[13px] leading-relaxed text-white/55">{step.body}</div>
-              </div>
-            ))}
+              {categoryLoop.map((cat, i) => (
+                <div key={`${cat.name}-${i}`} className="flex shrink-0 items-center gap-10 pr-10 whitespace-nowrap">
+                  <span className="size-3 shrink-0 rotate-45 rounded-[2px] bg-white/90" />
+                  <span className="text-2xl font-semibold tracking-[-0.01em] text-white">{cat.name}</span>
+                </div>
+              ))}
+            </div>
           </div>
         </div>
       </section>
 
-      <section className="mx-auto w-full max-w-7xl px-6 py-16">
-        <div className="mb-8 flex items-baseline justify-between">
-          <h2 className="text-3xl font-bold tracking-tight text-ink sm:text-4xl">Popular materials</h2>
-          <Link href="/catalog" className="text-sm font-medium text-brand hover:underline">
-            View all
+      <section id="how-it-works" className="px-6 pt-16">
+        <div className="mx-auto max-w-6xl">
+          <PhilosophySteps />
+        </div>
+      </section>
+
+      <section className="mx-auto w-full max-w-6xl px-6 pt-16">
+        <div className="mb-5 flex items-baseline justify-between">
+          <div>
+            <h2 className="text-[22px] font-bold tracking-[-0.025em] text-ink">Verified direct depot supply</h2>
+            <p className="mt-1 text-[13px] text-muted-foreground">
+              Fixed catalogue price, checked against real fulfillment center stock.
+            </p>
+          </div>
+          <Link href="/catalog" className="text-[13px] font-bold text-ink hover:text-brand">
+            View all →
           </Link>
         </div>
         <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-4">
@@ -194,21 +145,52 @@ export default async function Home() {
         </div>
       </section>
 
+      <section className="mx-auto w-full max-w-6xl px-6 pt-16">
+        <h2 className="mb-5 text-[22px] font-bold tracking-[-0.025em] text-ink">Frequently asked questions</h2>
+        <FaqAccordion />
+      </section>
+
+      {/* CTA banner — visual treatment (dark photo card, fading to solid
+          ink) adopted from the reference; copy reuses this app's existing
+          honest account-creation pitch instead of the reference's
+          "guaranteed volume-discounted haulage, dedicated site marshal,
+          deferred invoice terms with a verified contractor account" —
+          none of that exists here. */}
       {!buyer && (
-        <section className="mx-auto w-full max-w-7xl px-6 pb-16">
-          <div className="flex flex-col items-start justify-between gap-6 rounded-xl bg-ink px-8 py-10 sm:flex-row sm:items-center">
-            <div>
-              <h2 className="text-2xl font-bold text-white">Ready to order at a fixed price?</h2>
-              <p className="mt-2 max-w-md text-sm text-white/70">
+        <section className="mx-auto w-full max-w-6xl px-6 pt-16">
+          <div className="relative min-h-[280px] overflow-hidden rounded-3xl bg-ink">
+            <Image
+              src="/materials/rebar.jpg"
+              alt=""
+              fill
+              sizes="(max-width: 1024px) 100vw, 1152px"
+              className="object-cover"
+            />
+            <div className="absolute inset-0 bg-[linear-gradient(90deg,#15181c_0%,#15181c_30%,rgba(21,24,28,0.8)_45%,rgba(21,24,28,0.2)_62%,rgba(21,24,28,0)_76%)]" />
+            <div className="relative z-[2] flex min-h-[280px] max-w-md flex-col justify-center gap-3.5 p-9 sm:p-11">
+              <div className="text-xs font-bold tracking-[0.04em] text-white/50 uppercase">Get started</div>
+              <h2 className="text-[26px] leading-[1.15] font-extrabold tracking-[-0.02em] text-white sm:text-[32px]">
+                Ready to order at a fixed price?
+              </h2>
+              <p className="text-[14.5px] leading-relaxed text-white/75">
                 Create a free account to check out, track orders, and set price alerts.
               </p>
+              <div className="mt-1 flex flex-wrap gap-3">
+                <Button asChild className="h-12 rounded-full bg-white px-6 text-ink hover:bg-white/90">
+                  <Link href="/signup">Join Builders Pool</Link>
+                </Button>
+                <Button
+                  asChild
+                  variant="outline"
+                  className="h-12 gap-2 rounded-full border-white/40 bg-transparent px-6 text-white hover:bg-white/10"
+                >
+                  <Link href="/catalog">
+                    Browse the catalog
+                    <ArrowUpRightIcon className="size-4" />
+                  </Link>
+                </Button>
+              </div>
             </div>
-            <Button asChild size="lg" className="h-11 shrink-0 gap-2 px-6 text-base">
-              <Link href="/signup">
-                Join Builders Pool
-                <ArrowRightIcon className="size-4" />
-              </Link>
-            </Button>
           </div>
         </section>
       )}

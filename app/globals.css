@@ -151,3 +151,15 @@ body {
     letter-spacing: -0.025em;
   }
 }
+
+/* Homepage category marquee (infinite scroll) — the track renders its
+   category list twice back-to-back and scrolls exactly one copy's width,
+   so the loop point is invisible. */
+@keyframes bp-marquee {
+  from {
+    transform: translateX(0);
+  }
+  to {
+    transform: translateX(-50%);
+  }
+}
