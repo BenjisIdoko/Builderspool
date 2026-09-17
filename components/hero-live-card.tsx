@@ -88,14 +88,16 @@ export function HeroLiveCard() {
         }}
       >
         <div
-          className="mb-1.5 flex items-center gap-1.5 text-[10.5px] font-bold tracking-[0.04em] uppercase"
-          style={{ color: current.success ? '#8ef0b0' : 'rgba(255,255,255,0.75)' }}
+          className="mb-1.5 flex items-center gap-1.5 text-[10.5px] font-bold tracking-[0.04em] uppercase [text-shadow:0_1px_3px_rgba(0,0,0,0.55)]"
+          style={{ color: current.success ? '#34d399' : 'rgba(255,255,255,0.85)' }}
         >
           <Icon weight="fill" className="size-3" />
           {current.label}
         </div>
-        <div className="text-lg leading-tight font-extrabold text-white">{current.title}</div>
-        <div className="mt-0.5 text-xs text-white/75">{current.sub}</div>
+        <div className="text-lg leading-tight font-extrabold text-white [text-shadow:0_1px_3px_rgba(0,0,0,0.4)]">
+          {current.title}
+        </div>
+        <div className="mt-0.5 text-xs text-white/80 [text-shadow:0_1px_2px_rgba(0,0,0,0.4)]">{current.sub}</div>
       </div>
     </>
   );

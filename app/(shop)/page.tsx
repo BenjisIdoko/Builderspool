@@ -62,8 +62,8 @@ export default async function Home() {
           style={{ objectPosition: 'center 25%' }}
           priority
         />
-        <div className="absolute inset-0 bg-[linear-gradient(100deg,rgba(21,24,28,0.88)_0%,rgba(21,24,28,0.55)_38%,rgba(21,24,28,0.1)_62%,rgba(21,24,28,0)_78%)]" />
-        <div className="absolute inset-0 bg-[linear-gradient(180deg,rgba(21,24,28,0)_55%,rgba(21,24,28,0.45)_100%)]" />
+        <div className="absolute inset-0 bg-[linear-gradient(100deg,rgba(21,24,28,0.92)_0%,rgba(21,24,28,0.68)_35%,rgba(21,24,28,0.3)_58%,rgba(21,24,28,0.05)_78%,rgba(21,24,28,0)_100%)]" />
+        <div className="absolute inset-0 bg-[linear-gradient(180deg,rgba(21,24,28,0)_50%,rgba(21,24,28,0.4)_100%)]" />
 
         <div className="relative z-[2] mx-auto flex min-h-[100svh] max-w-7xl flex-col justify-center px-6 py-12">
           <div className="max-w-xl">
