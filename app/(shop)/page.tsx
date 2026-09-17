@@ -1,7 +1,7 @@
 import Image from 'next/image';
 import Link from 'next/link';
-import { CertificateIcon, LockKeyIcon, ArrowUpRightIcon } from '@phosphor-icons/react/ssr';
-import { getMaterials, getCategories } from '@/lib/queries/materials';
+import { CertificateIcon, LockKeyIcon, ArrowUpRightIcon, PhoneIcon, MapPinIcon } from '@phosphor-icons/react/ssr';
+import { getMaterials, getCategories, getFulfillmentCenters } from '@/lib/queries/materials';
 import { getStorefrontStats } from '@/lib/queries/stats';
 import { getCurrentBuyer } from '@/lib/buyer/auth';
 import { MaterialCard } from '@/components/material-card';
@@ -29,11 +29,12 @@ const PARTNER_LOGOS = [
 ];
 
 export default async function Home() {
-  const [{ materials }, stats, categories, buyer] = await Promise.all([
+  const [{ materials }, stats, categories, buyer, centers] = await Promise.all([
     getMaterials(),
     getStorefrontStats(),
     getCategories(),
     getCurrentBuyer(),
+    getFulfillmentCenters(),
   ]);
   const featured = materials.slice(0, 8);
   const categoryLoop = [...categories, ...categories];
@@ -220,6 +221,32 @@ export default async function Home() {
                   </Link>
                 </Button>
               )}
+            </div>
+          </div>
+        </div>
+      </section>
+
+      {/* Get in touch — the reference's phone number is real (confirmed by
+          the user); its email address isn't yet, since the domain hasn't
+          been registered, so that card is left out rather than shown as a
+          working contact channel. Depot addresses use real fulfillment
+          center data instead of the reference's fictional cities. */}
+      <section className="mx-auto w-full max-w-6xl px-6 pt-16 pb-16">
+        <h2 className="mb-5 text-[22px] font-bold tracking-[-0.025em] text-ink">Get in touch</h2>
+        <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
+          <a
+            href="tel:+2349030621787"
+            className="flex flex-col gap-2.5 rounded-2xl border border-border bg-surface p-5.5 text-ink no-underline transition-colors hover:border-border-strong"
+          >
+            <PhoneIcon className="size-5.5 text-brand" />
+            <div className="text-sm font-bold">Procurement desk</div>
+            <div className="text-[13px] text-slate">+234 903 0621 787</div>
+          </a>
+          <div className="flex flex-col gap-2.5 rounded-2xl border border-border bg-surface p-5.5">
+            <MapPinIcon className="size-5.5 text-brand" />
+            <div className="text-sm font-bold text-ink">Visit a depot</div>
+            <div className="text-[13px] text-slate">
+              {centers.map((c) => c.region).join(' · ')}
             </div>
           </div>
         </div>
