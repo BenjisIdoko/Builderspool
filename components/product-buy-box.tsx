@@ -84,7 +84,7 @@ export function ProductBuyBox({ material }: { material: BuyerMaterial }) {
 
       <Button type="button" className="mb-3 w-full gap-2" size="lg" onClick={handleAdd}>
         <PlusIcon className="size-4" />
-        {added ? 'Added' : 'Place order'}
+        {added ? 'Added' : 'Add to cart'}
       </Button>
       <p className="flex items-start gap-1.5 text-xs text-muted-foreground">
         <LockKeyIcon className="mt-0.5 size-3.5 shrink-0" />

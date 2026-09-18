@@ -6,6 +6,7 @@ import {
   getMaterialById,
   getPriceHistory,
   getRelatedMaterials,
+  getFrequentlyBoughtTogether,
 } from '@/lib/queries/materials';
 import { ProductGallery } from '@/components/product-gallery';
 import { ProductDetailPanel } from '@/components/product-detail-panel';
@@ -17,11 +18,14 @@ export default async function MaterialPage({ params }: { params: Promise<{ id: s
   const material = await getMaterialById(id);
   if (!material) notFound();
 
-  const [priceHistory, fulfillmentCenters, related] = await Promise.all([
+  const [priceHistory, fulfillmentCenters, related, boughtTogether] = await Promise.all([
     getPriceHistory(id),
     getFulfillmentCenters(),
     getRelatedMaterials(id, material.category),
+    getFrequentlyBoughtTogether(id),
   ]);
+  const bundleItems = boughtTogether.length > 0 ? boughtTogether : related;
+  const bundleTitle = boughtTogether.length > 0 ? 'Frequently procured together' : `More from ${material.category}`;
 
   return (
     <div className="mx-auto w-full max-w-6xl px-6 pt-28 pb-10">
@@ -47,11 +51,11 @@ export default async function MaterialPage({ params }: { params: Promise<{ id: s
         <ProductBuyBox material={material} />
       </div>
 
-      {related.length > 0 && (
+      {bundleItems.length > 0 && (
         <div className="mt-16 border-t border-border pt-10">
-          <h2 className="mb-6 text-lg font-bold tracking-tight text-ink">More from {material.category}</h2>
+          <h2 className="mb-6 text-lg font-bold tracking-tight text-ink">{bundleTitle}</h2>
           <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-4">
-            {related.map((item) => (
+            {bundleItems.map((item) => (
               <MaterialCard key={item.id} material={item} />
             ))}
           </div>

@@ -112,6 +112,35 @@ export async function getRelatedMaterials(materialId: string, category: string, 
   return materials.map(toPlainMaterial);
 }
 
+// Real "frequently procured together" — materials that actually shared a
+// real order with this one, ranked by how often that happened. Returns an
+// empty array (not a fallback to same-category browsing) when no order has
+// ever paired this material with another; the caller decides what to show
+// in that case, since "co-purchased" and "same category" are different
+// claims and shouldn't be silently conflated.
+export async function getFrequentlyBoughtTogether(materialId: string, limit = 4) {
+  const orderItems = await prisma.orderItem.findMany({
+    where: { materialId },
+    select: { orderId: true },
+  });
+  const orderIds = [...new Set(orderItems.map((i) => i.orderId))];
+  if (orderIds.length === 0) return [];
+
+  const coItems = await prisma.orderItem.findMany({
+    where: { orderId: { in: orderIds }, materialId: { not: materialId } },
+    select: { materialId: true },
+  });
+  if (coItems.length === 0) return [];
+
+  const counts = new Map<string, number>();
+  for (const item of coItems) counts.set(item.materialId, (counts.get(item.materialId) ?? 0) + 1);
+  const rankedIds = [...counts.entries()].sort((a, b) => b[1] - a[1]).slice(0, limit).map(([id]) => id);
+
+  const materials = await prisma.material.findMany({ where: { id: { in: rankedIds } }, select: BUYER_SAFE_SELECT });
+  const byId = new Map(materials.map((m) => [m.id, m]));
+  return rankedIds.map((id) => byId.get(id)).filter((m): m is NonNullable<typeof m> => !!m).map(toPlainMaterial);
+}
+
 // Buyer-safe by construction — PriceSnapshot only ever records catalogPrice
 // over time, nothing bidding-related. Carries the last known price forward
 // to "today" so the chart reads as "held steady since," not just a dangling

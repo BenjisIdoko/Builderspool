@@ -959,6 +959,17 @@ Went through the 8 `BuyerHome` content-difference items from the previous round'
 
 `npx tsc --noEmit -p .`, `npm run lint`, and `npx next build` all pass clean. Live-verified the updated footer (4 real columns) and the homepage with the trust-stats section removed.
 
+### Third design handoff — ProductDetail content review, one item at a time (2026-09-18, later still)
+
+Went through `ProductDetail`'s 7 content-difference items individually. Outcomes:
+
+- **Seller mini-card, volume-tier pricing selector, haulage-estimate card, "48 verified lots" badge** — all confirmed keep-off. Each assumes something this app's schema/mechanics don't have (seller identity would break blind bidding; tiered pricing needs a real discount-tier feature; a route/ETA needs live GPS and a known destination, neither of which exist pre-checkout; a "lots" count needs a seller-listing model this schema doesn't have).
+- **Rating/order-count/audit-count line** — no real backing for any of the three numbers; left off, no action needed.
+- **Buy-box CTA**: found a real label/behavior mismatch independent of the missing second button — the button already adds to cart but was labeled "Place order." Relabeled to "Add to cart" (`components/product-buy-box.tsx`). Did not build the second "Buy now" direct-checkout path (a real new flow, out of scope for a copy fix). While checking this, confirmed the buy-box's 30px quantity-stepper buttons are correct as-is — spec genuinely uses 30px here (unlike Cart's 26px), not the same bug fixed on the Cart page in the prior round.
+- **"Frequently procured together"**: investigated whether real co-purchase data exists before deciding — queried the live database directly and found 0 of the 5 real orders currently contain more than one distinct material, so a real query would return empty today. Built it anyway as a real, honest feature for when order history grows: `getFrequentlyBoughtTogether()` in `lib/queries/materials.ts` groups other materials that shared a real `Order` with this one, ranked by frequency, returning `[]` (not a same-category fallback) when nothing co-occurred. `app/(shop)/catalog/[id]/page.tsx` now shows this when non-empty, and silently falls back to the existing "More from {category}" grid when it's empty — verified this fallback path live, since it's what every product currently shows.
+
+`npx tsc --noEmit -p .`, `npm run lint`, and `npx next build` all pass clean. Live-verified the buy-box's new "Add to cart" label and the bundle-grid fallback in-browser.
+
 ## Bidding Engine Design
 
 - **Weighted award scoring**, not simple lowest-price-wins: Price 40%, seller reliability/trust score 25%, capacity fit 20%, delivery speed 15%.
