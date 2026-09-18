@@ -970,6 +970,15 @@ Went through `ProductDetail`'s 7 content-difference items individually. Outcomes
 
 `npx tsc --noEmit -p .`, `npm run lint`, and `npx next build` all pass clean. Live-verified the buy-box's new "Add to cart" label and the bundle-grid fallback in-browser.
 
+### Third design handoff — Cart/Checkout content review, one item at a time (2026-09-18, later still)
+
+Went through Cart/Checkout's 4 content-difference items individually. No code changes this round — all 4 confirmed as correctly deferred:
+
+- **Step labels** ("Cart → Checkout → Confirmed" vs. spec's "Requisition review → Logistics & offload → Escrow payment") — keep as-is; spec's labels describe a more elaborate process than the real 3 pages.
+- **Delivery/offload manifest form** (named on-site receiver, offload time window, crane/labor checkboxes) — keep the current simple region/delivery-choice form; spec's version needs new schema fields and a real operational commitment (equipment/labor coordination) this app doesn't fulfill.
+- **VAT (7.5%) and offload-labor (₦60,000 flat) line items** — grepped the entire codebase and confirmed neither is charged anywhere in the real system (not in checkout math, not in what's sent to Paystack, not in the schema). Flagged this as a real pricing/tax decision rather than a UI fix, since adding the lines without changing what's actually billed would show buyers a total that doesn't match their real charge. User confirmed: leave both out for now.
+- **Escrow funding-channel options** ("Bank transfer / Card / USSD" vs. spec's 3 including "Corporate LC / bank guarantee") — confirmed the current 3 are Paystack's real supported methods; spec's institutional LC/bank-guarantee option has no real payment-integration backing, so it stays dropped.
+
 ## Bidding Engine Design
 
 - **Weighted award scoring**, not simple lowest-price-wins: Price 40%, seller reliability/trust score 25%, capacity fit 20%, delivery speed 15%.
