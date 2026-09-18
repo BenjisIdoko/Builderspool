@@ -61,6 +61,11 @@ export async function createOrder(input: CheckoutInput) {
       });
     }
 
+    // Cleared atomically with order creation — the real source of truth for
+    // "the buyer's cart is empty after checkout," not a client-side action
+    // racing against the page navigation that follows.
+    await tx.cartItem.deleteMany({ where: { buyerId: input.buyerId } });
+
     return tx.order.findUniqueOrThrow({
       where: { id: order.id },
       include: { items: true },
