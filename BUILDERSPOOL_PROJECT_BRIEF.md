@@ -897,6 +897,16 @@ User's framing for the fix: "more about aesthetics — font weight, typography, 
 
 Live-verified every changed screen signed into both real seeded accounts at desktop width, including the search overlay returning real matches for a live seller name and the two-level order-detail breadcrumb. `npx tsc --noEmit -p .`, `npm run lint`, and `npx next build` all pass clean; two new registered routes (`/api/admin/search`, `/api/seller/search`).
 
+### Third design handoff — AdminOrders KPI fix + KpiCard typography (2026-09-18, later still)
+
+User asked to specifically compare `AdminOrders` and `AdminMaterials` against their `.dc.html` files. `AdminMaterials` turned out to already be correct as-is: its spec assumes a per-merchant multi-seller SKU marketplace with spot-price benchmarking and per-listing compliance flags ("Real-time spot benchmark index" card, "Listed vs spot" delta column, "Compliance" status) — none of which this app's single fixed-catalog `Material` model can honestly back, the same category of IA mismatch as `AdminCatalogueReference`/`SellerDashboard` from the prior round. No changes made.
+
+`AdminOrders` had a real, fixable gap: its KPI row used a different metric set than spec (5 payment-status cards vs. spec's 4 logistics-framed cards) even though two of spec's "unbuildable-looking" metrics turned out to be real — re-reading `prisma.schema` surfaced an actual haulage/fleet subsystem (`Dispatch`/`Vehicle`/`Driver` models, already powering the real `/admin/haulage` page) this session had overlooked when first scoping what's fabricated vs. real. Added `getActiveDispatchCount()` (`lib/queries/adminHaulage.ts`, dispatches assigned through in-transit) and reused the existing `getEscrowInCustody()` to back spec's "Active fleet transit" and "Escrow locked custody" cards for real; "Disputed / in review" (no Dispute model) stays honestly substituted with the real awaiting-payment count. Page copy (eyebrow/H1/subtitle) adopted from spec where accurate, adjusted where not ("site delivery certifications" → "hub receipt confirmations," since GRN receipt is what's actually tracked, not a certification). Dropped the now-fully-unused `getOrderQuickStats()` (its Revenue/Avg-order-value cards no longer have a slot in the 4-card row).
+
+User also flagged that `KpiCard` (`components/kpi-card.tsx`, shared by every admin/seller list page) didn't match the spec's KPI-card typography at all: labels were rendering at normal weight/mixed-case instead of spec's `font-weight:700; text-transform:uppercase; letter-spacing:0.04em`, and values at `font-semibold`/18-20px instead of spec's `font-weight:800` at 20px (compact) or 24px (default) — a component-level miss that silently affected every page using it, not just Orders. Fixed once in the shared component rather than per-page.
+
+`npx tsc --noEmit -p .`, `npm run lint`, and `npx next build` all pass clean. Live-verified computed styles via devtools JS (not just screenshots) on Orders, Dashboard, Materials, Sellers, and the seller dashboard to confirm the fix applied everywhere `KpiCard` is used.
+
 ## Bidding Engine Design
 
 - **Weighted award scoring**, not simple lowest-price-wins: Price 40%, seller reliability/trust score 25%, capacity fit 20%, delivery speed 15%.

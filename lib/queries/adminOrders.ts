@@ -101,17 +101,3 @@ export async function getOrderStatusCounts() {
   ]);
   return { total, pending, paid, cancelled };
 }
-
-// Real "quick stats" for the Orders page itself — revenue and average order
-// value are computed from real PAID orders only (unpaid orders aren't
-// confirmed revenue), not a fabricated delta or "vs yesterday" comparison
-// this system has no rollup table to honestly support.
-export async function getOrderQuickStats() {
-  const paidOrders = await prisma.order.findMany({
-    where: { status: OrderStatus.PAID },
-    select: { items: { select: { priceLocked: true, deliveryCost: true, quantity: true } } },
-  });
-  const revenue = paidOrders.reduce((sum, o) => sum + getOrderTotal(o), 0);
-  const avgOrderValue = paidOrders.length > 0 ? revenue / paidOrders.length : 0;
-  return { revenue, avgOrderValue, paidCount: paidOrders.length };
-}

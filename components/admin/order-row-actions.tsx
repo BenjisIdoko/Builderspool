@@ -31,7 +31,7 @@ export function OrderRowActions({ orderId }: { orderId: string }) {
       <DropdownMenuContent>
         <DropdownMenuItem onSelect={() => router.push(`/admin/orders/${orderId}`)}>
           <EyeIcon />
-          View details
+          View escrow dossier
         </DropdownMenuItem>
         <DropdownMenuItem onSelect={(e) => e.preventDefault()} onClick={copyId}>
           {copied ? <CheckIcon className="text-success" /> : <ClipboardTextIcon />}

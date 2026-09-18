@@ -35,8 +35,12 @@ export function KpiCard({
       >
         <Icon className={compact ? 'size-4' : 'size-4.5'} />
       </div>
-      <div className={`text-muted-foreground ${compact ? 'mb-1 text-[11px]' : 'mb-1.5 text-[11.5px]'}`}>{label}</div>
-      <div className={`truncate font-semibold text-ink ${compact ? 'mb-2 text-lg' : 'mb-2.5 text-xl'}`}>{value}</div>
+      <div
+        className={`font-bold tracking-[0.04em] text-muted-foreground uppercase ${compact ? 'mb-1 text-[11.5px]' : 'mb-1.5 text-xs'}`}
+      >
+        {label}
+      </div>
+      <div className={`truncate font-extrabold text-ink ${compact ? 'mb-2 text-xl' : 'mb-2.5 text-2xl'}`}>{value}</div>
       <Badge variant="outline" className={pillClass(tone)}>
         {chip}
       </Badge>

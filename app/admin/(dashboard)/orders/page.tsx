@@ -3,24 +3,24 @@ import {
   CaretDownIcon,
   CaretUpIcon,
   CaretUpDownIcon,
-  ChartLineUpIcon,
   ClockIcon,
-  CurrencyNgnIcon,
   DownloadSimpleIcon,
+  LockKeyIcon,
   MagnifyingGlassIcon,
   ReceiptIcon,
-  SealCheckIcon,
+  TruckIcon,
 } from '@phosphor-icons/react/ssr';
 import { OrderStatus } from '@prisma/client';
 import {
   getOrdersForAdmin,
   getOrderStatusCounts,
-  getOrderQuickStats,
   ORDER_SORT_FIELDS,
   type OrderSortField,
   type SortDir,
   type OrderAmountFilter,
 } from '@/lib/queries/adminOrders';
+import { getEscrowInCustody } from '@/lib/queries/adminStats';
+import { getActiveDispatchCount } from '@/lib/queries/adminHaulage';
 import { ESCROW_STATUS_LABEL } from '@/lib/queries/escrow';
 import { formatNaira } from '@/lib/format';
 import { orderStatusTone, fulfillmentStageTone, escrowStatusTone, pillClass } from '@/lib/statusColors';
@@ -66,29 +66,29 @@ export default async function AdminOrdersPage({
   const dir: SortDir = dirParam === 'asc' ? 'asc' : 'desc';
   const amount: OrderAmountFilter = amountParam === 'under5m' || amountParam === 'over5m' ? amountParam : 'any';
 
-  const [{ orders, total, pageCount }, counts, quickStats] = await Promise.all([
+  const [{ orders, total, pageCount }, counts, escrowInCustody, activeDispatchCount] = await Promise.all([
     getOrdersForAdmin({ status: validStatus, query: q, page, sort, dir, amount }),
     getOrderStatusCounts(),
-    getOrderQuickStats(),
+    getEscrowInCustody(),
+    getActiveDispatchCount(),
   ]);
 
+  // Four cards, matching the design's KPI row: "Escrow locked custody" and
+  // "Active fleet transit" are both real (escrow.ts's held-funds definition;
+  // the real Dispatch/Vehicle haulage tracking already live on /admin/haulage).
+  // The design's fourth card is "Disputed / in review" — no Dispute model
+  // exists anywhere in the schema, so it's replaced with the real
+  // awaiting-payment count, keeping the same "needs a look" warning shape.
   const kpiCards = [
-    { label: 'Total orders', value: String(counts.total), icon: ReceiptIcon, tone: 'info' as const, chip: 'All-time' },
+    { label: 'Total orders fulfilled', value: String(counts.total), icon: ReceiptIcon, tone: 'info' as const, chip: 'All-time' },
+    { label: 'Escrow locked custody', value: formatNaira(escrowInCustody), icon: LockKeyIcon, tone: 'info' as const, chip: 'Held, not yet paid out' },
+    { label: 'Active fleet transit', value: `${activeDispatchCount} convoys`, icon: TruckIcon, tone: 'info' as const, chip: 'Assigned through in-transit' },
     {
       label: 'Awaiting payment',
       value: String(counts.pending),
       icon: ClockIcon,
       tone: counts.pending > 0 ? ('warning' as const) : ('success' as const),
       chip: counts.pending > 0 ? 'Needs follow-up' : 'All clear',
-    },
-    { label: 'Paid', value: String(counts.paid), icon: SealCheckIcon, tone: 'success' as const, chip: 'Confirmed revenue' },
-    { label: 'Revenue', value: formatNaira(quickStats.revenue), icon: CurrencyNgnIcon, tone: 'info' as const, chip: 'From paid orders' },
-    {
-      label: 'Avg order value',
-      value: formatNaira(quickStats.avgOrderValue),
-      icon: ChartLineUpIcon,
-      tone: 'info' as const,
-      chip: `Across ${quickStats.paidCount} paid`,
     },
   ];
 
@@ -146,9 +146,11 @@ export default async function AdminOrdersPage({
     <div className="mx-auto w-full max-w-7xl px-6 py-10">
       <div className="mb-6 flex flex-wrap items-start justify-between gap-4">
         <div>
-          <div className="mb-1 text-xs text-muted-foreground">Admin · ops desk</div>
-          <h1 className="mb-1 text-2xl font-bold tracking-tight text-ink">Orders</h1>
-          <p className="text-sm text-muted-foreground">Every real checkout, across every buyer.</p>
+          <div className="mb-1 text-xs text-muted-foreground">Admin · logistics &amp; settlement</div>
+          <h1 className="mb-1 text-2xl font-bold tracking-tight text-ink">Marketplace orders &amp; escrow custody</h1>
+          <p className="text-sm text-muted-foreground">
+            Tracking of requisitions, escrow holds, and hub receipt confirmations across every seller.
+          </p>
         </div>
         <div className="flex gap-2">
           <Button asChild variant="outline" className="gap-2">
@@ -166,8 +168,7 @@ export default async function AdminOrdersPage({
         </div>
       </div>
 
-      <h2 className="mb-3 text-xs font-bold tracking-wide text-slate uppercase">Quick stats</h2>
-      <div className="mb-10 grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-5">
+      <div className="mb-7 grid grid-cols-[repeat(auto-fit,minmax(180px,1fr))] gap-3">
         {kpiCards.map((kpi) => (
           <KpiCard key={kpi.label} {...kpi} size="compact" />
         ))}
