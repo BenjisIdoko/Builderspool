@@ -14,6 +14,7 @@ import {
   WhatsappLogoIcon,
   LockKeyIcon,
   SteeringWheelIcon,
+  ClockCounterClockwiseIcon,
 } from '@phosphor-icons/react/ssr';
 import { getOrderById, getOrderTrackingStages } from '@/lib/queries/orders';
 import { getEscrowStatus, ESCROW_STATUS_LABEL } from '@/lib/queries/escrow';
@@ -75,6 +76,35 @@ export default async function AdminOrderDetailPage({ params }: { params: Promise
   const escrowStatus = getEscrowStatus(order);
   const allAllocations = order.items.flatMap((item) => item.allocations.map((a) => ({ ...a, material: item.material })));
   const dispatchItems = order.items.filter((item) => item.deliveryCost > 0);
+
+  // Real audit trail — every entry is a real stored timestamp already on
+  // Order/Allocation/Dispatch (never a fabricated SONCAP-cert-check style
+  // entry), sorted chronologically. A flat historical log, distinct from
+  // "Fulfillment tracking" above, which shows current stage, not history.
+  const auditEvents: { label: string; detail?: string; at: Date }[] = [
+    { label: 'Order placed', at: order.createdAt },
+  ];
+  if (order.paidAt) auditEvents.push({ label: 'Payment confirmed', at: order.paidAt });
+  for (const a of allAllocations) {
+    auditEvents.push({ label: `Allocated to seller — ${a.material.name}`, at: a.createdAt });
+    if (a.receivedAt) {
+      auditEvents.push({
+        label: `GRN issued — ${a.material.name}`,
+        detail: a.grnNumber ?? undefined,
+        at: a.receivedAt,
+      });
+    }
+    if (a.paidAt) auditEvents.push({ label: `Payout disbursed — ${a.material.name}`, at: a.paidAt });
+  }
+  for (const item of dispatchItems) {
+    if (item.dispatch?.dispatchedAt) {
+      auditEvents.push({ label: `Dispatched — ${item.material.name}`, at: item.dispatch.dispatchedAt });
+    }
+    if (item.dispatch?.deliveredAt) {
+      auditEvents.push({ label: `Delivered — ${item.material.name}`, at: item.dispatch.deliveredAt });
+    }
+  }
+  auditEvents.sort((a, b) => a.at.getTime() - b.at.getTime());
 
   return (
     <div className="mx-auto w-full max-w-[1180px] px-8 pt-8 pb-20">
@@ -264,6 +294,30 @@ export default async function AdminOrderDetailPage({ params }: { params: Promise
           </div>
         </div>
       )}
+
+      <div className="mb-8 rounded-2xl border border-border bg-surface p-6">
+        <div className="mb-5 flex items-center gap-2">
+          <ClockCounterClockwiseIcon className="size-4.5 text-slate" />
+          <h2 className="text-[11.5px] font-bold tracking-wide text-muted-foreground uppercase">Audit trail</h2>
+        </div>
+        <div className="relative">
+          <div className="absolute top-1.5 bottom-1.5 left-[3px] w-px bg-border" />
+          <div className="flex flex-col gap-4">
+            {auditEvents.map((event, i) => (
+              <div key={i} className="relative flex items-start gap-3 pl-5">
+                <div className="absolute top-1.5 left-0 size-[7px] rounded-full bg-border-strong" />
+                <div className="min-w-0 flex-1">
+                  <span className="text-sm text-ink">{event.label}</span>
+                  {event.detail && <span className="ml-1.5 text-xs text-muted-foreground">({event.detail})</span>}
+                </div>
+                <span className="shrink-0 text-xs text-muted-foreground">
+                  {event.at.toLocaleString('en-NG', { dateStyle: 'medium', timeStyle: 'short' })}
+                </span>
+              </div>
+            ))}
+          </div>
+        </div>
+      </div>
 
       {order.items[0]?.fulfillmentCenter && (
         <div className="mb-8 flex items-start gap-3 rounded-2xl border border-border bg-surface p-5">

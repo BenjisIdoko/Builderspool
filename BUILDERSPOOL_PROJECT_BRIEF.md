@@ -979,6 +979,18 @@ Went through Cart/Checkout's 4 content-difference items individually. No code ch
 - **VAT (7.5%) and offload-labor (₦60,000 flat) line items** — grepped the entire codebase and confirmed neither is charged anywhere in the real system (not in checkout math, not in what's sent to Paystack, not in the schema). Flagged this as a real pricing/tax decision rather than a UI fix, since adding the lines without changing what's actually billed would show buyers a total that doesn't match their real charge. User confirmed: leave both out for now.
 - **Escrow funding-channel options** ("Bank transfer / Card / USSD" vs. spec's 3 including "Corporate LC / bank guarantee") — confirmed the current 3 are Paystack's real supported methods; spec's institutional LC/bank-guarantee option has no real payment-integration backing, so it stays dropped.
 
+### Third design handoff — Catalog + AdminOrderDetail content review, one item at a time (2026-09-18, later still)
+
+Went through the final 4 content-difference items. Outcomes:
+
+- **Catalog's Seller filter** — confirmed keep dropped, for two independent reasons: `Material` has no per-listing seller relation at all, and even if it did, a buyer-facing "filter by seller" would violate the blind-bidding rule enforced everywhere else in the app.
+- **Catalog's "SON certified only" filter** — confirmed keep dropped; `Material` has only a free-text `standard` field (e.g. "BS 4449"), not a real certification boolean to filter on.
+- **Catalog's haulage-pill copy** ("Delivery available — {real region list}" vs. spec's fixed "Bonded haulage active — Lagos, Ogun, Abuja, Rivers") — confirmed keep as-is; "bonded haulage" is a specific claim this app doesn't make, and the region list should track real depot coverage.
+- **AdminOrderDetail's 3 action buttons** (Issue waybill / Dispute · cancel / Trigger escrow release) — confirmed leave all off; none backed by real fields, and escrow release is already fully automatic (GRN-triggered), not an admin action to begin with.
+- **AdminOrderDetail's Audit trail card** — built for real, unlike spec's fabricated SONCAP-check entries. New "Audit trail" card (`app/admin/(dashboard)/orders/[id]/page.tsx`) renders a chronological, real event list: order placed (`order.createdAt`), payment confirmed (`order.paidAt`), and per-allocation "Allocated to seller"/"GRN issued"/"Payout disbursed" (`allocation.createdAt`/`receivedAt`/`paidAt`) plus per-item "Dispatched"/"Delivered" (`dispatch.dispatchedAt`/`deliveredAt`) — every entry a real stored timestamp, sorted chronologically, nothing fabricated. `Allocation.paidAt` wasn't previously selected by `ORDER_DETAIL_INCLUDE` (`lib/queries/orders.ts`, shared with the buyer-facing order-detail query) — added it, since it's an internal ops timestamp with no seller-identity leakage risk to a buyer viewing their own order.
+
+`npx tsc --noEmit -p .`, `npm run lint`, and `npx next build` all pass clean. Live-verified the new Audit trail card renders real, correctly-ordered events for a real order.
+
 ## Bidding Engine Design
 
 - **Weighted award scoring**, not simple lowest-price-wins: Price 40%, seller reliability/trust score 25%, capacity fit 20%, delivery speed 15%.

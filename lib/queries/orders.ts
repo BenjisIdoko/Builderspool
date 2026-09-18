@@ -18,6 +18,7 @@ export const ORDER_DETAIL_INCLUDE = {
           receivedAt: true,
           grnNumber: true,
           payoutStatus: true,
+          paidAt: true,
           bid: { select: { estimatedDeliveryDays: true } },
         },
       },
