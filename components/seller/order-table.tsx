@@ -58,7 +58,7 @@ export function SellerOrderTable({ orders }: { orders: SellerOrderRow[] }) {
               type="button"
               onClick={() => setStatus(tab)}
               className={`inline-flex items-center rounded-full px-3 py-1.5 text-xs font-semibold transition-colors ${
-                status === tab ? 'bg-ink text-canvas' : 'text-slate hover:bg-well hover:text-ink'
+                status === tab ? 'bg-ink text-canvas' : 'bg-well text-slate hover:text-ink'
               }`}
             >
               {tab} ({counts[tab]})
@@ -78,7 +78,7 @@ export function SellerOrderTable({ orders }: { orders: SellerOrderRow[] }) {
             <Input
               value={search}
               onChange={(e) => setSearch(e.target.value)}
-              placeholder="Search material…"
+              placeholder="Search material or buyer…"
               className="pl-9"
             />
           </div>
@@ -86,11 +86,11 @@ export function SellerOrderTable({ orders }: { orders: SellerOrderRow[] }) {
       </div>
 
       {filtered.length === 0 ? (
-        <div className="rounded-lg border border-border bg-surface px-6 py-16 text-center text-sm text-muted-foreground">
+        <div className="rounded-2xl border border-border bg-surface px-6 py-16 text-center text-sm text-muted-foreground">
           No requisitions match this filter.
         </div>
       ) : (
-        <div className="overflow-hidden rounded-lg border border-border bg-surface">
+        <div className="overflow-hidden rounded-2xl border border-border bg-surface">
           <Table>
             <TableHeader>
               <TableRow>

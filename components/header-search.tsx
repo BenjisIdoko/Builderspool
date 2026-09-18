@@ -96,7 +96,7 @@ export function HeaderSearch() {
 
   if (!open) {
     return (
-      <Button type="button" variant="ghost" size="icon-sm" aria-label="Search materials" onClick={() => setOpen(true)}>
+      <Button type="button" variant="ghost" size="icon-sm" className="size-[34px]" aria-label="Search materials" onClick={() => setOpen(true)}>
         <MagnifyingGlassIcon className="size-4.5" />
       </Button>
     );

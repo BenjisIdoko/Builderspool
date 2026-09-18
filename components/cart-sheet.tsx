@@ -29,7 +29,7 @@ export function CartSheet() {
         <Button
           variant="ghost"
           size="icon-sm"
-          className="relative rounded-full text-slate"
+          className="relative size-[34px] rounded-full text-slate"
           aria-label={`Cart, ${itemCount} ${itemCount === 1 ? 'item' : 'items'}`}
         >
           <ShoppingCartIcon className="size-4.5" />

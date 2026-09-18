@@ -46,7 +46,7 @@ export default async function CatalogPage({
   }
 
   return (
-    <div className="mx-auto w-full max-w-7xl px-6 pt-32 pb-10">
+    <div className="mx-auto w-full max-w-7xl px-6 pt-28 pb-10">
       <div className="mb-3 flex flex-wrap items-start justify-between gap-3">
         <div>
           <div className="mb-1 text-xs font-semibold text-slate">Catalogue</div>
@@ -63,8 +63,8 @@ export default async function CatalogPage({
       </div>
       <p className="mb-8 text-sm text-slate">Fixed catalogue price, {total} materials.</p>
 
-      <div className="grid grid-cols-1 gap-10 lg:grid-cols-[220px_1fr]">
-        <aside className="flex flex-col gap-8">
+      <div className="grid grid-cols-1 gap-7 lg:grid-cols-[240px_1fr]">
+        <aside className="flex flex-col gap-8 rounded-2xl border border-border bg-surface p-5 shadow-[0_1px_2px_rgba(16,24,40,0.04)] lg:sticky lg:top-6 lg:self-start">
           <div>
             <h2 className="mb-3 text-xs font-bold tracking-wide text-slate uppercase">Category</h2>
             <div className="flex flex-col gap-2.5">
@@ -105,7 +105,7 @@ export default async function CatalogPage({
 
         <div>
           <div className="mb-5 flex flex-wrap items-center justify-between gap-3 border-b border-border pb-4">
-            <span className="text-sm text-muted-foreground">
+            <span className="text-[11.5px] font-bold tracking-wide text-muted-foreground uppercase">
               {total} {total === 1 ? 'result' : 'results'}
             </span>
             <CatalogSortSelect sort={sort} category={category} q={q} scope={sourcingScope} />
@@ -149,22 +149,43 @@ export default async function CatalogPage({
           )}
 
           {pageCount > 1 && (
-            <div className="mt-8 flex items-center justify-between text-sm text-muted-foreground">
-              <span>
-                Page {page} of {pageCount}
-              </span>
-              <div className="flex gap-2">
-                {page > 1 && (
-                  <Link href={urlFor({ page: page - 1 })} className="rounded-md border border-border px-3 py-1.5 hover:bg-well hover:text-ink">
-                    Previous
-                  </Link>
-                )}
-                {page < pageCount && (
-                  <Link href={urlFor({ page: page + 1 })} className="rounded-md border border-border px-3 py-1.5 hover:bg-well hover:text-ink">
-                    Next
-                  </Link>
-                )}
-              </div>
+            <div className="mt-8 flex items-center justify-center gap-1.5">
+              {page > 1 && (
+                <Link
+                  href={urlFor({ page: page - 1 })}
+                  aria-label="Previous page"
+                  className="flex size-8 items-center justify-center rounded-lg border border-border bg-surface text-ink hover:bg-well"
+                >
+                  ‹
+                </Link>
+              )}
+              {Array.from({ length: pageCount }, (_, i) => i + 1)
+                .filter((p) => p === 1 || p === pageCount || Math.abs(p - page) <= 1)
+                .map((p, i, arr) => (
+                  <span key={p} className="flex items-center gap-1.5">
+                    {i > 0 && arr[i - 1] !== p - 1 && <span className="px-1 text-sm text-muted-foreground">…</span>}
+                    <Link
+                      href={urlFor({ page: p })}
+                      aria-current={p === page ? 'page' : undefined}
+                      className={`flex size-8 items-center justify-center rounded-lg border text-sm font-bold ${
+                        p === page
+                          ? 'border-brand bg-brand text-brand-ink'
+                          : 'border-border bg-surface text-ink hover:bg-well'
+                      }`}
+                    >
+                      {p}
+                    </Link>
+                  </span>
+                ))}
+              {page < pageCount && (
+                <Link
+                  href={urlFor({ page: page + 1 })}
+                  aria-label="Next page"
+                  className="flex size-8 items-center justify-center rounded-lg border border-border bg-surface text-ink hover:bg-well"
+                >
+                  ›
+                </Link>
+              )}
             </div>
           )}
         </div>

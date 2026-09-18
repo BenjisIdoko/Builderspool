@@ -86,7 +86,7 @@ export default async function SellerDashboardPage() {
   ];
 
   return (
-    <div className="mx-auto w-full max-w-6xl px-6 py-12">
+    <div className="mx-auto w-full max-w-6xl px-8 pt-8 pb-20">
       <div className="mb-2.5 flex flex-wrap items-center gap-2">
         {profile!.kycStatus === 'APPROVED' ? (
           <Badge variant="outline" className={pillClass('success')}>
@@ -108,7 +108,7 @@ export default async function SellerDashboardPage() {
           Trust score {profile!.trustScore}
         </Badge>
       </div>
-      <h1 className="mb-1 text-2xl font-bold tracking-tight text-ink">
+      <h1 className="mb-1 text-[26px] font-bold tracking-tight text-ink">
         {profile!.user.businessName ?? profile!.user.name}
       </h1>
       <p className="mb-7 text-sm text-muted-foreground">Serving {profile!.regionsServed.join(', ')}</p>

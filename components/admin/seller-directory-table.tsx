@@ -45,7 +45,7 @@ export function SellerDirectoryTable({ sellers }: { sellers: SellerDirectoryEntr
               type="button"
               onClick={() => setStatus(tab)}
               className={`inline-flex items-center rounded-full px-3 py-1.5 text-xs font-semibold transition-colors ${
-                status === tab ? 'bg-ink text-canvas' : 'text-slate hover:bg-well hover:text-ink'
+                status === tab ? 'bg-ink text-canvas' : 'bg-well text-slate hover:text-ink'
               }`}
             >
               {tab} ({counts[tab]})
@@ -83,11 +83,11 @@ export function SellerDirectoryTable({ sellers }: { sellers: SellerDirectoryEntr
       </div>
 
       {filtered.length === 0 ? (
-        <div className="rounded-lg border border-border bg-surface px-6 py-16 text-center text-sm text-muted-foreground">
+        <div className="rounded-2xl border border-border bg-surface px-6 py-16 text-center text-sm text-muted-foreground">
           No sellers match this filter.
         </div>
       ) : (
-        <div className="overflow-hidden rounded-lg border border-border bg-surface">
+        <div className="overflow-hidden rounded-2xl border border-border bg-surface">
           <Table>
             <TableHeader>
               <TableRow>

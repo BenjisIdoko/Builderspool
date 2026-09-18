@@ -23,9 +23,9 @@ export default async function SellerOrdersPage() {
   }));
 
   return (
-    <div className="mx-auto w-full max-w-7xl px-6 py-12">
+    <div className="mx-auto w-full max-w-7xl px-8 pt-8 pb-20">
       <div className="mb-1 text-xs text-muted-foreground">Merchant · fulfillment</div>
-      <h1 className="mb-1 text-xl font-bold tracking-tight text-ink">Incoming requisitions</h1>
+      <h1 className="mb-1 text-[26px] font-bold tracking-tight text-ink">Incoming requisitions</h1>
       <p className="mb-6 text-sm text-muted-foreground">
         Every real requisition awarded to you — filter, search, and drill into drop-off and payout detail.
       </p>

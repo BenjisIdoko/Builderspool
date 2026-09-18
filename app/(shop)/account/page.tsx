@@ -36,7 +36,7 @@ export default async function AccountPage() {
   const activeOrders = orders.filter((o) => o.status !== 'CANCELLED').length;
 
   return (
-    <div className="mx-auto w-full max-w-3xl px-6 pt-32 pb-10">
+    <div className="mx-auto w-full max-w-3xl px-6 pt-28 pb-10">
       <div className="mb-8 flex items-start justify-between gap-4">
         <div>
           <h1 className="mb-1 text-2xl font-bold tracking-tight text-ink">Welcome back, {buyer.name}</h1>

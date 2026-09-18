@@ -143,11 +143,11 @@ export default async function AdminOrdersPage({
   }
 
   return (
-    <div className="mx-auto w-full max-w-7xl px-6 py-10">
+    <div className="mx-auto w-full max-w-7xl px-8 pt-8 pb-20">
       <div className="mb-6 flex flex-wrap items-start justify-between gap-4">
         <div>
           <div className="mb-1 text-xs text-muted-foreground">Admin · logistics &amp; settlement</div>
-          <h1 className="mb-1 text-2xl font-bold tracking-tight text-ink">Marketplace orders &amp; escrow custody</h1>
+          <h1 className="mb-1 text-[26px] font-bold tracking-tight text-ink">Marketplace orders &amp; escrow custody</h1>
           <p className="text-sm text-muted-foreground">
             Tracking of requisitions, escrow holds, and hub receipt confirmations across every seller.
           </p>
@@ -185,7 +185,7 @@ export default async function AdminOrdersPage({
               <Link key={f.label} href={urlFor({ status: f.value ?? '', page: 1 })}>
                 <span
                   className={`inline-flex items-center rounded-full px-3 py-1.5 text-xs font-semibold transition-colors ${
-                    active ? 'bg-ink text-canvas' : 'text-slate hover:bg-well hover:text-ink'
+                    active ? 'bg-ink text-canvas' : 'bg-well text-slate hover:text-ink'
                   }`}
                 >
                   {f.label} ({counts[f.countKey]})

@@ -46,7 +46,7 @@ export function CatalogSortSelect({
         id="sort"
         value={sort}
         onChange={(e) => router.push(buildUrl(e.target.value as MaterialSort))}
-        className="h-8 rounded-md border border-input bg-transparent px-2.5 text-sm outline-none focus-visible:border-ring focus-visible:ring-3 focus-visible:ring-ring/50"
+        className="h-9 rounded-[9px] border border-input bg-transparent px-2.5 text-sm outline-none focus-visible:border-ring focus-visible:ring-3 focus-visible:ring-ring/50"
       >
         {SORT_OPTIONS.map((o) => (
           <option key={o.value} value={o.value}>

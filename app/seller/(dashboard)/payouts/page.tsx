@@ -27,9 +27,9 @@ export default async function SellerPayoutsPage() {
   }));
 
   return (
-    <div className="mx-auto w-full max-w-[1180px] px-6 py-12">
+    <div className="mx-auto w-full max-w-[1180px] px-8 pt-8 pb-20">
       <div className="mb-1 text-xs text-muted-foreground">Merchant · settlements</div>
-      <h1 className="mb-1 text-xl font-bold tracking-tight text-ink">Payouts</h1>
+      <h1 className="mb-1 text-[26px] font-bold tracking-tight text-ink">Payouts</h1>
       <p className="mb-6 text-sm text-muted-foreground">
         Escrow releases to you — real allocation data, the same figures admin sees on the Escrow
         settlement desk. Payouts are disbursed by ops once a fulfillment center confirms receipt (GRN);

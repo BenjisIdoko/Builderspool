@@ -70,9 +70,9 @@ export default async function AdminMaterialsPage({
   }
 
   return (
-    <div className="mx-auto w-full max-w-7xl px-6 py-10">
+    <div className="mx-auto w-full max-w-7xl px-8 pt-8 pb-20">
       <div className="mb-1 text-xs text-muted-foreground">Admin · ops desk</div>
-      <h1 className="mb-1 text-2xl font-bold tracking-tight text-ink">Catalog materials</h1>
+      <h1 className="mb-1 text-[26px] font-bold tracking-tight text-ink">Catalog materials</h1>
       <p className="mb-8 text-sm text-muted-foreground">
         The live buyer catalog — {total} materials. Admin is the only place these can be edited; every
         price change is recorded as a real price-history point buyers can see.
@@ -105,7 +105,7 @@ export default async function AdminMaterialsPage({
           <Link href={urlFor({ category: '', page: 1 })}>
             <span
               className={`inline-flex items-center rounded-full px-3 py-1.5 text-xs font-semibold transition-colors ${
-                !category ? 'bg-ink text-canvas' : 'text-slate hover:bg-well hover:text-ink'
+                !category ? 'bg-ink text-canvas' : 'bg-well text-slate hover:text-ink'
               }`}
             >
               All categories
@@ -115,7 +115,7 @@ export default async function AdminMaterialsPage({
             <Link key={c} href={urlFor({ category: c, page: 1 })}>
               <span
                 className={`inline-flex items-center rounded-full px-3 py-1.5 text-xs font-semibold transition-colors ${
-                  category === c ? 'bg-ink text-canvas' : 'text-slate hover:bg-well hover:text-ink'
+                  category === c ? 'bg-ink text-canvas' : 'bg-well text-slate hover:text-ink'
                 }`}
               >
                 {c}
@@ -142,14 +142,14 @@ export default async function AdminMaterialsPage({
       </div>
 
       {materials.length === 0 ? (
-        <div className="flex flex-col items-center gap-3 rounded-lg border border-border bg-surface px-6 py-16 text-center">
+        <div className="flex flex-col items-center gap-3 rounded-2xl border border-border bg-surface px-6 py-16 text-center">
           <PackageIcon className="size-8 text-muted-foreground" />
           <p className="text-sm text-muted-foreground">
             {q ? `No materials match "${q}".` : 'No materials in this category.'}
           </p>
         </div>
       ) : (
-        <div className="overflow-hidden rounded-lg border border-border bg-surface">
+        <div className="overflow-hidden rounded-2xl border border-border bg-surface">
           <Table>
             <TableHeader>
               <TableRow>

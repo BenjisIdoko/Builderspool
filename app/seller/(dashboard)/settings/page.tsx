@@ -40,13 +40,13 @@ export default async function SellerSettingsPage() {
   const primaryCategory = [...categoryCounts.entries()].sort((a, b) => b[1] - a[1])[0]?.[0] ?? 'No bids submitted yet';
 
   return (
-    <div className="mx-auto w-full max-w-[900px] px-6 py-12">
+    <div className="mx-auto w-full max-w-[900px] px-8 pt-8 pb-20">
       <div className="mb-1 text-xs text-muted-foreground">Merchant · account</div>
-      <h1 className="mb-1 text-xl font-bold tracking-tight text-ink">Settings</h1>
+      <h1 className="mb-1 text-[26px] font-bold tracking-tight text-ink">Settings</h1>
       <p className="mb-6 text-sm text-muted-foreground">Business profile and verification status.</p>
 
       <div className="flex flex-col gap-4">
-        <div className="rounded-lg border border-border bg-surface p-6">
+        <div className="rounded-2xl border border-border bg-surface p-6">
           <h2 className="mb-4 text-[11.5px] font-bold tracking-wide text-muted-foreground uppercase">
             Business profile
           </h2>
@@ -60,9 +60,9 @@ export default async function SellerSettingsPage() {
           </div>
         </div>
 
-        <div className="rounded-lg border border-border bg-surface p-6">
+        <div className="rounded-2xl border border-border bg-surface p-6">
           <h2 className="mb-4 text-[11.5px] font-bold tracking-wide text-muted-foreground uppercase">
-            Verification
+            Verification documents
           </h2>
           <div className="flex items-center justify-between border-b border-border py-2.5">
             <div className="flex items-center gap-2.5">
@@ -83,7 +83,7 @@ export default async function SellerSettingsPage() {
           </p>
         </div>
 
-        <div className="rounded-lg border border-border bg-surface p-6">
+        <div className="rounded-2xl border border-border bg-surface p-6">
           <h2 className="mb-2 text-[11.5px] font-bold tracking-wide text-muted-foreground uppercase">
             Notification preferences
           </h2>
