@@ -1,5 +1,6 @@
 import { prisma } from '../prisma';
 import { AllocationStatus, CycleStatus, OrderStatus } from '@prisma/client';
+import { getOrderTotal } from '../checkout/orderTotal';
 
 // Real, derivable platform KPIs for the admin dashboard's summary strip —
 // no schema change, nothing fabricated. Margin is computed the same way a
@@ -10,11 +11,7 @@ export async function getAdminKpis() {
     where: { status: OrderStatus.PAID },
     include: { items: { select: { priceLocked: true, deliveryCost: true, quantity: true } } },
   });
-  const platformGmv = paidOrders.reduce(
-    (sum, order) =>
-      sum + order.items.reduce((s, item) => s + Number(item.priceLocked) * item.quantity + Number(item.deliveryCost), 0),
-    0
-  );
+  const platformGmv = paidOrders.reduce((sum, order) => sum + getOrderTotal(order), 0);
 
   const allocations = await prisma.allocation.findMany({
     where: { status: { not: AllocationStatus.CANCELLED } },
@@ -53,7 +50,7 @@ export async function getRecentOrders(limit = 6) {
     buyer: order.buyer,
     material: order.items[0]?.material.name ?? '—',
     extraItemCount: Math.max(0, order.items.length - 1),
-    amount: order.items.reduce((s, item) => s + Number(item.priceLocked) * item.quantity + Number(item.deliveryCost), 0),
+    amount: getOrderTotal(order),
   }));
 }
 
@@ -80,10 +77,7 @@ export async function getDailyGmv(days = 5) {
     paidDate.setUTCHours(0, 0, 0, 0);
     const bucket = buckets.find((b) => b.date.getTime() === paidDate.getTime());
     if (!bucket) continue;
-    bucket.total += order.items.reduce(
-      (s, item) => s + Number(item.priceLocked) * item.quantity + Number(item.deliveryCost),
-      0
-    );
+    bucket.total += getOrderTotal(order);
   }
 
   return buckets;

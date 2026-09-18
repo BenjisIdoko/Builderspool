@@ -17,12 +17,14 @@ import {
 import { getOrderById, getOrderTrackingStages } from '@/lib/queries/orders';
 import { getEscrowStatus, ESCROW_STATUS_LABEL } from '@/lib/queries/escrow';
 import { requireBuyer } from '@/lib/buyer/auth';
+import { verifyAndConfirmOrderPayment } from '@/lib/payments/verifyOrderPayment';
 import { formatNaira, formatElapsedSince } from '@/lib/format';
 import { orderStatusTone, pillClass, escrowStatusTone, dispatchStatusTone } from '@/lib/statusColors';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { MaterialImage } from '@/components/material-image';
 import { OrderActions } from '@/components/order-actions';
+import { retryPaymentAction } from '../actions';
 
 const STATUS_LABEL: Record<string, string> = {
   PENDING_PAYMENT: 'Awaiting payment',
@@ -40,10 +42,27 @@ const DISPATCH_LABEL: Record<string, string> = {
 
 const STAGE_ICONS = [CheckCircleIcon, CurrencyNgnIcon, UsersThreeIcon, HandshakeIcon, TruckIcon, PackageIcon];
 
-export default async function OrderConfirmationPage({ params }: { params: Promise<{ id: string }> }) {
+export default async function OrderConfirmationPage({
+  params,
+  searchParams,
+}: {
+  params: Promise<{ id: string }>;
+  searchParams: Promise<{ reference?: string; trxref?: string }>;
+}) {
   const { id } = await params;
-  const [order, buyer] = await Promise.all([getOrderById(id), requireBuyer()]);
-  if (!order || order.buyerId !== buyer.id) notFound();
+  const { reference, trxref } = await searchParams;
+  const [firstLoad, buyer] = await Promise.all([getOrderById(id), requireBuyer()]);
+  if (!firstLoad || firstLoad.buyerId !== buyer.id) notFound();
+
+  // Paystack redirects the buyer back here after checkout — verify directly
+  // with Paystack right away rather than waiting on the webhook, so the
+  // buyer sees "Paid" the moment they land instead of a stale pending state.
+  const refToVerify = reference ?? trxref;
+  let order = firstLoad;
+  if (refToVerify && order.status === 'PENDING_PAYMENT' && order.paymentReference === refToVerify) {
+    await verifyAndConfirmOrderPayment(id, refToVerify);
+    order = (await getOrderById(id)) ?? order;
+  }
 
   const subtotal = order.items.reduce((sum, item) => sum + item.priceLocked * item.quantity, 0);
   const deliveryTotal = order.items.reduce((sum, item) => sum + item.deliveryCost, 0) / (order.items.length || 1);
@@ -75,7 +94,7 @@ export default async function OrderConfirmationPage({ params }: { params: Promis
             </div>
             <p className="mt-1 text-sm text-muted-foreground">
               Order <span className="text-ink">{order.id}</span>
-              {order.status === 'PENDING_PAYMENT' && ' — we\'ll confirm your payment shortly.'}
+              {order.status === 'PENDING_PAYMENT' && ' — payment is still outstanding.'}
             </p>
             <p className="mt-1 flex items-center gap-1.5 text-xs text-muted-foreground">
               <ClockIcon className="size-3.5" />
@@ -83,7 +102,16 @@ export default async function OrderConfirmationPage({ params }: { params: Promis
             </p>
           </div>
         </div>
-        <OrderActions items={order.items} />
+        {order.status === 'PENDING_PAYMENT' ? (
+          <form action={retryPaymentAction}>
+            <input type="hidden" name="orderId" value={order.id} />
+            <Button type="submit" size="lg">
+              Pay now — {formatNaira(subtotal + deliveryTotal)}
+            </Button>
+          </form>
+        ) : (
+          <OrderActions items={order.items} />
+        )}
       </div>
 
       <div className="mb-8 grid grid-cols-1 gap-4 sm:grid-cols-2">

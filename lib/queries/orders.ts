@@ -1,5 +1,6 @@
 import { prisma } from '../prisma';
 import { Prisma } from '@prisma/client';
+import { getOrderTotal } from '../checkout/orderTotal';
 
 // Shared with lib/queries/adminOrders.ts — same real fields whether a buyer
 // is viewing their own order or an admin is viewing any order, just a
@@ -141,10 +142,7 @@ export async function getOrdersForBuyer(buyerId: string) {
     status: order.status,
     createdAt: order.createdAt,
     itemCount: order.items.length,
-    total: order.items.reduce(
-      (sum, item) => sum + Number(item.priceLocked) * item.quantity + Number(item.deliveryCost),
-      0
-    ),
+    total: getOrderTotal(order),
   }));
 }
 

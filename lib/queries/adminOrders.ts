@@ -2,6 +2,7 @@ import { prisma } from '../prisma';
 import { OrderStatus, Prisma } from '@prisma/client';
 import { ORDER_DETAIL_INCLUDE, toPlainOrder, getOrderTrackingStages } from './orders';
 import { getEscrowStatus } from './escrow';
+import { getOrderTotal } from '../checkout/orderTotal';
 
 const PAGE_SIZE = 10;
 
@@ -50,7 +51,7 @@ export async function getOrdersForAdmin({
   let orders = rows.map(toPlainOrder).map((order) => {
     const stages = getOrderTrackingStages(order);
     const currentStage = stages.find((s) => s.current)!;
-    const total = order.items.reduce((sum, item) => sum + item.priceLocked * item.quantity + item.deliveryCost, 0);
+    const total = getOrderTotal(order);
     return { ...order, total, fulfillmentStage: currentStage.title, escrowStatus: getEscrowStatus(order) };
   });
 
@@ -103,10 +104,7 @@ export async function getOrderQuickStats() {
     where: { status: OrderStatus.PAID },
     select: { items: { select: { priceLocked: true, deliveryCost: true, quantity: true } } },
   });
-  const revenue = paidOrders.reduce(
-    (sum, o) => sum + o.items.reduce((s, i) => s + Number(i.priceLocked) * i.quantity + Number(i.deliveryCost), 0),
-    0
-  );
+  const revenue = paidOrders.reduce((sum, o) => sum + getOrderTotal(o), 0);
   const avgOrderValue = paidOrders.length > 0 ? revenue / paidOrders.length : 0;
   return { revenue, avgOrderValue, paidCount: paidOrders.length };
 }

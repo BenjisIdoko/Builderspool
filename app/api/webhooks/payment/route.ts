@@ -1,43 +1,51 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { prisma } from '@/lib/prisma';
-import { OrderStatus } from '@prisma/client';
-import { joinCycleForOrderItem } from '@/lib/bidding';
+import { verifyPaystackWebhookSignature } from '@/lib/payments/paystack';
+import { confirmOrderPaid } from '@/lib/payments/confirmOrderPaid';
+import { getOrderTotal } from '@/lib/checkout/orderTotal';
 
 export async function POST(request: NextRequest) {
   const rawBody = await request.text();
-  const signature = request.headers.get('x-paystack-signature') ?? request.headers.get('verif-hash');
+  const signature = request.headers.get('x-paystack-signature');
 
-  if (!verifySignature(rawBody, signature)) {
+  let signatureValid: boolean;
+  try {
+    signatureValid = verifyPaystackWebhookSignature(rawBody, signature);
+  } catch {
+    return NextResponse.json({ error: 'Payment gateway is not configured' }, { status: 500 });
+  }
+
+  if (!signatureValid) {
     return NextResponse.json({ error: 'Invalid signature' }, { status: 401 });
   }
 
   const event = JSON.parse(rawBody);
-  const orderId: string = event.orderId;
+
+  // Only a successful charge moves an order to PAID — every other event
+  // type (failed charge, refund, etc.) is acknowledged and ignored.
+  if (event.event !== 'charge.success') {
+    return NextResponse.json({ received: true });
+  }
+
+  const reference: string = event.data.reference;
+  const order = await prisma.order.findUnique({
+    where: { paymentReference: reference },
+    include: { items: true },
+  });
+
+  if (!order) {
+    return NextResponse.json({ error: 'No order for this payment reference' }, { status: 404 });
+  }
+
+  const expectedKobo = Math.round(getOrderTotal(order) * 100);
+  if (event.data.amount !== expectedKobo) {
+    return NextResponse.json({ error: 'Amount mismatch' }, { status: 400 });
+  }
 
   // An order only joins its bid cycles once payment is confirmed here —
   // never at checkout submission — so abandoned/failed payments never
   // inflate demand pools.
-  const order = await prisma.order.update({
-    where: { id: orderId },
-    data: { status: OrderStatus.PAID, paidAt: new Date() },
-    include: { items: true },
-  });
-
-  for (const item of order.items) {
-    await joinCycleForOrderItem(item.id);
-  }
+  await confirmOrderPaid(order.id);
 
   return NextResponse.json({ received: true });
-}
-
-/**
- * TODO: wire in real gateway-specific signature verification
- * (Paystack: HMAC-SHA512 of the raw body against the webhook secret,
- * compared to the x-paystack-signature header; Flutterwave: verif-hash
- * header compared to a shared secret).
- */
-function verifySignature(rawBody: string, signature: string | null): boolean {
-  void rawBody;
-  void signature;
-  throw new Error('verifySignature() not implemented — wire in gateway-specific verification.');
 }

@@ -70,12 +70,15 @@ export function CheckoutForm({ buyerId }: { buyerId: string }) {
 
       const body = await res.json();
 
-      // The order is created before initiatePayment() runs, so even the
-      // expected "not implemented" error (see app/api/checkout/route.ts)
-      // still carries a real order back — send the buyer to its
-      // confirmation page rather than treating this as a failure.
+      // The order is created before payment is initiated, so it comes back
+      // even if Paystack initialization fails — send the buyer to the order
+      // page either way rather than treating a committed order as a failure.
       if (body.order?.id) {
         clear();
+        if (body.payment?.authorizationUrl) {
+          window.location.href = body.payment.authorizationUrl;
+          return;
+        }
         router.push(`/orders/${body.order.id}`);
         return;
       }

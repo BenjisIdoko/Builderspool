@@ -277,13 +277,14 @@ model CartItem {
 // The buyer-facing checkout transaction. region is persisted here specifically
 // so bid-cycle assignment can read it back after payment confirms.
 model Order {
-  id            String         @id @default(cuid())
-  buyerId       String
-  region        String
-  status        OrderStatus    @default(PENDING_PAYMENT)
-  paymentMethod PaymentMethod?
-  createdAt     DateTime       @default(now())
-  paidAt        DateTime?
+  id               String         @id @default(cuid())
+  buyerId          String
+  region           String
+  status           OrderStatus    @default(PENDING_PAYMENT)
+  paymentMethod    PaymentMethod?
+  paymentReference String?        @unique // Paystack transaction reference for the current/latest payment attempt
+  createdAt        DateTime       @default(now())
+  paidAt           DateTime?
 
   buyer User        @relation(fields: [buyerId], references: [id])
   items OrderItem[]
