@@ -5,8 +5,9 @@ import { redirect } from 'next/navigation';
 import { revalidatePath } from 'next/cache';
 import { prisma } from '@/lib/prisma';
 import { BidStatus, CycleStatus, Role } from '@prisma/client';
-import { SELLER_COOKIE } from '@/lib/seller/session';
+import { SELLER_COOKIE, getSellerIdFromSession } from '@/lib/seller/session';
 import { isSellerEligible } from '@/lib/bidding/scoring';
+import { isPastCutoff } from '@/lib/bidding/cycleWindow';
 import { hashPassword, verifyPassword } from '@/lib/auth/password';
 import { markNotificationRead, markAllNotificationsRead } from '@/lib/notifications';
 
@@ -82,14 +83,20 @@ export async function signOutSeller() {
 }
 
 export async function submitBid(formData: FormData) {
-  const sellerId = formData.get('sellerId');
+  // The submitting seller is always the session's own id — never a
+  // client-supplied value. A hidden form field can be edited in devtools,
+  // and trusting it would let anyone submit or amend a bid as any other
+  // seller, which is exactly the invisibility guarantee blind bidding
+  // depends on.
+  const sellerId = await getSellerIdFromSession();
   const cycleId = formData.get('cycleId');
   const unitPrice = Number(formData.get('unitPrice'));
   const quantityOffered = Number(formData.get('quantityOffered'));
   const estimatedDeliveryDays = Number(formData.get('estimatedDeliveryDays'));
 
-  if (typeof sellerId !== 'string' || typeof cycleId !== 'string') {
-    throw new Error('Missing seller or cycle id.');
+  if (!sellerId) throw new Error('Sign in as a seller to bid.');
+  if (typeof cycleId !== 'string') {
+    throw new Error('Missing cycle id.');
   }
   if (!(unitPrice > 0) || !(quantityOffered > 0) || !Number.isFinite(estimatedDeliveryDays) || estimatedDeliveryDays < 0) {
     throw new Error('Enter a valid price, quantity and delivery estimate.');
@@ -100,7 +107,12 @@ export async function submitBid(formData: FormData) {
     prisma.sellerProfile.findUniqueOrThrow({ where: { userId: sellerId } }),
   ]);
 
-  if (cycle.status !== CycleStatus.OPEN) {
+  // cycle.status alone isn't a reliable deadline — it only flips to CLOSED
+  // when the cron sweeps it, which can lag the real cutoff by several
+  // minutes. Checking cutoffAt directly closes that grace-window gap, where
+  // a seller could otherwise submit or amend a bid after the deadline every
+  // other seller was told applied.
+  if (cycle.status !== CycleStatus.OPEN || isPastCutoff(cycle.cutoffAt)) {
     throw new Error('This cycle is no longer accepting bids.');
   }
   if (!isSellerEligible(profile, cycle)) {
@@ -129,15 +141,19 @@ export async function submitBid(formData: FormData) {
 }
 
 export async function withdrawBid(formData: FormData) {
+  const sellerId = await getSellerIdFromSession();
   const bidId = formData.get('bidId');
-  const sellerId = formData.get('sellerId');
-  if (typeof bidId !== 'string' || typeof sellerId !== 'string') {
+  if (!sellerId) throw new Error('Sign in as a seller to withdraw a bid.');
+  if (typeof bidId !== 'string') {
     throw new Error('Missing bid id.');
   }
 
-  const bid = await prisma.bid.findUniqueOrThrow({ where: { id: bidId } });
+  const bid = await prisma.bid.findUniqueOrThrow({ where: { id: bidId }, include: { cycle: true } });
   if (bid.sellerId !== sellerId) throw new Error('Not your bid.');
   if (bid.status !== BidStatus.SUBMITTED) throw new Error('Only a submitted bid can be withdrawn.');
+  if (isPastCutoff(bid.cycle.cutoffAt)) {
+    throw new Error('This cycle has passed its cutoff — bids can no longer be withdrawn.');
+  }
 
   await prisma.bid.update({ where: { id: bidId }, data: { status: BidStatus.WITHDRAWN } });
 
@@ -146,17 +162,17 @@ export async function withdrawBid(formData: FormData) {
 }
 
 export async function markNotificationReadAction(formData: FormData) {
+  const sellerId = await getSellerIdFromSession();
   const id = formData.get('id');
-  const sellerId = formData.get('sellerId');
-  if (typeof id !== 'string' || typeof sellerId !== 'string') return;
+  if (!sellerId || typeof id !== 'string') return;
 
   await markNotificationRead(id, sellerId);
   revalidatePath('/seller', 'layout');
 }
 
-export async function markAllNotificationsReadAction(formData: FormData) {
-  const sellerId = formData.get('sellerId');
-  if (typeof sellerId !== 'string') return;
+export async function markAllNotificationsReadAction() {
+  const sellerId = await getSellerIdFromSession();
+  if (!sellerId) return;
 
   await markAllNotificationsRead(sellerId);
   revalidatePath('/seller', 'layout');

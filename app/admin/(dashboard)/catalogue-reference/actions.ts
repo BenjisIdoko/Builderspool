@@ -3,6 +3,7 @@
 import { revalidatePath } from 'next/cache';
 import { prisma } from '@/lib/prisma';
 import { ProjectScale, SourcingModel } from '@prisma/client';
+import { requireAdmin } from '@/lib/admin/session';
 
 function optionalText(formData: FormData, key: string): string | null {
   const value = formData.get(key);
@@ -24,6 +25,8 @@ function requiredText(formData: FormData, key: string): string {
 // facing, so edits here carry no pricing/mechanism-leak risk the live
 // Material catalog editor has to worry about.
 export async function updateReferenceProductAction(formData: FormData) {
+  await requireAdmin();
+
   const id = requiredText(formData, 'id');
 
   const projectScaleRaw = formData.get('projectScale');
@@ -64,6 +67,8 @@ export async function updateReferenceProductAction(formData: FormData) {
 }
 
 export async function deleteReferenceProductAction(formData: FormData) {
+  await requireAdmin();
+
   const id = requiredText(formData, 'id');
   await prisma.product.delete({ where: { id } });
   revalidatePath('/admin/catalogue-reference');

@@ -65,7 +65,6 @@ export default async function SellerBidsPage() {
                 {bid.status === 'SUBMITTED' && (
                   <form action={withdrawBid}>
                     <input type="hidden" name="bidId" value={bid.id} />
-                    <input type="hidden" name="sellerId" value={sellerId} />
                     <Button type="submit" variant="ghost" size="sm">
                       Withdraw
                     </Button>

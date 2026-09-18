@@ -41,7 +41,7 @@ function timeAgo(date: Date) {
   return `${Math.floor(hours / 24)}d ago`;
 }
 
-function NotificationRow({ n, sellerId }: { n: Notification; sellerId: string }) {
+function NotificationRow({ n }: { n: Notification }) {
   const [, startTransition] = useTransition();
   const Icon = TYPE_ICON[n.type];
 
@@ -49,7 +49,6 @@ function NotificationRow({ n, sellerId }: { n: Notification; sellerId: string })
     if (n.read) return;
     const formData = new FormData();
     formData.set('id', n.id);
-    formData.set('sellerId', sellerId);
     // Fire-and-forget — navigation via the Link shouldn't wait on this.
     startTransition(() => {
       markNotificationReadAction(formData);
@@ -80,11 +79,9 @@ function NotificationRow({ n, sellerId }: { n: Notification; sellerId: string })
 }
 
 export function NotificationBell({
-  sellerId,
   notifications,
   unreadCount,
 }: {
-  sellerId: string;
   notifications: Notification[];
   unreadCount: number;
 }) {
@@ -105,7 +102,6 @@ export function NotificationBell({
           <span className="text-sm font-bold text-ink">Notifications</span>
           {unreadCount > 0 && (
             <form action={markAllNotificationsReadAction}>
-              <input type="hidden" name="sellerId" value={sellerId} />
               <button type="submit" className="text-xs font-medium text-brand hover:underline">
                 Mark all read
               </button>
@@ -118,7 +114,7 @@ export function NotificationBell({
         ) : (
           <div className="max-h-96 overflow-y-auto">
             {notifications.map((n) => (
-              <NotificationRow key={n.id} n={n} sellerId={sellerId} />
+              <NotificationRow key={n.id} n={n} />
             ))}
           </div>
         )}

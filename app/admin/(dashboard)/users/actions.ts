@@ -3,8 +3,11 @@
 import { revalidatePath } from 'next/cache';
 import { prisma } from '@/lib/prisma';
 import { KycStatus } from '@prisma/client';
+import { requireAdmin } from '@/lib/admin/session';
 
 export async function approveKycAction(formData: FormData) {
+  await requireAdmin();
+
   const userId = formData.get('userId');
   if (typeof userId !== 'string') throw new Error('Missing seller id.');
 
@@ -18,6 +21,8 @@ export async function approveKycAction(formData: FormData) {
 }
 
 export async function rejectKycAction(formData: FormData) {
+  await requireAdmin();
+
   const userId = formData.get('userId');
   const reason = formData.get('reason');
   if (typeof userId !== 'string') throw new Error('Missing seller id.');

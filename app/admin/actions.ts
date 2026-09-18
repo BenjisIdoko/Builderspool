@@ -11,7 +11,7 @@ import { revalidatePath } from 'next/cache';
 // with no client wrapper, so it keeps calling redirect() directly.
 import { prisma } from '@/lib/prisma';
 import { CycleStatus, Role } from '@prisma/client';
-import { ADMIN_COOKIE } from '@/lib/admin/session';
+import { ADMIN_COOKIE, requireAdmin } from '@/lib/admin/session';
 import { verifyPassword } from '@/lib/auth/password';
 import { awardCycle } from '@/lib/bidding';
 import { issueGrn, disbursePayout, toggleAllocationHold } from '@/lib/fulfillment';
@@ -57,15 +57,23 @@ export async function signOutAdmin() {
  * cycle that needs resolving before its scheduled cutoff).
  */
 export async function forceAwardCycle(formData: FormData) {
+  await requireAdmin();
+
   const cycleId = formData.get('cycleId');
   if (typeof cycleId !== 'string') throw new Error('Missing cycle id.');
 
-  const cycle = await prisma.bidCycle.findUniqueOrThrow({ where: { id: cycleId } });
-  if (cycle.status !== CycleStatus.OPEN) {
+  // Atomic compare-and-swap (WHERE status: OPEN), not a plain write — closes
+  // the same race the cron's closeDueCycles() guards against: a double-click
+  // or a race against the cron itself must not both proceed to award the
+  // same cycle twice.
+  const { count } = await prisma.bidCycle.updateMany({
+    where: { id: cycleId, status: CycleStatus.OPEN },
+    data: { status: CycleStatus.CLOSED },
+  });
+  if (count === 0) {
     throw new Error('Only an open cycle can be closed and awarded.');
   }
 
-  await prisma.bidCycle.update({ where: { id: cycleId }, data: { status: CycleStatus.CLOSED } });
   await awardCycle(cycleId);
 
   revalidatePath('/admin');
@@ -82,6 +90,8 @@ function requireAllocationFields(formData: FormData) {
 }
 
 export async function issueGrnAction(formData: FormData) {
+  await requireAdmin();
+
   const { allocationId, cycleId } = requireAllocationFields(formData);
   await issueGrn(allocationId);
 
@@ -91,6 +101,8 @@ export async function issueGrnAction(formData: FormData) {
 }
 
 export async function disbursePayoutAction(formData: FormData) {
+  await requireAdmin();
+
   const { allocationId, cycleId } = requireAllocationFields(formData);
   await disbursePayout(allocationId);
 
@@ -100,6 +112,8 @@ export async function disbursePayoutAction(formData: FormData) {
 }
 
 export async function toggleAllocationHoldAction(formData: FormData) {
+  await requireAdmin();
+
   const { allocationId, cycleId } = requireAllocationFields(formData);
   const reason = formData.get('reason');
 
@@ -111,6 +125,8 @@ export async function toggleAllocationHoldAction(formData: FormData) {
 }
 
 export async function markWithdrawalPaidAction(formData: FormData) {
+  await requireAdmin();
+
   const entryId = formData.get('entryId');
   if (typeof entryId !== 'string') throw new Error('Missing wallet entry id.');
 

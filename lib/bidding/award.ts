@@ -123,10 +123,17 @@ export async function closeDueCycles(now = new Date()): Promise<CycleCloseReport
 
   const reports: CycleCloseReport[] = [];
   for (const cycle of dueCycles) {
-    await prisma.bidCycle.update({
-      where: { id: cycle.id },
+    // Conditional update, not a plain write — the WHERE status: OPEN makes
+    // this an atomic compare-and-swap. awardCycle() isn't idempotent
+    // (it unconditionally creates allocations), so if a concurrent caller
+    // (an overlapping cron run, or an admin's forceAwardCycle) already
+    // claimed this cycle, count is 0 here and this run skips it rather than
+    // awarding the same demand twice.
+    const { count } = await prisma.bidCycle.updateMany({
+      where: { id: cycle.id, status: CycleStatus.OPEN },
       data: { status: CycleStatus.CLOSED },
     });
+    if (count === 0) continue;
     reports.push(await awardCycle(cycle.id));
   }
 

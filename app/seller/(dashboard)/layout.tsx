@@ -38,7 +38,7 @@ export default async function SellerDashboardLayout({ children }: { children: Re
 
   return (
     <div className="flex flex-1">
-      <SellerSidebar profile={profile} sellerId={sellerId} notifications={notifications} unreadCount={unreadCount} />
+      <SellerSidebar profile={profile} notifications={notifications} unreadCount={unreadCount} />
       <div className="flex flex-1 flex-col">
         <header className="flex h-16 items-center gap-3 border-b border-border bg-surface/95 px-5 backdrop-blur lg:hidden">
           <MobileNav
@@ -71,7 +71,7 @@ export default async function SellerDashboardLayout({ children }: { children: Re
             <span className="text-sm font-medium tracking-tight text-ink">Seller portal</span>
           </Link>
           <div className="ml-auto">
-            <NotificationBell sellerId={sellerId} notifications={notifications} unreadCount={unreadCount} />
+            <NotificationBell notifications={notifications} unreadCount={unreadCount} />
           </div>
         </header>
         <main className="flex flex-1 flex-col">{children}</main>

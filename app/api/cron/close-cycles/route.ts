@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { closeDueCycles } from '@/lib/bidding';
 import { errorMessage } from '@/lib/errors';
+import { verifyCronRequest } from '@/lib/cron/auth';
 
 export const dynamic = 'force-dynamic';
 
@@ -14,18 +15,8 @@ export async function POST(request: NextRequest) {
 
 async function handleCron(request: NextRequest) {
   try {
-    // Optional secret verification for Vercel Cron or custom trigger
-    const authHeader = request.headers.get('authorization');
-    const cronSecret = process.env.CRON_SECRET;
-
-    if (cronSecret && authHeader !== `Bearer ${cronSecret}`) {
-      const urlSecret = request.nextUrl.searchParams.get('secret');
-      if (urlSecret !== cronSecret) {
-        return NextResponse.json(
-          { error: 'Unauthorized cron execution' },
-          { status: 401 }
-        );
-      }
+    if (!verifyCronRequest(request)) {
+      return NextResponse.json({ error: 'Unauthorized cron execution' }, { status: 401 });
     }
 
     const reports = await closeDueCycles();

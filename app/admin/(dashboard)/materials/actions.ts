@@ -3,6 +3,7 @@
 import { revalidatePath } from 'next/cache';
 import { prisma } from '@/lib/prisma';
 import { SourcingScope } from '@prisma/client';
+import { requireAdmin } from '@/lib/admin/session';
 
 function optionalText(formData: FormData, key: string): string | null {
   const value = formData.get(key);
@@ -17,6 +18,8 @@ function optionalText(formData: FormData, key: string): string | null {
 // history chart (lib/queries/materials.ts's getPriceHistory) picks it up
 // honestly instead of silently drifting out of sync with catalogPrice.
 export async function updateMaterialAction(formData: FormData) {
+  await requireAdmin();
+
   const id = formData.get('id');
   if (typeof id !== 'string') throw new Error('Missing material id.');
 

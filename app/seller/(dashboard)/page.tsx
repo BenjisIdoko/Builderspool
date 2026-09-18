@@ -265,7 +265,7 @@ export default async function SellerDashboardPage() {
               )}
 
               <div className="mt-4">
-                <BidDialog sellerId={sellerId} cycle={cycle} />
+                <BidDialog cycle={cycle} />
               </div>
             </div>
           ))}

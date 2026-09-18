@@ -39,12 +39,10 @@ const LINK_GROUPS = [
 
 export function SellerSidebar({
   profile,
-  sellerId,
   notifications,
   unreadCount,
 }: {
   profile: NonNullable<Awaited<ReturnType<typeof getSellerProfile>>>;
-  sellerId: string;
   notifications: Awaited<ReturnType<typeof getNotificationsForSeller>>['notifications'];
   unreadCount: number;
 }) {
@@ -57,7 +55,7 @@ export function SellerSidebar({
           <LogoMark className="size-8 shrink-0" />
           <span className="truncate text-[15px] font-medium tracking-tight text-ink">Seller portal</span>
         </Link>
-        <NotificationBell sellerId={sellerId} notifications={notifications} unreadCount={unreadCount} />
+        <NotificationBell notifications={notifications} unreadCount={unreadCount} />
       </div>
 
       <nav className="flex flex-col gap-5 p-3">

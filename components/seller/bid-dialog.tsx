@@ -11,10 +11,8 @@ import { Label } from '@/components/ui/label';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
 
 export function BidDialog({
-  sellerId,
   cycle,
 }: {
-  sellerId: string;
   cycle: {
     id: string;
     region: string | null;
@@ -66,7 +64,6 @@ export function BidDialog({
           onSubmit={() => setOpen(false)}
           className="flex flex-col gap-4"
         >
-          <input type="hidden" name="sellerId" value={sellerId} />
           <input type="hidden" name="cycleId" value={cycle.id} />
 
           <div className="flex flex-col gap-1.5">
