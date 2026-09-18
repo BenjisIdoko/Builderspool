@@ -2,7 +2,6 @@ import Link from 'next/link';
 import {
   MagnifyingGlassIcon,
   PackageIcon,
-  PencilSimpleIcon,
   WarningIcon,
   StackIcon,
   GlobeIcon,
@@ -15,23 +14,28 @@ import {
   getMaterialKpis,
 } from '@/lib/queries/adminMaterials';
 import { formatNaira } from '@/lib/format';
-import { Badge } from '@/components/ui/badge';
 import { KpiCard } from '@/components/kpi-card';
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
-import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
+import { MaterialTableRow } from '@/components/admin/material-table-row';
+import { MaterialScopeFilter } from '@/components/admin/material-scope-filter';
+import { Table, TableBody, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 
 export default async function AdminMaterialsPage({
   searchParams,
 }: {
-  searchParams: Promise<{ category?: string; q?: string; page?: string; review?: string }>;
+  searchParams: Promise<{ category?: string; q?: string; page?: string; review?: string; scope?: string }>;
 }) {
-  const { category, q, page: pageParam, review } = await searchParams;
+  const { category, q, page: pageParam, review, scope: scopeParam } = await searchParams;
   const page = Math.max(1, Number(pageParam) || 1);
   const needsReview = review === '1';
+  const scope = (scopeParam?.split(',').filter((s) => s === 'NATIONAL' || s === 'REGIONAL') ?? []) as (
+    | 'NATIONAL'
+    | 'REGIONAL'
+  )[];
 
   const [{ materials, total, pageCount }, categories, needsReviewCount, kpis] = await Promise.all([
-    getMaterialsForAdmin({ category, query: q, page, needsReview }),
+    getMaterialsForAdmin({ category, query: q, page, needsReview, scope }),
     getAdminMaterialCategories(),
     getMaterialsNeedingPriceReviewCount(),
     getMaterialKpis(),
@@ -60,6 +64,7 @@ export default async function AdminMaterialsPage({
     if (query) params.set('q', query);
     if (p > 1) params.set('page', String(p));
     if (r) params.set('review', '1');
+    if (scope.length > 0) params.set('scope', scope.join(','));
     const qs = params.toString();
     return `/admin/materials${qs ? `?${qs}` : ''}`;
   }
@@ -119,17 +124,21 @@ export default async function AdminMaterialsPage({
           ))}
         </div>
 
-        <form className="flex max-w-xs flex-1 items-center gap-2">
-          {category && <input type="hidden" name="category" value={category} />}
-          {needsReview && <input type="hidden" name="review" value="1" />}
-          <div className="relative flex-1">
-            <MagnifyingGlassIcon className="pointer-events-none absolute top-1/2 left-3 size-4 -translate-y-1/2 text-muted-foreground" />
-            <Input name="q" defaultValue={q} placeholder="Search material name…" className="pl-9" />
-          </div>
-          <Button type="submit" variant="outline">
-            Search
-          </Button>
-        </form>
+        <div className="flex flex-wrap items-center gap-2">
+          <MaterialScopeFilter current={scope} />
+          <form className="flex max-w-xs flex-1 items-center gap-2">
+            {category && <input type="hidden" name="category" value={category} />}
+            {needsReview && <input type="hidden" name="review" value="1" />}
+            {scope.length > 0 && <input type="hidden" name="scope" value={scope.join(',')} />}
+            <div className="relative flex-1">
+              <MagnifyingGlassIcon className="pointer-events-none absolute top-1/2 left-3 size-4 -translate-y-1/2 text-muted-foreground" />
+              <Input name="q" defaultValue={q} placeholder="Search material name…" className="pl-9" />
+            </div>
+            <Button type="submit" variant="outline">
+              Search
+            </Button>
+          </form>
+        </div>
       </div>
 
       {materials.length === 0 ? (
@@ -153,33 +162,21 @@ export default async function AdminMaterialsPage({
             </TableHeader>
             <TableBody>
               {materials.map((m) => (
-                <TableRow key={m.id}>
-                  <TableCell className="py-3 text-ink">
-                    <div className="max-w-64 truncate font-medium">{m.name}</div>
-                    <div className="text-xs text-muted-foreground">{m.category}</div>
-                  </TableCell>
-                  <TableCell className="py-3 text-ink">{m.unit}</TableCell>
-                  <TableCell className="py-3 font-semibold text-ink">
-                    <div className="flex items-center gap-1.5">
-                      {formatNaira(m.catalogPrice)}
-                      {m.needsPriceReview && <WarningIcon className="size-3.5 text-warning" />}
-                    </div>
-                  </TableCell>
-                  <TableCell className="py-3">
-                    <Badge variant="outline" className="w-fit border-border text-slate">
-                      {m.sourcingScope === 'NATIONAL' ? 'National' : 'Regional'}
-                    </Badge>
-                  </TableCell>
-                  <TableCell className="py-3 text-right">
-                    <Link
-                      href={`/admin/materials/${m.id}`}
-                      className="inline-flex items-center gap-1.5 text-sm text-brand hover:underline"
-                    >
-                      <PencilSimpleIcon className="size-3.5" />
-                      Edit
-                    </Link>
-                  </TableCell>
-                </TableRow>
+                <MaterialTableRow
+                  key={m.id}
+                  id={m.id}
+                  name={m.name}
+                  category={m.category}
+                  unit={m.unit}
+                  priceFormatted={formatNaira(m.catalogPrice)}
+                  needsPriceReview={m.needsPriceReview}
+                  scopeLabel={m.sourcingScope === 'NATIONAL' ? 'National' : 'Regional'}
+                  spec={m.spec}
+                  grade={m.grade}
+                  standard={m.standard}
+                  dimensions={m.dimensions}
+                  weight={m.weight}
+                />
               ))}
             </TableBody>
           </Table>

@@ -1,10 +1,9 @@
 import { BooksIcon, StackIcon, TagIcon } from '@phosphor-icons/react/ssr';
 import { getReferenceCategories, getReferenceProducts, getReferenceStats } from '@/lib/queries/catalogueReference';
 import { CatalogueFilterBar } from '@/components/admin/catalogue-filter-bar';
-import { ReferenceProductActions } from '@/components/admin/reference-product-actions';
-import { Badge } from '@/components/ui/badge';
+import { ReferenceProductRow } from '@/components/admin/reference-product-row';
 import { KpiCard } from '@/components/kpi-card';
-import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
+import { Table, TableBody, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 
 export default async function CatalogueReferencePage({
   searchParams,
@@ -59,45 +58,15 @@ export default async function CatalogueReferencePage({
           <Table>
             <TableHeader>
               <TableRow>
-                <TableHead>SKU</TableHead>
-                <TableHead>Name</TableHead>
+                <TableHead>Product & SKU</TableHead>
                 <TableHead>Standard</TableHead>
-                <TableHead>Common brands</TableHead>
-                <TableHead>Unit</TableHead>
                 <TableHead>Scope</TableHead>
-                <TableHead>Price note</TableHead>
-                <TableHead />
+                <TableHead className="text-right">Actions</TableHead>
               </TableRow>
             </TableHeader>
             <TableBody>
               {products.map((p) => (
-                <TableRow key={p.id}>
-                  <TableCell className="text-muted-foreground">{p.sku}</TableCell>
-                  <TableCell className="text-ink">
-                    {p.name}
-                    <div className="text-xs text-muted-foreground">{p.category.name}</div>
-                  </TableCell>
-                  <TableCell className="text-ink">{p.standard ?? '—'}</TableCell>
-                  <TableCell className="max-w-56 text-ink">{p.commonBrands ?? '—'}</TableCell>
-                  <TableCell className="text-ink">
-                    {p.unitOfSale}
-                    {p.packSize && <div className="text-xs text-muted-foreground">{p.packSize}</div>}
-                  </TableCell>
-                  <TableCell>
-                    <div className="flex flex-col gap-1">
-                      <Badge variant="outline" className="w-fit border-border text-slate">
-                        {p.projectScale.charAt(0) + p.projectScale.slice(1).toLowerCase()}
-                      </Badge>
-                      <Badge variant="outline" className="w-fit border-border text-slate">
-                        {p.sourcingModel.charAt(0) + p.sourcingModel.slice(1).toLowerCase()}
-                      </Badge>
-                    </div>
-                  </TableCell>
-                  <TableCell className="max-w-64 text-xs text-muted-foreground">{p.priceNote ?? '—'}</TableCell>
-                  <TableCell className="py-2">
-                    <ReferenceProductActions product={p} categories={categories} />
-                  </TableCell>
-                </TableRow>
+                <ReferenceProductRow key={p.id} product={p} categories={categories} />
               ))}
             </TableBody>
           </Table>

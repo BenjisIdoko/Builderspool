@@ -9,6 +9,8 @@ const PAGE_SIZE = 10;
 export const ORDER_SORT_FIELDS = ['id', 'buyer', 'items', 'total', 'status', 'stage', 'date'] as const;
 export type OrderSortField = (typeof ORDER_SORT_FIELDS)[number];
 export type SortDir = 'asc' | 'desc';
+export const ORDER_AMOUNT_FILTERS = ['any', 'under5m', 'over5m'] as const;
+export type OrderAmountFilter = (typeof ORDER_AMOUNT_FILTERS)[number];
 
 // Admin-only order list — every real order, not scoped to one buyer.
 // Reuses the exact same include/mapping as the buyer-facing getOrderById so
@@ -28,12 +30,14 @@ export async function getOrdersForAdmin({
   page = 1,
   sort = 'date',
   dir = 'desc',
+  amount = 'any',
 }: {
   status?: OrderStatus;
   query?: string;
   page?: number;
   sort?: OrderSortField;
   dir?: SortDir;
+  amount?: OrderAmountFilter;
 }) {
   const where: Prisma.OrderWhereInput = {
     status: status || undefined,
@@ -54,6 +58,9 @@ export async function getOrdersForAdmin({
     const total = getOrderTotal(order);
     return { ...order, total, fulfillmentStage: currentStage.title, escrowStatus: getEscrowStatus(order) };
   });
+
+  if (amount === 'under5m') orders = orders.filter((o) => o.total < 5_000_000);
+  if (amount === 'over5m') orders = orders.filter((o) => o.total >= 5_000_000);
 
   const sign = dir === 'asc' ? 1 : -1;
   orders = orders.sort((a, b) => {

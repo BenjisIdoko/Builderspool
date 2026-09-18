@@ -11,16 +11,19 @@ export async function getMaterialsForAdmin({
   query,
   page = 1,
   needsReview,
+  scope,
 }: {
   category?: string;
   query?: string;
   page?: number;
   needsReview?: boolean;
+  scope?: ('NATIONAL' | 'REGIONAL')[];
 }) {
   const where: Prisma.MaterialWhereInput = {
     category: category || undefined,
     name: query ? { contains: query, mode: 'insensitive' } : undefined,
     needsPriceReview: needsReview ? true : undefined,
+    sourcingScope: scope && scope.length > 0 && scope.length < 2 ? scope[0] : undefined,
   };
 
   const [rows, total] = await Promise.all([

@@ -19,17 +19,17 @@ import {
   ORDER_SORT_FIELDS,
   type OrderSortField,
   type SortDir,
+  type OrderAmountFilter,
 } from '@/lib/queries/adminOrders';
 import { ESCROW_STATUS_LABEL } from '@/lib/queries/escrow';
 import { formatNaira } from '@/lib/format';
 import { orderStatusTone, fulfillmentStageTone, escrowStatusTone, pillClass } from '@/lib/statusColors';
-import { Badge } from '@/components/ui/badge';
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
-import { Avatar } from '@/components/avatar';
 import { KpiCard } from '@/components/kpi-card';
-import { OrderRowActions } from '@/components/admin/order-row-actions';
-import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
+import { OrderTableRow } from '@/components/admin/order-table-row';
+import { OrderAmountFilterDropdown } from '@/components/admin/order-amount-filter';
+import { Table, TableBody, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 
 const STATUS_LABEL: Record<string, string> = {
   PENDING_PAYMENT: 'Awaiting payment',
@@ -55,18 +55,19 @@ function shortOrderNumber(id: string) {
 export default async function AdminOrdersPage({
   searchParams,
 }: {
-  searchParams: Promise<{ status?: string; q?: string; page?: string; sort?: string; dir?: string }>;
+  searchParams: Promise<{ status?: string; q?: string; page?: string; sort?: string; dir?: string; amount?: string }>;
 }) {
-  const { status, q, page: pageParam, sort: sortParam, dir: dirParam } = await searchParams;
+  const { status, q, page: pageParam, sort: sortParam, dir: dirParam, amount: amountParam } = await searchParams;
   const page = Math.max(1, Number(pageParam) || 1);
   const validStatus = status && status in OrderStatus ? (status as OrderStatus) : undefined;
   const sort: OrderSortField = ORDER_SORT_FIELDS.includes(sortParam as OrderSortField)
     ? (sortParam as OrderSortField)
     : 'date';
   const dir: SortDir = dirParam === 'asc' ? 'asc' : 'desc';
+  const amount: OrderAmountFilter = amountParam === 'under5m' || amountParam === 'over5m' ? amountParam : 'any';
 
   const [{ orders, total, pageCount }, counts, quickStats] = await Promise.all([
-    getOrdersForAdmin({ status: validStatus, query: q, page, sort, dir }),
+    getOrdersForAdmin({ status: validStatus, query: q, page, sort, dir, amount }),
     getOrderStatusCounts(),
     getOrderQuickStats(),
   ]);
@@ -91,18 +92,27 @@ export default async function AdminOrdersPage({
     },
   ];
 
-  function urlFor(overrides: { status?: string; q?: string; page?: number; sort?: OrderSortField; dir?: SortDir }) {
+  function urlFor(overrides: {
+    status?: string;
+    q?: string;
+    page?: number;
+    sort?: OrderSortField;
+    dir?: SortDir;
+    amount?: OrderAmountFilter;
+  }) {
     const params = new URLSearchParams();
     const s = overrides.status !== undefined ? overrides.status : status;
     const query = overrides.q !== undefined ? overrides.q : q;
     const p = overrides.page ?? 1;
     const sortField = overrides.sort ?? sort;
     const sortDir = overrides.dir ?? dir;
+    const amountFilter = overrides.amount ?? amount;
     if (s) params.set('status', s);
     if (query) params.set('q', query);
     if (p > 1) params.set('page', String(p));
     if (sortField !== 'date') params.set('sort', sortField);
     if (sortDir !== 'desc') params.set('dir', sortDir);
+    if (amountFilter !== 'any') params.set('amount', amountFilter);
     const qs = params.toString();
     return `/admin/orders${qs ? `?${qs}` : ''}`;
   }
@@ -184,16 +194,20 @@ export default async function AdminOrdersPage({
           })}
         </div>
 
-        <form className="flex max-w-xs flex-1 items-center gap-2">
-          {validStatus && <input type="hidden" name="status" value={validStatus} />}
-          <div className="relative flex-1">
-            <MagnifyingGlassIcon className="pointer-events-none absolute top-1/2 left-3 size-4 -translate-y-1/2 text-muted-foreground" />
-            <Input name="q" defaultValue={q} placeholder="Search order ID or buyer…" className="pl-9" />
-          </div>
-          <Button type="submit" variant="outline">
-            Search
-          </Button>
-        </form>
+        <div className="flex flex-wrap items-center gap-2">
+          <OrderAmountFilterDropdown current={amount} hrefFor={(a) => urlFor({ amount: a, page: 1 })} />
+          <form className="flex max-w-xs flex-1 items-center gap-2">
+            {validStatus && <input type="hidden" name="status" value={validStatus} />}
+            {amount !== 'any' && <input type="hidden" name="amount" value={amount} />}
+            <div className="relative flex-1">
+              <MagnifyingGlassIcon className="pointer-events-none absolute top-1/2 left-3 size-4 -translate-y-1/2 text-muted-foreground" />
+              <Input name="q" defaultValue={q} placeholder="Search order ID or buyer…" className="pl-9" />
+            </div>
+            <Button type="submit" variant="outline">
+              Search
+            </Button>
+          </form>
+        </div>
       </div>
 
       {orders.length === 0 ? (
@@ -212,14 +226,11 @@ export default async function AdminOrdersPage({
           <Table>
             <TableHeader>
               <TableRow>
-                {sortableHead('id', 'Order')}
+                {sortableHead('id', 'Order & date')}
                 {sortableHead('buyer', 'Buyer')}
-                {sortableHead('items', 'Items')}
                 {sortableHead('total', 'Total')}
-                {sortableHead('status', 'Payment')}
-                <TableHead>Escrow</TableHead>
-                {sortableHead('stage', 'Fulfillment')}
-                {sortableHead('date', 'Date')}
+                {sortableHead('status', 'Status')}
+                <TableHead className="text-right">Detail</TableHead>
                 <TableHead className="text-right">Action</TableHead>
               </TableRow>
             </TableHeader>
@@ -227,44 +238,23 @@ export default async function AdminOrdersPage({
               {orders.map((order) => {
                 const buyerName = order.buyer.businessName ?? order.buyer.name;
                 return (
-                  <TableRow key={order.id}>
-                    <TableCell className="py-3 font-semibold text-ink" title={order.id}>
-                      {shortOrderNumber(order.id)}
-                    </TableCell>
-                    <TableCell className="py-3 text-ink">
-                      <div className="flex items-center gap-2.5">
-                        <Avatar name={order.buyer.name} className="size-8 shrink-0 text-[10px]" />
-                        <div className="min-w-0">
-                          <div className="max-w-40 truncate font-medium">{buyerName}</div>
-                          <div className="max-w-40 truncate text-xs text-muted-foreground">{order.buyer.email}</div>
-                        </div>
-                      </div>
-                    </TableCell>
-                    <TableCell className="py-3 text-ink">{order.items.length}</TableCell>
-                    <TableCell className="py-3 font-semibold text-ink">{formatNaira(order.total)}</TableCell>
-                    <TableCell className="py-3">
-                      <Badge variant="outline" className={pillClass(orderStatusTone(order.status))}>
-                        {STATUS_LABEL[order.status] ?? order.status}
-                      </Badge>
-                    </TableCell>
-                    <TableCell className="py-3">
-                      <Badge variant="outline" className={pillClass(escrowStatusTone(order.escrowStatus))}>
-                        {ESCROW_STATUS_LABEL[order.escrowStatus]}
-                      </Badge>
-                    </TableCell>
-                    <TableCell className="py-3">
-                      <Badge variant="outline" className={`w-fit max-w-36 truncate ${pillClass(fulfillmentStageTone(order.fulfillmentStage))}`}>
-                        {order.fulfillmentStage}
-                      </Badge>
-                    </TableCell>
-                    <TableCell className="py-3 text-muted-foreground">
-                      <div>{order.createdAt.toLocaleDateString('en-NG', { dateStyle: 'medium' })}</div>
-                      <div className="text-xs">{order.createdAt.toLocaleTimeString('en-NG', { timeStyle: 'short' })}</div>
-                    </TableCell>
-                    <TableCell className="py-3 text-right">
-                      <OrderRowActions orderId={order.id} />
-                    </TableCell>
-                  </TableRow>
+                  <OrderTableRow
+                    key={order.id}
+                    orderId={order.id}
+                    shortId={shortOrderNumber(order.id)}
+                    date={order.createdAt.toLocaleDateString('en-NG', { dateStyle: 'medium' })}
+                    time={order.createdAt.toLocaleTimeString('en-NG', { timeStyle: 'short' })}
+                    buyerName={buyerName}
+                    buyerEmail={order.buyer.email}
+                    total={formatNaira(order.total)}
+                    itemCount={order.items.length}
+                    escrowLabel={ESCROW_STATUS_LABEL[order.escrowStatus]}
+                    escrowClassName={pillClass(escrowStatusTone(order.escrowStatus))}
+                    paymentLabel={STATUS_LABEL[order.status] ?? order.status}
+                    paymentClassName={pillClass(orderStatusTone(order.status))}
+                    fulfillmentStage={order.fulfillmentStage}
+                    fulfillmentClassName={pillClass(fulfillmentStageTone(order.fulfillmentStage))}
+                  />
                 );
               })}
             </TableBody>

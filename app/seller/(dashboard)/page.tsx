@@ -179,7 +179,7 @@ export default async function SellerDashboardPage() {
                           {a.quantityFilled} {a.bid.material.unit}
                         </div>
                       </TableCell>
-                      <TableCell className="py-3 text-right font-bold tabular-nums text-ink">
+                      <TableCell className="py-3 text-right font-semibold tabular-nums text-ink">
                         {formatNaira(Number(a.bid.unitPrice) * a.quantityFilled)}
                       </TableCell>
                       <TableCell className="py-3">
