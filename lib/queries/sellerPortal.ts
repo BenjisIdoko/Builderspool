@@ -1,5 +1,5 @@
 import { prisma } from '../prisma';
-import { CycleStatus } from '@prisma/client';
+import { BidStatus, CycleStatus } from '@prisma/client';
 import { isSellerEligible } from '../bidding/scoring';
 
 export async function getSellerProfile(userId: string) {
@@ -24,7 +24,11 @@ export async function getOpenCyclesForSeller(sellerId: string) {
     include: {
       material: true,
       orderItems: { select: { quantity: true } },
-      bids: { where: { sellerId }, orderBy: { submittedAt: 'desc' }, take: 1 },
+      // A cycle is only ever OPEN pre-award, so a seller's bid on it can
+      // only be SUBMITTED or WITHDRAWN — excluding WITHDRAWN here so a
+      // seller who withdrew their only bid sees "Submit bid" again instead
+      // of their stale withdrawn values still showing as "current."
+      bids: { where: { sellerId, status: BidStatus.SUBMITTED }, orderBy: { submittedAt: 'desc' }, take: 1 },
     },
     orderBy: [{ cutoffAt: 'asc' }, { createdAt: 'asc' }],
   });
