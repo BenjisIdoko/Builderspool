@@ -165,7 +165,7 @@ export default async function AdminDashboardPage() {
 
       <div className="mb-7 grid grid-cols-[repeat(auto-fit,minmax(200px,1fr))] gap-3.5">
         {kpiCards.map((kpi) => (
-          <KpiCard key={kpi.label} {...kpi} size="compact" />
+          <KpiCard key={kpi.label} {...kpi} />
         ))}
       </div>
 

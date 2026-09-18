@@ -28,15 +28,22 @@ const SELLER_LABELS: [string, string][] = [
   ['/seller', 'Merchant dashboard'],
 ];
 
-function getBreadcrumb(portal: 'admin' | 'seller', pathname: string): { parent?: string; label: string } {
+// The design omits the topbar search box on detail/settings/reference-type
+// screens (AdminOrderDetail, AdminCatalogueReference, SellerPayouts,
+// SellerSettings) and keeps it on list/dashboard screens — a consistent
+// pattern across all 11 admin/seller .dc.html files, not an inconsistency.
+const NO_SEARCH_PREFIXES = ['/admin/catalogue-reference', '/seller/payouts', '/seller/settings'];
+
+function getBreadcrumb(portal: 'admin' | 'seller', pathname: string): { parent?: string; label: string; showSearch: boolean } {
   const orderDetailMatch = pathname.match(/^\/admin\/orders\/([^/]+)$/);
   if (orderDetailMatch) {
-    return { parent: 'Orders', label: `#${orderDetailMatch[1].slice(-6).toUpperCase()}` };
+    return { parent: 'Orders', label: `#${orderDetailMatch[1].slice(-6).toUpperCase()}`, showSearch: false };
   }
 
   const table = portal === 'admin' ? ADMIN_LABELS : SELLER_LABELS;
   const match = [...table].sort((a, b) => b[0].length - a[0].length).find(([prefix]) => pathname.startsWith(prefix));
-  return { label: match?.[1] ?? (portal === 'admin' ? 'Ops desk' : 'Merchant dashboard') };
+  const showSearch = !NO_SEARCH_PREFIXES.some((p) => pathname.startsWith(p));
+  return { label: match?.[1] ?? (portal === 'admin' ? 'Ops desk' : 'Merchant dashboard'), showSearch };
 }
 
 export function PortalTopbar({
@@ -49,7 +56,7 @@ export function PortalTopbar({
   bellSlot: React.ReactNode;
 }) {
   const pathname = usePathname();
-  const { parent, label } = getBreadcrumb(portal, pathname);
+  const { parent, label, showSearch } = getBreadcrumb(portal, pathname);
 
   return (
     <div className="hidden h-16 shrink-0 items-center justify-between gap-4 border-b border-border bg-surface px-8 lg:flex">
@@ -65,7 +72,7 @@ export function PortalTopbar({
         <span className="font-semibold text-ink">{label}</span>
       </div>
       <div className="flex items-center gap-4">
-        <TopbarSearchTrigger />
+        {showSearch && <TopbarSearchTrigger width={portal === 'admin' ? 240 : 220} />}
         {bellSlot}
         <Avatar name={name} className="size-[30px] text-xs" />
       </div>

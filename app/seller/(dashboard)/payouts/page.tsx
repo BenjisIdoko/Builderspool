@@ -36,23 +36,29 @@ export default async function SellerPayoutsPage() {
         there&apos;s no self-service withdrawal yet.
       </p>
 
+      {/* Design's 3 cards are Available balance / Pending escrow release / Lifetime
+          earnings. "Available balance" assumes self-service withdrawal, which
+          doesn't exist here — "On hold" (real, ops-flagged) takes that slot
+          instead. "Paid out" is literally the same real figure as "Lifetime
+          earnings" (all-time payoutStatus=PAID total), just relabeled to match;
+          no fabricated quarter-over-quarter trend added under it. */}
       <div className="mb-8 grid grid-cols-1 gap-3.5 sm:grid-cols-3">
-        <div className="rounded-lg border border-border bg-surface p-5">
-          <div className="mb-1.5 text-xs font-bold tracking-wide text-muted-foreground uppercase">Paid out</div>
-          <div className="text-2xl font-extrabold text-ink">{formatNaira(paidTotal)}</div>
-          <div className="mt-1 text-xs text-muted-foreground">{paid.length} settled</div>
+        <div className="rounded-2xl border border-border bg-surface p-5">
+          <div className="mb-1.5 text-xs font-bold tracking-wide text-muted-foreground uppercase">On hold</div>
+          <div className="text-2xl font-extrabold text-danger">{formatNaira(onHoldTotal)}</div>
+          <div className="mt-1 text-xs text-muted-foreground">{onHold.length} flagged by ops</div>
         </div>
-        <div className="rounded-lg border border-border bg-surface p-5">
+        <div className="rounded-2xl border border-border bg-surface p-5">
           <div className="mb-1.5 text-xs font-bold tracking-wide text-muted-foreground uppercase">
             Pending escrow release
           </div>
           <div className="text-2xl font-extrabold text-brand">{formatNaira(pendingTotal)}</div>
           <div className="mt-1 text-xs text-muted-foreground">{pending.length} awaiting GRN / processing</div>
         </div>
-        <div className="rounded-lg border border-border bg-surface p-5">
-          <div className="mb-1.5 text-xs font-bold tracking-wide text-muted-foreground uppercase">On hold</div>
-          <div className="text-2xl font-extrabold text-danger">{formatNaira(onHoldTotal)}</div>
-          <div className="mt-1 text-xs text-muted-foreground">{onHold.length} flagged by ops</div>
+        <div className="rounded-2xl border border-border bg-surface p-5">
+          <div className="mb-1.5 text-xs font-bold tracking-wide text-muted-foreground uppercase">Lifetime earnings</div>
+          <div className="text-2xl font-extrabold text-ink">{formatNaira(paidTotal)}</div>
+          <div className="mt-1 text-xs text-muted-foreground">{paid.length} settled</div>
         </div>
       </div>
 

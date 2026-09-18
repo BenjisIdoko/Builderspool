@@ -907,6 +907,20 @@ User also flagged that `KpiCard` (`components/kpi-card.tsx`, shared by every adm
 
 `npx tsc --noEmit -p .`, `npm run lint`, and `npx next build` all pass clean. Live-verified computed styles via devtools JS (not just screenshots) on Orders, Dashboard, Materials, Sellers, and the seller dashboard to confirm the fix applied everywhere `KpiCard` is used.
 
+### Third design handoff — AdminDashboard/AdminSellers/SellerPayouts follow-up comparison (2026-09-18, later still)
+
+User asked for the same file-by-file comparison against `AdminDashboard`, `AdminSellers`, and `SellerPayouts`. Found three more real, fixable gaps:
+
+1. **Topbar search box isn't universal** — re-grepping all 11 admin/seller `.dc.html` files for `ph-magnifying-glass` showed a consistent, deliberate pattern this session had missed: detail/settings/reference-type screens (`AdminOrderDetail`, `AdminCatalogueReference`, `SellerPayouts`, `SellerSettings`) omit the topbar search box entirely; list/dashboard screens keep it. Also, admin's box is 240px and seller's is 220px — previously rendered identically at 240px everywhere. `PortalTopbar` (`components/portal-topbar.tsx`) now derives both per-route from the same breadcrumb map, and `TopbarSearchTrigger` (`components/portal-search.tsx`) takes a `width` prop.
+
+2. **`KpiCard`'s "default" variant didn't match `AdminDashboard.dc.html` at all**, and `AdminDashboard` was using the wrong variant (`size="compact"`, the bare list-page "quick stat" style) — its own dashboard cards actually want icon+label on one row, a 24px value, and a *plain* tone-colored text line below (not a pill badge, which is what the old "default" variant rendered). Also found the "compact" variant itself was still wrong even after the earlier typography fix: it was rendering an icon + badge chip that `AdminOrders.dc.html`/`AdminSellers.dc.html`/`AdminMaterials.dc.html` don't have at all — their real "quick stat" cards are bare label + a tone-colored value, nothing else. Rewrote both variants in `components/kpi-card.tsx` to match their real, verified structures, and switched `AdminDashboard` back to the (now-correct) default variant. This is a component-level fix, so every page using either size inherited it automatically.
+
+3. **`SellerPayouts`' three stat cards** used `rounded-lg` (8px) instead of spec's 16px, and were labeled/ordered around this app's real payout model (Paid out / Pending escrow release / On hold) rather than the spec's (Available balance / Pending escrow release / Lifetime earnings). "Paid out" turned out to be the exact same real figure as "Lifetime earnings" — just needed relabeling, no new query. Reordered to `On hold` (real substitute for the unbacked "Available balance" — this app has no self-service withdrawal) / `Pending escrow release` (unchanged, already an exact match) / `Lifetime earnings` (relabeled `paidTotal`, kept its real "N settled" subtext rather than inventing a "vs last quarter" trend the design shows).
+
+Also fixed `AdminSellers`' KPI row grid, which used a fixed `sm:grid-cols-3`/16px-gap layout instead of spec's `auto-fit`/12px-gap. Confirmed `AdminMaterials` needed no further changes (already covered in the prior comparison — its spec content is a different, unbuildable IA).
+
+`npx tsc --noEmit -p .`, `npm run lint`, and `npx next build` all pass clean. Live-verified all three pages plus `AdminOrders`, the order-detail page, and `AdminCatalogueReference` (to confirm the topbar search-visibility logic covers both "has it" and "omits it" cases correctly).
+
 ## Bidding Engine Design
 
 - **Weighted award scoring**, not simple lowest-price-wins: Price 40%, seller reliability/trust score 25%, capacity fit 20%, delivery speed 15%.

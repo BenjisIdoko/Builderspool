@@ -137,13 +137,15 @@ function useSearch() {
 }
 
 // Wide "Search anything…" pill — matches the topbar's box in the design.
-export function TopbarSearchTrigger() {
+// Admin's box is 240px, seller's is 220px, per every .dc.html that has one.
+export function TopbarSearchTrigger({ width = 240 }: { width?: number }) {
   const { open } = useSearch();
   return (
     <button
       type="button"
       onClick={open}
-      className="flex h-[34px] w-60 items-center gap-2 rounded-[9px] border border-border bg-well px-3 text-left text-[12.5px] text-muted-foreground hover:bg-well/70"
+      style={{ width }}
+      className="flex h-[34px] shrink-0 items-center gap-2 rounded-[9px] border border-border bg-well px-3 text-left text-[12.5px] text-muted-foreground hover:bg-well/70"
     >
       <MagnifyingGlassIcon className="size-3.5 shrink-0" />
       Search anything…

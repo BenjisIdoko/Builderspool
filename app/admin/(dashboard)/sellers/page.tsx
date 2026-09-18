@@ -28,7 +28,7 @@ export default async function AdminSellersPage() {
         actual allocations.
       </p>
 
-      <div className="mb-8 grid grid-cols-1 gap-4 sm:grid-cols-3">
+      <div className="mb-6 grid grid-cols-[repeat(auto-fit,minmax(180px,1fr))] gap-3">
         {kpiCards.map((kpi) => (
           <KpiCard key={kpi.label} {...kpi} size="compact" />
         ))}
