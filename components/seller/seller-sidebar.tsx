@@ -54,7 +54,7 @@ export function SellerSidebar({
   const pathname = usePathname();
 
   return (
-    <aside className="hidden w-60 shrink-0 flex-col border-r border-border bg-surface lg:flex">
+    <aside className="hidden w-[264px] shrink-0 flex-col border-r border-border bg-surface lg:flex">
       <div className="flex items-center justify-between gap-2 border-b border-border px-5 py-5">
         <Link href="/seller" className="flex min-w-0 items-center gap-2">
           <LogoMark className="size-8 shrink-0" />

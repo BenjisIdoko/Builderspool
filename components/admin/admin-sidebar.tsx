@@ -50,7 +50,7 @@ export function AdminSidebar({ adminName }: { adminName: string }) {
   const pathname = usePathname();
 
   return (
-    <aside className="hidden w-60 shrink-0 flex-col border-r border-border bg-surface lg:flex">
+    <aside className="hidden w-[264px] shrink-0 flex-col border-r border-border bg-surface lg:flex">
       <Link href="/admin" className="flex items-center gap-2 border-b border-border px-5 py-5">
         <LogoMark className="size-8" />
         <span className="text-[15px] font-medium tracking-tight text-ink">Ops admin</span>

@@ -40,7 +40,7 @@ export default async function SellerSettingsPage() {
   const primaryCategory = [...categoryCounts.entries()].sort((a, b) => b[1] - a[1])[0]?.[0] ?? 'No bids submitted yet';
 
   return (
-    <div className="mx-auto w-full max-w-3xl px-6 py-12">
+    <div className="mx-auto w-full max-w-[900px] px-6 py-12">
       <div className="mb-1 text-xs text-muted-foreground">Merchant · account</div>
       <h1 className="mb-1 text-xl font-bold tracking-tight text-ink">Settings</h1>
       <p className="mb-6 text-sm text-muted-foreground">Business profile and verification status.</p>

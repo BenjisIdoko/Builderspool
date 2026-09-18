@@ -863,6 +863,22 @@ Live-verified signed in as the real seeded seller: every field render real data 
 
 **Only remaining open item: `SellerListings`.** No backing schema exists at all — `Material` has zero seller-ownership relation; sellers only ever touch materials through `Bid`/`Allocation`, never a durable "listing" with their own price/stock. Building this honestly would need a real new model (e.g. a `SellerListing` join table) — a genuine schema/data change, explicitly outside this round's "no data-changing matters" instruction. Flagged to the user rather than built with fabricated per-seller pricing/stock data or silently skipped without mention.
 
+### Third design handoff — pixel-fidelity correction (2026-09-18, later still)
+
+User caught a real gap after Phase 5 shipped: "the layout size not the same as design file I shared with it should be copied verbatim." Phases 1-5 had matched color/type/spacing tokens exactly but approximated every page container and the sidebar to the nearest pre-existing Tailwind scale class (`max-w-6xl`, `max-w-5xl`, etc.) instead of checking each screen's actual declared `max-width:XXXpx` in its `.dc.html` source. Went back and grepped every one of the 17 handoff files for `width:264px` (`PortalSidebar`) and `max-width:XXXpx` (every screen), cross-referenced against every current page's Tailwind class, and fixed every real delta — using Tailwind arbitrary-value syntax (`max-w-[1180px]`, `max-w-[900px]`, `w-[264px]`) where no exact scale class exists:
+
+- **Sidebar**: `w-60` (240px) → `w-[264px]` in `components/admin/admin-sidebar.tsx` and `components/seller/seller-sidebar.tsx` — shared by every admin/seller page, so this one fix corrected the single biggest source of visible drift.
+- **Admin Dashboard, Orders, Materials, Sellers**: `max-w-6xl` (1152px) → `max-w-7xl` (1280px, the spec's real value for all four).
+- **Admin Catalogue reference, Admin Order detail**: `max-w-6xl`/`max-w-4xl` → `max-w-[1180px]` (Order detail's `.dc.html` was marked "unchanged" by the handoff's own README, meaning the design didn't move it — but the *implementation* had never actually matched its 1180px spec even before this round, so it was fixed too).
+- **Seller Orders**: `max-w-5xl` (1024px) → `max-w-7xl` (1280px).
+- **Seller Payouts**: `max-w-4xl` (896px) → `max-w-[1180px]`.
+- **Seller Settings**: `max-w-3xl` (768px) → `max-w-[900px]`.
+- Matching `loading.tsx` skeletons updated alongside each page so the loading state doesn't flash a different width than the real content.
+
+Confirmed already-correct and left untouched: buyer-facing pages (`BuyerHome`, `Catalog`, `Cart`, `ProductDetail` all already matched their spec widths exactly), `SellerDashboard` (1152px, correct), and every topbar height (64px, correct everywhere). Live-verified every changed route signed into both real seeded accounts, checking computed `max-width` via devtools JS in addition to screenshots. `npx tsc --noEmit -p .`, `npm run lint`, and `npx next build` all pass clean.
+
+Deliberately **not** extended to admin pages outside the 17-screen handoff (`haulage`, `escrow`, `savings`, `users`, `verification`) — they still use the pre-existing `max-w-6xl`, which now reads narrower than the handoff-covered pages next to them in the same sidebar nav. Worth a follow-up pass for portal-wide visual consistency, but out of scope for "adhere strictly to the design file."
+
 ## Bidding Engine Design
 
 - **Weighted award scoring**, not simple lowest-price-wins: Price 40%, seller reliability/trust score 25%, capacity fit 20%, delivery speed 15%.

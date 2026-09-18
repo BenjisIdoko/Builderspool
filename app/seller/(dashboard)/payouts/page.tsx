@@ -27,7 +27,7 @@ export default async function SellerPayoutsPage() {
   }));
 
   return (
-    <div className="mx-auto w-full max-w-4xl px-6 py-12">
+    <div className="mx-auto w-full max-w-[1180px] px-6 py-12">
       <div className="mb-1 text-xs text-muted-foreground">Merchant · settlements</div>
       <h1 className="mb-1 text-xl font-bold tracking-tight text-ink">Payouts</h1>
       <p className="mb-6 text-sm text-muted-foreground">

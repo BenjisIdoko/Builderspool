@@ -30,7 +30,7 @@ export default async function CatalogueReferencePage({
   ];
 
   return (
-    <div className="mx-auto w-full max-w-6xl px-6 py-10">
+    <div className="mx-auto w-full max-w-[1180px] px-6 py-10">
       <div className="mb-1 text-xs text-muted-foreground">Admin · ops desk</div>
       <h1 className="mb-1 text-2xl font-bold tracking-tight text-ink">Catalogue reference library</h1>
       <p className="mb-8 text-sm text-muted-foreground">

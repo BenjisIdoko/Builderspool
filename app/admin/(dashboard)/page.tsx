@@ -140,7 +140,7 @@ export default async function AdminDashboardPage() {
   const maxCycleStatusCount = Math.max(1, ...cycleStatusCounts.map((c) => c.count));
 
   return (
-    <div className="mx-auto w-full max-w-6xl px-6 py-10">
+    <div className="mx-auto w-full max-w-7xl px-6 py-10">
       <div className="mb-3 text-xs text-muted-foreground">Admin · ops desk</div>
       <h1 className="mb-1 text-2xl font-bold tracking-tight text-ink">
         {greeting((new Date().getUTCHours() + 1) % 24)}, {admin.name.split(' ')[0]}

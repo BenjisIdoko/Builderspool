@@ -2,7 +2,7 @@ import { Skeleton } from '@/components/ui/skeleton';
 
 export default function SellerSettingsLoading() {
   return (
-    <div className="mx-auto w-full max-w-3xl px-6 py-12">
+    <div className="mx-auto w-full max-w-[900px] px-6 py-12">
       <Skeleton className="mb-1 h-3 w-24" />
       <Skeleton className="mb-2 h-6 w-32" />
       <Skeleton className="mb-6 h-4 w-64" />

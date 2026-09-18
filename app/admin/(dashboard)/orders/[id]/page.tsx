@@ -77,7 +77,7 @@ export default async function AdminOrderDetailPage({ params }: { params: Promise
   const dispatchItems = order.items.filter((item) => item.deliveryCost > 0);
 
   return (
-    <div className="mx-auto w-full max-w-4xl px-6 py-10">
+    <div className="mx-auto w-full max-w-[1180px] px-6 py-10">
       <Link
         href="/admin/orders"
         className="mb-4 inline-flex items-center gap-1 text-sm text-muted-foreground transition-colors hover:text-ink"
