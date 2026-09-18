@@ -853,7 +853,15 @@ Cross-checked the new handoff's actual `PortalSidebar.dc.html` nav-data (not jus
 
 Live-verified every new screen signed in as the real seeded admin/seller accounts: dashboard alerts link to their real source pages with real counts; seller directory's Approve button and category filter work against real KYC/allocation data; seller Orders' detail toggle shows the real drop-off center, GRN, and payout status; seller Payouts correctly reflects the exact same real allocation (still `PENDING_GRN`, ₦480) verified earlier this session. `npx tsc --noEmit -p .`, `npm run lint`, and `npx next build` all pass clean — 3 new routes registered (`/admin/sellers`, `/seller/orders`, `/seller/payouts`), all with loading skeletons per the site-wide convention.
 
-Remaining: Phase 5 (`SellerSettings`, and a final call on whether to defer `SellerListings` entirely — no backing schema for seller-owned catalog listings).
+### Third design handoff — Phase 5, SellerSettings (2026-09-18, later still)
+
+New `/seller/settings` (added to sidebar's Account group). The design's own markup for this screen is mostly a **read-only profile summary**, not an edit form — plain value display, not inputs — so this wasn't a form-building exercise. Real fields shown: business name, business registration number, location, regions served, contact email (all `User`/`SellerProfile` fields, already fetched, never editable anywhere before now), plus one genuinely new derived stat — "primary category," the seller's most-bid-on material category, computed live from real `Bid` history (same honest derivation pattern as `AdminSellers`' category column).
+
+Verification section shows the real single combined KYC status (`kycStatusTone`/`KYC_LABEL`, reused as-is) rather than the design's fabricated 3-separate-document breakdown — our schema tracks one `documentUrl` + one `kycStatus`, not per-document state, and says so explicitly rather than implying tracking that doesn't exist. Notification-preference toggles were **not built** — no backing field exists anywhere in the schema for per-account notification prefs — the section says so plainly instead of shipping non-functional toggles, same "no dead affordances" call as `SellerPayouts`' dropped withdraw button.
+
+Live-verified signed in as the real seeded seller: every field render real data (`RC1200000`, `Lagos`, `ABUJA, LAGOS, KANO`, derived category `Blocks`, `Verified` KYC). `npx tsc --noEmit -p .`, `npm run lint`, and `npx next build` all pass clean — 4 new routes now live (`/admin/sellers`, `/seller/orders`, `/seller/payouts`, `/seller/settings`).
+
+**Only remaining open item: `SellerListings`.** No backing schema exists at all — `Material` has zero seller-ownership relation; sellers only ever touch materials through `Bid`/`Allocation`, never a durable "listing" with their own price/stock. Building this honestly would need a real new model (e.g. a `SellerListing` join table) — a genuine schema/data change, explicitly outside this round's "no data-changing matters" instruction. Flagged to the user rather than built with fabricated per-seller pricing/stock data or silently skipped without mention.
 
 ## Bidding Engine Design
 

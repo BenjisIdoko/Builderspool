@@ -2,7 +2,7 @@
 
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
-import { GaugeIcon, IdentificationCardIcon, MapPinIcon, ReceiptIcon, SignOutIcon, StackIcon, TruckIcon, WalletIcon } from '@phosphor-icons/react/ssr';
+import { GaugeIcon, GearIcon, IdentificationCardIcon, MapPinIcon, ReceiptIcon, SignOutIcon, StackIcon, TruckIcon, WalletIcon } from '@phosphor-icons/react/ssr';
 import { signOutSeller } from '@/app/seller/actions';
 import type { getSellerProfile } from '@/lib/queries/sellerPortal';
 import type { getNotificationsForSeller } from '@/lib/notifications';
@@ -35,7 +35,10 @@ const LINK_GROUPS = [
   },
   {
     label: 'Account',
-    links: [{ href: '/seller/kyc', label: 'KYC verification', icon: IdentificationCardIcon }],
+    links: [
+      { href: '/seller/kyc', label: 'KYC verification', icon: IdentificationCardIcon },
+      { href: '/seller/settings', label: 'Settings', icon: GearIcon },
+    ],
   },
 ];
 
