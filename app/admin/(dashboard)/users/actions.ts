@@ -18,6 +18,7 @@ export async function approveKycAction(formData: FormData) {
 
   revalidatePath('/admin/users');
   revalidatePath('/admin/verification');
+  revalidatePath('/admin/sellers');
 }
 
 export async function rejectKycAction(formData: FormData) {

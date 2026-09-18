@@ -54,6 +54,52 @@ export async function getRecentOrders(limit = 6) {
   }));
 }
 
+// Real per-seller revenue, month-to-date — sum of (bid.unitPrice x
+// quantityFilled) across each seller's real allocations, the same "what we
+// actually paid" figure getAdminKpis' margin calculation already uses, not
+// the buyer-facing catalogPrice.
+export async function getTopSellersByRevenue(limit = 4) {
+  const monthStart = new Date();
+  monthStart.setUTCHours(0, 0, 0, 0);
+  monthStart.setUTCDate(1);
+
+  const allocations = await prisma.allocation.findMany({
+    where: { status: { not: AllocationStatus.CANCELLED }, createdAt: { gte: monthStart } },
+    select: {
+      quantityFilled: true,
+      bid: {
+        select: {
+          unitPrice: true,
+          material: { select: { category: true } },
+          seller: { select: { id: true, name: true, businessName: true } },
+        },
+      },
+    },
+  });
+
+  const bySeller = new Map<string, { name: string; revenue: number; categories: Set<string> }>();
+  for (const a of allocations) {
+    const { seller } = a.bid;
+    const revenue = Number(a.bid.unitPrice) * a.quantityFilled;
+    const existing = bySeller.get(seller.id);
+    if (existing) {
+      existing.revenue += revenue;
+      existing.categories.add(a.bid.material.category);
+    } else {
+      bySeller.set(seller.id, {
+        name: seller.businessName ?? seller.name,
+        revenue,
+        categories: new Set([a.bid.material.category]),
+      });
+    }
+  }
+
+  return [...bySeller.values()]
+    .sort((a, b) => b.revenue - a.revenue)
+    .slice(0, limit)
+    .map((s) => ({ name: s.name, revenue: s.revenue, category: [...s.categories][0] ?? '—' }));
+}
+
 // A real daily GMV trend, not a fabricated multi-week history we have no
 // rollup table for — 5 real calendar days, including days with zero paid
 // orders.

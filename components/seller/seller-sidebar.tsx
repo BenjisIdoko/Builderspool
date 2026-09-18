@@ -2,7 +2,7 @@
 
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
-import { GaugeIcon, IdentificationCardIcon, MapPinIcon, SignOutIcon, StackIcon, TruckIcon } from '@phosphor-icons/react/ssr';
+import { GaugeIcon, IdentificationCardIcon, MapPinIcon, ReceiptIcon, SignOutIcon, StackIcon, TruckIcon, WalletIcon } from '@phosphor-icons/react/ssr';
 import { signOutSeller } from '@/app/seller/actions';
 import type { getSellerProfile } from '@/lib/queries/sellerPortal';
 import type { getNotificationsForSeller } from '@/lib/notifications';
@@ -28,7 +28,9 @@ const LINK_GROUPS = [
     label: 'Commerce',
     links: [
       { href: '/seller/bids', label: 'My bids', icon: StackIcon },
+      { href: '/seller/orders', label: 'Orders', icon: ReceiptIcon },
       { href: '/seller/allocations', label: 'Allocations', icon: TruckIcon },
+      { href: '/seller/payouts', label: 'Payouts', icon: WalletIcon },
     ],
   },
   {

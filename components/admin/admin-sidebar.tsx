@@ -10,6 +10,7 @@ import {
   ReceiptIcon,
   ShieldCheckIcon,
   SignOutIcon,
+  StorefrontIcon,
   TruckIcon,
   UsersIcon,
   WalletIcon,
@@ -28,6 +29,7 @@ const LINK_GROUPS = [
     label: 'Commerce',
     links: [
       { href: '/admin/orders', label: 'Orders', icon: ReceiptIcon },
+      { href: '/admin/sellers', label: 'Sellers', icon: StorefrontIcon },
       { href: '/admin/materials', label: 'Materials', icon: PackageIcon },
       { href: '/admin/catalogue-reference', label: 'Catalogue reference', icon: BooksIcon },
       { href: '/admin/haulage', label: 'Haulage & dispatch', icon: TruckIcon },

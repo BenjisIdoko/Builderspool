@@ -8,10 +8,15 @@ import {
   GavelIcon,
   PackageIcon,
   ReceiptIcon,
+  StorefrontIcon,
+  TagIcon,
   TrendUpIcon,
 } from '@phosphor-icons/react/ssr';
 import { getAllCycles } from '@/lib/queries/adminBidding';
-import { getAdminKpis, getRecentOrders, getDailyGmv } from '@/lib/queries/adminStats';
+import { getAdminKpis, getRecentOrders, getDailyGmv, getTopSellersByRevenue } from '@/lib/queries/adminStats';
+import { getSellersForVerification } from '@/lib/queries/adminVerification';
+import { getMaterialsNeedingPriceReviewCount } from '@/lib/queries/adminMaterials';
+import { getDemoAdmin } from '@/lib/demoAdmin';
 import { formatNaira } from '@/lib/format';
 import { orderStatusTone, cycleStatusTone, pillClass } from '@/lib/statusColors';
 import { Badge } from '@/components/ui/badge';
@@ -36,13 +41,50 @@ const CYCLE_STATUS_CHART_TONE = {
   AWARDED: 'info',
 } as const;
 
+function greeting(hour: number) {
+  if (hour < 12) return 'Good morning';
+  if (hour < 17) return 'Good afternoon';
+  return 'Good evening';
+}
+
 export default async function AdminDashboardPage() {
-  const [cycles, kpis, recentOrders, dailyGmv] = await Promise.all([
-    getAllCycles(),
-    getAdminKpis(),
-    getRecentOrders(),
-    getDailyGmv(),
-  ]);
+  const [cycles, kpis, recentOrders, dailyGmv, topSellers, verificationSellers, priceReviewCount, admin] =
+    await Promise.all([
+      getAllCycles(),
+      getAdminKpis(),
+      getRecentOrders(),
+      getDailyGmv(),
+      getTopSellersByRevenue(),
+      getSellersForVerification(),
+      getMaterialsNeedingPriceReviewCount(),
+      getDemoAdmin(),
+    ]);
+
+  const pendingVerificationCount = verificationSellers.filter((s) => s.sellerProfile?.kycStatus === 'PENDING').length;
+
+  // Real alerts only — both counts come straight from the same data the
+  // Verification and Materials pages already show, not a fabricated
+  // "disputes"/"compliance" feed with no backing model.
+  const attentionItems = [
+    pendingVerificationCount > 0 && {
+      title: `${pendingVerificationCount} seller${pendingVerificationCount === 1 ? '' : 's'} pending verification`,
+      detail: 'CAC docs submitted, awaiting review',
+      icon: StorefrontIcon,
+      href: '/admin/verification',
+    },
+    priceReviewCount > 0 && {
+      title: `${priceReviewCount} material${priceReviewCount === 1 ? '' : 's'} need price review`,
+      detail: 'Imported with a placeholder price',
+      icon: TagIcon,
+      href: '/admin/materials?review=1',
+    },
+    kpis.pendingGrnCount > 0 && {
+      title: `${kpis.pendingGrnCount} allocation${kpis.pendingGrnCount === 1 ? '' : 's'} awaiting hub GRN`,
+      detail: 'Fulfillment center receipt not yet logged',
+      icon: ClipboardTextIcon,
+      href: '/admin/escrow',
+    },
+  ].filter(Boolean) as { title: string; detail: string; icon: typeof StorefrontIcon; href: string }[];
 
   // Every chip below is a real, honestly-derived read — no fabricated
   // percentages or comparisons the data doesn't support.
@@ -100,12 +142,65 @@ export default async function AdminDashboardPage() {
   return (
     <div className="mx-auto w-full max-w-6xl px-6 py-10">
       <div className="mb-3 text-xs text-muted-foreground">Admin · ops desk</div>
-      <h1 className="mb-8 text-2xl font-bold tracking-tight text-ink">Platform administration</h1>
+      <h1 className="mb-1 text-2xl font-bold tracking-tight text-ink">
+        {greeting((new Date().getUTCHours() + 1) % 24)}, {admin.name.split(' ')[0]}
+      </h1>
+      <p className="mb-8 text-sm text-muted-foreground">
+        Marketplace health across escrow, fulfillment, and merchant activity.
+      </p>
 
       <div className="mb-14 grid grid-cols-2 gap-4 sm:grid-cols-5">
         {kpiCards.map((kpi) => (
           <KpiCard key={kpi.label} {...kpi} />
         ))}
+      </div>
+
+      <div className="mb-14 grid grid-cols-1 gap-6 lg:grid-cols-2">
+        <div className="rounded-lg border border-border bg-surface p-6">
+          <h2 className="mb-4 text-[13px] font-bold text-slate">Needs attention</h2>
+          {attentionItems.length === 0 ? (
+            <p className="text-sm text-muted-foreground">Nothing needs attention right now.</p>
+          ) : (
+            <div className="flex flex-col gap-1">
+              {attentionItems.map((item) => (
+                <Link
+                  key={item.title}
+                  href={item.href}
+                  className="flex items-center gap-3 rounded-md p-2 hover:bg-well"
+                >
+                  <span className="flex size-7 shrink-0 items-center justify-center rounded-md bg-warning-soft text-warning">
+                    <item.icon className="size-3.5" />
+                  </span>
+                  <div className="min-w-0">
+                    <div className="truncate text-[13px] font-bold text-ink">{item.title}</div>
+                    <div className="truncate text-[11.5px] text-muted-foreground">{item.detail}</div>
+                  </div>
+                </Link>
+              ))}
+            </div>
+          )}
+        </div>
+
+        <div className="rounded-lg border border-border bg-surface p-6">
+          <h2 className="mb-4 text-[13px] font-bold text-slate">Top merchants (MTD)</h2>
+          {topSellers.length === 0 ? (
+            <p className="text-sm text-muted-foreground">No allocations this month yet.</p>
+          ) : (
+            <div className="flex flex-col gap-3.5">
+              {topSellers.map((s) => (
+                <div key={s.name} className="flex items-center justify-between gap-3">
+                  <div className="min-w-0">
+                    <div className="truncate text-[13px] font-bold text-ink">{s.name}</div>
+                    <div className="truncate text-[11.5px] text-muted-foreground">{s.category}</div>
+                  </div>
+                  <div className="shrink-0 text-[13px] font-extrabold tabular-nums text-ink">
+                    {formatNaira(s.revenue)}
+                  </div>
+                </div>
+              ))}
+            </div>
+          )}
+        </div>
       </div>
 
       <div className="mb-14 grid grid-cols-1 gap-6 lg:grid-cols-2">
