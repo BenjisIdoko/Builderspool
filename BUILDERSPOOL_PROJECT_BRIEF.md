@@ -754,6 +754,18 @@ UI: `components/seller/notification-bell.tsx`, a shadcn `DropdownMenu` (matching
 
 `npx tsc --noEmit` and `npm run lint` clean. Live-verified: bell renders correctly at both breakpoints, backfilled history matches the seller's real allocations exactly, clicking a notification navigates to the right page and marks it read, both cron endpoints respond correctly (`close-cycles` unaffected by the new award.ts hook, `notify-closing-soon` correctly reports 0 when no cycles are open).
 
+### Savings Wallet (2026-09-18)
+
+User compared the app against the original developer brief (`BuildersPool Developer brief Dual Option.docx`) and explicitly confirmed: "single mode was intentional, keep it — build the savings wallet." The brief's Section 17/18 feature: half of the real gap between what a buyer paid (the locked catalog price) and what the material actually cost to procure gets credited back to the buyer, once fulfillment is confirmed.
+
+New `WalletEntryState` enum (`PENDING`/`AVAILABLE`/`WITHDRAWAL_REQUESTED`/`PAID`) and `SavingsWalletEntry` model (`prisma/schema.prisma`), one row per `Allocation`. Formula in `lib/wallet/index.ts`'s `creditSavingsForAllocation()`: `referenceValue = orderItem.priceLocked × allocation.quantityFilled` (the locked checkout price, not the live catalog price — this is what the buyer actually paid), `actualValue = bid.unitPrice × allocation.quantityFilled`, `grossSaving = referenceValue − actualValue`, `buyerShare = grossSaving / 2`. An entry is only created when `grossSaving > 0` — a margin loss on a given allocation is absorbed by the business, never turned into a buyer debt. Credited at the exact moment `issueGrn()` (`lib/fulfillment/grn.ts`) confirms receipt — the same real event that already unlocks the seller's payout, so a saving and its matching payout become visible at the same instant for the same underlying fact (goods received).
+
+No live payment rail exists for withdrawals, so this reuses the exact manual-ops pattern already proven for seller payouts (`disbursePayout`/`payoutReference`): buyer clicks "Request withdrawal" (`requestWithdrawal` in `lib/wallet/index.ts`, wired to `app/(shop)/account/actions.ts`), moving all `AVAILABLE` entries to `WITHDRAWAL_REQUESTED`; admin sees the real queue at `/admin/savings` (new page, built on the same template as `/admin/escrow`/`/admin/haulage`/`/admin/verification` — KPI strip, filter pills, table) and clicks "Mark paid" (`markWithdrawalPaid`), which generates a `SAVE-YYYYMMDD-NNNN` reference and moves the entry to `PAID`.
+
+Backfilled via a new idempotent `seedSavingsWallet()` step in `prisma/seed.ts` (skips any allocation that already has a wallet entry), reusing the real `creditSavingsForAllocation()` rather than duplicating its logic — 3 real entries created from already-GRN'd allocations.
+
+`npx tsc --noEmit -p .` and `npm run lint` both clean. Live-verified the full loop in-browser against the real database: buyer's `/account` page shows the 3 backfilled entries with correct material names and reference→actual amounts; clicked "Request withdrawal" — all 3 moved to `WITHDRAWAL_REQUESTED` and the buyer-side totals updated correctly; signed in as admin, confirmed `/admin/savings` shows the same 3 entries in the "Withdrawal requested" filter with matching KPIs; clicked "Mark paid" on one — it correctly generated a reference (`SAVE-20260918-7783`), moved to the "Paid" filter, and the KPI counts shifted; confirmed the buyer's own page reflects the same state change on reload.
+
 ## Bidding Engine Design
 
 - **Weighted award scoring**, not simple lowest-price-wins: Price 40%, seller reliability/trust score 25%, capacity fit 20%, delivery speed 15%.

@@ -155,6 +155,7 @@ model User {
   bids          Bid[]
   priceAlerts   PriceAlert[]
   notifications Notification[]
+  savingsWalletEntries SavingsWalletEntry[]
 }
 
 enum KycStatus {
@@ -406,6 +407,44 @@ model Allocation {
 
   bid       Bid       @relation(fields: [bidId], references: [id])
   orderItem OrderItem @relation(fields: [orderItemId], references: [id])
+
+  savingsWalletEntry SavingsWalletEntry?
+}
+
+enum WalletEntryState {
+  AVAILABLE
+  WITHDRAWAL_REQUESTED
+  PAID
+}
+
+// Per the developer brief's Savings Wallet (Section 17): the buyer pays a
+// fixed reference price; the platform's real procurement cost is whatever
+// the winning bid actually cost. The gap is a real, honest number — this
+// app already derives it for admin's "platform margin" KPI — split 50/50
+// between buyer and platform instead of keeping the full gap as revenue.
+// One entry per Allocation (the real event that finalizes both the
+// quantity and the unit price actually paid), created only once a GRN
+// confirms real fulfillment — never before, and never negative (a bid
+// that ends up costing more than the reference price is a margin loss
+// the business absorbs, not a debt charged back to the buyer).
+model SavingsWalletEntry {
+  id               String           @id @default(cuid())
+  buyerId          String
+  allocationId     String           @unique
+  referenceValue   Decimal          @db.Decimal(12, 2) // what the buyer actually paid for this quantity (locked checkout price)
+  actualValue      Decimal          @db.Decimal(12, 2) // what the platform actually paid the winning seller
+  grossSaving      Decimal          @db.Decimal(12, 2) // referenceValue - actualValue, always > 0
+  buyerShare       Decimal          @db.Decimal(12, 2) // grossSaving / 2 — the real wallet credit
+  state            WalletEntryState @default(AVAILABLE)
+  withdrawalRequestedAt DateTime?
+  paidAt           DateTime?
+  paymentReference String?          @unique // set when marked PAID — same manual-ops pattern as seller payoutReference, no live payment rail exists yet
+  createdAt        DateTime         @default(now())
+
+  buyer      User       @relation(fields: [buyerId], references: [id])
+  allocation Allocation @relation(fields: [allocationId], references: [id])
+
+  @@index([buyerId, state])
 }
 
 // A buyer's stored "notify me at this price" request. Stored only — there's

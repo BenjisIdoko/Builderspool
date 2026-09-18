@@ -15,6 +15,7 @@ import { ADMIN_COOKIE } from '@/lib/admin/session';
 import { verifyPassword } from '@/lib/auth/password';
 import { awardCycle } from '@/lib/bidding';
 import { issueGrn, disbursePayout, toggleAllocationHold } from '@/lib/fulfillment';
+import { markWithdrawalPaid } from '@/lib/wallet';
 
 // Errors are caught and returned as plain data (not thrown across the
 // server/client boundary) — Next.js redacts a thrown Server Action error's
@@ -107,4 +108,14 @@ export async function toggleAllocationHoldAction(formData: FormData) {
   revalidatePath(`/admin/cycles/${cycleId}`);
   revalidatePath('/admin/escrow');
   revalidatePath('/seller/allocations');
+}
+
+export async function markWithdrawalPaidAction(formData: FormData) {
+  const entryId = formData.get('entryId');
+  if (typeof entryId !== 'string') throw new Error('Missing wallet entry id.');
+
+  await markWithdrawalPaid(entryId);
+
+  revalidatePath('/admin/savings');
+  revalidatePath('/account');
 }

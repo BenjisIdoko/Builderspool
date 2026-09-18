@@ -1,5 +1,6 @@
 import { prisma } from '../prisma';
 import { AllocationStatus, PayoutStatus } from '@prisma/client';
+import { creditSavingsForAllocation } from '../wallet';
 
 function generateGrnNumber(date = new Date()) {
   const datePart = date.toISOString().slice(0, 10).replace(/-/g, '');
@@ -14,7 +15,10 @@ function generateGrnNumber(date = new Date()) {
  * processing (PROCESSED, not yet PAID — disbursement is a separate step).
  */
 export async function issueGrn(allocationId: string) {
-  const allocation = await prisma.allocation.findUniqueOrThrow({ where: { id: allocationId } });
+  const allocation = await prisma.allocation.findUniqueOrThrow({
+    where: { id: allocationId },
+    include: { bid: true, orderItem: { include: { order: true } } },
+  });
 
   if (allocation.status === AllocationStatus.CANCELLED) {
     throw new Error('A cancelled allocation cannot receive a GRN.');
@@ -23,7 +27,7 @@ export async function issueGrn(allocationId: string) {
     throw new Error('A GRN has already been issued for this allocation.');
   }
 
-  return prisma.allocation.update({
+  const updated = await prisma.allocation.update({
     where: { id: allocationId },
     data: {
       receivedAt: new Date(),
@@ -32,4 +36,11 @@ export async function issueGrn(allocationId: string) {
       payoutStatus: PayoutStatus.PROCESSED,
     },
   });
+
+  // Same real event that unlocks the seller's payout also finalizes the
+  // buyer's savings-wallet share, if the winning bid actually beat the
+  // reference price.
+  await creditSavingsForAllocation(allocation);
+
+  return updated;
 }

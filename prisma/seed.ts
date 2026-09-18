@@ -2,6 +2,7 @@ import { PrismaClient, Role, SourcingScope, ProjectScale, SourcingModel, KycStat
 import { DEMO_BUYER_EMAIL } from '../lib/demoBuyer';
 import { DEMO_ADMIN_EMAIL } from '../lib/demoAdmin';
 import { hashPassword } from '../lib/auth/password';
+import { creditSavingsForAllocation } from '../lib/wallet';
 import catalogueReferenceData from './catalogue-reference-data.json';
 
 // One real, documented demo password for every seeded account (buyer,
@@ -793,6 +794,25 @@ async function seedNotifications() {
   return created;
 }
 
+// Backfills real savings-wallet credit for allocations that were GRN'd
+// through the real issueGrn() flow before this feature existed — reuses
+// the exact same credit function live traffic uses, so this is identical
+// math, just applied retroactively. Naturally idempotent: the unique
+// allocationId means an allocation already credited is simply skipped.
+async function seedSavingsWallet() {
+  const uncredited = await prisma.allocation.findMany({
+    where: { receivedAt: { not: null }, savingsWalletEntry: null },
+    include: { bid: true, orderItem: { include: { order: true } } },
+  });
+
+  let created = 0;
+  for (const allocation of uncredited) {
+    const entry = await creditSavingsForAllocation(allocation);
+    if (entry) created++;
+  }
+  return created;
+}
+
 async function main() {
   const { created: materialsCreated, imagesPatched, priceSnapshotsBackfilled, specsPatched } = await seedMaterials();
   const centersCreated = await seedFulfillmentCenters();
@@ -816,6 +836,8 @@ async function main() {
   console.log(`Haulage: ${vehiclesCreated} vehicle(s) seeded, ${dispatchesCreated} dispatch(es) created.`);
   const notificationsCreated = await seedNotifications();
   console.log(`Notifications: ${notificationsCreated} backfilled from existing real bid outcomes.`);
+  const walletEntriesCreated = await seedSavingsWallet();
+  console.log(`Savings wallet: ${walletEntriesCreated} entries backfilled from already-GRN'd allocations.`);
 }
 
 main()

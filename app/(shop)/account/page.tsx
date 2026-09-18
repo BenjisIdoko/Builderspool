@@ -1,10 +1,11 @@
-import { BellIcon } from '@phosphor-icons/react/ssr';
+import { BellIcon, WalletIcon } from '@phosphor-icons/react/ssr';
 import { requireBuyer } from '@/lib/buyer/auth';
 import { getOrdersForBuyer } from '@/lib/queries/orders';
 import { getPriceAlertsForBuyer } from '@/lib/queries/priceAlerts';
+import { getSavingsWalletForBuyer } from '@/lib/wallet';
 import { formatNaira } from '@/lib/format';
-import { orderStatusTone, pillClass } from '@/lib/statusColors';
-import { updateBuyerProfile } from './actions';
+import { orderStatusTone, walletEntryTone, pillClass } from '@/lib/statusColors';
+import { updateBuyerProfile, requestWithdrawalAction } from './actions';
 import { cancelPriceAlert } from '../catalog/actions';
 import { signOutBuyer as signOutBuyerAction } from '@/app/login/actions';
 import { Badge } from '@/components/ui/badge';
@@ -19,11 +20,18 @@ const STATUS_LABEL: Record<string, string> = {
   CANCELLED: 'Cancelled',
 };
 
+const WALLET_LABEL: Record<string, string> = {
+  AVAILABLE: 'Available',
+  WITHDRAWAL_REQUESTED: 'Withdrawal requested',
+  PAID: 'Paid out',
+};
+
 export default async function AccountPage() {
   const buyer = await requireBuyer();
-  const [orders, priceAlerts] = await Promise.all([
+  const [orders, priceAlerts, wallet] = await Promise.all([
     getOrdersForBuyer(buyer.id),
     getPriceAlertsForBuyer(buyer.id),
+    getSavingsWalletForBuyer(buyer.id),
   ]);
   const activeOrders = orders.filter((o) => o.status !== 'CANCELLED').length;
 
@@ -41,6 +49,70 @@ export default async function AccountPage() {
             Sign out
           </Button>
         </form>
+      </div>
+
+      <div className="mb-8 overflow-hidden rounded-lg border border-border bg-surface">
+        <div className="border-b border-border px-5 py-4">
+          <h2 className="flex items-center gap-1.5 text-sm font-bold text-slate">
+            <WalletIcon className="size-4" />
+            Savings wallet
+          </h2>
+          <p className="mt-1 text-xs text-muted-foreground">
+            Half of every real saving between what you paid and what a material actually cost to procure —
+            credited here once the fulfillment center confirms receipt.
+          </p>
+        </div>
+        <div className="grid grid-cols-1 gap-4 border-b border-border p-5 sm:grid-cols-3">
+          <div>
+            <div className="text-xs text-muted-foreground">Available</div>
+            <div className="text-xl font-bold tabular-nums text-ink">{formatNaira(wallet.available)}</div>
+          </div>
+          <div>
+            <div className="text-xs text-muted-foreground">Withdrawal requested</div>
+            <div className="text-xl font-bold tabular-nums text-ink">{formatNaira(wallet.withdrawalRequested)}</div>
+          </div>
+          <div>
+            <div className="text-xs text-muted-foreground">Paid out all-time</div>
+            <div className="text-xl font-bold tabular-nums text-ink">{formatNaira(wallet.paidOut)}</div>
+          </div>
+        </div>
+        {wallet.available > 0 && (
+          <div className="border-b border-border px-5 py-4">
+            <form action={requestWithdrawalAction}>
+              <Button type="submit" size="sm">
+                Request withdrawal of {formatNaira(wallet.available)}
+              </Button>
+            </form>
+          </div>
+        )}
+        {wallet.entries.length === 0 ? (
+          <p className="p-5 text-sm text-muted-foreground">
+            No savings yet — real savings are credited once an order you place is fulfilled at a lower cost
+            than the catalogue price.
+          </p>
+        ) : (
+          <div className="divide-y divide-border">
+            {wallet.entries.map((entry) => (
+              <div key={entry.id} className="flex items-center justify-between gap-4 px-5 py-3.5">
+                <div className="min-w-0">
+                  <div className="truncate text-sm font-semibold text-ink">
+                    {entry.allocation.bid.material.name}
+                  </div>
+                  <div className="mt-0.5 text-xs text-muted-foreground">
+                    {formatNaira(Number(entry.referenceValue))} paid → {formatNaira(Number(entry.actualValue))}{' '}
+                    actual cost · {entry.createdAt.toLocaleDateString('en-NG', { dateStyle: 'medium' })}
+                  </div>
+                </div>
+                <div className="flex shrink-0 items-center gap-3">
+                  <span className="font-bold tabular-nums text-ink">+{formatNaira(Number(entry.buyerShare))}</span>
+                  <Badge variant="outline" className={pillClass(walletEntryTone(entry.state))}>
+                    {WALLET_LABEL[entry.state]}
+                  </Badge>
+                </div>
+              </div>
+            ))}
+          </div>
+        )}
       </div>
 
       <div className="mb-8 rounded-lg border border-border bg-surface p-5">

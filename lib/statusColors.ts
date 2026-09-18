@@ -1,4 +1,4 @@
-import { AllocationStatus, BidStatus, CycleStatus, DispatchStatus, KycStatus, OrderStatus, PayoutStatus } from '@prisma/client';
+import { AllocationStatus, BidStatus, CycleStatus, DispatchStatus, KycStatus, OrderStatus, PayoutStatus, WalletEntryState } from '@prisma/client';
 import type { EscrowStatus } from './queries/escrow';
 
 // One shared 4-category pill system (success / warning / info / danger),
@@ -138,5 +138,16 @@ export function fulfillmentStageTone(title: string): PillTone {
       return 'warning';
     default:
       return 'neutral';
+  }
+}
+
+export function walletEntryTone(state: WalletEntryState): PillTone {
+  switch (state) {
+    case WalletEntryState.PAID:
+      return 'success';
+    case WalletEntryState.WITHDRAWAL_REQUESTED:
+      return 'info';
+    case WalletEntryState.AVAILABLE:
+      return 'warning';
   }
 }

@@ -3,6 +3,7 @@
 import { revalidatePath } from 'next/cache';
 import { prisma } from '@/lib/prisma';
 import { requireBuyer } from '@/lib/buyer/auth';
+import { requestWithdrawal } from '@/lib/wallet';
 
 export async function updateBuyerProfile(formData: FormData) {
   const name = formData.get('name');
@@ -25,5 +26,11 @@ export async function updateBuyerProfile(formData: FormData) {
     },
   });
 
+  revalidatePath('/account');
+}
+
+export async function requestWithdrawalAction() {
+  const buyer = await requireBuyer();
+  await requestWithdrawal(buyer.id);
   revalidatePath('/account');
 }

@@ -12,6 +12,7 @@ import {
   SignOutIcon,
   TruckIcon,
   UsersIcon,
+  WalletIcon,
 } from '@phosphor-icons/react/ssr';
 import { signOutAdmin } from '@/app/admin/actions';
 import { LogoMark } from '@/components/logo';
@@ -31,6 +32,7 @@ const LINK_GROUPS = [
       { href: '/admin/catalogue-reference', label: 'Catalogue reference', icon: BooksIcon },
       { href: '/admin/haulage', label: 'Haulage & dispatch', icon: TruckIcon },
       { href: '/admin/escrow', label: 'Escrow settlement', icon: LockKeyIcon },
+      { href: '/admin/savings', label: 'Savings settlement', icon: WalletIcon },
     ],
   },
   {
