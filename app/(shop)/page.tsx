@@ -2,7 +2,6 @@ import Image from 'next/image';
 import Link from 'next/link';
 import { CertificateIcon, LockKeyIcon, ArrowUpRightIcon, PhoneIcon, MapPinIcon, EnvelopeSimpleIcon } from '@phosphor-icons/react/ssr';
 import { getMaterials, getCategories, getFulfillmentCenters } from '@/lib/queries/materials';
-import { getStorefrontStats } from '@/lib/queries/stats';
 import { getCurrentBuyer } from '@/lib/buyer/auth';
 import { MaterialCard } from '@/components/material-card';
 import { HeroLiveCard } from '@/components/hero-live-card';
@@ -29,22 +28,14 @@ const PARTNER_LOGOS = [
 ];
 
 export default async function Home() {
-  const [{ materials }, stats, categories, buyer, centers] = await Promise.all([
+  const [{ materials }, categories, buyer, centers] = await Promise.all([
     getMaterials(),
-    getStorefrontStats(),
     getCategories(),
     getCurrentBuyer(),
     getFulfillmentCenters(),
   ]);
   const featured = materials.slice(0, 8);
   const categoryLoop = [...categories, ...categories];
-
-  const trustStats = [
-    { value: stats.materialCount, label: 'Materials listed' },
-    { value: stats.fulfillmentCenterCount, label: 'Fulfillment centers' },
-    { value: stats.sellerCount, label: 'Registered sellers' },
-    { value: stats.categoryCount, label: 'Categories' },
-  ];
 
   return (
     <div className="flex flex-1 flex-col">
@@ -113,17 +104,6 @@ export default async function Home() {
           {PARTNER_LOGOS.map((label) => (
             <div key={label} className="text-base font-bold tracking-[0.01em] text-[#9aa0a8] uppercase">
               {label}
-            </div>
-          ))}
-        </div>
-      </section>
-
-      <section className="mx-auto w-full max-w-7xl px-6 pt-10">
-        <div className="flex flex-wrap justify-center gap-x-10 gap-y-4 border-t border-border pt-8">
-          {trustStats.map((ts) => (
-            <div key={ts.label} className="flex items-baseline gap-2">
-              <span className="text-xl font-extrabold tabular-nums text-ink">{ts.value}</span>
-              <span className="text-[13px] text-muted-foreground">{ts.label}</span>
             </div>
           ))}
         </div>

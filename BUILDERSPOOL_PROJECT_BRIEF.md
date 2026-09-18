@@ -947,6 +947,18 @@ User asked for the same comparison against every remaining screen — buyer-faci
 
 `npx tsc --noEmit -p .`, `npm run lint`, and `npx next build` all pass clean. Live-verified the header, `Catalog` (including the new pagination at page 3 of 7), `AdminOrderDetail`, `AdminSellers`, `SellerSettings`, and `SellerOrders` in-browser — confirmed the landing page itself renders unchanged.
 
+### Third design handoff — BuyerHome content review, one item at a time (2026-09-18, later still)
+
+Went through the 8 `BuyerHome` content-difference items from the previous round's report individually, per the user's request. Outcomes:
+
+- **Hero badge/subcopy, live-bid-card content, CTA banner copy** — confirmed keep as-is (all three are honest divergences from spec's fabricated-feature copy, already correct).
+- **FAQ answers** — walked through all 6 question/answer pairs side by side (spec's vs. real); confirmed keep all 6 as-is.
+- **Footer columns** — the user caught that the footer's code comment claiming "no real contact info exists" was stale (the same page's own "Get in touch" section shows a real, user-confirmed phone and email). Restored spec's 4th "Procurement desk" column (`components/site-footer.tsx`) using that same real phone number — no fabrication, reusing data already on the page. Spec's other dropped column ("Assurance" — "Buyer protection"/"Quality testing" links) stays dropped; no such programs exist.
+- **New "trust stats" section** (materials/fulfillment-centers/sellers/categories counts, not in spec at all) — user was unsure about the underlying data and asked to remove it. Deleted the section from `app/(shop)/page.tsx` and the now-fully-unused `lib/queries/stats.ts` (`getStorefrontStats()`) entirely rather than leave dead code behind.
+- **Missing seller-name/stock badges on product cards** — confirmed leave both off. Seller name stays hidden (blind bidding, same rule as everywhere else). No real per-listing stock-quantity field exists in the schema (materials aren't seller-owned) to honestly back a stock badge either.
+
+`npx tsc --noEmit -p .`, `npm run lint`, and `npx next build` all pass clean. Live-verified the updated footer (4 real columns) and the homepage with the trust-stats section removed.
+
 ## Bidding Engine Design
 
 - **Weighted award scoring**, not simple lowest-price-wins: Price 40%, seller reliability/trust score 25%, capacity fit 20%, delivery speed 15%.

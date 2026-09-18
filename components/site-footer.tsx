@@ -4,17 +4,17 @@ import { LogoMark } from './logo';
 
 // 4-column footer per the Fable handoff. "Regional depots" uses the real
 // fulfillment center regions (Abuja/Lagos/Kano) rather than the
-// reference's fictional Ikeja/Idu/Port Harcourt, and the reference's
-// "Procurement desk" phone-number column is dropped entirely — no real
-// support phone/email exists yet, and this app doesn't fabricate contact
-// details it can't back (same rule applied to every other unbacked
-// specific throughout this project).
+// reference's fictional Ikeja/Idu/Port Harcourt. The reference's
+// "Assurance" column ("Buyer protection", "Quality testing") is dropped —
+// no such formal programs exist — replaced with real account navigation.
+// "Procurement desk" uses the same real, user-confirmed phone number the
+// page's own "Get in touch" section already shows.
 export async function SiteFooter() {
   const centers = await getFulfillmentCenters();
 
   return (
     <footer className="mt-14 border-t border-border bg-surface">
-      <div className="mx-auto grid max-w-6xl grid-cols-1 gap-8 px-6 py-10 sm:grid-cols-3">
+      <div className="mx-auto grid max-w-6xl grid-cols-1 gap-8 px-6 py-10 sm:grid-cols-2 lg:grid-cols-[1.4fr_1fr_1fr_1fr]">
         <div>
           <div className="mb-2 flex items-center gap-2">
             <LogoMark className="size-5" />
@@ -51,6 +51,14 @@ export async function SiteFooter() {
               Browse the catalog
             </Link>
           </div>
+        </div>
+        <div>
+          <div className="mb-2.5 text-[11.5px] font-bold tracking-[0.04em] text-muted-foreground uppercase">
+            Procurement desk
+          </div>
+          <a href="tel:+2348133941775" className="text-[13px] text-slate hover:text-ink">
+            +234 813 394 1775
+          </a>
         </div>
       </div>
       <div className="border-t border-border px-6 py-5 text-center text-xs text-muted-foreground">
