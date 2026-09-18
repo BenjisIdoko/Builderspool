@@ -4,21 +4,21 @@ import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import {
   BooksIcon,
+  CaretUpDownIcon,
+  DotsThreeVerticalIcon,
   GaugeIcon,
   LockKeyIcon,
   PackageIcon,
   ReceiptIcon,
   ShieldCheckIcon,
-  SignOutIcon,
   StorefrontIcon,
   TruckIcon,
   UsersIcon,
   WalletIcon,
 } from '@phosphor-icons/react/ssr';
 import { signOutAdmin } from '@/app/admin/actions';
-import { LogoMark } from '@/components/logo';
 import { Avatar } from '@/components/avatar';
-import { Button } from '@/components/ui/button';
+import { SidebarSearchTrigger } from '@/components/portal-search';
 
 const LINK_GROUPS = [
   {
@@ -50,11 +50,23 @@ export function AdminSidebar({ adminName }: { adminName: string }) {
   const pathname = usePathname();
 
   return (
-    <aside className="hidden w-[264px] shrink-0 flex-col border-r border-border bg-surface lg:flex">
-      <Link href="/admin" className="flex items-center gap-2 border-b border-border px-5 py-5">
-        <LogoMark className="size-8" />
-        <span className="text-[15px] font-medium tracking-tight text-ink">Ops admin</span>
+    <aside className="hidden w-[264px] shrink-0 flex-col border-r border-border bg-surface shadow-[1px_0_0_#eef0f3,6px_0_32px_rgba(16,24,40,0.05)] lg:flex">
+      <Link href="/admin" className="flex items-center justify-between gap-2 border-b border-border px-[18px] py-[22px] pb-4">
+        <span className="flex items-center gap-2.5">
+          <span className="flex size-8 shrink-0 items-center justify-center rounded-[10px] bg-gradient-to-br from-[#4d7bff] to-brand text-[13px] font-extrabold text-white shadow-[0_4px_14px_rgba(41,84,229,0.35)]">
+            BP
+          </span>
+          <span className="leading-tight">
+            <span className="block text-[14.5px] font-extrabold text-ink">Builders Pool</span>
+            <span className="block text-[11px] font-semibold tracking-wide text-muted-foreground">Admin portal</span>
+          </span>
+        </span>
+        <CaretUpDownIcon className="size-3.5 text-border-strong" />
       </Link>
+
+      <div className="px-[18px] pt-3.5 pb-2">
+        <SidebarSearchTrigger />
+      </div>
 
       <nav className="flex flex-col gap-5 p-3">
         {LINK_GROUPS.map((group) => (
@@ -83,17 +95,19 @@ export function AdminSidebar({ adminName }: { adminName: string }) {
         ))}
       </nav>
 
-      <div className="mt-auto border-t border-border p-4">
-        <div className="mb-3 flex items-center gap-2.5">
-          <Avatar name={adminName} className="size-8 text-xs" />
-          <div className="text-sm font-semibold text-ink">{adminName}</div>
+      <div className="mt-auto p-3.5">
+        <div className="flex items-center gap-2.5 rounded-xl border border-border bg-well/60 px-3 py-2.5">
+          <Avatar name={adminName} className="size-8 shrink-0 text-xs shadow-[0_4px_10px_rgba(41,84,229,0.3)]" />
+          <div className="min-w-0 flex-1">
+            <div className="truncate text-[13px] font-bold text-ink">{adminName}</div>
+            <form action={signOutAdmin}>
+              <button type="submit" className="text-[11.5px] text-muted-foreground hover:underline">
+                Sign out
+              </button>
+            </form>
+          </div>
+          <DotsThreeVerticalIcon className="size-3.5 shrink-0 text-border-strong" />
         </div>
-        <form action={signOutAdmin}>
-          <Button type="submit" variant="ghost" size="sm" className="w-full justify-start gap-2 px-2">
-            <SignOutIcon className="size-4" />
-            Sign out
-          </Button>
-        </form>
       </div>
     </aside>
   );

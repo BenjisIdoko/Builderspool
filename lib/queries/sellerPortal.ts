@@ -75,7 +75,7 @@ export async function getSellerAllocations(sellerId: string) {
     where: { bid: { sellerId } },
     include: {
       bid: { include: { material: true } },
-      orderItem: { include: { fulfillmentCenter: true } },
+      orderItem: { include: { fulfillmentCenter: true, order: { include: { buyer: true } } } },
     },
     orderBy: { createdAt: 'desc' },
   });

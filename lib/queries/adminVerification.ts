@@ -10,6 +10,10 @@ const STATUS_PRIORITY: Record<KycStatus, number> = {
   [KycStatus.APPROVED]: 3,
 };
 
+export async function getPendingVerificationCount() {
+  return prisma.sellerProfile.count({ where: { kycStatus: KycStatus.PENDING } });
+}
+
 export async function getSellersForVerification() {
   const sellers = await prisma.user.findMany({
     where: { role: 'SELLER', sellerProfile: { isNot: null } },

@@ -1,6 +1,13 @@
 import { prisma } from '../prisma';
 import { KycStatus } from '@prisma/client';
 
+// Cheap standalone count for the dashboard KPI strip — avoids re-running
+// getSellerDirectory's full per-seller allocation aggregation just to show
+// a verified-seller total.
+export async function getVerifiedSellerCount() {
+  return prisma.sellerProfile.count({ where: { kycStatus: KycStatus.APPROVED } });
+}
+
 // Unified seller directory — merges what /admin/users and /admin/verification
 // already show separately (identity + KYC status) with two genuinely new,
 // real derived stats: GMV (month-to-date revenue from real allocations,
@@ -54,6 +61,7 @@ export async function getSellerDirectory() {
         id: s.id,
         name: s.businessName ?? s.name,
         email: s.email,
+        location: s.location,
         regionsServed: s.sellerProfile!.regionsServed,
         category: topCategory,
         kycStatus: s.sellerProfile!.kycStatus,

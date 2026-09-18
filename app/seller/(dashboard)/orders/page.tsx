@@ -9,6 +9,7 @@ export default async function SellerOrdersPage() {
   const orders: SellerOrderRow[] = allocations.map((a) => ({
     id: a.id,
     shortId: `#${a.id.slice(-6).toUpperCase()}`,
+    buyerName: a.orderItem.order.buyer.businessName ?? a.orderItem.order.buyer.name,
     materialName: a.bid.material.name,
     quantity: a.quantityFilled,
     unit: a.bid.material.unit,

@@ -12,6 +12,7 @@ import { formatNaira } from '@/lib/format';
 export interface SellerOrderRow {
   id: string;
   shortId: string;
+  buyerName: string;
   materialName: string;
   quantity: number;
   unit: string;
@@ -34,7 +35,12 @@ export function SellerOrderTable({ orders }: { orders: SellerOrderRow[] }) {
   const filtered = orders.filter((o) => {
     if (status !== 'All' && o.status !== status.toUpperCase()) return false;
     if (needsActionOnly && o.receivedAt) return false;
-    if (search.trim() && !o.materialName.toLowerCase().includes(search.trim().toLowerCase())) return false;
+    if (
+      search.trim() &&
+      !o.materialName.toLowerCase().includes(search.trim().toLowerCase()) &&
+      !o.buyerName.toLowerCase().includes(search.trim().toLowerCase())
+    )
+      return false;
     return true;
   });
 
@@ -89,7 +95,7 @@ export function SellerOrderTable({ orders }: { orders: SellerOrderRow[] }) {
             <TableHeader>
               <TableRow>
                 <TableHead>Requisition</TableHead>
-                <TableHead>Material</TableHead>
+                <TableHead>Buyer &amp; material</TableHead>
                 <TableHead className="text-right">Escrow amount</TableHead>
                 <TableHead>Status</TableHead>
                 <TableHead className="text-right">Detail</TableHead>
@@ -100,6 +106,7 @@ export function SellerOrderTable({ orders }: { orders: SellerOrderRow[] }) {
                 <SellerOrderTableRow
                   key={o.id}
                   shortId={o.shortId}
+                  buyerName={o.buyerName}
                   materialName={o.materialName}
                   quantity={o.quantity}
                   unit={o.unit}

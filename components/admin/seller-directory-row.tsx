@@ -40,6 +40,9 @@ export function SellerDirectoryRow({ entry }: { entry: SellerDirectoryEntry }) {
           </div>
         )}
       </TableCell>
+      <TableCell className="py-3 text-slate">
+        {entry.location ?? (entry.regionsServed.length > 0 ? entry.regionsServed.join(', ') : '—')}
+      </TableCell>
       <TableCell className="py-3 text-right font-semibold text-ink">{formatNaira(entry.gmvMtd)}</TableCell>
       <TableCell className="py-3">
         <Badge variant="outline" className={pillClass(kycStatusTone(entry.kycStatus))}>

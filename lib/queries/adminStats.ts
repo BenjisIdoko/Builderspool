@@ -1,6 +1,46 @@
 import { prisma } from '../prisma';
-import { AllocationStatus, CycleStatus, OrderStatus } from '@prisma/client';
+import { AllocationStatus, CycleStatus, OrderStatus, PayoutStatus } from '@prisma/client';
 import { getOrderTotal } from '../checkout/orderTotal';
+
+function monthStartUtc() {
+  const d = new Date();
+  d.setUTCHours(0, 0, 0, 0);
+  d.setUTCDate(1);
+  return d;
+}
+
+// Cheap standalone count for the topbar alerts bell — same definition
+// getAdminKpis' pendingGrnCount uses, without fetching every allocation.
+export async function getPendingGrnCount() {
+  return prisma.allocation.count({ where: { status: { not: AllocationStatus.CANCELLED }, receivedAt: null } });
+}
+
+// Real platform GMV for the current calendar month only, mirroring the same
+// monthStart pattern getTopSellersByRevenue/getSellerDirectory already use
+// for their own month-to-date figures — just aggregated platform-wide via
+// Order.paidAt (when funds actually landed) instead of per-seller.
+export async function getGmvMonthToDate() {
+  const orders = await prisma.order.findMany({
+    where: { status: OrderStatus.PAID, paidAt: { gte: monthStartUtc() } },
+    select: { items: { select: { priceLocked: true, deliveryCost: true, quantity: true } } },
+  });
+  return orders.reduce((sum, o) => sum + getOrderTotal(o), 0);
+}
+
+// Real buyer funds currently held in escrow, platform-wide: the same
+// PAID-order + payoutStatus-not-yet-PAID definition lib/queries/escrow.ts's
+// getEscrowStatus uses per order, summed across every allocation.
+export async function getEscrowInCustody() {
+  const allocations = await prisma.allocation.findMany({
+    where: {
+      status: { not: AllocationStatus.CANCELLED },
+      payoutStatus: { not: PayoutStatus.PAID },
+      orderItem: { order: { status: OrderStatus.PAID } },
+    },
+    select: { quantityFilled: true, bid: { select: { unitPrice: true } } },
+  });
+  return allocations.reduce((sum, a) => sum + Number(a.bid.unitPrice) * a.quantityFilled, 0);
+}
 
 // Real, derivable platform KPIs for the admin dashboard's summary strip —
 // no schema change, nothing fabricated. Margin is computed the same way a
@@ -122,6 +162,43 @@ export async function getDailyGmv(days = 5) {
     const paidDate = new Date(order.paidAt);
     paidDate.setUTCHours(0, 0, 0, 0);
     const bucket = buckets.find((b) => b.date.getTime() === paidDate.getTime());
+    if (!bucket) continue;
+    bucket.total += getOrderTotal(order);
+  }
+
+  return buckets;
+}
+
+// Same real per-day aggregation as getDailyGmv, bucketed into calendar
+// weeks (Monday start, UTC) instead of days — backs the dashboard's
+// 8-week trend chart.
+export async function getWeeklyGmv(weeks = 8) {
+  const paidOrders = await prisma.order.findMany({
+    where: { status: OrderStatus.PAID },
+    select: { paidAt: true, items: { select: { priceLocked: true, deliveryCost: true, quantity: true } } },
+  });
+
+  function weekStart(d: Date) {
+    const date = new Date(d);
+    date.setUTCHours(0, 0, 0, 0);
+    const day = date.getUTCDay();
+    const diff = (day + 6) % 7; // days since Monday
+    date.setUTCDate(date.getUTCDate() - diff);
+    return date;
+  }
+
+  const thisWeekStart = weekStart(new Date());
+  const buckets: { weekStart: Date; total: number }[] = [];
+  for (let i = weeks - 1; i >= 0; i--) {
+    const date = new Date(thisWeekStart);
+    date.setUTCDate(date.getUTCDate() - i * 7);
+    buckets.push({ weekStart: date, total: 0 });
+  }
+
+  for (const order of paidOrders) {
+    if (!order.paidAt) continue;
+    const bucketStart = weekStart(order.paidAt);
+    const bucket = buckets.find((b) => b.weekStart.getTime() === bucketStart.getTime());
     if (!bucket) continue;
     bucket.total += getOrderTotal(order);
   }

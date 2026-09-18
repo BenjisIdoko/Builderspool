@@ -1,26 +1,29 @@
 import Link from 'next/link';
 import {
-  ChartBarIcon,
   ChartPieSliceIcon,
   ClipboardTextIcon,
-  ClockIcon,
-  CurrencyNgnIcon,
   GavelIcon,
-  PackageIcon,
-  ReceiptIcon,
+  LockKeyIcon,
   StorefrontIcon,
   TagIcon,
   TrendUpIcon,
 } from '@phosphor-icons/react/ssr';
 import { getAllCycles } from '@/lib/queries/adminBidding';
-import { getAdminKpis, getRecentOrders, getDailyGmv, getTopSellersByRevenue } from '@/lib/queries/adminStats';
+import {
+  getAdminKpis,
+  getRecentOrders,
+  getWeeklyGmv,
+  getTopSellersByRevenue,
+  getGmvMonthToDate,
+  getEscrowInCustody,
+} from '@/lib/queries/adminStats';
 import { getSellersForVerification } from '@/lib/queries/adminVerification';
 import { getMaterialsNeedingPriceReviewCount } from '@/lib/queries/adminMaterials';
+import { getVerifiedSellerCount } from '@/lib/queries/adminSellers';
 import { getDemoAdmin } from '@/lib/demoAdmin';
 import { formatNaira } from '@/lib/format';
 import { orderStatusTone, cycleStatusTone, pillClass } from '@/lib/statusColors';
 import { Badge } from '@/components/ui/badge';
-import { Avatar } from '@/components/avatar';
 import { KpiCard } from '@/components/kpi-card';
 import { CyclesTable } from '@/components/admin/cycles-table';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
@@ -48,17 +51,31 @@ function greeting(hour: number) {
 }
 
 export default async function AdminDashboardPage() {
-  const [cycles, kpis, recentOrders, dailyGmv, topSellers, verificationSellers, priceReviewCount, admin] =
-    await Promise.all([
-      getAllCycles(),
-      getAdminKpis(),
-      getRecentOrders(),
-      getDailyGmv(),
-      getTopSellersByRevenue(),
-      getSellersForVerification(),
-      getMaterialsNeedingPriceReviewCount(),
-      getDemoAdmin(),
-    ]);
+  const [
+    cycles,
+    kpis,
+    recentOrders,
+    weeklyGmv,
+    topSellers,
+    verificationSellers,
+    priceReviewCount,
+    admin,
+    gmvMtd,
+    escrowInCustody,
+    verifiedSellerCount,
+  ] = await Promise.all([
+    getAllCycles(),
+    getAdminKpis(),
+    getRecentOrders(5),
+    getWeeklyGmv(),
+    getTopSellersByRevenue(),
+    getSellersForVerification(),
+    getMaterialsNeedingPriceReviewCount(),
+    getDemoAdmin(),
+    getGmvMonthToDate(),
+    getEscrowInCustody(),
+    getVerifiedSellerCount(),
+  ]);
 
   const pendingVerificationCount = verificationSellers.filter((s) => s.sellerProfile?.kycStatus === 'PENDING').length;
 
@@ -86,48 +103,45 @@ export default async function AdminDashboardPage() {
     },
   ].filter(Boolean) as { title: string; detail: string; icon: typeof StorefrontIcon; href: string }[];
 
-  // Every chip below is a real, honestly-derived read — no fabricated
-  // percentages or comparisons the data doesn't support.
-  const marginPct = kpis.platformGmv > 0 ? (kpis.margin / kpis.platformGmv) * 100 : 0;
+  // Four cards, matching the design's KPI row exactly: GMV (MTD), escrow in
+  // custody, and verified sellers are all real, freshly-added aggregates
+  // (see lib/queries/adminStats.ts / adminSellers.ts). The design's fourth
+  // card is "Disputes open" — no Dispute model exists anywhere in the
+  // schema, so it's replaced with the same real "pending hub GRNs" figure
+  // the Needs Attention panel already surfaces, keeping the same
+  // warning-toned "something needs a look" shape as the original slot.
   const kpiCards = [
     {
-      label: 'Platform GMV',
-      value: formatNaira(kpis.platformGmv),
-      icon: CurrencyNgnIcon,
-      tone: 'info' as const,
-      chip: 'All-time',
-    },
-    {
-      label: 'Builders Pool margin',
-      value: formatNaira(kpis.margin),
+      label: 'GMV (month to date)',
+      value: formatNaira(gmvMtd),
       icon: TrendUpIcon,
       tone: 'success' as const,
-      chip: `${marginPct.toFixed(1)}% of GMV`,
+      chip: 'This calendar month',
     },
     {
-      label: 'Active demand pools',
-      value: `${kpis.activeDemandPools} open`,
-      icon: ClockIcon,
+      label: 'Escrow in custody',
+      value: formatNaira(escrowInCustody),
+      icon: LockKeyIcon,
       tone: 'info' as const,
-      chip: 'Live count',
-    },
-    {
-      label: 'Material volume',
-      value: `${kpis.materialVolume} units`,
-      icon: PackageIcon,
-      tone: 'info' as const,
-      chip: 'All-time',
+      chip: 'Held, not yet paid out',
     },
     {
       label: 'Pending hub GRNs',
-      value: `${kpis.pendingGrnCount} arriving`,
+      value: `${kpis.pendingGrnCount}`,
       icon: ClipboardTextIcon,
       tone: kpis.pendingGrnCount > 0 ? ('warning' as const) : ('success' as const),
       chip: kpis.pendingGrnCount > 0 ? 'Needs receipt' : 'All clear',
     },
+    {
+      label: 'Verified sellers',
+      value: `${verifiedSellerCount}`,
+      icon: StorefrontIcon,
+      tone: 'neutral' as const,
+      chip: `${pendingVerificationCount} pending verification`,
+    },
   ];
 
-  const maxGmv = Math.max(1, ...dailyGmv.map((d) => d.total));
+  const maxWeeklyGmv = Math.max(1, ...weeklyGmv.map((w) => w.total));
 
   const openCycles = cycles
     .filter((c) => c.status === 'OPEN')
@@ -141,109 +155,150 @@ export default async function AdminDashboardPage() {
 
   return (
     <div className="mx-auto w-full max-w-7xl px-6 py-10">
-      <div className="mb-3 text-xs text-muted-foreground">Admin · ops desk</div>
-      <h1 className="mb-1 text-2xl font-bold tracking-tight text-ink">
+      <div className="mb-1 text-xs text-muted-foreground">Admin · platform overview</div>
+      <h1 className="mb-1.5 text-2xl font-bold tracking-tight text-ink">
         {greeting((new Date().getUTCHours() + 1) % 24)}, {admin.name.split(' ')[0]}
       </h1>
-      <p className="mb-8 text-sm text-muted-foreground">
-        Marketplace health across escrow, fulfillment, and merchant activity.
+      <p className="mb-6 text-sm text-muted-foreground">
+        Marketplace health across escrow, fulfillment, and merchant activity — last updated just now.
       </p>
 
-      <div className="mb-14 grid grid-cols-2 gap-4 sm:grid-cols-5">
+      <div className="mb-7 grid grid-cols-[repeat(auto-fit,minmax(200px,1fr))] gap-3.5">
         {kpiCards.map((kpi) => (
-          <KpiCard key={kpi.label} {...kpi} />
+          <KpiCard key={kpi.label} {...kpi} size="compact" />
         ))}
       </div>
 
-      <div className="mb-14 grid grid-cols-1 gap-6 lg:grid-cols-2">
-        <div className="rounded-lg border border-border bg-surface p-6">
-          <h2 className="mb-4 text-[13px] font-bold text-slate">Needs attention</h2>
-          {attentionItems.length === 0 ? (
-            <p className="text-sm text-muted-foreground">Nothing needs attention right now.</p>
-          ) : (
-            <div className="flex flex-col gap-1">
-              {attentionItems.map((item) => (
-                <Link
-                  key={item.title}
-                  href={item.href}
-                  className="flex items-center gap-3 rounded-md p-2 hover:bg-well"
-                >
-                  <span className="flex size-7 shrink-0 items-center justify-center rounded-md bg-warning-soft text-warning">
-                    <item.icon className="size-3.5" />
-                  </span>
-                  <div className="min-w-0">
-                    <div className="truncate text-[13px] font-bold text-ink">{item.title}</div>
-                    <div className="truncate text-[11.5px] text-muted-foreground">{item.detail}</div>
+      <div className="mb-14 grid grid-cols-1 items-start gap-5 lg:grid-cols-[1fr_320px]">
+        <div className="flex flex-col gap-4">
+          <div className="rounded-2xl border border-border bg-surface p-5">
+            <h2 className="mb-3.5 text-[11.5px] font-bold tracking-wide text-muted-foreground uppercase">
+              GMV trend (last {weeklyGmv.length} weeks)
+            </h2>
+            <div className="flex h-36 items-end gap-2.5">
+              {weeklyGmv.map((week, i) => {
+                const isLast = i === weeklyGmv.length - 1;
+                const heightPct = Math.max(4, (week.total / maxWeeklyGmv) * 100);
+                return (
+                  <div key={week.weekStart.toISOString()} className="flex h-full flex-1 flex-col items-center justify-end gap-1.5">
+                    <div
+                      className={`w-full rounded-t-md ${isLast ? 'bg-brand' : 'bg-well'}`}
+                      style={{ height: `${heightPct}%` }}
+                    />
+                    <div className="text-[10.5px] text-muted-foreground">W{i + 1}</div>
                   </div>
-                </Link>
-              ))}
+                );
+              })}
             </div>
-          )}
+          </div>
+
+          <div className="overflow-hidden rounded-2xl border border-border bg-surface">
+            <div className="flex items-center justify-between px-5 py-4">
+              <h2 className="text-[11.5px] font-bold tracking-wide text-muted-foreground uppercase">
+                Latest requisitions
+              </h2>
+              <Link href="/admin/orders" className="text-[13px] font-bold text-brand hover:underline">
+                View all →
+              </Link>
+            </div>
+            <Table>
+              <TableHeader>
+                <TableRow>
+                  <TableHead>Order</TableHead>
+                  <TableHead>Buyer</TableHead>
+                  <TableHead className="text-right">Amount</TableHead>
+                  <TableHead>Status</TableHead>
+                </TableRow>
+              </TableHeader>
+              <TableBody>
+                {recentOrders.map((order) => (
+                  <TableRow key={order.id}>
+                    <TableCell className="py-3 font-semibold text-ink" title={order.id}>
+                      {shortOrderNumber(order.id)}
+                    </TableCell>
+                    <TableCell className="py-3 text-slate">{order.buyer.businessName ?? order.buyer.name}</TableCell>
+                    <TableCell className="py-3 text-right font-semibold tabular-nums text-ink">
+                      {formatNaira(order.amount)}
+                    </TableCell>
+                    <TableCell className="py-3">
+                      <Badge variant="outline" className={pillClass(orderStatusTone(order.status))}>
+                        {ORDER_STATUS_LABEL[order.status] ?? order.status}
+                      </Badge>
+                    </TableCell>
+                  </TableRow>
+                ))}
+              </TableBody>
+            </Table>
+          </div>
         </div>
 
-        <div className="rounded-lg border border-border bg-surface p-6">
-          <h2 className="mb-4 text-[13px] font-bold text-slate">Top merchants (MTD)</h2>
-          {topSellers.length === 0 ? (
-            <p className="text-sm text-muted-foreground">No allocations this month yet.</p>
-          ) : (
-            <div className="flex flex-col gap-3.5">
-              {topSellers.map((s) => (
-                <div key={s.name} className="flex items-center justify-between gap-3">
-                  <div className="min-w-0">
-                    <div className="truncate text-[13px] font-bold text-ink">{s.name}</div>
-                    <div className="truncate text-[11.5px] text-muted-foreground">{s.category}</div>
+        <div className="flex flex-col gap-4">
+          <div className="rounded-2xl border border-border bg-surface p-[18px]">
+            <h2 className="mb-3.5 text-[11.5px] font-bold tracking-wide text-muted-foreground uppercase">
+              Needs attention
+            </h2>
+            {attentionItems.length === 0 ? (
+              <p className="text-sm text-muted-foreground">Nothing needs attention right now.</p>
+            ) : (
+              <div className="flex flex-col gap-1">
+                {attentionItems.map((item) => (
+                  <Link
+                    key={item.title}
+                    href={item.href}
+                    className="flex items-center gap-2.5 rounded-lg p-2 hover:bg-well"
+                  >
+                    <span className="flex size-[26px] shrink-0 items-center justify-center rounded-lg bg-warning-soft text-warning">
+                      <item.icon className="size-3.5" />
+                    </span>
+                    <div className="min-w-0">
+                      <div className="truncate text-[13px] font-bold text-ink">{item.title}</div>
+                      <div className="truncate text-[11.5px] text-muted-foreground">{item.detail}</div>
+                    </div>
+                  </Link>
+                ))}
+              </div>
+            )}
+          </div>
+
+          <div className="rounded-2xl border border-border bg-surface p-[18px]">
+            <h2 className="mb-3.5 text-[11.5px] font-bold tracking-wide text-muted-foreground uppercase">
+              Top merchants (MTD)
+            </h2>
+            {topSellers.length === 0 ? (
+              <p className="text-sm text-muted-foreground">No allocations this month yet.</p>
+            ) : (
+              <div className="flex flex-col gap-3">
+                {topSellers.map((s) => (
+                  <div key={s.name} className="flex items-center justify-between gap-3">
+                    <div className="min-w-0">
+                      <div className="truncate text-[13px] font-bold text-ink">{s.name}</div>
+                      <div className="truncate text-[11.5px] text-muted-foreground">{s.category}</div>
+                    </div>
+                    <div className="shrink-0 text-[13px] font-extrabold tabular-nums text-ink">
+                      {formatNaira(s.revenue)}
+                    </div>
                   </div>
-                  <div className="shrink-0 text-[13px] font-extrabold tabular-nums text-ink">
-                    {formatNaira(s.revenue)}
-                  </div>
-                </div>
-              ))}
-            </div>
-          )}
+                ))}
+              </div>
+            )}
+          </div>
         </div>
       </div>
 
-      <div className="mb-14 grid grid-cols-1 gap-6 lg:grid-cols-2">
-        <div className="rounded-lg border border-border bg-surface p-6">
-          <div className="mb-1 flex items-center gap-2">
-            <ChartBarIcon className="size-4.5 text-slate" />
-            <h2 className="text-[13px] font-bold text-slate">GMV, last {dailyGmv.length} days</h2>
-          </div>
-          <p className="mb-5 text-xs text-muted-foreground">Real paid-order totals per calendar day.</p>
-          <div className="flex h-40 items-end gap-3.5 border-b border-border pb-1">
-            {dailyGmv.map((day, i) => {
-              const isLast = i === dailyGmv.length - 1;
-              const heightPct = Math.max(4, (day.total / maxGmv) * 100);
-              return (
-                <div key={day.date.toISOString()} className="flex h-full flex-1 flex-col items-center justify-end">
-                  {isLast && (
-                    <div className="mb-1.5 text-[11px] font-semibold text-brand">
-                      {formatNaira(day.total)}
-                    </div>
-                  )}
-                  <div
-                    className={`w-full rounded-t-sm ${isLast ? 'bg-brand' : 'bg-well'}`}
-                    style={{ height: `${heightPct}%` }}
-                  />
-                </div>
-              );
-            })}
-          </div>
-          <div className="mt-2 flex gap-3.5">
-            {dailyGmv.map((day) => (
-              <div key={day.date.toISOString()} className="flex-1 text-center text-[11px] text-muted-foreground">
-                {day.date.toLocaleDateString('en-NG', { day: 'numeric', month: 'short' })}
-              </div>
-            ))}
-          </div>
-        </div>
+      <div className="mb-4 border-t border-border pt-10">
+        <h2 className="text-sm font-bold text-slate">More detail</h2>
+        <p className="text-xs text-muted-foreground">
+          Platform-specific views with no equivalent in the top summary above.
+        </p>
+      </div>
 
-        <div className="rounded-lg border border-border bg-surface p-6">
-          <div className="mb-1 flex items-center gap-2">
-            <ChartPieSliceIcon className="size-4.5 text-slate" />
-            <h2 className="text-[13px] font-bold text-slate">Bid cycles by status</h2>
-          </div>
-          <p className="mb-5 text-xs text-muted-foreground">Every cycle ever created, {cycles.length} total.</p>
+      <div className="mb-14">
+        <div className="mb-1 flex items-center gap-2">
+          <ChartPieSliceIcon className="size-4.5 text-slate" />
+          <h2 className="text-[13px] font-bold text-slate">Bid cycles by status</h2>
+        </div>
+        <p className="mb-5 text-xs text-muted-foreground">Every cycle ever created, {cycles.length} total.</p>
+        <div className="max-w-md rounded-lg border border-border bg-surface p-6">
           <div className="flex flex-col gap-4">
             {cycleStatusCounts.map(({ status, count }) => (
               <div key={status}>
@@ -322,61 +377,6 @@ export default async function AdminDashboardPage() {
             </Table>
           </div>
         )}
-      </div>
-
-      <div className="mb-14">
-        <div className="mb-4 flex items-center justify-between gap-4">
-          <div className="flex items-center gap-2">
-            <ReceiptIcon className="size-4.5 text-slate" />
-            <h2 className="text-xl font-bold tracking-tight text-ink">Recent orders</h2>
-          </div>
-          <Link href="/admin/orders" className="text-sm text-brand hover:underline">
-            View all orders →
-          </Link>
-        </div>
-        <p className="mb-4 text-sm text-muted-foreground">
-          The latest checkouts across every buyer — full filtering and search live on the Orders page.
-        </p>
-        <div className="overflow-hidden rounded-lg border border-border bg-surface">
-          <Table>
-            <TableHeader>
-              <TableRow>
-                <TableHead>Order</TableHead>
-                <TableHead>Buyer</TableHead>
-                <TableHead>Material</TableHead>
-                <TableHead>Amount</TableHead>
-                <TableHead>Status</TableHead>
-              </TableRow>
-            </TableHeader>
-            <TableBody>
-              {recentOrders.map((order) => (
-                <TableRow key={order.id}>
-                  <TableCell className="py-3 font-semibold text-ink" title={order.id}>
-                    {shortOrderNumber(order.id)}
-                  </TableCell>
-                  <TableCell className="py-3 text-ink">
-                    <div className="flex items-center gap-2.5">
-                      <Avatar name={order.buyer.name} className="size-7 shrink-0 text-[10px]" />
-                      <div className="max-w-36 truncate">{order.buyer.businessName ?? order.buyer.name}</div>
-                    </div>
-                  </TableCell>
-                  <TableCell className="py-3 text-ink">
-                    {order.material}
-                    {order.extraItemCount > 0 && (
-                      <span className="text-muted-foreground"> +{order.extraItemCount}</span>
-                    )}
-                  </TableCell>
-                  <TableCell className="py-3 font-semibold text-ink">{formatNaira(order.amount)}</TableCell>
-                  <TableCell className="py-3">
-                    <Badge variant="outline" className={pillClass(orderStatusTone(order.status))}>
-                      {ORDER_STATUS_LABEL[order.status] ?? order.status}
-                    </Badge>
-                  </TableCell>
-                </TableRow>
-              ))}
-            </TableBody>
-          </Table>
-        </div>
       </div>
 
       <CyclesTable cycles={cycles} />

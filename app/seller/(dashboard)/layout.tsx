@@ -12,6 +12,8 @@ import { MobileNav } from '@/components/mobile-nav';
 import { LogoMark } from '@/components/logo';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
+import { PortalTopbar } from '@/components/portal-topbar';
+import { SearchProvider } from '@/components/portal-search';
 
 const LINKS = [
   { href: '/seller', label: 'Open cycles' },
@@ -37,45 +39,52 @@ export default async function SellerDashboardLayout({ children }: { children: Re
   const { notifications, unreadCount } = await getNotificationsForSeller(sellerId);
 
   return (
-    <div className="flex flex-1">
-      <SellerSidebar profile={profile} notifications={notifications} unreadCount={unreadCount} />
-      <div className="flex flex-1 flex-col">
-        <header className="flex h-16 items-center gap-3 border-b border-border bg-surface/95 px-5 backdrop-blur lg:hidden">
-          <MobileNav
-            links={LINKS}
-            title="Seller portal"
-            hideFrom="lg"
-            footer={
-              <>
-                <div className="mb-1 text-sm font-semibold text-ink">
-                  {profile.user.businessName ?? profile.user.name}
-                </div>
-                <div className="mb-2 flex items-center gap-1.5 text-xs text-muted-foreground">
-                  <MapPinIcon className="size-3.5" />
-                  {profile.regionsServed.join(', ')}
-                </div>
-                <Badge variant="outline" className={`mb-3 w-fit ${pillClass(kycStatusTone(profile.kycStatus))}`}>
-                  {KYC_LABEL[profile.kycStatus]}
-                </Badge>
-                <form action={signOutSeller}>
-                  <Button type="submit" variant="ghost" size="sm" className="w-full justify-start gap-2 px-2">
-                    <SignOutIcon className="size-4" />
-                    Sign out
-                  </Button>
-                </form>
-              </>
-            }
+    <SearchProvider portal="seller">
+      <div className="flex flex-1">
+        <SellerSidebar profile={profile} />
+        <div className="flex flex-1 flex-col">
+          <header className="flex h-16 items-center gap-3 border-b border-border bg-surface/95 px-5 backdrop-blur lg:hidden">
+            <MobileNav
+              links={LINKS}
+              title="Seller portal"
+              hideFrom="lg"
+              footer={
+                <>
+                  <div className="mb-1 text-sm font-semibold text-ink">
+                    {profile.user.businessName ?? profile.user.name}
+                  </div>
+                  <div className="mb-2 flex items-center gap-1.5 text-xs text-muted-foreground">
+                    <MapPinIcon className="size-3.5" />
+                    {profile.regionsServed.join(', ')}
+                  </div>
+                  <Badge variant="outline" className={`mb-3 w-fit ${pillClass(kycStatusTone(profile.kycStatus))}`}>
+                    {KYC_LABEL[profile.kycStatus]}
+                  </Badge>
+                  <form action={signOutSeller}>
+                    <Button type="submit" variant="ghost" size="sm" className="w-full justify-start gap-2 px-2">
+                      <SignOutIcon className="size-4" />
+                      Sign out
+                    </Button>
+                  </form>
+                </>
+              }
+            />
+            <Link href="/seller" className="flex items-center gap-2">
+              <LogoMark className="size-7" />
+              <span className="text-sm font-medium tracking-tight text-ink">Seller portal</span>
+            </Link>
+            <div className="ml-auto">
+              <NotificationBell notifications={notifications} unreadCount={unreadCount} />
+            </div>
+          </header>
+          <PortalTopbar
+            portal="seller"
+            name={profile.user.businessName ?? profile.user.name}
+            bellSlot={<NotificationBell notifications={notifications} unreadCount={unreadCount} />}
           />
-          <Link href="/seller" className="flex items-center gap-2">
-            <LogoMark className="size-7" />
-            <span className="text-sm font-medium tracking-tight text-ink">Seller portal</span>
-          </Link>
-          <div className="ml-auto">
-            <NotificationBell notifications={notifications} unreadCount={unreadCount} />
-          </div>
-        </header>
-        <main className="flex flex-1 flex-col">{children}</main>
+          <main className="flex flex-1 flex-col">{children}</main>
+        </div>
       </div>
-    </div>
+    </SearchProvider>
   );
 }

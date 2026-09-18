@@ -92,6 +92,7 @@ export function SellerDirectoryTable({ sellers }: { sellers: SellerDirectoryEntr
             <TableHeader>
               <TableRow>
                 <TableHead>Merchant</TableHead>
+                <TableHead>Category / depot</TableHead>
                 <TableHead className="text-right">GMV (MTD)</TableHead>
                 <TableHead>Status</TableHead>
                 <TableHead className="text-right">Action</TableHead>

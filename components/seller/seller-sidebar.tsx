@@ -2,21 +2,28 @@
 
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
-import { GaugeIcon, GearIcon, IdentificationCardIcon, MapPinIcon, ReceiptIcon, SignOutIcon, StackIcon, TruckIcon, WalletIcon } from '@phosphor-icons/react/ssr';
+import {
+  CaretUpDownIcon,
+  DotsThreeVerticalIcon,
+  GaugeIcon,
+  GearIcon,
+  IdentificationCardIcon,
+  ReceiptIcon,
+  StackIcon,
+  TruckIcon,
+  WalletIcon,
+} from '@phosphor-icons/react/ssr';
 import { signOutSeller } from '@/app/seller/actions';
 import type { getSellerProfile } from '@/lib/queries/sellerPortal';
-import type { getNotificationsForSeller } from '@/lib/notifications';
 import { kycStatusTone, pillClass } from '@/lib/statusColors';
-import { LogoMark } from '@/components/logo';
-import { Badge } from '@/components/ui/badge';
-import { Button } from '@/components/ui/button';
-import { NotificationBell } from './notification-bell';
+import { Avatar } from '@/components/avatar';
+import { SidebarSearchTrigger } from '@/components/portal-search';
 
-const KYC_LABEL: Record<string, string> = {
-  NOT_SUBMITTED: 'KYC not started',
-  PENDING: 'KYC pending review',
-  APPROVED: 'KYC verified',
-  REJECTED: 'KYC rejected',
+const KYC_BADGE_LABEL: Record<string, string> = {
+  NOT_SUBMITTED: 'Not started',
+  PENDING: 'Pending',
+  APPROVED: 'Verified',
+  REJECTED: 'Rejected',
 };
 
 const LINK_GROUPS = [
@@ -44,23 +51,28 @@ const LINK_GROUPS = [
 
 export function SellerSidebar({
   profile,
-  notifications,
-  unreadCount,
 }: {
   profile: NonNullable<Awaited<ReturnType<typeof getSellerProfile>>>;
-  notifications: Awaited<ReturnType<typeof getNotificationsForSeller>>['notifications'];
-  unreadCount: number;
 }) {
   const pathname = usePathname();
 
   return (
-    <aside className="hidden w-[264px] shrink-0 flex-col border-r border-border bg-surface lg:flex">
-      <div className="flex items-center justify-between gap-2 border-b border-border px-5 py-5">
-        <Link href="/seller" className="flex min-w-0 items-center gap-2">
-          <LogoMark className="size-8 shrink-0" />
-          <span className="truncate text-[15px] font-medium tracking-tight text-ink">Seller portal</span>
-        </Link>
-        <NotificationBell notifications={notifications} unreadCount={unreadCount} />
+    <aside className="hidden w-[264px] shrink-0 flex-col border-r border-border bg-surface shadow-[1px_0_0_#eef0f3,6px_0_32px_rgba(16,24,40,0.05)] lg:flex">
+      <Link href="/seller" className="flex items-center justify-between gap-2 border-b border-border px-[18px] py-[22px] pb-4">
+        <span className="flex items-center gap-2.5">
+          <span className="flex size-8 shrink-0 items-center justify-center rounded-[10px] bg-gradient-to-br from-[#4d7bff] to-brand text-[13px] font-extrabold text-white shadow-[0_4px_14px_rgba(41,84,229,0.35)]">
+            BP
+          </span>
+          <span className="leading-tight">
+            <span className="block text-[14.5px] font-extrabold text-ink">Builders Pool</span>
+            <span className="block text-[11px] font-semibold tracking-wide text-muted-foreground">Seller portal</span>
+          </span>
+        </span>
+        <CaretUpDownIcon className="size-3.5 text-border-strong" />
+      </Link>
+
+      <div className="px-[18px] pt-3.5 pb-2">
+        <SidebarSearchTrigger />
       </div>
 
       <nav className="flex flex-col gap-5 p-3">
@@ -81,7 +93,12 @@ export function SellerSidebar({
                     }`}
                   >
                     <link.icon className="size-4.5" />
-                    {link.label}
+                    <span className="flex-1">{link.label}</span>
+                    {link.href === '/seller/kyc' && (
+                      <span className={`rounded-full px-1.5 py-0.5 text-[10px] font-bold ${pillClass(kycStatusTone(profile.kycStatus))}`}>
+                        {KYC_BADGE_LABEL[profile.kycStatus]}
+                      </span>
+                    )}
                   </Link>
                 );
               })}
@@ -90,23 +107,27 @@ export function SellerSidebar({
         ))}
       </nav>
 
-      <div className="mt-auto border-t border-border p-4">
-        <div className="mb-1 text-sm font-semibold text-ink">
-          {profile.user.businessName ?? profile.user.name}
+      <div className="mt-auto p-3.5">
+        <div
+          className="flex items-center gap-2.5 rounded-xl border border-border bg-well/60 px-3 py-2.5"
+          title={profile.regionsServed.join(', ')}
+        >
+          <Avatar
+            name={profile.user.businessName ?? profile.user.name}
+            className="size-8 shrink-0 text-xs shadow-[0_4px_10px_rgba(41,84,229,0.3)]"
+          />
+          <div className="min-w-0 flex-1">
+            <div className="truncate text-[13px] font-bold text-ink">
+              {profile.user.businessName ?? profile.user.name}
+            </div>
+            <form action={signOutSeller}>
+              <button type="submit" className="text-[11.5px] text-muted-foreground hover:underline">
+                Sign out
+              </button>
+            </form>
+          </div>
+          <DotsThreeVerticalIcon className="size-3.5 shrink-0 text-border-strong" />
         </div>
-        <div className="mb-2 flex items-center gap-1.5 text-xs text-muted-foreground">
-          <MapPinIcon className="size-3.5" />
-          {profile.regionsServed.join(', ')}
-        </div>
-        <Badge variant="outline" className={`mb-3 w-fit ${pillClass(kycStatusTone(profile.kycStatus))}`}>
-          {KYC_LABEL[profile.kycStatus]}
-        </Badge>
-        <form action={signOutSeller}>
-          <Button type="submit" variant="ghost" size="sm" className="w-full justify-start gap-2 px-2">
-            <SignOutIcon className="size-4" />
-            Sign out
-          </Button>
-        </form>
       </div>
     </aside>
   );

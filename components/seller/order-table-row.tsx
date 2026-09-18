@@ -22,6 +22,7 @@ const PAYOUT_LABEL: Record<string, string> = {
 
 export function SellerOrderTableRow({
   shortId,
+  buyerName,
   materialName,
   quantity,
   unit,
@@ -34,6 +35,7 @@ export function SellerOrderTableRow({
   grnNumber,
 }: {
   shortId: string;
+  buyerName: string;
   materialName: string;
   quantity: number;
   unit: string;
@@ -51,9 +53,9 @@ export function SellerOrderTableRow({
     <TableRow>
       <TableCell className="py-3 font-semibold text-ink">{shortId}</TableCell>
       <TableCell className="py-3 text-ink">
-        <div className="max-w-48 truncate">{materialName}</div>
-        <div className="text-xs text-muted-foreground">
-          {quantity} {unit}
+        <div className="max-w-48 truncate font-semibold">{buyerName}</div>
+        <div className="max-w-48 truncate text-xs text-muted-foreground">
+          {materialName} · {quantity} {unit}
         </div>
         {expanded && (
           <div className="mt-1.5 flex flex-col gap-0.5 text-[11.5px] text-slate">
