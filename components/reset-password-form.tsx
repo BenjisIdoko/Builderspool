@@ -6,6 +6,7 @@ import { resetPassword } from '@/lib/auth/passwordReset';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Button } from '@/components/ui/button';
+import { AUTH_INPUT, AUTH_LABEL, AUTH_BUTTON } from '@/components/auth-field-styles';
 
 const LOGIN_PATH: Record<string, string> = {
   buyer: '/login',
@@ -37,7 +38,7 @@ export function ResetPasswordForm({ token, role }: { token: string; role: string
         <h2 className="mb-1 text-2xl font-bold tracking-tight text-ink">Password reset</h2>
         <p className="mb-7 text-sm text-muted-foreground">Your password has been updated.</p>
         <Link href={loginPath}>
-          <Button size="lg" className="w-full">
+          <Button size="lg" className={AUTH_BUTTON}>
             Sign in
           </Button>
         </Link>
@@ -50,23 +51,23 @@ export function ResetPasswordForm({ token, role }: { token: string; role: string
       <h2 className="mb-1 text-2xl font-bold tracking-tight text-ink">Choose a new password</h2>
       <p className="mb-7 text-sm text-muted-foreground">Must be at least 8 characters.</p>
 
-      <form onSubmit={handleSubmit} className="space-y-4">
+      <form onSubmit={handleSubmit} className="space-y-5">
         <div>
-          <Label htmlFor="password" className="mb-1.5 text-xs text-muted-foreground">
+          <Label htmlFor="password" className={AUTH_LABEL}>
             New password
           </Label>
-          <Input id="password" name="password" type="password" required autoComplete="new-password" />
+          <Input className={AUTH_INPUT} id="password" name="password" type="password" required autoComplete="new-password" />
         </div>
         <div>
-          <Label htmlFor="confirmPassword" className="mb-1.5 text-xs text-muted-foreground">
+          <Label htmlFor="confirmPassword" className={AUTH_LABEL}>
             Confirm password
           </Label>
-          <Input id="confirmPassword" name="confirmPassword" type="password" required autoComplete="new-password" />
+          <Input className={AUTH_INPUT} id="confirmPassword" name="confirmPassword" type="password" required autoComplete="new-password" />
         </div>
 
         {error && <p className="text-sm text-danger">{error}</p>}
 
-        <Button type="submit" size="lg" className="w-full" disabled={isPending}>
+        <Button type="submit" size="lg" className={AUTH_BUTTON} disabled={isPending}>
           {isPending ? 'Resetting…' : 'Reset password'}
         </Button>
       </form>

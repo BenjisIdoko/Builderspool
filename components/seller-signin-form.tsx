@@ -7,6 +7,7 @@ import { signInSeller } from '@/app/seller/actions';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Button } from '@/components/ui/button';
+import { AUTH_INPUT, AUTH_LABEL, AUTH_BUTTON } from '@/components/auth-field-styles';
 
 export function SellerSignInForm() {
   const router = useRouter();
@@ -33,28 +34,28 @@ export function SellerSignInForm() {
       <h2 className="mb-1 text-2xl font-bold tracking-tight text-ink">Seller login</h2>
       <p className="mb-7 text-sm text-muted-foreground">Sign in to submit bids and manage allocations.</p>
 
-      <form onSubmit={handleSubmit} className="space-y-4">
+      <form onSubmit={handleSubmit} className="space-y-5">
         <div>
-          <Label htmlFor="email" className="mb-1.5 text-xs text-muted-foreground">
+          <Label htmlFor="email" className={AUTH_LABEL}>
             Email
           </Label>
-          <Input id="email" name="email" type="email" required autoComplete="email" />
+          <Input className={AUTH_INPUT} id="email" name="email" type="email" required autoComplete="email" />
         </div>
         <div>
-          <div className="mb-1.5 flex items-center justify-between">
-            <Label htmlFor="password" className="text-xs text-muted-foreground">
+          <div className="mb-2 flex items-center justify-between">
+            <Label htmlFor="password" className="text-sm font-medium text-slate">
               Password
             </Label>
-            <Link href="/forgot-password?role=seller" className="text-xs font-medium text-brand hover:underline">
+            <Link href="/forgot-password?role=seller" className="text-sm font-medium text-brand hover:underline">
               Forgot password?
             </Link>
           </div>
-          <Input id="password" name="password" type="password" required autoComplete="current-password" />
+          <Input className={AUTH_INPUT} id="password" name="password" type="password" required autoComplete="current-password" />
         </div>
 
         {error && <p className="text-sm text-danger">{error}</p>}
 
-        <Button type="submit" size="lg" className="w-full" disabled={isPending}>
+        <Button type="submit" size="lg" className={AUTH_BUTTON} disabled={isPending}>
           {isPending ? 'Signing in…' : 'Sign in'}
         </Button>
       </form>

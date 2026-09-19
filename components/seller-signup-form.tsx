@@ -7,6 +7,7 @@ import { signUpSeller } from '@/app/seller/actions';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Button } from '@/components/ui/button';
+import { AUTH_INPUT, AUTH_LABEL, AUTH_BUTTON, AUTH_SELECT } from '@/components/auth-field-styles';
 
 export function SellerSignUpForm() {
   const router = useRouter();
@@ -35,27 +36,27 @@ export function SellerSignUpForm() {
         Bid on pooled demand from buyers across Nigeria. KYC verification is required before payouts.
       </p>
 
-      <form onSubmit={handleSubmit} className="space-y-4">
+      <form onSubmit={handleSubmit} className="space-y-5">
         <div>
-          <Label htmlFor="businessName" className="mb-1.5 text-xs text-muted-foreground">
+          <Label htmlFor="businessName" className={AUTH_LABEL}>
             Business name
           </Label>
-          <Input id="businessName" name="businessName" required />
+          <Input className={AUTH_INPUT} id="businessName" name="businessName" required />
         </div>
         <div>
-          <Label htmlFor="name" className="mb-1.5 text-xs text-muted-foreground">
+          <Label htmlFor="name" className={AUTH_LABEL}>
             Contact name
           </Label>
-          <Input id="name" name="name" required autoComplete="name" />
+          <Input className={AUTH_INPUT} id="name" name="name" required autoComplete="name" />
         </div>
         <div>
-          <Label htmlFor="email" className="mb-1.5 text-xs text-muted-foreground">
+          <Label htmlFor="email" className={AUTH_LABEL}>
             Email
           </Label>
-          <Input id="email" name="email" type="email" required autoComplete="email" />
+          <Input className={AUTH_INPUT} id="email" name="email" type="email" required autoComplete="email" />
         </div>
         <div>
-          <Label htmlFor="location" className="mb-1.5 text-xs text-muted-foreground">
+          <Label htmlFor="location" className={AUTH_LABEL}>
             Primary region
           </Label>
           <select
@@ -63,7 +64,7 @@ export function SellerSignUpForm() {
             name="location"
             required
             defaultValue=""
-            className="h-8 w-full rounded-md border border-input bg-transparent px-2.5 text-sm outline-none focus-visible:border-ring focus-visible:ring-3 focus-visible:ring-ring/50"
+            className={AUTH_SELECT}
           >
             <option value="" disabled>
               Select a region
@@ -74,16 +75,16 @@ export function SellerSignUpForm() {
           </select>
         </div>
         <div>
-          <Label htmlFor="password" className="mb-1.5 text-xs text-muted-foreground">
+          <Label htmlFor="password" className={AUTH_LABEL}>
             Password
           </Label>
-          <Input id="password" name="password" type="password" required autoComplete="new-password" minLength={8} />
+          <Input className={AUTH_INPUT} id="password" name="password" type="password" required autoComplete="new-password" minLength={8} />
         </div>
         <div>
-          <Label htmlFor="confirmPassword" className="mb-1.5 text-xs text-muted-foreground">
+          <Label htmlFor="confirmPassword" className={AUTH_LABEL}>
             Confirm password
           </Label>
-          <Input
+          <Input className={AUTH_INPUT}
             id="confirmPassword"
             name="confirmPassword"
             type="password"
@@ -95,7 +96,7 @@ export function SellerSignUpForm() {
 
         {error && <p className="text-sm text-danger">{error}</p>}
 
-        <Button type="submit" size="lg" className="w-full" disabled={isPending}>
+        <Button type="submit" size="lg" className={AUTH_BUTTON} disabled={isPending}>
           {isPending ? 'Creating account…' : 'Create seller account'}
         </Button>
       </form>

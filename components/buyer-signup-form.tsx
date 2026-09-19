@@ -7,6 +7,7 @@ import { signUpBuyer } from '@/app/login/actions';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Button } from '@/components/ui/button';
+import { AUTH_INPUT, AUTH_LABEL, AUTH_BUTTON } from '@/components/auth-field-styles';
 
 export function BuyerSignUpForm() {
   const router = useRouter();
@@ -33,50 +34,50 @@ export function BuyerSignUpForm() {
       <h2 className="mb-1 text-2xl font-bold tracking-tight text-ink">Create your account</h2>
       <p className="mb-7 text-sm text-muted-foreground">Buy materials at a fixed price, pooled with other buyers.</p>
 
-      <form onSubmit={handleSubmit} className="space-y-4">
+      <form onSubmit={handleSubmit} className="space-y-5">
         <div>
-          <Label htmlFor="name" className="mb-1.5 text-xs text-muted-foreground">
+          <Label htmlFor="name" className={AUTH_LABEL}>
             Full name
           </Label>
-          <Input id="name" name="name" required autoComplete="name" />
+          <Input className={AUTH_INPUT} id="name" name="name" required autoComplete="name" />
         </div>
         <div>
-          <Label htmlFor="email" className="mb-1.5 text-xs text-muted-foreground">
+          <Label htmlFor="email" className={AUTH_LABEL}>
             Email
           </Label>
-          <Input id="email" name="email" type="email" required autoComplete="email" />
+          <Input className={AUTH_INPUT} id="email" name="email" type="email" required autoComplete="email" />
         </div>
         <div className="grid grid-cols-2 gap-3">
           <div>
-            <Label htmlFor="phone" className="mb-1.5 text-xs text-muted-foreground">
+            <Label htmlFor="phone" className={AUTH_LABEL}>
               Phone (optional)
             </Label>
-            <Input id="phone" name="phone" type="tel" autoComplete="tel" />
+            <Input className={AUTH_INPUT} id="phone" name="phone" type="tel" autoComplete="tel" />
           </div>
           <div>
-            <Label htmlFor="location" className="mb-1.5 text-xs text-muted-foreground">
+            <Label htmlFor="location" className={AUTH_LABEL}>
               Location (optional)
             </Label>
-            <Input id="location" name="location" placeholder="e.g. Abuja" />
+            <Input className={AUTH_INPUT} id="location" name="location" placeholder="e.g. Abuja" />
           </div>
         </div>
         <div>
-          <Label htmlFor="businessName" className="mb-1.5 text-xs text-muted-foreground">
+          <Label htmlFor="businessName" className={AUTH_LABEL}>
             Business name (optional)
           </Label>
-          <Input id="businessName" name="businessName" />
+          <Input className={AUTH_INPUT} id="businessName" name="businessName" />
         </div>
         <div>
-          <Label htmlFor="password" className="mb-1.5 text-xs text-muted-foreground">
+          <Label htmlFor="password" className={AUTH_LABEL}>
             Password
           </Label>
-          <Input id="password" name="password" type="password" required autoComplete="new-password" minLength={8} />
+          <Input className={AUTH_INPUT} id="password" name="password" type="password" required autoComplete="new-password" minLength={8} />
         </div>
         <div>
-          <Label htmlFor="confirmPassword" className="mb-1.5 text-xs text-muted-foreground">
+          <Label htmlFor="confirmPassword" className={AUTH_LABEL}>
             Confirm password
           </Label>
-          <Input
+          <Input className={AUTH_INPUT}
             id="confirmPassword"
             name="confirmPassword"
             type="password"
@@ -88,7 +89,7 @@ export function BuyerSignUpForm() {
 
         {error && <p className="text-sm text-danger">{error}</p>}
 
-        <Button type="submit" size="lg" className="w-full" disabled={isPending}>
+        <Button type="submit" size="lg" className={AUTH_BUTTON} disabled={isPending}>
           {isPending ? 'Creating account…' : 'Create account'}
         </Button>
       </form>

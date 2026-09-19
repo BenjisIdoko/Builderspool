@@ -6,6 +6,7 @@ import { requestPasswordReset } from '@/lib/auth/passwordReset';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Button } from '@/components/ui/button';
+import { AUTH_INPUT, AUTH_LABEL, AUTH_BUTTON } from '@/components/auth-field-styles';
 
 const LOGIN_PATH: Record<string, string> = {
   buyer: '/login',
@@ -38,17 +39,17 @@ export function ForgotPasswordForm({ role }: { role: string }) {
       {result?.message ? (
         <p className="rounded-lg border border-border bg-surface p-4 text-sm text-ink">{result.message}</p>
       ) : (
-        <form onSubmit={handleSubmit} className="space-y-4">
+        <form onSubmit={handleSubmit} className="space-y-5">
           <div>
-            <Label htmlFor="email" className="mb-1.5 text-xs text-muted-foreground">
+            <Label htmlFor="email" className={AUTH_LABEL}>
               Email
             </Label>
-            <Input id="email" name="email" type="email" required autoComplete="email" />
+            <Input className={AUTH_INPUT} id="email" name="email" type="email" required autoComplete="email" />
           </div>
 
           {result?.error && <p className="text-sm text-danger">{result.error}</p>}
 
-          <Button type="submit" size="lg" className="w-full" disabled={isPending}>
+          <Button type="submit" size="lg" className={AUTH_BUTTON} disabled={isPending}>
             {isPending ? 'Sending…' : 'Send reset link'}
           </Button>
         </form>
