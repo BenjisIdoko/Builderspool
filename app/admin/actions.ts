@@ -47,7 +47,7 @@ export async function signInAdmin(formData: FormData): Promise<{ error: string }
     await recordLoginAttempt(email, true);
 
     const store = await cookies();
-    store.set(ADMIN_COOKIE, 'true', { httpOnly: true, sameSite: 'lax', path: '/' });
+    store.set(ADMIN_COOKIE, admin.id, { httpOnly: true, sameSite: 'lax', path: '/' });
   } catch (err) {
     return { error: err instanceof Error ? err.message : 'Could not sign in.' };
   }

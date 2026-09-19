@@ -1,14 +1,30 @@
+import { cache } from 'react';
 import { cookies } from 'next/headers';
+import { prisma } from '@/lib/prisma';
+import { Role } from '@prisma/client';
 
-// Set by app/admin/actions.ts's signInAdmin() after a real password check
-// against the single seeded ops account (lib/demoAdmin.ts) — see
-// lib/auth/password.ts. Still boolean-only (not a per-user id) because
-// there's still only one admin account by design; extend if that changes.
+// Holds the signed-in admin's real User id, set by app/admin/actions.ts's
+// signInAdmin() after a real password check. Admin accounts are a closed
+// system (created only via scripts/create-admin.ts — no signup route), but
+// there can be several assigned people, so the session identifies which one
+// rather than being a bare "signed in" flag. Because it's re-checked against
+// the database on every request, removing an admin (or demoting the row)
+// revokes their access immediately.
 export const ADMIN_COOKIE = 'bp_admin_session';
 
-export async function isAdminSignedIn(): Promise<boolean> {
+// React cache() dedupes the lookup within a single request — the layout,
+// the page, and any action in the same render all share one query.
+export const getCurrentAdmin = cache(async () => {
   const store = await cookies();
-  return store.get(ADMIN_COOKIE)?.value === 'true';
+  const adminId = store.get(ADMIN_COOKIE)?.value;
+  // Pre-2026-09-19 sessions stored the literal 'true' — never a valid id, so
+  // those simply fail the lookup and the admin signs in again once.
+  if (!adminId) return null;
+  return prisma.user.findFirst({ where: { id: adminId, role: Role.ADMIN } });
+});
+
+export async function isAdminSignedIn(): Promise<boolean> {
+  return (await getCurrentAdmin()) !== null;
 }
 
 // A page's own redirect-when-signed-out check does not extend to Server

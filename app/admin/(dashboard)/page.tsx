@@ -20,7 +20,7 @@ import {
 import { getSellersForVerification } from '@/lib/queries/adminVerification';
 import { getMaterialsNeedingPriceReviewCount } from '@/lib/queries/adminMaterials';
 import { getVerifiedSellerCount } from '@/lib/queries/adminSellers';
-import { getDemoAdmin } from '@/lib/demoAdmin';
+import { getCurrentAdmin } from '@/lib/admin/session';
 import { formatNaira } from '@/lib/format';
 import { orderStatusTone, cycleStatusTone, pillClass } from '@/lib/statusColors';
 import { Badge } from '@/components/ui/badge';
@@ -71,7 +71,7 @@ export default async function AdminDashboardPage() {
     getTopSellersByRevenue(),
     getSellersForVerification(),
     getMaterialsNeedingPriceReviewCount(),
-    getDemoAdmin(),
+    getCurrentAdmin(),
     getGmvMonthToDate(),
     getEscrowInCustody(),
     getVerifiedSellerCount(),
@@ -157,7 +157,7 @@ export default async function AdminDashboardPage() {
     <div className="mx-auto w-full max-w-7xl px-8 pt-8 pb-20">
       <div className="mb-1 text-xs text-muted-foreground">Admin · platform overview</div>
       <h1 className="mb-1.5 text-[26px] font-bold tracking-tight text-ink">
-        {greeting((new Date().getUTCHours() + 1) % 24)}, {admin.name.split(' ')[0]}
+        {greeting((new Date().getUTCHours() + 1) % 24)}, {(admin?.name ?? 'there').split(' ')[0]}
       </h1>
       <p className="mb-6 text-sm text-muted-foreground">
         Marketplace health across escrow, fulfillment, and merchant activity — last updated just now.

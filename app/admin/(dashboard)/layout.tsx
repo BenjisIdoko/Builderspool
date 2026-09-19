@@ -1,7 +1,6 @@
 import Link from 'next/link';
 import { redirect } from 'next/navigation';
-import { isAdminSignedIn } from '@/lib/admin/session';
-import { getDemoAdmin } from '@/lib/demoAdmin';
+import { getCurrentAdmin } from '@/lib/admin/session';
 import { getPendingVerificationCount } from '@/lib/queries/adminVerification';
 import { getMaterialsNeedingPriceReviewCount } from '@/lib/queries/adminMaterials';
 import { getPendingGrnCount } from '@/lib/queries/adminStats';
@@ -24,10 +23,9 @@ const LINKS = [
 ];
 
 export default async function AdminDashboardLayout({ children }: { children: React.ReactNode }) {
-  const signedIn = await isAdminSignedIn();
-  if (!signedIn) redirect('/admin/login');
+  const admin = await getCurrentAdmin();
+  if (!admin) redirect('/admin/login');
 
-  const admin = await getDemoAdmin();
   const [pendingVerificationCount, priceReviewCount, pendingGrnCount] = await Promise.all([
     getPendingVerificationCount(),
     getMaterialsNeedingPriceReviewCount(),

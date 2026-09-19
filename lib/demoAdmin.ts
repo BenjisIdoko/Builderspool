@@ -1,11 +1,4 @@
-import { prisma } from './prisma';
-
-// Identifies the single seeded ops account — real password auth exists
-// (lib/admin/session.ts, app/admin/actions.ts's signInAdmin()), but there's
-// still only ever one admin account by design, so this lookup-by-email
-// stays a valid way to fetch "the" admin for display purposes.
+// The seeded ops account's email — used only by prisma/seed.ts to create it.
+// Runtime code identifies the signed-in admin via getCurrentAdmin()
+// (lib/admin/session.ts), not by this address.
 export const DEMO_ADMIN_EMAIL = 'ops@builderspool.example';
-
-export async function getDemoAdmin() {
-  return prisma.user.findUniqueOrThrow({ where: { email: DEMO_ADMIN_EMAIL } });
-}

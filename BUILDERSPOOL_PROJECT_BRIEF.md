@@ -1005,6 +1005,18 @@ Triggered by a user hitting "No buyer account matches that email and password" o
 
 Schema: `npx prisma migrate dev --name auth_reset_verification_rate_limit` added `User.emailVerifiedAt`, `PasswordResetToken`, `EmailVerificationToken`, `LoginAttempt`. `npx tsc --noEmit -p .`, `npm run lint`, and `npx next build` all pass clean. Live-verified end-to-end: requested a reset for the real seeded buyer, manually inserted a token (can't read the actual email without `RESEND_API_KEY` configured) to drive `/reset-password` through the real consume-token/update-password/mark-used path, then signed in with the new password successfully; drove the seller login through 6 real failed attempts to confirm the lockout triggers exactly at the 5th failure and blocks a correct 6th attempt; reset all test state (login attempts, buyer's password, test tokens) back to the standard demo credentials afterward so the seeded accounts aren't left broken.
 
+### Closed-system admin accounts + auth-form sizing (2026-09-19, later)
+
+**Admin accounts are created by script, not signup.** The admin portal is a closed system for assigned people, so there is deliberately no admin signup route. `scripts/create-admin.ts` (`npm run create-admin -- <email> "<Name>" [--reset-password]`) creates one: password comes from `ADMIN_PASSWORD` or a hidden prompt (never a CLI argument, so it stays out of shell history), minimum 12 characters, refuses to convert an existing buyer/seller row into an admin, and refuses to touch an existing admin unless `--reset-password` is passed. Tested every guard plus a real create → sign in → delete cycle with a throwaway account.
+
+**The admin session now identifies the person.** It was a bare `bp_admin_session=true` flag and the layout hard-coded `getDemoAdmin()` (a lookup on `ops@builderspool.example`) — meaning a second admin would have shown as "Ops Admin", and changing the ops email would have crashed the whole admin layout. The cookie now holds the admin's real user id and `getCurrentAdmin()` (`lib/admin/session.ts`, per-request cached) re-checks it against the database with `role = ADMIN` on every request. Practical effects: each admin sees their own name/avatar, and deleting or demoting an admin revokes their open session immediately (verified live). `getDemoAdmin()` is gone; `lib/demoAdmin.ts` keeps only the seed constant. **Deploying this signs the current admin out once** (old `true` cookies fail the lookup).
+
+**Auth forms** (login, signup, forgot/reset, all three roles) used the shared Input's 32px height and 12px labels. New `components/auth-field-styles.ts`: 48px controls on mobile / 44px from `sm` up, 16px input text (also prevents iOS zoom-on-focus), 14px labels, 48px pill submit buttons; applied to every auth form including the seller region `<select>`.
+
+**Mobile header:** Log in / Sign up moved into the mobile sidebar footer below the `lg` breakpoint ("My account" when signed in); desktop header unchanged.
+
+Known and pre-existing: on a cold dev server the admin dashboard's ~14 parallel queries can exhaust Prisma's 5-connection pool on the first hit (P2024); a reload succeeds. Raising `connection_limit` or trimming the dashboard's parallel queries would fix it if it shows up in production.
+
 ## Bidding Engine Design
 
 - **Weighted award scoring**, not simple lowest-price-wins: Price 40%, seller reliability/trust score 25%, capacity fit 20%, delivery speed 15%.
