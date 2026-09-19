@@ -6,6 +6,7 @@ import { HeaderSearch } from './header-search';
 import { HeaderNavLinks } from './header-nav-links';
 import { Avatar } from './avatar';
 import { Button } from './ui/button';
+import { SheetClose } from './ui/sheet';
 import { LogoMark } from './logo';
 
 // Real page-level nav (not category browsing, which lives on the catalog
@@ -40,7 +41,33 @@ export async function SiteHeader() {
         </div>
 
         <div className="flex shrink-0 items-center gap-1 sm:gap-3.5">
-          <MobileNav links={links} title="Builders Pool" hideFrom="lg" />
+          <MobileNav
+            links={links}
+            title="Builders Pool"
+            hideFrom="lg"
+            footer={
+              buyer ? (
+                <SheetClose asChild>
+                  <Button asChild variant="outline" className="w-full">
+                    <Link href="/account">My account</Link>
+                  </Button>
+                </SheetClose>
+              ) : (
+                <div className="flex flex-col gap-2">
+                  <SheetClose asChild>
+                    <Button asChild className="w-full rounded-full font-bold">
+                      <Link href="/signup">Sign up</Link>
+                    </Button>
+                  </SheetClose>
+                  <SheetClose asChild>
+                    <Button asChild variant="outline" className="w-full rounded-full font-semibold">
+                      <Link href="/login">Log in</Link>
+                    </Button>
+                  </SheetClose>
+                </div>
+              )
+            }
+          />
           <HeaderSearch />
           {buyer ? (
             <>
@@ -50,14 +77,14 @@ export async function SiteHeader() {
               <CartSheet />
             </>
           ) : (
-            <>
+            <div className="hidden items-center gap-3.5 lg:flex">
               <Link href="/login" className="px-1 text-sm font-semibold text-slate hover:text-ink">
                 Log in
               </Link>
               <Button asChild size="sm" className="h-[34px] rounded-full px-4.5 text-[13.5px] font-bold">
                 <Link href="/signup">Sign up</Link>
               </Button>
-            </>
+            </div>
           )}
         </div>
       </header>
