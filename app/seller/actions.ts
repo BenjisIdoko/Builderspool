@@ -9,6 +9,8 @@ import { SELLER_COOKIE, getSellerIdFromSession } from '@/lib/seller/session';
 import { isSellerEligible } from '@/lib/bidding/scoring';
 import { isPastCutoff } from '@/lib/bidding/cycleWindow';
 import { hashPassword, verifyPassword } from '@/lib/auth/password';
+import { assertNotRateLimited, recordLoginAttempt } from '@/lib/auth/rateLimit';
+import { sendVerificationForNewUser } from '@/lib/auth/emailVerification';
 import { markNotificationRead, markAllNotificationsRead } from '@/lib/notifications';
 
 function requiredText(formData: FormData, key: string): string {
@@ -29,12 +31,19 @@ export async function signInSeller(formData: FormData): Promise<{ error: string 
     const email = requiredText(formData, 'email').toLowerCase();
     const password = requiredText(formData, 'password');
 
+    await assertNotRateLimited(email);
+
     const user = await prisma.user.findUnique({ where: { email } });
     if (!user || user.role !== Role.SELLER || !user.passwordHash) {
+      await recordLoginAttempt(email, false);
       throw new Error('No seller account matches that email and password.');
     }
     const valid = await verifyPassword(password, user.passwordHash);
-    if (!valid) throw new Error('No seller account matches that email and password.');
+    if (!valid) {
+      await recordLoginAttempt(email, false);
+      throw new Error('No seller account matches that email and password.');
+    }
+    await recordLoginAttempt(email, true);
 
     const store = await cookies();
     store.set(SELLER_COOKIE, user.id, { httpOnly: true, sameSite: 'lax', path: '/' });
@@ -68,6 +77,7 @@ export async function signUpSeller(formData: FormData): Promise<{ error: string 
     await prisma.sellerProfile.create({
       data: { userId: user.id, regionsServed: [location.toUpperCase()], trustScore: 50 },
     });
+    await sendVerificationForNewUser(user.id, user.email);
 
     const store = await cookies();
     store.set(SELLER_COOKIE, user.id, { httpOnly: true, sameSite: 'lax', path: '/' });

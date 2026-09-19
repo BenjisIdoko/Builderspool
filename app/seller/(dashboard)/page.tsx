@@ -16,6 +16,7 @@ import { getSellerProfile, getOpenCyclesForSeller, getSellerBids, getSellerAlloc
 import { formatNaira } from '@/lib/format';
 import { pillClass, payoutStatusTone } from '@/lib/statusColors';
 import { BidDialog } from '@/components/seller/bid-dialog';
+import { VerifyEmailBanner } from '@/components/verify-email-banner';
 import { KpiCard } from '@/components/kpi-card';
 import { Badge } from '@/components/ui/badge';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
@@ -87,6 +88,7 @@ export default async function SellerDashboardPage() {
 
   return (
     <div className="mx-auto w-full max-w-6xl px-8 pt-8 pb-20">
+      {!profile!.user.emailVerifiedAt && <VerifyEmailBanner />}
       <div className="mb-2.5 flex flex-wrap items-center gap-2">
         {profile!.kycStatus === 'APPROVED' ? (
           <Badge variant="outline" className={pillClass('success')}>

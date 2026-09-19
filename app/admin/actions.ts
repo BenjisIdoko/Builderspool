@@ -13,6 +13,7 @@ import { prisma } from '@/lib/prisma';
 import { CycleStatus, Role } from '@prisma/client';
 import { ADMIN_COOKIE, requireAdmin } from '@/lib/admin/session';
 import { verifyPassword } from '@/lib/auth/password';
+import { assertNotRateLimited, recordLoginAttempt } from '@/lib/auth/rateLimit';
 import { awardCycle } from '@/lib/bidding';
 import { issueGrn, disbursePayout, toggleAllocationHold } from '@/lib/fulfillment';
 import { markWithdrawalPaid } from '@/lib/wallet';
@@ -29,13 +30,21 @@ export async function signInAdmin(formData: FormData): Promise<{ error: string }
     if (typeof emailRaw !== 'string' || typeof passwordRaw !== 'string' || !emailRaw || !passwordRaw) {
       throw new Error('Enter your email and password.');
     }
+    const email = emailRaw.toLowerCase().trim();
 
-    const admin = await prisma.user.findUnique({ where: { email: emailRaw.toLowerCase().trim() } });
+    await assertNotRateLimited(email);
+
+    const admin = await prisma.user.findUnique({ where: { email } });
     if (!admin || admin.role !== Role.ADMIN || !admin.passwordHash) {
+      await recordLoginAttempt(email, false);
       throw new Error('Incorrect email or password.');
     }
     const valid = await verifyPassword(passwordRaw, admin.passwordHash);
-    if (!valid) throw new Error('Incorrect email or password.');
+    if (!valid) {
+      await recordLoginAttempt(email, false);
+      throw new Error('Incorrect email or password.');
+    }
+    await recordLoginAttempt(email, true);
 
     const store = await cookies();
     store.set(ADMIN_COOKIE, 'true', { httpOnly: true, sameSite: 'lax', path: '/' });

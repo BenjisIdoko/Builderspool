@@ -5,6 +5,8 @@ import { redirect } from 'next/navigation';
 import { prisma } from '@/lib/prisma';
 import { Role } from '@prisma/client';
 import { hashPassword, verifyPassword } from '@/lib/auth/password';
+import { assertNotRateLimited, recordLoginAttempt } from '@/lib/auth/rateLimit';
+import { sendVerificationForNewUser } from '@/lib/auth/emailVerification';
 import { BUYER_COOKIE } from '@/lib/buyer/session';
 
 const EMAIL_RE = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
@@ -29,14 +31,19 @@ export async function signInBuyer(formData: FormData): Promise<{ error: string }
     const password = requiredText(formData, 'password');
     const remember = formData.get('remember') === 'on';
 
+    await assertNotRateLimited(email);
+
     const user = await prisma.user.findUnique({ where: { email } });
     if (!user || user.role !== Role.BUYER || !user.passwordHash) {
+      await recordLoginAttempt(email, false);
       throw new Error('No buyer account matches that email and password.');
     }
     const valid = await verifyPassword(password, user.passwordHash);
     if (!valid) {
+      await recordLoginAttempt(email, false);
       throw new Error('No buyer account matches that email and password.');
     }
+    await recordLoginAttempt(email, true);
 
     const store = await cookies();
     store.set(BUYER_COOKIE, user.id, {
@@ -79,6 +86,7 @@ export async function signUpBuyer(formData: FormData): Promise<{ error: string }
         location: typeof locationRaw === 'string' && locationRaw.trim() ? locationRaw.trim() : null,
       },
     });
+    await sendVerificationForNewUser(user.id, user.email);
 
     const store = await cookies();
     store.set(BUYER_COOKIE, user.id, { httpOnly: true, sameSite: 'lax', path: '/' });

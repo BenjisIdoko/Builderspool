@@ -8,6 +8,7 @@ import { orderStatusTone, walletEntryTone, pillClass } from '@/lib/statusColors'
 import { updateBuyerProfile, requestWithdrawalAction } from './actions';
 import { cancelPriceAlert } from '../catalog/actions';
 import { signOutBuyer as signOutBuyerAction } from '@/app/login/actions';
+import { VerifyEmailBanner } from '@/components/verify-email-banner';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -37,6 +38,7 @@ export default async function AccountPage() {
 
   return (
     <div className="mx-auto w-full max-w-3xl px-6 pt-28 pb-10">
+      {!buyer.emailVerifiedAt && <VerifyEmailBanner />}
       <div className="mb-8 flex items-start justify-between gap-4">
         <div>
           <h1 className="mb-1 text-2xl font-bold tracking-tight text-ink">Welcome back, {buyer.name}</h1>

@@ -41,9 +41,14 @@ export function SellerSignInForm() {
           <Input id="email" name="email" type="email" required autoComplete="email" />
         </div>
         <div>
-          <Label htmlFor="password" className="mb-1.5 text-xs text-muted-foreground">
-            Password
-          </Label>
+          <div className="mb-1.5 flex items-center justify-between">
+            <Label htmlFor="password" className="text-xs text-muted-foreground">
+              Password
+            </Label>
+            <Link href="/forgot-password?role=seller" className="text-xs font-medium text-brand hover:underline">
+              Forgot password?
+            </Link>
+          </div>
           <Input id="password" name="password" type="password" required autoComplete="current-password" />
         </div>
 

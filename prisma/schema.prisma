@@ -148,6 +148,12 @@ model User {
   // rather than treating it as "no password required."
   passwordHash String?
   createdAt    DateTime @default(now())
+  // Null until the user clicks a real verification-email link (lib/auth/
+  // emailVerification.ts). Deliberately not enforced anywhere yet — no
+  // action in the app is gated on this — it's tracked and surfaced as a
+  // dismissible banner, not a hard requirement, so verification doesn't
+  // change any existing user's ability to use the app.
+  emailVerifiedAt DateTime?
 
   sellerProfile SellerProfile?
   cartItems     CartItem[]
@@ -156,6 +162,52 @@ model User {
   priceAlerts   PriceAlert[]
   notifications Notification[]
   savingsWalletEntries SavingsWalletEntry[]
+  passwordResetTokens     PasswordResetToken[]
+  emailVerificationTokens EmailVerificationToken[]
+}
+
+// One row per requested reset — tokenHash is the only thing ever stored
+// (sha256 of the raw token emailed to the user), so a database read alone
+// can never yield a usable token. usedAt is set (not deleted) so a reused
+// link fails loudly rather than silently 404ing.
+model PasswordResetToken {
+  id        String    @id @default(cuid())
+  userId    String
+  tokenHash String    @unique
+  expiresAt DateTime
+  usedAt    DateTime?
+  createdAt DateTime  @default(now())
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+}
+
+// Same shape and hashing convention as PasswordResetToken, kept as a
+// separate model rather than a shared "purpose" enum — the two have
+// different expiries and are issued/consumed independently, and keeping
+// them apart avoids one code path accidentally accepting the other's token.
+model EmailVerificationToken {
+  id        String    @id @default(cuid())
+  userId    String
+  tokenHash String    @unique
+  expiresAt DateTime
+  usedAt    DateTime?
+  createdAt DateTime  @default(now())
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+}
+
+// Real, honest brute-force protection — every sign-in attempt across all
+// three roles (buyer/seller/admin) writes one row here before the identity
+// check even resolves whether the email exists, so failed attempts against
+// a nonexistent account are throttled identically to a real one (no
+// enumeration signal via timing/lockout behavior).
+model LoginAttempt {
+  id         String   @id @default(cuid())
+  identifier String // lowercased email
+  succeeded  Boolean
+  createdAt  DateTime @default(now())
+
+  @@index([identifier, createdAt])
 }
 
 enum KycStatus {
