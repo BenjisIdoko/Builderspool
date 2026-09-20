@@ -9,15 +9,6 @@ import { Button } from './ui/button';
 import { SheetClose } from './ui/sheet';
 import { LogoMark } from './logo';
 
-// Real page-level nav (not category browsing, which lives on the catalog
-// page's own tab bar) — only used by MobileNav's sheet, since the pill's
-// own desktop nav renders active state via components/header-nav-links.tsx.
-const links = [
-  { href: '/', label: 'Home' },
-  { href: '/catalog', label: 'Catalog' },
-  { href: '/cart', label: 'Cart' },
-];
-
 export async function SiteHeader() {
   const buyer = await getCurrentBuyer();
 
@@ -41,18 +32,16 @@ export async function SiteHeader() {
         </div>
 
         <div className="flex shrink-0 items-center gap-1 sm:gap-3.5">
-          <MobileNav
-            links={links}
-            title="Builders Pool"
-            hideFrom="lg"
-            footer={
-              buyer ? (
-                <SheetClose asChild>
-                  <Button asChild variant="outline" className="w-full">
-                    <Link href="/account">My account</Link>
-                  </Button>
-                </SheetClose>
-              ) : (
+          {/* Phones: the bottom tab bar already carries Home / Catalog / Cart /
+              Account, so signed-in buyers get no hamburger, avatar or cart
+              up here (they'd be duplicates). Guests keep the menu, which
+              holds just Log in / Sign up. */}
+          {!buyer && (
+            <MobileNav
+              links={[]}
+              title="Builders Pool"
+              hideFrom="lg"
+              footer={
                 <div className="flex flex-col gap-2">
                   <SheetClose asChild>
                     <Button asChild className="w-full rounded-full font-bold">
@@ -65,17 +54,17 @@ export async function SiteHeader() {
                     </Button>
                   </SheetClose>
                 </div>
-              )
-            }
-          />
+              }
+            />
+          )}
           <HeaderSearch />
           {buyer ? (
-            <>
+            <div className="hidden items-center gap-1 sm:gap-3.5 lg:flex">
               <Link href="/account" aria-label="Account">
                 <Avatar name={buyer.name} className="size-8" />
               </Link>
               <CartSheet />
-            </>
+            </div>
           ) : (
             <div className="hidden items-center gap-3.5 lg:flex">
               <Link href="/login" className="px-1 text-sm font-semibold text-slate hover:text-ink">

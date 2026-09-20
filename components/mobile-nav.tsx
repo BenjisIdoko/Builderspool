@@ -38,6 +38,7 @@ export function MobileNav({
         <SheetHeader className="border-b border-border">
           <SheetTitle>{title}</SheetTitle>
         </SheetHeader>
+        {links.length > 0 && (
         <nav className="flex flex-col gap-1 p-2">
           {links.map((link) => (
             <SheetClose asChild key={link.href}>
@@ -50,6 +51,7 @@ export function MobileNav({
             </SheetClose>
           ))}
         </nav>
+        )}
         {footer && <div className="mt-auto border-t border-border p-4">{footer}</div>}
       </SheetContent>
     </Sheet>
