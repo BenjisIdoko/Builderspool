@@ -1,12 +1,23 @@
-'use client';
+"use client";
 
-import { useState } from 'react';
-import { LockKeyIcon, MinusIcon, PlusIcon } from '@phosphor-icons/react/ssr';
-import { useCart } from '@/lib/cart/CartContext';
-import { formatNaira } from '@/lib/format';
-import type { BuyerMaterial } from '@/lib/queries/materials';
-import { Button } from '@/components/ui/button';
-import { QuantityInput } from '@/components/quantity-input';
+import { useState } from "react";
+import {
+  CaretDownIcon,
+  LockKeyIcon,
+  MinusIcon,
+  PlusIcon,
+} from "@phosphor-icons/react/ssr";
+import { useCart } from "@/lib/cart/CartContext";
+import { formatNaira } from "@/lib/format";
+import type { BuyerMaterial } from "@/lib/queries/materials";
+import { Button } from "@/components/ui/button";
+import { QuantityInput } from "@/components/quantity-input";
+import {
+  Sheet,
+  SheetContent,
+  SheetDescription,
+  SheetTitle,
+} from "@/components/ui/sheet";
 
 // The compact purchase card — split out from ProductDetailPanel (which now
 // only carries the title/tabs for the left column) to match the Fable
@@ -16,6 +27,7 @@ export function ProductBuyBox({ material }: { material: BuyerMaterial }) {
   const { addItem } = useCart();
   const [quantity, setQuantity] = useState(1);
   const [added, setAdded] = useState(false);
+  const [sheetOpen, setSheetOpen] = useState(false);
 
   function decrement() {
     setQuantity((q) => Math.max(1, q - 1));
@@ -33,63 +45,161 @@ export function ProductBuyBox({ material }: { material: BuyerMaterial }) {
         catalogPrice: material.catalogPrice,
         imageUrl: material.imageUrl,
       },
-      quantity
+      quantity,
     );
     setAdded(true);
     setTimeout(() => setAdded(false), 1200);
   }
 
   return (
-    <div className="rounded-2xl border border-border bg-surface p-6 shadow-[0_1px_2px_rgba(16,24,40,0.04),0_16px_40px_rgba(16,24,40,0.08)] lg:sticky lg:top-24">
-      <div className="mb-5 text-2xl font-bold text-ink">
-        {formatNaira(material.catalogPrice)}{' '}
-        <span className="font-sans text-sm font-medium text-muted-foreground">/ {material.unit}</span>
-      </div>
-
-      <div className="mb-5 flex items-center justify-between gap-3">
-        <span className="text-[13px] font-bold text-slate">Quantity ({material.unit})</span>
-        <div className="flex items-center overflow-hidden rounded-lg border border-border-strong">
-          <button
-            type="button"
-            onClick={decrement}
-            aria-label={`Decrease quantity of ${material.name}`}
-            className="flex size-[30px] items-center justify-center bg-well text-ink transition-colors hover:bg-border-strong/40"
-          >
-            <MinusIcon className="size-3.5" />
-          </button>
-          <QuantityInput
-            value={quantity}
-            onChange={setQuantity}
-            label={material.name}
-            className="w-11 text-sm font-bold text-ink"
-          />
-          <button
-            type="button"
-            onClick={increment}
-            aria-label={`Increase quantity of ${material.name}`}
-            className="flex size-[30px] items-center justify-center bg-well text-ink transition-colors hover:bg-border-strong/40"
-          >
-            <PlusIcon className="size-3.5" />
-          </button>
+    <>
+      <div className="hidden rounded-2xl border border-border bg-surface p-6 shadow-[0_1px_2px_rgba(16,24,40,0.04),0_16px_40px_rgba(16,24,40,0.08)] lg:sticky lg:top-24 lg:block">
+        <div className="mb-5 text-2xl font-bold text-ink">
+          {formatNaira(material.catalogPrice)}{" "}
+          <span className="font-sans text-sm font-medium text-muted-foreground">
+            / {material.unit}
+          </span>
         </div>
-      </div>
 
-      <div className="mb-5 flex flex-col gap-1.5 border-t border-border pt-4 text-sm">
-        <div className="flex justify-between text-slate">
-          <span>Subtotal</span>
-          <span className="font-bold tabular-nums text-ink">{formatNaira(material.catalogPrice * quantity)}</span>
+        <div className="mb-5 flex items-center justify-between gap-3">
+          <span className="text-[13px] font-bold text-slate">
+            Quantity ({material.unit})
+          </span>
+          <div className="flex items-center overflow-hidden rounded-lg border border-border-strong">
+            <button
+              type="button"
+              onClick={decrement}
+              aria-label={`Decrease quantity of ${material.name}`}
+              className="flex size-[30px] items-center justify-center bg-well text-ink transition-colors hover:bg-border-strong/40"
+            >
+              <MinusIcon className="size-3.5" />
+            </button>
+            <QuantityInput
+              value={quantity}
+              onChange={setQuantity}
+              label={material.name}
+              className="w-11 text-sm font-bold text-ink"
+            />
+            <button
+              type="button"
+              onClick={increment}
+              aria-label={`Increase quantity of ${material.name}`}
+              className="flex size-[30px] items-center justify-center bg-well text-ink transition-colors hover:bg-border-strong/40"
+            >
+              <PlusIcon className="size-3.5" />
+            </button>
+          </div>
         </div>
-        <p className="text-xs text-muted-foreground">Delivery calculated at checkout.</p>
+
+        <div className="mb-5 flex flex-col gap-1.5 border-t border-border pt-4 text-sm">
+          <div className="flex justify-between text-slate">
+            <span>Subtotal</span>
+            <span className="font-bold tabular-nums text-ink">
+              {formatNaira(material.catalogPrice * quantity)}
+            </span>
+          </div>
+          <p className="text-xs text-muted-foreground">
+            Delivery calculated at checkout.
+          </p>
+        </div>
+
+        <Button
+          type="button"
+          className="mb-3 w-full gap-2"
+          size="lg"
+          onClick={handleAdd}
+        >
+          <PlusIcon className="size-4" />
+          {added ? "Added" : "Add to cart"}
+        </Button>
+        <p className="flex items-start gap-1.5 text-xs text-muted-foreground">
+          <LockKeyIcon className="mt-0.5 size-3.5 shrink-0" />
+          Held in escrow once paid — released only after the fulfillment center
+          confirms receipt.
+        </p>
       </div>
 
-      <Button type="button" className="mb-3 w-full gap-2" size="lg" onClick={handleAdd}>
-        <PlusIcon className="size-4" />
-        {added ? 'Added' : 'Add to cart'}
-      </Button>
-      <p className="flex items-start gap-1.5 text-xs text-muted-foreground">
-        <LockKeyIcon className="mt-0.5 size-3.5 shrink-0" />
-        Held in escrow once paid — released only after the fulfillment center confirms receipt.
-      </p>
-    </div>
+      {/* Phones: the buy box becomes a sticky bottom action bar (the tab bar
+          is hidden on this page) plus a bottom sheet for quantity, per the
+          BuyerMobileApp handoff. Pricing is a single fixed catalogue price,
+          so there's no tier picker. */}
+      <div className="fixed inset-x-0 bottom-0 z-40 flex items-center gap-3 border-t border-border bg-surface/95 px-4 pt-3 pb-[calc(12px+env(safe-area-inset-bottom))] backdrop-blur-[10px] lg:hidden">
+        <button
+          type="button"
+          onClick={() => setSheetOpen(true)}
+          className="flex h-12 shrink-0 items-center gap-2 rounded-full border border-border-strong px-4 text-sm font-bold text-ink"
+        >
+          Qty {quantity}
+          <CaretDownIcon className="size-3.5 text-muted-foreground" />
+        </button>
+        <Button
+          type="button"
+          className="h-12 flex-1 gap-2 rounded-full text-[14.5px] font-bold"
+          onClick={handleAdd}
+        >
+          <PlusIcon className="size-4" />
+          {added
+            ? "Added"
+            : `Add to cart · ${formatNaira(material.catalogPrice * quantity)}`}
+        </Button>
+      </div>
+
+      <Sheet open={sheetOpen} onOpenChange={setSheetOpen}>
+        <SheetContent
+          side="bottom"
+          showCloseButton={false}
+          className="rounded-t-[22px] px-5 pt-5 pb-[calc(20px+env(safe-area-inset-bottom))] lg:hidden"
+        >
+          <SheetTitle className="text-lg font-bold text-ink">
+            {material.name}
+          </SheetTitle>
+          <SheetDescription>
+            {formatNaira(material.catalogPrice)} / {material.unit}
+          </SheetDescription>
+          <div className="flex items-center justify-between gap-3">
+            <span className="text-sm font-bold text-slate">
+              Quantity ({material.unit})
+            </span>
+            <div className="flex items-center overflow-hidden rounded-xl border border-border-strong">
+              <button
+                type="button"
+                onClick={decrement}
+                aria-label={`Decrease quantity of ${material.name}`}
+                className="flex size-11 items-center justify-center bg-well text-ink"
+              >
+                <MinusIcon className="size-4" />
+              </button>
+              <QuantityInput
+                value={quantity}
+                onChange={setQuantity}
+                label={material.name}
+                className="w-14 text-base font-bold text-ink"
+              />
+              <button
+                type="button"
+                onClick={increment}
+                aria-label={`Increase quantity of ${material.name}`}
+                className="flex size-11 items-center justify-center bg-well text-ink"
+              >
+                <PlusIcon className="size-4" />
+              </button>
+            </div>
+          </div>
+          <div className="flex justify-between border-t border-border pt-4 text-sm text-slate">
+            <span>Subtotal</span>
+            <span className="font-bold tabular-nums text-ink">
+              {formatNaira(material.catalogPrice * quantity)}
+            </span>
+          </div>
+          <Button
+            type="button"
+            className="h-12 w-full rounded-full text-[14.5px] font-bold"
+            onClick={() => setSheetOpen(false)}
+          >
+            Done
+          </Button>
+        </SheetContent>
+      </Sheet>
+    </>
   );
 }
