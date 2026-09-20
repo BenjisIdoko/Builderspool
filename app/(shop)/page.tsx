@@ -53,8 +53,8 @@ export default async function Home() {
           style={{ objectPosition: 'center 25%' }}
           priority
         />
-        <div className="absolute inset-0 bg-[linear-gradient(100deg,rgba(21,24,28,0.92)_0%,rgba(21,24,28,0.68)_35%,rgba(21,24,28,0.3)_58%,rgba(21,24,28,0.05)_78%,rgba(21,24,28,0)_100%)]" />
-        <div className="absolute inset-0 bg-[linear-gradient(180deg,rgba(21,24,28,0)_50%,rgba(21,24,28,0.4)_100%)]" />
+        <div className="absolute inset-0 bg-[linear-gradient(100deg,rgba(21,24,28,0.92)_0%,rgba(21,24,28,0.68)_35%,rgba(21,24,28,0.3)_58%,rgba(21,24,28,0.05)_78%,rgba(21,24,28,0)_100%)] max-[759px]:bg-[linear-gradient(180deg,rgba(21,24,28,0.75)_0%,rgba(21,24,28,0.6)_45%,rgba(21,24,28,0.35)_100%)]" />
+        <div className="absolute inset-0 bg-[linear-gradient(180deg,rgba(21,24,28,0)_50%,rgba(21,24,28,0.4)_100%)] max-[759px]:bg-[linear-gradient(180deg,rgba(21,24,28,0.15)_0%,rgba(21,24,28,0.65)_65%,rgba(21,24,28,0.85)_100%)]" />
 
         <div className="relative z-[2] mx-auto flex min-h-[100svh] max-w-section flex-col justify-center px-5 pt-[110px] pb-12 min-[760px]:px-6 min-[760px]:py-12">
           <div className="max-w-2xl">
