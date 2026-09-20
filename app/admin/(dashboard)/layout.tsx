@@ -37,7 +37,7 @@ export default async function AdminDashboardLayout({ children }: { children: Rea
     <SearchProvider portal="admin">
       <div className="flex flex-1">
         <AdminSidebar adminName={admin.name} />
-        <div className="flex flex-1 flex-col">
+        <div className="flex min-w-0 flex-1 flex-col">
           <header className="flex h-16 items-center gap-3 border-b border-border bg-surface/95 px-5 backdrop-blur lg:hidden">
             <MobileNav
               links={LINKS}

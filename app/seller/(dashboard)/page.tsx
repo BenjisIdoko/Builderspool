@@ -140,9 +140,12 @@ export default async function SellerDashboardPage() {
         </Link>
       )}
 
-      <div className="mb-8 grid grid-cols-2 gap-3.5 lg:grid-cols-4">
+      {/* Phones: KPI cards scroll sideways (SellerMobileApp handoff). */}
+      <div className="-mx-5 mb-8 flex gap-2.5 overflow-x-auto px-5 pb-1 [scrollbar-width:none] sm:mx-0 sm:grid sm:grid-cols-2 sm:gap-3.5 sm:overflow-visible sm:px-0 lg:grid-cols-4 [&::-webkit-scrollbar]:hidden">
         {kpiCards.map((kpi) => (
-          <KpiCard key={kpi.label} {...kpi} />
+          <div key={kpi.label} className="w-[158px] shrink-0 sm:w-auto">
+            <KpiCard {...kpi} />
+          </div>
         ))}
       </div>
 
@@ -159,7 +162,26 @@ export default async function SellerDashboardPage() {
               <p className="text-sm text-muted-foreground">Nothing awarded to you yet.</p>
             </div>
           ) : (
-            <div className="overflow-hidden rounded-2xl border border-border bg-surface shadow-[0_1px_2px_rgba(16,24,40,0.04),0_8px_24px_rgba(16,24,40,0.05)]">
+            <>
+            <div className="flex flex-col gap-2 md:hidden">
+              {allocations.slice(0, 6).map((a) => (
+                <div key={a.id} className="rounded-[14px] border border-border bg-surface px-3.5 py-3">
+                  <div className="mb-1 flex items-center justify-between gap-2">
+                    <span className="text-[12.5px] font-bold text-ink">#{a.id.slice(-6).toUpperCase()}</span>
+                    <Badge variant="outline" className={pillClass(payoutStatusTone(a.payoutStatus))}>
+                      {PAYOUT_LABEL[a.payoutStatus]}
+                    </Badge>
+                  </div>
+                  <div className="truncate text-[12.5px] text-slate">
+                    {a.bid.material.name} · {a.quantityFilled} {a.bid.material.unit}
+                  </div>
+                  <div className="text-[13px] font-extrabold tabular-nums text-ink">
+                    {formatNaira(Number(a.bid.unitPrice) * a.quantityFilled)}
+                  </div>
+                </div>
+              ))}
+            </div>
+            <div className="hidden overflow-hidden rounded-2xl border border-border bg-surface shadow-[0_1px_2px_rgba(16,24,40,0.04),0_8px_24px_rgba(16,24,40,0.05)] md:block">
               <Table>
                 <TableHeader>
                   <TableRow>
@@ -194,6 +216,7 @@ export default async function SellerDashboardPage() {
                 </TableBody>
               </Table>
             </div>
+            </>
           )}
         </div>
 
