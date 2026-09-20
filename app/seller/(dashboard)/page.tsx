@@ -140,12 +140,9 @@ export default async function SellerDashboardPage() {
         </Link>
       )}
 
-      {/* Phones: KPI cards scroll sideways (SellerMobileApp handoff). */}
-      <div className="-mx-5 mb-8 flex gap-2.5 overflow-x-auto px-5 pb-1 [scrollbar-width:none] sm:mx-0 sm:grid sm:grid-cols-2 sm:gap-3.5 sm:overflow-visible sm:px-0 lg:grid-cols-4 [&::-webkit-scrollbar]:hidden">
+      <div className="mb-8 grid grid-cols-2 gap-3.5 lg:grid-cols-4">
         {kpiCards.map((kpi) => (
-          <div key={kpi.label} className="w-[158px] shrink-0 sm:w-auto">
-            <KpiCard {...kpi} />
-          </div>
+          <KpiCard key={kpi.label} {...kpi} />
         ))}
       </div>
 
