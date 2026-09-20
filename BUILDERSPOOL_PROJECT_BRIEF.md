@@ -1114,7 +1114,7 @@ These are deliberate, clearly-marked placeholders — not oversights:
 
 ## Seller mobile console (2026-09-20)
 From `SellerMobileApp.dc.html` (handoff "Awaiting feedback to proceed"). Built only what has real data behind it (standing no-fabricated-data rule):
-- `components/seller/seller-tab-bar.tsx`: bottom tabs (<lg) Dashboard / Listings / Orders / Payouts. The "Listings" tab (name kept per user, 2026-09-20) opens `/seller/bids` — sellers have no durable listings; bids are the real equivalent. Top bar kept on mobile by request. Hidden on `/seller/settings` (pushed screen). Header avatar links to Settings; mobile menu now lists Orders, Payouts and Settings too.
+- `components/seller/seller-tab-bar.tsx`: bottom tabs (<lg) Dashboard / Listings / Orders / Payouts. The "Listings" tab (name kept per user, 2026-09-20) opens `/seller/bids` — sellers have no durable listings; bids are the real equivalent. Top bar kept on mobile by request. Hidden on `/seller/settings` (pushed screen). Header avatar links to Settings; the hamburger menu holds only Allocations and KYC (everything else is a tab or the avatar).
 - Orders and payouts render as cards on phones (<md); tables remain from md up. Order card opens a bottom sheet with drop-off / received / payout detail. Status chips scroll horizontally.
 - Seller PWA manifest (`/seller/manifest.webmanifest`, scope `/seller`) linked from `app/seller/layout.tsx`, so installing from the seller portal opens the seller console.
 - **Not built (no backing data):** Add new lot / edit price & stock sheets, swipe-to-pause listings, swipe-to-accept/dispatch orders, "Withdraw balance" (payouts are disbursed by ops; no self-service withdrawal). Pull-to-refresh / edge-swipe-back skipped as on the buyer side.
