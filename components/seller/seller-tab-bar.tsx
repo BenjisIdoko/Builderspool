@@ -2,7 +2,7 @@
 
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
-import { GaugeIcon, StackIcon, ReceiptIcon, WalletIcon } from '@phosphor-icons/react';
+import { ChartBarIcon, StackIcon, ClipboardTextIcon, WalletIcon } from '@phosphor-icons/react';
 
 // Bottom tab bar for the seller console on phones (SellerMobileApp handoff:
 // Dashboard / Listings / Orders / Payouts). Sellers here have no durable
@@ -10,9 +10,9 @@ import { GaugeIcon, StackIcon, ReceiptIcon, WalletIcon } from '@phosphor-icons/r
 // "My bids". Settings sits under the header avatar, and is a pushed screen
 // with no tab bar, like the prototype.
 const TABS = [
-  { href: '/seller', label: 'Dashboard', icon: GaugeIcon, match: (p: string) => p === '/seller' },
+  { href: '/seller', label: 'Dashboard', icon: ChartBarIcon, match: (p: string) => p === '/seller' },
   { href: '/seller/bids', label: 'My bids', icon: StackIcon, match: (p: string) => p.startsWith('/seller/bids') },
-  { href: '/seller/orders', label: 'Orders', icon: ReceiptIcon, match: (p: string) => p.startsWith('/seller/orders') },
+  { href: '/seller/orders', label: 'Orders', icon: ClipboardTextIcon, match: (p: string) => p.startsWith('/seller/orders') },
   { href: '/seller/payouts', label: 'Payouts', icon: WalletIcon, match: (p: string) => p.startsWith('/seller/payouts') },
 ];
 
@@ -35,7 +35,7 @@ export function SellerTabBar() {
               key={href}
               href={href}
               aria-current={active ? 'page' : undefined}
-              className={`flex min-h-12 flex-1 flex-col items-center justify-center gap-[3px] text-[10.5px] font-bold ${active ? 'text-brand' : 'text-muted-foreground'}`}
+              className={`flex min-h-12 flex-1 flex-col items-center justify-center gap-[3px] text-[10px] font-bold ${active ? 'text-brand' : 'text-muted-foreground'}`}
             >
               <Icon weight={active ? 'fill' : 'regular'} className="size-[22px]" />
               {label}

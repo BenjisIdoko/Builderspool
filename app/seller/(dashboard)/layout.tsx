@@ -17,14 +17,11 @@ import { Button } from '@/components/ui/button';
 import { PortalTopbar } from '@/components/portal-topbar';
 import { SearchProvider } from '@/components/portal-search';
 
+// Phones: Open cycles / My bids / Orders / Payouts are bottom tabs and Settings
+// is the header avatar, so the menu only holds what has no other way in.
 const LINKS = [
-  { href: '/seller', label: 'Open cycles' },
-  { href: '/seller/bids', label: 'My bids' },
-  { href: '/seller/orders', label: 'Orders' },
   { href: '/seller/allocations', label: 'Allocations' },
-  { href: '/seller/payouts', label: 'Payouts' },
   { href: '/seller/kyc', label: 'KYC verification' },
-  { href: '/seller/settings', label: 'Settings' },
 ];
 
 const KYC_LABEL: Record<string, string> = {
