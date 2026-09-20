@@ -94,24 +94,33 @@ export function HeaderSearch() {
     }
   }
 
-  if (!open) {
-    return (
-      <Button type="button" variant="ghost" size="icon-sm" className="size-[34px]" aria-label="Search materials" onClick={() => setOpen(true)}>
-        <MagnifyingGlassIcon className="size-4.5" />
-      </Button>
-    );
-  }
-
   const showDropdown = query.trim().length > 0;
 
   return (
-    <div className="relative">
-      <form onSubmit={handleSubmit} className="flex items-center gap-1">
+    // Phones (<lg): a real search box, always visible, fills the header.
+    // Desktop: collapsed to an icon that expands on click, as before.
+    <div className="relative min-w-0 flex-1 lg:flex-none">
+      {!open && (
+        <Button
+          type="button"
+          variant="ghost"
+          size="icon-sm"
+          className="hidden size-[34px] lg:inline-flex"
+          aria-label="Search materials"
+          onClick={() => setOpen(true)}
+        >
+          <MagnifyingGlassIcon className="size-4.5" />
+        </Button>
+      )}
+      <form onSubmit={handleSubmit} className={`flex items-center gap-1 ${open ? '' : 'lg:hidden'}`}>
+        <div className="relative min-w-0 flex-1">
+          <MagnifyingGlassIcon className="pointer-events-none absolute top-1/2 left-3.5 size-4 -translate-y-1/2 text-muted-foreground lg:hidden" />
         <Input
           ref={inputRef}
           value={query}
           onChange={(e) => setQuery(e.target.value)}
           onKeyDown={handleKeyDown}
+          onFocus={() => setOpen(true)}
           onBlur={() => {
             if (!query.trim()) setOpen(false);
           }}
@@ -121,11 +130,14 @@ export function HeaderSearch() {
           aria-expanded={showDropdown}
           aria-controls="header-search-results"
           autoComplete="off"
-          className="w-36 sm:w-64"
+          className="h-10 w-full rounded-full bg-well pl-10 text-base lg:h-8 lg:w-64 lg:rounded-lg lg:bg-transparent lg:pl-2.5 lg:text-sm"
         />
-        <Button type="button" variant="ghost" size="icon-sm" aria-label="Close search" onClick={closeSearch}>
-          <XIcon className="size-4" />
-        </Button>
+        </div>
+        {open && (
+          <Button type="button" variant="ghost" size="icon-sm" aria-label="Close search" onClick={closeSearch}>
+            <XIcon className="size-4" />
+          </Button>
+        )}
       </form>
 
       {showDropdown && (
@@ -135,7 +147,7 @@ export function HeaderSearch() {
           // Keeps the input's blur from firing before a click on a result
           // registers — the standard combobox pattern.
           onMouseDown={(e) => e.preventDefault()}
-          className="absolute top-full right-0 z-50 mt-2 w-72 overflow-hidden rounded-lg border border-border bg-surface sm:w-80"
+          className="fixed inset-x-4 top-[82px] z-50 overflow-hidden rounded-lg border border-border bg-surface shadow-lg lg:absolute lg:inset-x-auto lg:top-full lg:right-0 lg:mt-2 lg:w-80"
         >
           {loading ? (
             <div className="px-4 py-6 text-center text-sm text-muted-foreground">Searching…</div>

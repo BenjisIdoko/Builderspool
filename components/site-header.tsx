@@ -29,7 +29,7 @@ export async function SiteHeader() {
           <HeaderNavLinks />
         </div>
 
-        <div className="flex shrink-0 items-center gap-1 sm:gap-3.5">
+        <div className="flex min-w-0 flex-1 items-center justify-end gap-1 sm:gap-3.5 lg:flex-none lg:shrink-0">
           <HeaderSearch />
           {buyer ? (
             <div className="hidden items-center gap-1 sm:gap-3.5 lg:flex">
