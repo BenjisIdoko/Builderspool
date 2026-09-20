@@ -5,13 +5,13 @@ import { usePathname } from 'next/navigation';
 import { ChartBarIcon, StackIcon, ClipboardTextIcon, WalletIcon } from '@phosphor-icons/react';
 
 // Bottom tab bar for the seller console on phones (SellerMobileApp handoff:
-// Dashboard / Listings / Orders / Payouts). Sellers here have no durable
-// "listings" (see the brief) — their equivalent is bidding — so that tab is
-// "My bids". Settings sits under the header avatar, and is a pushed screen
-// with no tab bar, like the prototype.
+// Dashboard / Listings / Orders / Payouts). The "Listings" tab opens the
+// seller's bids (/seller/bids) — sellers here have no durable listings, so
+// bids are the real equivalent. Settings sits under the header avatar and is
+// a pushed screen with no tab bar, like the prototype.
 const TABS = [
   { href: '/seller', label: 'Dashboard', icon: ChartBarIcon, match: (p: string) => p === '/seller' },
-  { href: '/seller/bids', label: 'My bids', icon: StackIcon, match: (p: string) => p.startsWith('/seller/bids') },
+  { href: '/seller/bids', label: 'Listings', icon: StackIcon, match: (p: string) => p.startsWith('/seller/bids') },
   { href: '/seller/orders', label: 'Orders', icon: ClipboardTextIcon, match: (p: string) => p.startsWith('/seller/orders') },
   { href: '/seller/payouts', label: 'Payouts', icon: WalletIcon, match: (p: string) => p.startsWith('/seller/payouts') },
 ];
