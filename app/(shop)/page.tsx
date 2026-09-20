@@ -56,7 +56,7 @@ export default async function Home() {
         <div className="absolute inset-0 bg-[linear-gradient(100deg,rgba(21,24,28,0.92)_0%,rgba(21,24,28,0.68)_35%,rgba(21,24,28,0.3)_58%,rgba(21,24,28,0.05)_78%,rgba(21,24,28,0)_100%)]" />
         <div className="absolute inset-0 bg-[linear-gradient(180deg,rgba(21,24,28,0)_50%,rgba(21,24,28,0.4)_100%)]" />
 
-        <div className="relative z-[2] mx-auto flex min-h-[100svh] max-w-7xl flex-col justify-center px-6 py-12">
+        <div className="relative z-[2] mx-auto flex min-h-[100svh] max-w-section flex-col justify-center px-6 py-12">
           <div className="max-w-2xl">
             <div className="mb-5 flex flex-wrap items-center gap-2.5 text-[13px] text-white/85">
               <span className="flex items-center gap-1.5 font-semibold">
@@ -96,7 +96,7 @@ export default async function Home() {
         <HeroLiveCard />
       </section>
 
-      <section className="mx-auto w-full max-w-7xl px-6 pt-8">
+      <section className="mx-auto w-full max-w-section px-6 pt-8">
         <div className="mb-5 text-center text-[11.5px] font-bold tracking-[0.06em] text-muted-foreground uppercase">
           Trusted by suppliers and contractors nationwide
         </div>
@@ -112,7 +112,7 @@ export default async function Home() {
       {/* Category marquee — infinite CSS scroll, real category names from
           the live catalog, doubled so the loop point is invisible. */}
       <section className="px-6 pt-16">
-        <div className="mx-auto max-w-6xl overflow-hidden rounded-[32px] bg-brand py-6.5">
+        <div className="mx-auto max-w-section overflow-hidden rounded-[32px] bg-brand py-6.5">
           <div className="[mask-image:linear-gradient(90deg,transparent,#fff_4%,#fff_96%,transparent)] overflow-hidden">
             <div
               className="flex w-max items-center"
@@ -130,12 +130,12 @@ export default async function Home() {
       </section>
 
       <section id="how-it-works" className="px-6 pt-16">
-        <div className="mx-auto max-w-6xl">
+        <div className="mx-auto max-w-section">
           <PhilosophySteps />
         </div>
       </section>
 
-      <section className="mx-auto w-full max-w-6xl px-6 pt-16">
+      <section className="mx-auto w-full max-w-section px-6 pt-16">
         <div className="mb-5 flex items-baseline justify-between">
           <div>
             <h2 className="text-[22px] font-bold tracking-[-0.025em] text-ink">Verified direct depot supply</h2>
@@ -154,7 +154,7 @@ export default async function Home() {
         </div>
       </section>
 
-      <section className="mx-auto w-full max-w-6xl px-6 pt-16">
+      <section className="mx-auto w-full max-w-section px-6 pt-16">
         <h2 className="mb-5 text-[22px] font-bold tracking-[-0.025em] text-ink">Frequently asked questions</h2>
         <FaqAccordion />
       </section>
@@ -167,7 +167,7 @@ export default async function Home() {
           none of that exists here. Always shown, matching the reference
           (not gated on login state — buyer is still used for the header's
           own account/avatar treatment). */}
-      <section className="mx-auto w-full max-w-6xl px-6 pt-16">
+      <section className="mx-auto w-full max-w-section px-6 pt-16">
         <div className="relative min-h-[280px] overflow-hidden rounded-3xl bg-ink">
           <Image
             src="/materials/rebar.jpg"
@@ -212,7 +212,7 @@ export default async function Home() {
           user (not the reference's placeholder phone/email). Depot
           addresses use real fulfillment center data instead of the
           reference's fictional cities. */}
-      <section className="mx-auto w-full max-w-6xl px-6 pt-16 pb-16">
+      <section className="mx-auto w-full max-w-section px-6 pt-16 pb-16">
         <h2 className="mb-5 text-[22px] font-bold tracking-[-0.025em] text-ink">Get in touch</h2>
         <div className="grid grid-cols-1 gap-4 sm:grid-cols-3">
           <a

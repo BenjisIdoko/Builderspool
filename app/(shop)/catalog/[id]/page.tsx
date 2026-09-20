@@ -28,7 +28,7 @@ export default async function MaterialPage({ params }: { params: Promise<{ id: s
   const bundleTitle = boughtTogether.length > 0 ? 'Frequently procured together' : `More from ${material.category}`;
 
   return (
-    <div className="mx-auto w-full max-w-6xl px-6 pt-28 pb-10">
+    <div className="mx-auto w-full max-w-section px-6 pt-28 pb-10">
       <nav className="mb-6 flex items-center gap-1.5 text-sm text-muted-foreground">
         <Link href="/catalog" className="hover:text-ink">
           Catalogue

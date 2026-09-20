@@ -163,3 +163,8 @@ body {
     transform: translateX(-50%);
   }
 }
+
+/* Shared width for storefront section containers. */
+@utility max-w-section {
+  max-width: min(1366px, 100% - 2rem);
+}
