@@ -4,6 +4,7 @@ import { getMaterials, getCategories, getFulfillmentCenters, MATERIAL_SORT_VALUE
 import { formatNaira } from '@/lib/format';
 import { MaterialImage } from '@/components/material-image';
 import { CatalogSortSelect } from '@/components/catalog-sort-select';
+import { CatalogFilterSheet } from '@/components/catalog-filter-sheet';
 
 const PAGE_SIZE = 24;
 
@@ -45,26 +46,8 @@ export default async function CatalogPage({
     return `/catalog${qs ? `?${qs}` : ''}`;
   }
 
-  return (
-    <div className="mx-auto w-full max-w-section px-6 pt-28 pb-10">
-      <div className="mb-3 flex flex-wrap items-start justify-between gap-3">
-        <div>
-          <div className="mb-1 text-xs font-semibold text-slate">Catalogue</div>
-          <h1 className="text-2xl font-bold tracking-tight text-ink sm:text-[28px]">
-            {q ? `Results for "${q}"` : category ? category : 'Building materials'}
-          </h1>
-        </div>
-        {regions.length > 0 && (
-          <span className="flex shrink-0 items-center gap-1.5 rounded-full bg-success-soft px-3 py-1.5 text-xs font-semibold text-success">
-            <TruckIcon className="size-3.5" />
-            Delivery available — {regions.map((r) => r.charAt(0) + r.slice(1).toLowerCase()).join(', ')}
-          </span>
-        )}
-      </div>
-      <p className="mb-8 text-sm text-slate">Fixed catalogue price, {total} materials.</p>
-
-      <div className="grid grid-cols-1 gap-7 lg:grid-cols-[240px_1fr]">
-        <aside className="flex flex-col gap-8 rounded-2xl border border-border bg-surface p-5 shadow-[0_1px_2px_rgba(16,24,40,0.04)] lg:sticky lg:top-6 lg:self-start">
+  const filterGroups = (
+    <>
           <div>
             <h2 className="mb-3 text-xs font-bold tracking-wide text-slate uppercase">Category</h2>
             <div className="flex flex-col gap-2.5">
@@ -101,14 +84,56 @@ export default async function CatalogPage({
               ))}
             </div>
           </div>
+    </>
+  );
+  const activeFilterCount = (category ? 1 : 0) + (sourcingScope ? 1 : 0);
+
+  return (
+    <div className="mx-auto w-full max-w-section px-6 pt-28 pb-10">
+      <div className="mb-3 flex flex-wrap items-start justify-between gap-3">
+        <div>
+          <div className="mb-1 text-xs font-semibold text-slate">Catalogue</div>
+          <h1 className="text-2xl font-bold tracking-tight text-ink sm:text-[28px]">
+            {q ? `Results for "${q}"` : category ? category : 'Building materials'}
+          </h1>
+        </div>
+        {regions.length > 0 && (
+          <span className="flex shrink-0 items-center gap-1.5 rounded-full bg-success-soft px-3 py-1.5 text-xs font-semibold text-success">
+            <TruckIcon className="size-3.5" />
+            Delivery available — {regions.map((r) => r.charAt(0) + r.slice(1).toLowerCase()).join(', ')}
+          </span>
+        )}
+      </div>
+      <p className="mb-8 text-sm text-slate">Fixed catalogue price, {total} materials.</p>
+
+      <div className="grid grid-cols-1 gap-7 lg:grid-cols-[240px_1fr]">
+        <aside className="hidden flex-col gap-8 rounded-2xl border border-border bg-surface p-5 shadow-[0_1px_2px_rgba(16,24,40,0.04)] lg:sticky lg:top-6 lg:flex lg:self-start">
+          {filterGroups}
         </aside>
 
         <div>
+          {/* Phones: category chips (horizontal scroll) above the results. */}
+          <div className="-mx-6 mb-4 flex gap-2 overflow-x-auto px-6 pb-1 [scrollbar-width:none] lg:hidden [&::-webkit-scrollbar]:hidden">
+            {[{ name: '', label: 'All' }, ...categories.map((c) => ({ name: c.name, label: c.name }))].map((c) => (
+              <Link
+                key={c.label}
+                href={urlFor({ category: c.name, page: 1 })}
+                className={`shrink-0 rounded-full border px-3.5 py-2 text-[13px] font-semibold whitespace-nowrap ${
+                  (category ?? '') === c.name ? 'border-brand bg-brand text-brand-ink' : 'border-border bg-surface text-ink'
+                }`}
+              >
+                {c.label}
+              </Link>
+            ))}
+          </div>
           <div className="mb-5 flex flex-wrap items-center justify-between gap-3 border-b border-border pb-4">
             <span className="text-[11.5px] font-bold tracking-wide text-muted-foreground uppercase">
               {total} {total === 1 ? 'result' : 'results'}
             </span>
-            <CatalogSortSelect sort={sort} category={category} q={q} scope={sourcingScope} />
+            <div className="flex items-center gap-2">
+              <CatalogFilterSheet activeCount={activeFilterCount}>{filterGroups}</CatalogFilterSheet>
+              <CatalogSortSelect sort={sort} category={category} q={q} scope={sourcingScope} />
+            </div>
           </div>
 
           {materials.length === 0 ? (

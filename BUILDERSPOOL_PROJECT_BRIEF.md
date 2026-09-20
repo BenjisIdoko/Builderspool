@@ -1108,4 +1108,5 @@ These are deliberate, clearly-marked placeholders — not oversights:
 - Storefront is now installable as a PWA (buyer + seller are treated as PWAs until native apps): `app/manifest.ts`, icons in `public/icons` (regenerate with `node scripts/generate-pwa-icons.mjs`), `public/sw.js` (static assets cached; HTML never cached; `/offline` fallback), registered in production only via `components/pwa-register.tsx`.
 - `components/mobile-tab-bar.tsx`: Home/Catalog/Cart/Account bottom tabs (<lg), cart badge, hidden on product detail and checkout.
 - Done: product page sticky "Add to cart" bar + quantity bottom sheet (<lg; no tier picker — single fixed catalogue price).
-- Still to do from `BuyerMobileApp.dc.html`: filters/sort sheet, delivery sheet, sticky Checkout bar on cart, swipe-to-delete cart rows, pull-to-refresh, edge-swipe back, swipeable PDP carousel. Seller side has no mobile-app pass yet.
+- Done: catalog Filters bottom sheet + category chips (<lg), cart sticky Checkout bar above the tab bar, tidier mobile cart rows.
+- Still to do from `BuyerMobileApp.dc.html`: delivery sheet, swipe-to-delete cart rows, pull-to-refresh, edge-swipe back, swipeable PDP carousel. Seller side has no mobile-app pass yet.

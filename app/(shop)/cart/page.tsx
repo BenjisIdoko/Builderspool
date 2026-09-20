@@ -27,7 +27,7 @@ export default function CartPage() {
   const itemCount = lines.reduce((sum, l) => sum + l.quantity, 0);
 
   return (
-    <div className="mx-auto w-full max-w-section px-6 pt-28 pb-10">
+    <div className="mx-auto w-full max-w-section px-6 pt-28 pb-24 lg:pb-10">
       <CheckoutSteps current={0} />
       <h1 className="mb-6 text-2xl font-bold tracking-tight text-ink">
         Cart <span className="font-normal text-muted-foreground">({itemCount} items)</span>
@@ -48,7 +48,7 @@ export default function CartPage() {
           </h2>
           <div className="divide-y divide-border rounded-lg border border-border bg-surface">
           {lines.map((line) => (
-            <div key={line.materialId} className="flex items-center gap-4 p-4">
+            <div key={line.materialId} className="flex flex-wrap items-center gap-x-4 gap-y-3 p-4 sm:flex-nowrap">
               <MaterialImage
                 imageUrl={line.imageUrl}
                 category={line.category}
@@ -57,7 +57,7 @@ export default function CartPage() {
                 sizes="64px"
               />
 
-              <div className="min-w-0 flex-1">
+              <div className="min-w-0 flex-1 max-sm:basis-[calc(100%-9rem)]">
                 <Link href={`/catalog/${line.materialId}`} className="font-semibold text-ink hover:underline">
                   {line.name}
                 </Link>
@@ -66,10 +66,10 @@ export default function CartPage() {
                 </div>
               </div>
 
-              <div className="flex items-center overflow-hidden rounded-lg border border-border-strong">
+              <div className="flex items-center overflow-hidden rounded-lg border border-border-strong max-sm:order-2 max-sm:ml-20">
                 <button
                   type="button"
-                  className="flex size-[26px] items-center justify-center bg-well text-ink transition-colors hover:bg-border-strong/40"
+                  className="flex size-[26px] items-center justify-center max-sm:size-9 bg-well text-ink transition-colors hover:bg-border-strong/40"
                   onClick={() => updateQuantity(line.materialId, line.quantity - 1)}
                   aria-label={`Decrease quantity of ${line.name}`}
                 >
@@ -83,7 +83,7 @@ export default function CartPage() {
                 />
                 <button
                   type="button"
-                  className="flex size-[26px] items-center justify-center bg-well text-ink transition-colors hover:bg-border-strong/40"
+                  className="flex size-[26px] items-center justify-center max-sm:size-9 bg-well text-ink transition-colors hover:bg-border-strong/40"
                   onClick={() => updateQuantity(line.materialId, line.quantity + 1)}
                   aria-label={`Increase quantity of ${line.name}`}
                 >
@@ -91,7 +91,7 @@ export default function CartPage() {
                 </button>
               </div>
 
-              <div className="w-24 text-right font-bold tabular-nums text-ink">
+              <div className="w-24 text-right font-bold tabular-nums text-ink max-sm:order-2 max-sm:ml-auto max-sm:w-auto">
                 {formatNaira(line.catalogPrice * line.quantity)}
               </div>
 
@@ -118,11 +118,23 @@ export default function CartPage() {
           </div>
           <p className="mt-1 text-xs text-muted-foreground">Delivery calculated at checkout.</p>
 
-          <Button asChild size="lg" className="mt-5 w-full">
+          <Button asChild size="lg" className="mt-5 w-full max-lg:hidden">
             <Link href="/checkout">Continue to checkout</Link>
           </Button>
           </div>
         </div>
+      </div>
+
+      {/* Phones: sticky checkout bar, sitting above the bottom tab bar
+          (BuyerMobileApp handoff). */}
+      <div className="fixed inset-x-0 bottom-[calc(61px+env(safe-area-inset-bottom))] z-30 flex items-center gap-3 border-t border-border bg-surface/95 px-4 py-3 backdrop-blur-[10px] lg:hidden">
+        <div className="min-w-0">
+          <div className="text-xs text-muted-foreground">Subtotal</div>
+          <div className="text-base font-extrabold tabular-nums text-ink">{formatNaira(subtotal)}</div>
+        </div>
+        <Button asChild className="h-12 flex-1 rounded-full text-[14.5px] font-bold">
+          <Link href="/checkout">Checkout</Link>
+        </Button>
       </div>
     </div>
   );
