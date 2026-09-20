@@ -8,6 +8,7 @@ import { Button } from '@/components/ui/button';
 import { MaterialImage } from '@/components/material-image';
 import { QuantityInput } from '@/components/quantity-input';
 import { CheckoutSteps } from '@/components/checkout-steps';
+import { SwipeToDelete } from '@/components/swipe-to-delete';
 
 export default function CartPage() {
   const { lines, subtotal, updateQuantity, removeItem } = useCart();
@@ -48,7 +49,8 @@ export default function CartPage() {
           </h2>
           <div className="divide-y divide-border rounded-lg border border-border bg-surface">
           {lines.map((line) => (
-            <div key={line.materialId} className="flex flex-wrap items-center gap-x-4 gap-y-3 p-4 sm:flex-nowrap">
+            <SwipeToDelete key={line.materialId} onDelete={() => removeItem(line.materialId)} label={`Remove ${line.name}`}>
+            <div className="flex flex-wrap items-center gap-x-4 gap-y-3 p-4 sm:flex-nowrap">
               <MaterialImage
                 imageUrl={line.imageUrl}
                 category={line.category}
@@ -105,6 +107,7 @@ export default function CartPage() {
                 <TrashIcon className="size-4" />
               </Button>
             </div>
+            </SwipeToDelete>
           ))}
           </div>
         </div>

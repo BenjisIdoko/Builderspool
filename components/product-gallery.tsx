@@ -1,6 +1,6 @@
 'use client';
 
-import { useState } from 'react';
+import { useRef, useState } from 'react';
 import { MagnifyingGlassPlusIcon } from '@phosphor-icons/react/ssr';
 import { MaterialImage } from '@/components/material-image';
 import { Dialog, DialogContent } from '@/components/ui/dialog';
@@ -23,10 +23,48 @@ export function ProductGallery({
   const [activeIndex, setActiveIndex] = useState(0);
   const [zoomOpen, setZoomOpen] = useState(false);
   const activeImage = images[activeIndex] ?? null;
+  const trackRef = useRef<HTMLDivElement>(null);
+  const slides = images.length > 0 ? images : [null];
   const slots = Array.from({ length: Math.max(images.length, 4) }, (_, i) => images[i] ?? null);
+
+  function handleScroll() {
+    const el = trackRef.current;
+    if (!el) return;
+    setActiveIndex(Math.round(el.scrollLeft / el.clientWidth));
+  }
 
   return (
     <div>
+      {/* Phones: native scroll-snap carousel with dots (BuyerMobileApp
+          handoff); desktop keeps the main image + thumbnail strip below. */}
+      <div className="lg:hidden">
+        <div
+          ref={trackRef}
+          onScroll={handleScroll}
+          className="flex snap-x snap-mandatory overflow-x-auto rounded-2xl border border-border [scrollbar-width:none] [&::-webkit-scrollbar]:hidden"
+        >
+          {slides.map((img, i) => (
+            <button
+              key={i}
+              type="button"
+              onClick={() => img && setZoomOpen(true)}
+              disabled={!img}
+              className="w-full shrink-0 snap-center"
+            >
+              <MaterialImage imageUrl={img} category={category} alt={`${alt} photo ${i + 1}`} className="aspect-square w-full" />
+            </button>
+          ))}
+        </div>
+        {slides.length > 1 && (
+          <div className="mt-3 flex justify-center gap-1.5" aria-hidden>
+            {slides.map((_, i) => (
+              <span key={i} className={`h-1.5 rounded-full transition-all ${i === activeIndex ? 'w-4 bg-brand' : 'w-1.5 bg-border-strong'}`} />
+            ))}
+          </div>
+        )}
+      </div>
+
+      <div className="hidden lg:block">
       <button
         type="button"
         onClick={() => activeImage && setZoomOpen(true)}
@@ -55,6 +93,7 @@ export function ProductGallery({
             <MaterialImage imageUrl={img} category={category} alt={`${alt} photo ${i + 1}`} className="aspect-square w-full" />
           </button>
         ))}
+      </div>
       </div>
 
       <Dialog open={zoomOpen} onOpenChange={setZoomOpen}>

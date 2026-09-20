@@ -1109,4 +1109,5 @@ These are deliberate, clearly-marked placeholders — not oversights:
 - `components/mobile-tab-bar.tsx`: Home/Catalog/Cart/Account bottom tabs (<lg), cart badge, hidden on product detail and checkout.
 - Done: product page sticky "Add to cart" bar + quantity bottom sheet (<lg; no tier picker — single fixed catalogue price).
 - Done: catalog Filters bottom sheet + category chips (<lg), cart sticky Checkout bar above the tab bar, tidier mobile cart rows.
-- Still to do from `BuyerMobileApp.dc.html`: delivery sheet, swipe-to-delete cart rows, pull-to-refresh, edge-swipe back, swipeable PDP carousel. Seller side has no mobile-app pass yet.
+- Done: product image scroll-snap carousel (<lg), cart swipe-to-delete (touch).
+- Still to do from `BuyerMobileApp.dc.html`: pull-to-refresh and edge-swipe-back (may clash with browser gestures). Delivery sheet skipped: delivery is chosen at checkout. Seller side has no mobile-app pass yet.
