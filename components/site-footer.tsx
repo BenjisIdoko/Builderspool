@@ -14,8 +14,8 @@ export async function SiteFooter() {
 
   return (
     <footer className="mt-14 border-t border-border bg-surface">
-      <div className="mx-auto grid max-w-section grid-cols-1 gap-8 px-6 py-10 sm:grid-cols-2 lg:grid-cols-[1.4fr_1fr_1fr_1fr]">
-        <div>
+      <div className="mx-auto grid max-w-section grid-cols-2 gap-x-5 gap-y-7 px-6 py-10 sm:gap-8 lg:grid-cols-[1.4fr_1fr_1fr_1fr]">
+        <div className="col-span-2 lg:col-span-1">
           <div className="mb-2 flex items-center gap-2">
             <LogoMark className="size-5" />
             <span className="text-[15px] font-extrabold text-ink">Builders Pool</span>

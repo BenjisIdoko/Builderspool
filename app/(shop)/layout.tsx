@@ -3,6 +3,7 @@ import { getCurrentBuyer } from '@/lib/buyer/auth';
 import { getCartLinesForBuyer } from '@/lib/cart/store';
 import { SiteHeader } from '@/components/site-header';
 import { SiteFooter } from '@/components/site-footer';
+import { MobileTabBar } from '@/components/mobile-tab-bar';
 
 export default async function ShopLayout({ children }: { children: React.ReactNode }) {
   const buyer = await getCurrentBuyer();
@@ -13,6 +14,7 @@ export default async function ShopLayout({ children }: { children: React.ReactNo
       <SiteHeader />
       <main className="flex flex-1 flex-col">{children}</main>
       <SiteFooter />
+      <MobileTabBar />
     </CartProvider>
   );
 }

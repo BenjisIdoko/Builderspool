@@ -56,7 +56,7 @@ export default async function Home() {
         <div className="absolute inset-0 bg-[linear-gradient(100deg,rgba(21,24,28,0.92)_0%,rgba(21,24,28,0.68)_35%,rgba(21,24,28,0.3)_58%,rgba(21,24,28,0.05)_78%,rgba(21,24,28,0)_100%)]" />
         <div className="absolute inset-0 bg-[linear-gradient(180deg,rgba(21,24,28,0)_50%,rgba(21,24,28,0.4)_100%)]" />
 
-        <div className="relative z-[2] mx-auto flex min-h-[100svh] max-w-section flex-col justify-center px-6 py-12">
+        <div className="relative z-[2] mx-auto flex min-h-[100svh] max-w-section flex-col justify-center px-5 pt-[110px] pb-12 min-[760px]:px-6 min-[760px]:py-12">
           <div className="max-w-2xl">
             <div className="mb-5 flex flex-wrap items-center gap-2.5 text-[13px] text-white/85">
               <span className="flex items-center gap-1.5 font-semibold">
@@ -74,18 +74,18 @@ export default async function Home() {
               <br />
               <span className="text-[#7c9cff]">delivered at a fair price.</span>
             </h1>
-            <p className="mt-4.5 max-w-md text-base leading-relaxed text-white/82 sm:text-[16.5px]">
+            <p className="mt-4.5 max-w-md text-sm leading-[1.55] text-white/82 min-[760px]:text-[16.5px] min-[760px]:leading-relaxed">
               Cement, blocks, rebar, roofing and fittings — one fixed price, no back-and-forth. Pick up
               at a fulfillment center or get it delivered to site.
             </p>
-            <div className="mt-7 flex flex-wrap gap-3">
-              <Button asChild className="h-[46px] rounded-full bg-brand px-6.5 text-[14.5px] font-bold shadow-[0_10px_24px_rgba(41,84,229,0.4)]">
+            <div className="mt-[22px] flex flex-wrap gap-3 min-[760px]:mt-7">
+              <Button asChild className="h-[42px] rounded-full bg-brand px-5 text-[13.5px] font-bold min-[760px]:h-[46px] min-[760px]:px-6.5 min-[760px]:text-[14.5px] shadow-[0_10px_24px_rgba(41,84,229,0.4)]">
                 <Link href="/catalog">Start Procuring</Link>
               </Button>
               <Button
                 asChild
                 variant="outline"
-                className="h-[46px] rounded-full border-white/40 bg-transparent px-6.5 text-[14.5px] font-bold text-white hover:bg-white/10"
+                className="h-[42px] rounded-full border-white/40 bg-transparent px-5 text-[13.5px] font-bold min-[760px]:h-[46px] min-[760px]:px-6.5 min-[760px]:text-[14.5px] text-white hover:bg-white/10"
               >
                 <Link href="#how-it-works">See How It Works</Link>
               </Button>
@@ -100,9 +100,9 @@ export default async function Home() {
         <div className="mb-5 text-center text-[11.5px] font-bold tracking-[0.06em] text-muted-foreground uppercase">
           Trusted by suppliers and contractors nationwide
         </div>
-        <div className="flex flex-wrap items-center justify-center gap-6">
+        <div className="flex flex-wrap items-center justify-center gap-3.5 min-[760px]:gap-6">
           {PARTNER_LOGOS.map((label) => (
-            <div key={label} className="text-base font-bold tracking-[0.01em] text-[#9aa0a8] uppercase">
+            <div key={label} className="text-[12.5px] font-bold tracking-normal text-[#9aa0a8] uppercase min-[760px]:text-base min-[760px]:tracking-[0.01em]">
               {label}
             </div>
           ))}

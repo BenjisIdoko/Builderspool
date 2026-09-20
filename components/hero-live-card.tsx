@@ -76,7 +76,7 @@ export function HeroLiveCard() {
       </svg>
 
       <div
-        className="absolute z-[2] min-w-[200px] max-w-[230px] rounded-2xl border border-white/40 bg-white/[0.22] p-3.5 shadow-[0_12px_32px_rgba(15,23,42,0.25),inset_0_1px_0_rgba(255,255,255,0.5)] backdrop-blur-[16px] backdrop-saturate-[1.6]"
+        className="absolute z-[2] max-[759px]:hidden min-w-[200px] max-w-[230px] rounded-2xl border border-white/40 bg-white/[0.22] p-3.5 shadow-[0_12px_32px_rgba(15,23,42,0.25),inset_0_1px_0_rgba(255,255,255,0.5)] backdrop-blur-[16px] backdrop-saturate-[1.6]"
         style={{
           left: `${point.x}%`,
           top: `${point.y}%`,

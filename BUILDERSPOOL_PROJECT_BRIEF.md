@@ -1102,3 +1102,9 @@ These are deliberate, clearly-marked placeholders — not oversights:
 - Buyer-side bidding invisibility is a firm product requirement, confirmed multiple times — don't reintroduce visible pooling/countdown UI without an explicit decision to change it.
 - The custom Next.js stack was chosen once the developer's skillset was clarified to span both WordPress and Next.js/Vercel equally — it wasn't a rejection of WordPress on technical merits alone.
 - Geography-as-eligibility-filter (rather than geography-as-scored-weight) is a considered improvement made during implementation, not an oversight if it looks different from earlier planning conversations.
+
+## Mobile responsive pass + PWA foundation (2026-09-20)
+- Landing/footer mobile deltas from the "mobile responsive changes" handoff applied: hero floating card hidden <760px, tighter hero copy/CTAs, smaller trusted-by row, 2-column footer with full-width brand block. The hero "SON & NIS certified · Secure payments" row was deliberately kept on mobile.
+- Storefront is now installable as a PWA (buyer + seller are treated as PWAs until native apps): `app/manifest.ts`, icons in `public/icons` (regenerate with `node scripts/generate-pwa-icons.mjs`), `public/sw.js` (static assets cached; HTML never cached; `/offline` fallback), registered in production only via `components/pwa-register.tsx`.
+- `components/mobile-tab-bar.tsx`: Home/Catalog/Cart/Account bottom tabs (<lg), cart badge, hidden on product detail and checkout.
+- Still to do from `BuyerMobileApp.dc.html`: bottom sheets (filters/sort, qty + tier, delivery), sticky bottom action bars, swipe-to-delete cart rows, pull-to-refresh, edge-swipe back, swipeable PDP carousel. Seller side has no mobile-app pass yet.
