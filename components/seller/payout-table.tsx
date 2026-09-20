@@ -54,7 +54,25 @@ export function PayoutTable({ payouts }: { payouts: PayoutRow[] }) {
       {filtered.length === 0 ? (
         <div className="px-6 py-16 text-center text-sm text-muted-foreground">No payouts match this filter.</div>
       ) : (
-        <Table>
+        <>
+        <div className="flex flex-col gap-2.5 p-4 md:hidden">
+          {filtered.map((p) => (
+            <div key={p.id} className="rounded-[14px] border border-border bg-surface p-3.5">
+              <div className="mb-1 flex items-center justify-between gap-2">
+                <span className="text-[13px] font-bold text-ink">{p.date ?? 'Not yet paid'}</span>
+                <Badge variant="outline" className={pillClass(payoutStatusTone(p.status))}>
+                  {PAYOUT_LABEL[p.status]}
+                </Badge>
+              </div>
+              <div className="flex items-center justify-between gap-3 text-[12.5px] text-slate">
+                <span className="min-w-0 truncate">{p.materialName}</span>
+                <span className="font-extrabold tabular-nums text-ink">{formatNaira(p.amount)}</span>
+              </div>
+              {p.reference && <div className="mt-1 truncate text-[11px] text-muted-foreground">Ref {p.reference}</div>}
+            </div>
+          ))}
+        </div>
+        <Table className="hidden md:table">
           <TableHeader>
             <TableRow>
               <TableHead>Material</TableHead>
@@ -82,6 +100,7 @@ export function PayoutTable({ payouts }: { payouts: PayoutRow[] }) {
             ))}
           </TableBody>
         </Table>
+        </>
       )}
     </div>
   );

@@ -7,6 +7,7 @@ import { Input } from '@/components/ui/input';
 import { Table, TableBody, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import { FilterDropdown, FilterDropdownLabel, FilterCheckboxRow } from '@/components/ui/filter-dropdown';
 import { SellerOrderTableRow } from './order-table-row';
+import { SellerOrderCard } from './order-card';
 import { formatNaira } from '@/lib/format';
 
 export interface SellerOrderRow {
@@ -51,13 +52,13 @@ export function SellerOrderTable({ orders }: { orders: SellerOrderRow[] }) {
   return (
     <div>
       <div className="mb-5 flex flex-wrap items-center justify-between gap-4">
-        <div className="flex flex-wrap gap-1">
+        <div className="-mx-5 flex gap-1 overflow-x-auto px-5 [scrollbar-width:none] sm:mx-0 sm:flex-wrap sm:overflow-visible sm:px-0 [&::-webkit-scrollbar]:hidden">
           {STATUS_TABS.map((tab) => (
             <button
               key={tab}
               type="button"
               onClick={() => setStatus(tab)}
-              className={`inline-flex items-center rounded-full px-3 py-1.5 text-xs font-semibold transition-colors ${
+              className={`inline-flex shrink-0 items-center rounded-full px-3 py-1.5 text-xs font-semibold transition-colors ${
                 status === tab ? 'bg-ink text-canvas' : 'bg-well text-slate hover:text-ink'
               }`}
             >
@@ -90,7 +91,13 @@ export function SellerOrderTable({ orders }: { orders: SellerOrderRow[] }) {
           No requisitions match this filter.
         </div>
       ) : (
-        <div className="overflow-hidden rounded-2xl border border-border bg-surface">
+        <>
+        <div className="flex flex-col gap-2.5 md:hidden">
+          {filtered.map((o) => (
+            <SellerOrderCard key={o.id} order={o} amount={formatNaira(o.amount)} />
+          ))}
+        </div>
+        <div className="hidden overflow-hidden rounded-2xl border border-border bg-surface md:block">
           <Table>
             <TableHeader>
               <TableRow>
@@ -122,6 +129,7 @@ export function SellerOrderTable({ orders }: { orders: SellerOrderRow[] }) {
             </TableBody>
           </Table>
         </div>
+        </>
       )}
     </div>
   );

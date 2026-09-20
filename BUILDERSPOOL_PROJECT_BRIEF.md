@@ -1111,3 +1111,11 @@ These are deliberate, clearly-marked placeholders — not oversights:
 - Done: catalog Filters bottom sheet + category chips (<lg), cart sticky Checkout bar above the tab bar, tidier mobile cart rows.
 - Done: product image scroll-snap carousel (<lg), cart swipe-to-delete (touch).
 - Still to do from `BuyerMobileApp.dc.html`: pull-to-refresh and edge-swipe-back (may clash with browser gestures). Delivery sheet skipped: delivery is chosen at checkout. Seller side has no mobile-app pass yet.
+
+## Seller mobile console (2026-09-20)
+From `SellerMobileApp.dc.html` (handoff "Awaiting feedback to proceed"). Built only what has real data behind it (standing no-fabricated-data rule):
+- `components/seller/seller-tab-bar.tsx`: bottom tabs (<lg) Dashboard / My bids / Orders / Payouts. The prototype's "Listings" tab maps to **My bids** — sellers have no durable listings. Hidden on `/seller/settings` (pushed screen). Header avatar links to Settings; mobile menu now lists Orders, Payouts and Settings too.
+- Orders and payouts render as cards on phones (<md); tables remain from md up. Order card opens a bottom sheet with drop-off / received / payout detail. Status chips scroll horizontally.
+- Seller PWA manifest (`/seller/manifest.webmanifest`, scope `/seller`) linked from `app/seller/layout.tsx`, so installing from the seller portal opens the seller console.
+- **Not built (no backing data):** Add new lot / edit price & stock sheets, swipe-to-pause listings, swipe-to-accept/dispatch orders, "Withdraw balance" (payouts are disbursed by ops; no self-service withdrawal). Pull-to-refresh / edge-swipe-back skipped as on the buyer side.
+- Not visually verified while signed in (agent can't enter passwords in the browser).

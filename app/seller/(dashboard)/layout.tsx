@@ -10,6 +10,8 @@ import { SellerSidebar } from '@/components/seller/seller-sidebar';
 import { NotificationBell } from '@/components/seller/notification-bell';
 import { MobileNav } from '@/components/mobile-nav';
 import { LogoMark } from '@/components/logo';
+import { Avatar } from '@/components/avatar';
+import { SellerTabBar } from '@/components/seller/seller-tab-bar';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { PortalTopbar } from '@/components/portal-topbar';
@@ -18,8 +20,11 @@ import { SearchProvider } from '@/components/portal-search';
 const LINKS = [
   { href: '/seller', label: 'Open cycles' },
   { href: '/seller/bids', label: 'My bids' },
+  { href: '/seller/orders', label: 'Orders' },
   { href: '/seller/allocations', label: 'Allocations' },
+  { href: '/seller/payouts', label: 'Payouts' },
   { href: '/seller/kyc', label: 'KYC verification' },
+  { href: '/seller/settings', label: 'Settings' },
 ];
 
 const KYC_LABEL: Record<string, string> = {
@@ -73,8 +78,11 @@ export default async function SellerDashboardLayout({ children }: { children: Re
               <LogoMark className="size-7" />
               <span className="text-sm font-medium tracking-tight text-ink">Seller portal</span>
             </Link>
-            <div className="ml-auto">
+            <div className="ml-auto flex items-center gap-1">
               <NotificationBell notifications={notifications} unreadCount={unreadCount} />
+              <Link href="/seller/settings" aria-label="Settings" className="rounded-full">
+                <Avatar name={profile.user.businessName ?? profile.user.name} className="size-9 text-xs" />
+              </Link>
             </div>
           </header>
           <PortalTopbar
@@ -83,6 +91,7 @@ export default async function SellerDashboardLayout({ children }: { children: Re
             bellSlot={<NotificationBell notifications={notifications} unreadCount={unreadCount} />}
           />
           <main className="flex flex-1 flex-col">{children}</main>
+          <SellerTabBar />
         </div>
       </div>
     </SearchProvider>

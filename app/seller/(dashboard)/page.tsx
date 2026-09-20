@@ -87,7 +87,7 @@ export default async function SellerDashboardPage() {
   ];
 
   return (
-    <div className="mx-auto w-full max-w-6xl px-8 pt-8 pb-20">
+    <div className="mx-auto w-full max-w-6xl px-5 pt-6 pb-20 sm:px-8 sm:pt-8">
       {!profile!.user.emailVerifiedAt && <VerifyEmailBanner />}
       <div className="mb-2.5 flex flex-wrap items-center gap-2">
         {profile!.kycStatus === 'APPROVED' ? (

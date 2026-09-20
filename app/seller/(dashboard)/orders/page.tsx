@@ -23,7 +23,7 @@ export default async function SellerOrdersPage() {
   }));
 
   return (
-    <div className="mx-auto w-full max-w-7xl px-8 pt-8 pb-20">
+    <div className="mx-auto w-full max-w-7xl px-5 pt-6 pb-20 sm:px-8 sm:pt-8">
       <div className="mb-1 text-xs text-muted-foreground">Merchant · fulfillment</div>
       <h1 className="mb-1 text-[26px] font-bold tracking-tight text-ink">Incoming requisitions</h1>
       <p className="mb-6 text-sm text-muted-foreground">

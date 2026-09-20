@@ -6,14 +6,14 @@ import { Badge } from '@/components/ui/badge';
 import { TableCell, TableRow } from '@/components/ui/table';
 import { pillClass, allocationStatusTone } from '@/lib/statusColors';
 
-const STATUS_LABEL: Record<string, string> = {
+export const STATUS_LABEL: Record<string, string> = {
   PENDING: 'Pending',
   CONFIRMED: 'Confirmed',
   FULFILLED: 'Fulfilled',
   CANCELLED: 'Cancelled',
 };
 
-const PAYOUT_LABEL: Record<string, string> = {
+export const PAYOUT_LABEL: Record<string, string> = {
   PENDING_GRN: 'Payout pending GRN',
   PROCESSED: 'Payout cleared',
   PAID: 'Payout sent',
