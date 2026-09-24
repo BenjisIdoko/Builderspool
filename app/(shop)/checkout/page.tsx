@@ -4,6 +4,8 @@ import { requireBuyer } from '@/lib/buyer/auth';
 import { CheckoutForm } from './checkout-form';
 import { CheckoutSteps } from '@/components/checkout-steps';
 
+export const metadata = { title: 'Checkout' };
+
 export default async function CheckoutPage() {
   const buyer = await requireBuyer();
 

@@ -1,6 +1,8 @@
 import { AuthSplitScreen } from '@/components/auth-split-screen';
 import { BuyerSignUpForm } from '@/components/buyer-signup-form';
 
+export const metadata = { title: 'Create your account' };
+
 export default function SignUpPage() {
   return (
     <AuthSplitScreen

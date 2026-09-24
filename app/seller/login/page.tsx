@@ -1,6 +1,8 @@
 import { AuthSplitScreen } from '@/components/auth-split-screen';
 import { SellerSignInForm } from '@/components/seller-signin-form';
 
+export const metadata = { title: 'Seller login' };
+
 export default function SellerLoginPage() {
   return (
     <AuthSplitScreen

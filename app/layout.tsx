@@ -9,7 +9,7 @@ const plusJakartaSans = Plus_Jakarta_Sans({
 });
 
 export const metadata: Metadata = {
-  title: 'Builders Pool',
+  title: { default: 'Builders Pool', template: '%s · Builders Pool' },
   description: 'Construction materials, sourced and delivered.',
   applicationName: 'Builders Pool',
   icons: { apple: '/icons/apple-touch-icon.png' },

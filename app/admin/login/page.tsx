@@ -1,6 +1,8 @@
 import { AuthSplitScreen } from '@/components/auth-split-screen';
 import { AdminSignInForm } from '@/components/admin-signin-form';
 
+export const metadata = { title: 'Ops admin login' };
+
 export default function AdminLoginPage() {
   return (
     <AuthSplitScreen

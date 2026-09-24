@@ -6,6 +6,8 @@ import { MaterialImage } from '@/components/material-image';
 import { CatalogSortSelect } from '@/components/catalog-sort-select';
 import { CatalogFilterSheet } from '@/components/catalog-filter-sheet';
 
+export const metadata = { title: 'Catalogue' };
+
 const PAGE_SIZE = 24;
 
 const SCOPE_OPTIONS: { value: 'NATIONAL' | 'REGIONAL' | undefined; label: string }[] = [

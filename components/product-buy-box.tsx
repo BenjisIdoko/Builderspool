@@ -53,7 +53,7 @@ export function ProductBuyBox({ material }: { material: BuyerMaterial }) {
 
   return (
     <>
-      <div className="hidden rounded-2xl border border-border bg-surface p-6 shadow-[0_1px_2px_rgba(16,24,40,0.04),0_16px_40px_rgba(16,24,40,0.08)] lg:sticky lg:top-24 lg:block">
+      <div className="hidden rounded-2xl border border-border bg-surface p-6 shadow-[0_1px_2px_rgba(16,24,40,0.04),0_16px_40px_rgba(16,24,40,0.08)] lg:sticky lg:top-24 lg:block lg:self-start">
         <div className="mb-5 text-2xl font-bold text-ink">
           {formatNaira(material.catalogPrice)}{" "}
           <span className="font-sans text-sm font-medium text-muted-foreground">
