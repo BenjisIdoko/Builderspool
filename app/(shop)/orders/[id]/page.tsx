@@ -93,7 +93,10 @@ export default async function OrderConfirmationPage({
               </Badge>
             </div>
             <p className="mt-1 text-sm text-muted-foreground">
-              Order <span className="text-ink">{order.id}</span>
+              Order{' '}
+              <span className="font-semibold text-ink" title={order.id}>
+                #{order.id.slice(-6).toUpperCase()}
+              </span>
               {order.status === 'PENDING_PAYMENT' && ' — payment is still outstanding.'}
             </p>
             <p className="mt-1 flex items-center gap-1.5 text-xs text-muted-foreground">

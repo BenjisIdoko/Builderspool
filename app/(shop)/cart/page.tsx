@@ -31,7 +31,7 @@ export default function CartPage() {
     <div className="mx-auto w-full max-w-section px-6 pt-28 pb-24 lg:pb-10">
       <CheckoutSteps current={0} />
       <h1 className="mb-6 text-2xl font-bold tracking-tight text-ink">
-        Cart <span className="font-normal text-muted-foreground">({itemCount} items)</span>
+        Cart <span className="font-normal text-muted-foreground">({itemCount} {itemCount === 1 ? 'item' : 'items'})</span>
       </h1>
 
       <div className="mb-6 flex items-start gap-2.5 rounded-lg bg-success-soft px-4 py-3.5 text-sm text-success">
