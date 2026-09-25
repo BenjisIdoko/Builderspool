@@ -185,7 +185,7 @@ export function CheckoutForm({ buyerId }: { buyerId: string }) {
           })}
         </div>
 
-        <h2 className="mb-3 text-xs font-bold tracking-wide text-muted-foreground uppercase">Escrow funding channel</h2>
+        <h2 className="mb-3 text-xs font-bold tracking-wide text-muted-foreground uppercase">Payment method</h2>
         <div className="mb-5 flex flex-col gap-2">
           {PAYMENT_OPTIONS.map(({ method, label, icon: Icon }) => {
             const selected = paymentMethod === method;
@@ -224,17 +224,17 @@ export function CheckoutForm({ buyerId }: { buyerId: string }) {
             <span className="tabular-nums font-bold text-ink">{formatNaira(subtotal)}</span>
           </div>
           <div className="flex justify-between text-slate">
-            <span>Haulage &amp; logistics</span>
+            <span>{fulfillmentMethod === 'DELIVERY' ? 'Delivery' : 'Pickup'}</span>
             <span className="tabular-nums font-bold text-ink">{deliveryCost === 0 ? 'Free' : formatNaira(deliveryCost)}</span>
           </div>
           <div className="flex justify-between border-t border-border pt-2.5 text-base font-bold text-ink">
-            <span>Total escrow requisition</span>
+            <span>Order total</span>
             <span className="tabular-nums">{formatNaira(total)}</span>
           </div>
         </div>
 
         <Button type="submit" size="lg" className="mt-5 w-full" disabled={state.status === 'submitting'}>
-          {state.status === 'submitting' ? 'Placing order…' : `Fund escrow & dispatch — ${formatNaira(total)}`}
+          {state.status === 'submitting' ? 'Processing…' : `Pay ${formatNaira(total)} securely`}
         </Button>
       </div>
     </form>

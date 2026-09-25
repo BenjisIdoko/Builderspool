@@ -9,9 +9,11 @@ const plusJakartaSans = Plus_Jakarta_Sans({
 });
 
 export const metadata: Metadata = {
+  metadataBase: new URL(process.env.NEXT_PUBLIC_SITE_URL ?? 'https://builderspool.vercel.app'),
   title: { default: 'Builders Pool', template: '%s · Builders Pool' },
   description: 'Construction materials, sourced and delivered.',
   applicationName: 'Builders Pool',
+  openGraph: { siteName: 'Builders Pool', type: 'website' },
   icons: { apple: '/icons/apple-touch-icon.png' },
   appleWebApp: { capable: true, title: 'Builders Pool', statusBarStyle: 'default' },
 };

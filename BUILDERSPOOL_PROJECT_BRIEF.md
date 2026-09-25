@@ -1154,3 +1154,11 @@ User asked for complete prices for all items. 111 materials have no verified pri
 - `docs/rfq/whatsapp-quote-requests-2026-09.md` — ready-to-send messages, one block per supplier type (12 groups, 109 items; 2 further rows are duplicates of live Fittings conduit items — retire, don't quote).
 - `scripts/import-price-quotes.ts` — reads the filled CSV; price = final price or the median of quotes; skips rows with too few quotes (default 2), non-numeric values, or a price far outside the reference range; dry run by default; `--apply` sets the price, unit and publishes the item with a PriceSnapshot and writes a rollback file. Tested on made-up data in dry run only.
 - Nothing was changed in the database or on the live site by this pack.
+
+## UI/technical batch from the UX audit (2026-09-25)
+- Buttons no longer force-capitalise (`capitalize` removed from `components/ui/button.tsx`): "Add to cart", "Sign in" now render as authored.
+- Checkout wording: "Pay ₦X securely" (was "Fund escrow & dispatch"), "Order total" (was "Total escrow requisition"), "Payment method" (was "Escrow funding channel"), and "Delivery"/"Pickup" instead of "Haulage & logistics". The green escrow explainer is unchanged.
+- Buyer sign-up is three fields (name, email, password) with a show/hide toggle (`components/password-input.tsx`, also on all three sign-in forms). Phone, location and business name are still editable later on `/account`. `signUpBuyer` no longer requires `confirmPassword` (still validated if a client sends one).
+- Branded 404s (`app/(shop)/not-found.tsx` inside the storefront chrome; `app/not-found.tsx` for the rest) and error boundaries (`app/(shop)/error.tsx`, `app/error.tsx`) with retry and a way back to the catalogue.
+- Product pages have their own title, description and Open Graph share preview (name, price, unit, photo); `metadataBase` set to the production URL (override with `NEXT_PUBLIC_SITE_URL`); `getMaterialById` is `cache()`d so the page and its metadata share one query.
+- Not tested: an actual sign-up submit (agent doesn't create accounts) and the checkout page signed in.

@@ -5,6 +5,7 @@ import { useRouter } from 'next/navigation';
 import Link from 'next/link';
 import { signInAdmin } from '@/app/admin/actions';
 import { Input } from '@/components/ui/input';
+import { PasswordInput } from '@/components/password-input';
 import { Label } from '@/components/ui/label';
 import { Button } from '@/components/ui/button';
 import { AUTH_INPUT, AUTH_LABEL, AUTH_BUTTON } from '@/components/auth-field-styles';
@@ -46,7 +47,7 @@ export function AdminSignInForm() {
             Forgot password?
           </Link>
         </div>
-        <Input className={AUTH_INPUT} id="password" name="password" type="password" required autoComplete="current-password" />
+        <PasswordInput className={AUTH_INPUT} id="password" name="password" required autoComplete="current-password" />
       </div>
 
       {error && <p className="text-sm text-danger">{error}</p>}

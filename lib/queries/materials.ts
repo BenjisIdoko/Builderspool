@@ -1,5 +1,6 @@
 import { prisma } from '../prisma';
 import { Prisma } from '@prisma/client';
+import { cache } from 'react';
 
 // Buyer-facing catalog reads. These intentionally select only fields the
 // buyer is allowed to see — never bid cycles, scores, or anything else that
@@ -99,13 +100,14 @@ export async function searchMaterialsLive(query: string, limit = 6) {
   return materials.map(toPlainMaterial);
 }
 
-export async function getMaterialById(id: string) {
+// cache() so the product page and its generateMetadata share one query per request.
+export const getMaterialById = cache(async (id: string) => {
   const material = await prisma.material.findFirst({
     where: { id, ...BUYER_VISIBLE },
     select: BUYER_SAFE_SELECT,
   });
   return material ? toPlainMaterial(material) : null;
-}
+});
 
 // Real cross-sell, not a recommendation engine — same category, excluding
 // the material being viewed, newest first.

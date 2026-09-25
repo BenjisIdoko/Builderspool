@@ -1,3 +1,4 @@
+import type { Metadata } from 'next';
 import { notFound } from 'next/navigation';
 import Link from 'next/link';
 import { CaretRightIcon } from '@phosphor-icons/react/ssr';
@@ -12,6 +13,19 @@ import { ProductGallery } from '@/components/product-gallery';
 import { ProductDetailPanel } from '@/components/product-detail-panel';
 import { ProductBuyBox } from '@/components/product-buy-box';
 import { MaterialCard } from '@/components/material-card';
+import { formatNaira } from '@/lib/format';
+
+export async function generateMetadata({ params }: { params: Promise<{ id: string }> }): Promise<Metadata> {
+  const { id } = await params;
+  const material = await getMaterialById(id);
+  if (!material) return { title: 'Product not found' };
+  const description = `${material.name} — ${formatNaira(material.catalogPrice)} per ${material.unit}. Fixed catalogue price, held in escrow until delivery is confirmed.`;
+  return {
+    title: material.name,
+    description,
+    openGraph: { siteName: 'Builders Pool', type: 'website', title: material.name, description, images: material.imageUrl ? [material.imageUrl] : undefined },
+  };
+}
 
 export default async function MaterialPage({ params }: { params: Promise<{ id: string }> }) {
   const { id } = await params;
