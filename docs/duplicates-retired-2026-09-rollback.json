@@ -1,0 +1,294 @@
+[
+ {
+  "id": "cmu6l6tii000crqc7aw28felf",
+  "name": "Reinforcement Rod, 12mm",
+  "catalogPrice": 9500,
+  "unit": "12m length",
+  "needsPriceReview": false,
+  "imageUrl": "/materials/rebar.jpg",
+  "images": [
+   "/materials/rebar.jpg"
+  ]
+ },
+ {
+  "id": "cmu6l6wed000frqc7xx5yk727",
+  "name": "Reinforcement Rod, 16mm",
+  "catalogPrice": 16800,
+  "unit": "12m length",
+  "needsPriceReview": false,
+  "imageUrl": "/materials/rebar.jpg",
+  "images": [
+   "/materials/rebar.jpg"
+  ]
+ },
+ {
+  "id": "cmu6l6zdv000irqc7p474vaci",
+  "name": "Aluminium Roofing Sheet, 0.55mm",
+  "catalogPrice": 4200,
+  "unit": "sheet",
+  "needsPriceReview": false,
+  "imageUrl": null,
+  "images": []
+ },
+ {
+  "id": "cmu6l72dx000lrqc7uv4tekrx",
+  "name": "Stone-Coated Roofing Tile",
+  "catalogPrice": 8500,
+  "unit": "sheet",
+  "needsPriceReview": false,
+  "imageUrl": null,
+  "images": []
+ },
+ {
+  "id": "cmu6l7mss0016rqc7avw5h8du",
+  "name": "Reinforcement Rod, 10mm",
+  "catalogPrice": 6800,
+  "unit": "12m length",
+  "needsPriceReview": false,
+  "imageUrl": "/materials/rebar.jpg",
+  "images": [
+   "/materials/rebar.jpg"
+  ]
+ },
+ {
+  "id": "cmu6l7pmh0019rqc7lumf2xm5",
+  "name": "Reinforcement Rod, 20mm",
+  "catalogPrice": 24500,
+  "unit": "12m length",
+  "needsPriceReview": false,
+  "imageUrl": "/materials/rebar.jpg",
+  "images": [
+   "/materials/rebar.jpg"
+  ]
+ },
+ {
+  "id": "cmu6l7ss1001crqc7hsxvpmge",
+  "name": "Zinc Aluminium Roofing Sheet, 0.45mm",
+  "catalogPrice": 3600,
+  "unit": "sheet",
+  "needsPriceReview": false,
+  "imageUrl": null,
+  "images": []
+ },
+ {
+  "id": "cmu6l7w3h001frqc7nj6nk1ph",
+  "name": "Step Tile Roofing Sheet",
+  "catalogPrice": 7800,
+  "unit": "sheet",
+  "needsPriceReview": false,
+  "imageUrl": null,
+  "images": []
+ },
+ {
+  "id": "cmu6l6j1c0000rqc7a3gvwmpl",
+  "name": "Dangote Cement 42.5R",
+  "catalogPrice": 12500,
+  "unit": "50kg bag",
+  "needsPriceReview": false,
+  "imageUrl": "/materials/cement.jpg",
+  "images": [
+   "/materials/cement.jpg"
+  ]
+ },
+ {
+  "id": "cmu6l6lo40003rqc7rs6wx93q",
+  "name": "BUA Cement 42.5R",
+  "catalogPrice": 12000,
+  "unit": "50kg bag",
+  "needsPriceReview": false,
+  "imageUrl": "/materials/cement.jpg",
+  "images": [
+   "/materials/cement.jpg"
+  ]
+ },
+ {
+  "id": "cmu6l7b2v000urqc76bxgvrj7",
+  "name": "Elephant Cement 42.5R",
+  "catalogPrice": 12000,
+  "unit": "50kg bag",
+  "needsPriceReview": false,
+  "imageUrl": "/materials/cement.jpg",
+  "images": [
+   "/materials/cement.jpg"
+  ]
+ },
+ {
+  "id": "cmu6l6r0d0009rqc7e7nnp0sa",
+  "name": "Sandcrete Block, 6 inch",
+  "catalogPrice": 750,
+  "unit": "block",
+  "needsPriceReview": false,
+  "imageUrl": "/materials/blocks.jpg",
+  "images": [
+   "/materials/blocks.jpg"
+  ]
+ },
+ {
+  "id": "cmu6l6o8e0006rqc7uzf895gk",
+  "name": "Sandcrete Block, 9 inch",
+  "catalogPrice": 1075,
+  "unit": "block",
+  "needsPriceReview": false,
+  "imageUrl": "/materials/blocks.jpg",
+  "images": [
+   "/materials/blocks.jpg"
+  ]
+ },
+ {
+  "id": "cmu6l7jwd0013rqc7btwt0fq4",
+  "name": "Hollow Block, 9 inch",
+  "catalogPrice": 1075,
+  "unit": "block",
+  "needsPriceReview": false,
+  "imageUrl": "/materials/blocks.jpg",
+  "images": [
+   "/materials/blocks.jpg"
+  ]
+ },
+ {
+  "id": "cmu6l7gos0010rqc79mmyhbwb",
+  "name": "Sandcrete Block, 5 inch",
+  "catalogPrice": 650,
+  "unit": "block",
+  "needsPriceReview": false,
+  "imageUrl": "/materials/blocks.jpg",
+  "images": [
+   "/materials/blocks.jpg"
+  ]
+ },
+ {
+  "id": "cmu6lf8ke00czrqc7gsmqx9r7",
+  "name": "Sandcrete Solid Block — 5-inch",
+  "catalogPrice": 1,
+  "unit": "Piece (Pallet)",
+  "needsPriceReview": true,
+  "imageUrl": null,
+  "images": []
+ },
+ {
+  "id": "cmu6ldums00bhrqc7641c1rui",
+  "name": "Reinforcement Bar (Rebar) — 20mm",
+  "catalogPrice": 1,
+  "unit": "Length / Tonne (12m length)",
+  "needsPriceReview": true,
+  "imageUrl": null,
+  "images": []
+ },
+ {
+  "id": "cmu6lcmbt00a2rqc74upvkl79",
+  "name": "Ordinary Portland Cement 32.5 Grade",
+  "catalogPrice": 13500,
+  "unit": "Bag (50kg bag)",
+  "needsPriceReview": false,
+  "imageUrl": null,
+  "images": []
+ },
+ {
+  "id": "cmu6lcp1z00a5rqc7hd6l2mwi",
+  "name": "Portland-Limestone Cement 42.5 Grade",
+  "catalogPrice": 13500,
+  "unit": "Bag (50kg bag)",
+  "needsPriceReview": false,
+  "imageUrl": null,
+  "images": []
+ },
+ {
+  "id": "cmu6ld2jl00akrqc7x40ezwlt",
+  "name": "Dangote Cement 42.5 Grade (50kg)",
+  "catalogPrice": 14000,
+  "unit": "Bag (50kg bag)",
+  "needsPriceReview": false,
+  "imageUrl": null,
+  "images": []
+ },
+ {
+  "id": "cmu6ld4um00anrqc740o06bjk",
+  "name": "BUA Cement 42.5 Grade (50kg)",
+  "catalogPrice": 13250,
+  "unit": "Bag (50kg bag)",
+  "needsPriceReview": false,
+  "imageUrl": null,
+  "images": []
+ },
+ {
+  "id": "cmu6ld7gu00aqrqc7dh02pgo1",
+  "name": "HBM Nigeria (Elephant) Cement 42.5 Grade (50kg)",
+  "catalogPrice": 12750,
+  "unit": "Bag (50kg bag)",
+  "needsPriceReview": false,
+  "imageUrl": null,
+  "images": []
+ },
+ {
+  "id": "cmu6ldem200azrqc7y6z45926",
+  "name": "BUA Cement 32.5 Grade (50kg)",
+  "catalogPrice": 12000,
+  "unit": "Bag (50kg bag)",
+  "needsPriceReview": false,
+  "imageUrl": null,
+  "images": []
+ },
+ {
+  "id": "cmu6ldc7c00awrqc74ehad2ee",
+  "name": "Dangote Cement 32.5 Grade (50kg)",
+  "catalogPrice": 12500,
+  "unit": "Bag (50kg bag)",
+  "needsPriceReview": false,
+  "imageUrl": null,
+  "images": []
+ },
+ {
+  "id": "cmu6lf5te00cwrqc7x998vfnx",
+  "name": "Sandcrete Hollow Block — 6-inch",
+  "catalogPrice": 750,
+  "unit": "block",
+  "needsPriceReview": false,
+  "imageUrl": null,
+  "images": []
+ },
+ {
+  "id": "cmu6lf30z00ctrqc79ide102i",
+  "name": "Sandcrete Hollow Block — 9-inch",
+  "catalogPrice": 1075,
+  "unit": "block",
+  "needsPriceReview": false,
+  "imageUrl": null,
+  "images": []
+ },
+ {
+  "id": "cmu6ldmdb00b8rqc7jd6xqd54",
+  "name": "Reinforcement Bar (Rebar) — 10mm",
+  "catalogPrice": 7000,
+  "unit": "12m length",
+  "needsPriceReview": false,
+  "imageUrl": null,
+  "images": []
+ },
+ {
+  "id": "cmu6ldpib00bbrqc7la0p851e",
+  "name": "Reinforcement Bar (Rebar) — 12mm",
+  "catalogPrice": 10000,
+  "unit": "12m length",
+  "needsPriceReview": false,
+  "imageUrl": null,
+  "images": []
+ },
+ {
+  "id": "cmu6lds3s00berqc7kmphaxnv",
+  "name": "Reinforcement Bar (Rebar) — 16mm",
+  "catalogPrice": 18000,
+  "unit": "12m length",
+  "needsPriceReview": false,
+  "imageUrl": null,
+  "images": []
+ },
+ {
+  "id": "cmu6ldjbi00b5rqc715icb4ri",
+  "name": "Reinforcement Bar (Rebar) — 8mm",
+  "catalogPrice": 4500,
+  "unit": "12m length",
+  "needsPriceReview": false,
+  "imageUrl": null,
+  "images": []
+ }
+]
