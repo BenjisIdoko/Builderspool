@@ -1,0 +1,149 @@
+[
+ {
+  "id": "cmu6lfb3i00d2rqc7114popr3",
+  "name": "Interlocking Stabilised Earth Block",
+  "catalogPrice": 1,
+  "needsPriceReview": true,
+  "unit": "Piece (Pallet)"
+ },
+ {
+  "id": "cmu6lf5te00cwrqc7x998vfnx",
+  "name": "Sandcrete Hollow Block — 6-inch",
+  "catalogPrice": 1,
+  "needsPriceReview": true,
+  "unit": "Piece (Pallet (~60–100 pcs))"
+ },
+ {
+  "id": "cmu6lf30z00ctrqc79ide102i",
+  "name": "Sandcrete Hollow Block — 9-inch",
+  "catalogPrice": 1,
+  "needsPriceReview": true,
+  "unit": "Piece (Pallet (~60–100 pcs))"
+ },
+ {
+  "id": "cmu6ldem200azrqc7y6z45926",
+  "name": "BUA Cement 32.5 Grade (50kg)",
+  "catalogPrice": 1,
+  "needsPriceReview": true,
+  "unit": "Bag (50kg bag)"
+ },
+ {
+  "id": "cmu6ldc7c00awrqc74ehad2ee",
+  "name": "Dangote Cement 32.5 Grade (50kg)",
+  "catalogPrice": 1,
+  "needsPriceReview": true,
+  "unit": "Bag (50kg bag)"
+ },
+ {
+  "id": "cmu6ldmdb00b8rqc7jd6xqd54",
+  "name": "Reinforcement Bar (Rebar) — 10mm",
+  "catalogPrice": 1,
+  "needsPriceReview": true,
+  "unit": "Length / Tonne (12m length)"
+ },
+ {
+  "id": "cmu6ldpib00bbrqc7la0p851e",
+  "name": "Reinforcement Bar (Rebar) — 12mm",
+  "catalogPrice": 1,
+  "needsPriceReview": true,
+  "unit": "Length / Tonne (12m length)"
+ },
+ {
+  "id": "cmu6lds3s00berqc7kmphaxnv",
+  "name": "Reinforcement Bar (Rebar) — 16mm",
+  "catalogPrice": 1,
+  "needsPriceReview": true,
+  "unit": "Length / Tonne (12m length)"
+ },
+ {
+  "id": "cmu6ldjbi00b5rqc715icb4ri",
+  "name": "Reinforcement Bar (Rebar) — 8mm",
+  "catalogPrice": 1,
+  "needsPriceReview": true,
+  "unit": "Length / Tonne (12m length; ~2 tonnes/bundle)"
+ },
+ {
+  "id": "cmu6lfn1800derqc703lzf8ve",
+  "name": "Long-Span Aluminium Roofing Sheet",
+  "catalogPrice": 1,
+  "needsPriceReview": true,
+  "unit": "Length / m² (Cut to specified length)"
+ },
+ {
+  "id": "cmu6lfsm200dkrqc7d0g3e4nf",
+  "name": "Metcoppo Aluminium Roofing Sheet",
+  "catalogPrice": 1,
+  "needsPriceReview": true,
+  "unit": "Length / m² (Cut to specified length)"
+ },
+ {
+  "id": "cmu6lfpz300dhrqc7giszpo0x",
+  "name": "Step-Tile Aluminium Roofing Sheet",
+  "catalogPrice": 1,
+  "needsPriceReview": true,
+  "unit": "Length / m² (Cut to specified length)"
+ },
+ {
+  "id": "cmu6lfvd000dnrqc79g97fccg",
+  "name": "Stone-Coated Steel Roofing Tile",
+  "catalogPrice": 1,
+  "needsPriceReview": true,
+  "unit": "m² / Sheet (Sheet)"
+ },
+ {
+  "id": "cmu6l6j1c0000rqc7a3gvwmpl",
+  "name": "Dangote Cement 42.5R",
+  "catalogPrice": 7500,
+  "needsPriceReview": false,
+  "unit": "50kg bag"
+ },
+ {
+  "id": "cmu6l6lo40003rqc7rs6wx93q",
+  "name": "BUA Cement 42.5R",
+  "catalogPrice": 7200,
+  "needsPriceReview": false,
+  "unit": "50kg bag"
+ },
+ {
+  "id": "cmu6l7b2v000urqc76bxgvrj7",
+  "name": "Elephant Cement 42.5R",
+  "catalogPrice": 7300,
+  "needsPriceReview": false,
+  "unit": "50kg bag"
+ },
+ {
+  "id": "cmu6l6r0d0009rqc7e7nnp0sa",
+  "name": "Sandcrete Block, 6 inch",
+  "catalogPrice": 450,
+  "needsPriceReview": false,
+  "unit": "block"
+ },
+ {
+  "id": "cmu6l6o8e0006rqc7uzf895gk",
+  "name": "Sandcrete Block, 9 inch",
+  "catalogPrice": 550,
+  "needsPriceReview": false,
+  "unit": "block"
+ },
+ {
+  "id": "cmu6l7jwd0013rqc7btwt0fq4",
+  "name": "Hollow Block, 9 inch",
+  "catalogPrice": 500,
+  "needsPriceReview": false,
+  "unit": "block"
+ },
+ {
+  "id": "cmu6l7gos0010rqc79mmyhbwb",
+  "name": "Sandcrete Block, 5 inch",
+  "catalogPrice": 380,
+  "needsPriceReview": false,
+  "unit": "block"
+ },
+ {
+  "id": "cmu6l7dws000xrqc78a5yxy5q",
+  "name": "Ashaka Cement 32.5R",
+  "catalogPrice": 6900,
+  "needsPriceReview": false,
+  "unit": "50kg bag"
+ }
+]
