@@ -43,6 +43,12 @@ function sortToOrderBy(sort: MaterialSort): Prisma.MaterialOrderByWithRelationIn
   }
 }
 
+// Materials still awaiting a verified price (needsPriceReview) are never
+// shown to buyers — a placeholder or unverified price must not be browsable,
+// searchable, linkable or purchasable. Admin queries are unaffected; clearing
+// the flag (saving a price in /admin/materials) publishes the item.
+const BUYER_VISIBLE = { needsPriceReview: false } as const;
+
 export async function getMaterials({
   category,
   query,
@@ -59,6 +65,7 @@ export async function getMaterials({
   pageSize?: number;
 } = {}) {
   const where: Prisma.MaterialWhereInput = {
+    ...BUYER_VISIBLE,
     category: category || undefined,
     sourcingScope: sourcingScope || undefined,
     name: query ? { contains: query, mode: 'insensitive' } : undefined,
@@ -84,7 +91,7 @@ export async function searchMaterialsLive(query: string, limit = 6) {
   const trimmed = query.trim();
   if (!trimmed) return [];
   const materials = await prisma.material.findMany({
-    where: { name: { contains: trimmed, mode: 'insensitive' } },
+    where: { ...BUYER_VISIBLE, name: { contains: trimmed, mode: 'insensitive' } },
     select: BUYER_SAFE_SELECT,
     orderBy: [{ name: 'asc' }],
     take: limit,
@@ -93,8 +100,8 @@ export async function searchMaterialsLive(query: string, limit = 6) {
 }
 
 export async function getMaterialById(id: string) {
-  const material = await prisma.material.findUnique({
-    where: { id },
+  const material = await prisma.material.findFirst({
+    where: { id, ...BUYER_VISIBLE },
     select: BUYER_SAFE_SELECT,
   });
   return material ? toPlainMaterial(material) : null;
@@ -104,7 +111,7 @@ export async function getMaterialById(id: string) {
 // the material being viewed, newest first.
 export async function getRelatedMaterials(materialId: string, category: string, limit = 4) {
   const materials = await prisma.material.findMany({
-    where: { category, id: { not: materialId } },
+    where: { ...BUYER_VISIBLE, category, id: { not: materialId } },
     select: BUYER_SAFE_SELECT,
     orderBy: { createdAt: 'desc' },
     take: limit,
@@ -136,7 +143,7 @@ export async function getFrequentlyBoughtTogether(materialId: string, limit = 4)
   for (const item of coItems) counts.set(item.materialId, (counts.get(item.materialId) ?? 0) + 1);
   const rankedIds = [...counts.entries()].sort((a, b) => b[1] - a[1]).slice(0, limit).map(([id]) => id);
 
-  const materials = await prisma.material.findMany({ where: { id: { in: rankedIds } }, select: BUYER_SAFE_SELECT });
+  const materials = await prisma.material.findMany({ where: { ...BUYER_VISIBLE, id: { in: rankedIds } }, select: BUYER_SAFE_SELECT });
   const byId = new Map(materials.map((m) => [m.id, m]));
   return rankedIds.map((id) => byId.get(id)).filter((m): m is NonNullable<typeof m> => !!m).map(toPlainMaterial);
 }
@@ -177,6 +184,7 @@ export async function getFulfillmentCenters() {
 export async function getCategories() {
   const rows = await prisma.material.groupBy({
     by: ['category'],
+    where: BUYER_VISIBLE,
     _count: { _all: true },
     orderBy: { category: 'asc' },
   });

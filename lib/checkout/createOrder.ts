@@ -26,6 +26,13 @@ export async function createOrder(input: CheckoutInput) {
   });
   const materialById = new Map(materials.map((m) => [m.id, m]));
 
+  // A cart line can outlive a material's price being pulled for review — never
+  // let one be bought at a placeholder or unverified price.
+  const unavailable = materials.find((m) => m.needsPriceReview);
+  if (unavailable) {
+    throw new Error(`${unavailable.name} is no longer available. Remove it from your cart to continue.`);
+  }
+
   // Every order routes through a fulfillment center regardless of method —
   // delivery just adds a final hop from center to site (pickup ends there).
   const center = await findServingCenter(input.region);
