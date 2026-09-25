@@ -1,0 +1,23 @@
+category,name,unit,catalogue_price_ngn,market_range_ngn,assessment,suggested_action
+Cement,Ashaka Cement 32.5R,50kg bag,6900,"11,000-13,000",Stale: about 45% below current dealer quotes (Sep 2026),"Reprice or retire (duplicate of the ""Cement & Binders"" family)"
+Cement,BUA Cement 42.5R,50kg bag,7200,"11,500-13,000","Stale: about 40% below; duplicates BUA 42.5 at ₦13,250","Retire duplicate or reprice to ~₦12,000"
+Cement,Dangote Cement 42.5R,50kg bag,7500,"12,000-13,550","Stale: about 40% below; duplicates Dangote 42.5 at ₦14,000","Retire duplicate or reprice to ~₦12,500"
+Cement,Elephant Cement 42.5R,50kg bag,7300,"12,000-13,500","Stale; duplicates HBM (Elephant) at ₦12,750",Retire duplicate or reprice
+Cement & Binders,Dangote Cement 42.5 Grade (50kg),Bag,14000,"12,000-13,550","Slightly high vs Sep 2026 median (~₦12,500-13,000)",Check; within range for Abuja
+Cement & Binders,BUA Cement 42.5 Grade (50kg),Bag,13250,"11,500-13,000",Top of range,Check
+Blocks,"Sandcrete Block, 6 inch",block,450,600-900,Stale: 25-50% below Jul 2026 range,Reprice ~₦750
+Blocks,"Sandcrete Block, 9 inch",block,550,"850-1,300",Stale: 35-55% below,"Reprice ~₦1,075"
+Blocks,"Hollow Block, 9 inch",block,500,"850-1,300 (sandcrete) / 1,500-2,500 (hollow concrete)",Stale,Reprice
+Blocks,"Sandcrete Block, 5 inch",block,380,about 500-800 (derived),Stale,Reprice ~₦650
+Rebar,"Reinforcement Rod, 10mm",12m length,6800,"6,000-7,500",In range,Keep; recheck monthly
+Rebar,"Reinforcement Rod, 12mm",12m length,9500,"8,500-11,500",In range (low half),Keep; recheck monthly
+Rebar,"Reinforcement Rod, 16mm",12m length,16800,"15,000-22,000",In range (low half),Keep; recheck monthly
+Rebar,"Reinforcement Rod, 20mm",12m length,24500,"23,000-36,000",Low end of a wide range,Check
+Roofing,"Aluminium Roofing Sheet, 0.55mm",sheet,4200,"15,660-17,550 per 3m sheet (₦5,800-6,500/m2)","Far below if ""sheet"" means a 3 m sheet; unit undefined","Define sheet length, then reprice"
+Roofing,"Zinc Aluminium Roofing Sheet, 0.45mm",sheet,3600,"about 10,800-12,400 per 3m sheet (₦4,000-4,600/m2)",Same unit problem,"Define sheet length, then reprice"
+Roofing,Step Tile Roofing Sheet,sheet,7800,"₦6,500-7,900/m2 (about 18,000-20,000 per 3m sheet)",Ambiguous unit,"Define sheet length, then reprice"
+Roofing,Stone-Coated Roofing Tile,sheet,8500,"₦4,750-6,500 per piece by profile",Above the per-piece range; unit unclear,Confirm unit
+Paints & Coatings,Exterior Weathershield Paint,20L drum,155000,"170,000-185,000 (Dulux, Jun 2026)",About 10% below,Check brand basis
+Paints & Coatings,Interior Emulsion Paint,20L drum,109000,"Meyer 85,000-110,000; Dulux 155,000-175,000",Plausible mid-market,"Keep, name the brand"
+Paints & Coatings,Gloss / Oil-Based Paint,4L,49000,"Berger Luxol gloss 46,000-52,000 (4L)",In range,Keep
+Fittings,PVC Conduit Pipe / Elbow / Tee,3m / piece,650 / 150 / 200,no source found,Unverified,Verify with a supplier
