@@ -24,7 +24,12 @@
                                    number of high-impact spots (hero, headline accent, stat card),
                                    never on routine controls — see Design Direction. */
   --color-slate: #5b6068;
-  --color-muted-text: #8a8f97; /* exposed as the utility `text-muted-foreground`, shadcn/ui's own name for this */
+  --color-muted-text: #656a71; /* exposed as the utility `text-muted-foreground`, shadcn/ui's own name for this.
+                                   Was #8a8f97 — measured 3.09-3.25:1 against this app's own white/#f8f9fa
+                                   surfaces (axe-core, 2026-09-29), below WCAG AA's 4.5:1 for normal-weight
+                                   text. This shade clears 4.5:1 on every surface it's used against while
+                                   staying visibly lighter than --color-slate, which is the darker, more
+                                   readable secondary-text tier this app already has. */
   --color-border: #e6e7ea;
   --color-border-strong: #c2cad3; /* input boundaries, active tab lines, hover states */
   --color-success: #2e6b45;

@@ -53,17 +53,22 @@ export default async function CatalogPage({
           <div>
             <h2 className="mb-3 text-xs font-bold tracking-wide text-slate uppercase">Category</h2>
             <div className="flex flex-col gap-2.5">
-              <Link href={urlFor({ category: '', page: 1 })} className="flex cursor-pointer items-center gap-2 text-sm text-ink">
-                <input type="radio" readOnly checked={!category} className="size-3.5 accent-brand" />
+              <Link
+                href={urlFor({ category: '', page: 1 })}
+                aria-current={!category ? 'true' : undefined}
+                className="flex cursor-pointer items-center gap-2 text-sm text-ink"
+              >
+                <input type="radio" readOnly aria-hidden="true" tabIndex={-1} checked={!category} className="size-3.5 accent-brand" />
                 All materials
               </Link>
               {categories.map((c) => (
                 <Link
                   key={c.name}
                   href={urlFor({ category: c.name, page: 1 })}
+                  aria-current={category === c.name ? 'true' : undefined}
                   className="flex cursor-pointer items-center gap-2 text-sm text-ink"
                 >
-                  <input type="radio" readOnly checked={category === c.name} className="size-3.5 accent-brand" />
+                  <input type="radio" readOnly aria-hidden="true" tabIndex={-1} checked={category === c.name} className="size-3.5 accent-brand" />
                   <span className="truncate">{c.name}</span>
                   <span className="ml-auto text-[11.5px] text-muted-foreground/70">{c.count}</span>
                 </Link>
@@ -78,9 +83,10 @@ export default async function CatalogPage({
                 <Link
                   key={opt.label}
                   href={urlFor({ scope: opt.value ?? '', page: 1 })}
+                  aria-current={sourcingScope === opt.value ? 'true' : undefined}
                   className="flex cursor-pointer items-center gap-2 text-sm text-ink"
                 >
-                  <input type="radio" readOnly checked={sourcingScope === opt.value} className="size-3.5 accent-brand" />
+                  <input type="radio" readOnly aria-hidden="true" tabIndex={-1} checked={sourcingScope === opt.value} className="size-3.5 accent-brand" />
                   {opt.label}
                 </Link>
               ))}

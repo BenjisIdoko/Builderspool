@@ -49,6 +49,7 @@ export function ProductGallery({
               type="button"
               onClick={() => img && setZoomOpen(true)}
               disabled={!img}
+              aria-label={!img ? `${alt} — no photo yet` : undefined}
               className="w-full shrink-0 snap-center"
             >
               <MaterialImage imageUrl={img} category={category} alt={`${alt} photo ${i + 1}`} className="aspect-square w-full" />
@@ -70,6 +71,7 @@ export function ProductGallery({
         onClick={() => activeImage && setZoomOpen(true)}
         className="group relative block w-full cursor-zoom-in overflow-hidden rounded-2xl border border-border shadow-[0_1px_2px_rgba(16,24,40,0.04),0_12px_32px_rgba(16,24,40,0.06)]"
         disabled={!activeImage}
+        aria-label={!activeImage ? `${alt} — no photo yet` : undefined}
       >
         <MaterialImage imageUrl={activeImage} category={category} alt={alt} className="aspect-square w-full" />
         {activeImage && (
@@ -86,6 +88,10 @@ export function ProductGallery({
             type="button"
             onClick={() => img && setActiveIndex(i)}
             disabled={!img}
+            // An empty slot is pure grid filler (keeps the 4-across layout when
+            // there are fewer real photos) — nothing for a screen reader to
+            // announce, so it's hidden rather than labeled "no photo" 3 times.
+            aria-hidden={!img || undefined}
             className={`overflow-hidden rounded-lg border-2 ${
               img && i === activeIndex ? 'border-brand' : 'border-border'
             } ${!img ? 'cursor-default' : ''}`}
