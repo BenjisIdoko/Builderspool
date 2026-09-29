@@ -139,7 +139,14 @@ export default async function OrderConfirmationPage({
             {isPickup ? 'Pickup for' : 'Ship to'}
           </div>
           <div className="text-sm font-semibold text-ink">{buyer.businessName ?? buyer.name}</div>
-          <div className="text-sm text-muted-foreground">{order.region}</div>
+          {/* order.deliveryAddress is only set for DELIVERY orders placed after
+              this shipped (2026-09-29) — older orders and pickup orders fall
+              back to the region alone, same as before. */}
+          {order.deliveryAddress ? (
+            <div className="text-sm whitespace-pre-line text-muted-foreground">{order.deliveryAddress}</div>
+          ) : (
+            <div className="text-sm text-muted-foreground">{order.region}</div>
+          )}
         </div>
       </div>
 
@@ -157,6 +164,38 @@ export default async function OrderConfirmationPage({
             </span>
           )}
         </div>
+        {(order.deliveryContactName || order.deliveryContactPhone) && (
+          <div className="mt-4 border-t border-border pt-4">
+            <div className="mb-1.5 text-[11px] font-semibold text-muted-foreground uppercase">
+              Site contact for this delivery
+            </div>
+            <div className="flex flex-wrap gap-x-8 gap-y-2 text-sm">
+              {order.deliveryContactName && <span className="text-ink">{order.deliveryContactName}</span>}
+              {order.deliveryContactPhone && (
+                <span className="flex items-center gap-1.5 text-ink">
+                  <PhoneIcon className="size-4 text-slate" />
+                  {order.deliveryContactPhone}
+                </span>
+              )}
+            </div>
+          </div>
+        )}
+        {(order.deliveryWindow || order.deliveryNotes) && (
+          <div className="mt-4 flex flex-col gap-2.5 border-t border-border pt-4 text-sm">
+            {order.deliveryWindow && (
+              <div>
+                <span className="font-semibold text-ink">Preferred window: </span>
+                <span className="text-muted-foreground">{order.deliveryWindow}</span>
+              </div>
+            )}
+            {order.deliveryNotes && (
+              <div>
+                <span className="font-semibold text-ink">Offload notes: </span>
+                <span className="text-muted-foreground">{order.deliveryNotes}</span>
+              </div>
+            )}
+          </div>
+        )}
       </div>
 
       <div className="mb-8 rounded-lg border border-border bg-surface p-6">

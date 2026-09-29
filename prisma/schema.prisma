@@ -338,6 +338,19 @@ model Order {
   createdAt        DateTime       @default(now())
   paidAt           DateTime?
 
+  // Delivery destination — set only for DELIVERY orders (checkout leaves these
+  // null for PICKUP; a buyer collecting in person has no site to route a
+  // driver to). Required at the application layer, not the schema, so
+  // pre-migration orders and pickup orders stay valid rows. This is where the
+  // order goes after Builders Pool's own fulfillment center — the seller
+  // never sees it, matching the existing "seller ships to the center, ops
+  // handles the last hop" model.
+  deliveryAddress      String?
+  deliveryContactName  String?
+  deliveryContactPhone String?
+  deliveryWindow       String? // free text (e.g. "Weekday mornings") — no delivery-slot system exists to validate against
+  deliveryNotes        String? // offload/access notes for the driver
+
   buyer User        @relation(fields: [buyerId], references: [id])
   items OrderItem[]
 }

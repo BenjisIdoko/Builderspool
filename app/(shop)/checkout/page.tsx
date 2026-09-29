@@ -23,7 +23,11 @@ export default async function CheckoutPage() {
       <p className="mb-8 text-sm text-muted-foreground">
         Ordering as {buyer.name} ({buyer.email}).
       </p>
-      <CheckoutForm buyerId={buyer.id} />
+      <CheckoutForm
+        buyerId={buyer.id}
+        defaultContactName={buyer.businessName ?? buyer.name}
+        defaultContactPhone={buyer.phone ?? ''}
+      />
     </div>
   );
 }

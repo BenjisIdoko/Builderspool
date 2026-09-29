@@ -9,6 +9,20 @@ export interface CheckoutInput {
   fulfillmentMethod: FulfillmentMethod;
   paymentMethod: PaymentMethod;
   items: { materialId: string; quantity: number }[];
+  // Required by validation below when fulfillmentMethod is DELIVERY; ignored
+  // (and never persisted) for PICKUP, so a pickup order never carries stray
+  // delivery-looking data.
+  deliveryAddress?: string;
+  deliveryContactName?: string;
+  deliveryContactPhone?: string;
+  deliveryWindow?: string;
+  deliveryNotes?: string;
+}
+
+function requiredField(value: string | undefined, label: string): string {
+  const trimmed = value?.trim();
+  if (!trimmed) throw new Error(`${label} is required for delivery orders.`);
+  return trimmed;
 }
 
 /**
@@ -42,6 +56,21 @@ export async function createOrder(input: CheckoutInput) {
 
   const deliveryCost = getDeliveryCost(input.region, input.fulfillmentMethod);
 
+  // Real site details for DELIVERY — validated here (server-side) since the
+  // client already enforces it, but the client's word alone was never trusted
+  // elsewhere in this file either. PICKUP orders get none of this, even if a
+  // client sent some — there's no site to route a driver to.
+  const isDelivery = input.fulfillmentMethod === 'DELIVERY';
+  const delivery = isDelivery
+    ? {
+        deliveryAddress: requiredField(input.deliveryAddress, 'Delivery address'),
+        deliveryContactName: requiredField(input.deliveryContactName, 'Delivery contact name'),
+        deliveryContactPhone: requiredField(input.deliveryContactPhone, 'Delivery contact phone'),
+        deliveryWindow: input.deliveryWindow?.trim() || null,
+        deliveryNotes: input.deliveryNotes?.trim() || null,
+      }
+    : { deliveryAddress: null, deliveryContactName: null, deliveryContactPhone: null, deliveryWindow: null, deliveryNotes: null };
+
   return prisma.$transaction(async (tx) => {
     const order = await tx.order.create({
       data: {
@@ -49,6 +78,7 @@ export async function createOrder(input: CheckoutInput) {
         region: input.region,
         status: OrderStatus.PENDING_PAYMENT,
         paymentMethod: input.paymentMethod,
+        ...delivery,
       },
     });
 

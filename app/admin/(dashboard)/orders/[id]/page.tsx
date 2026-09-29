@@ -5,6 +5,7 @@ import {
   CheckCircleIcon,
   TruckIcon,
   StorefrontIcon,
+  MapPinIcon,
   CurrencyNgnIcon,
   UsersThreeIcon,
   HandshakeIcon,
@@ -177,6 +178,41 @@ export default async function AdminOrderDetailPage({ params }: { params: Promise
           </div>
         </div>
       </div>
+
+      {order.deliveryAddress && (
+        <div className="mb-8 rounded-2xl border border-border bg-surface p-5">
+          <div className="mb-1 flex items-center gap-1.5 text-[11px] font-bold tracking-wide text-muted-foreground uppercase">
+            <MapPinIcon className="size-3.5" />
+            Delivery destination
+          </div>
+          <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
+            <div>
+              <div className="text-sm whitespace-pre-line text-ink">{order.deliveryAddress}</div>
+              {order.deliveryWindow && (
+                <div className="mt-2 text-xs text-muted-foreground">Preferred window: {order.deliveryWindow}</div>
+              )}
+              {order.deliveryNotes && (
+                <div className="mt-1 text-xs text-muted-foreground">Offload notes: {order.deliveryNotes}</div>
+              )}
+            </div>
+            {(order.deliveryContactName || order.deliveryContactPhone) && (
+              <div>
+                <div className="text-[11px] font-semibold text-muted-foreground uppercase">Site contact</div>
+                <div className="text-sm text-ink">{order.deliveryContactName}</div>
+                {order.deliveryContactPhone && (
+                  <a
+                    href={`tel:${order.deliveryContactPhone}`}
+                    className="flex items-center gap-1.5 text-sm text-slate transition-colors hover:text-ink"
+                  >
+                    <PhoneIcon className="size-3.5" />
+                    {order.deliveryContactPhone}
+                  </a>
+                )}
+              </div>
+            )}
+          </div>
+        </div>
+      )}
 
       <div className="mb-8 rounded-2xl border border-border bg-surface p-6">
         <h2 className="mb-6 text-[11.5px] font-bold tracking-wide text-muted-foreground uppercase">Fulfillment tracking</h2>

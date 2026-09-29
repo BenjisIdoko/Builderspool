@@ -139,6 +139,16 @@ export default async function AdminHaulagePage({
                     </TableCell>
                     <TableCell className="py-3 text-ink">
                       {dispatch.orderItem.order.buyer.businessName ?? dispatch.orderItem.order.buyer.name}
+                      {/* Real destination once the buyer supplied one at checkout
+                          (2026-09-29) — older dispatches predate this and have
+                          none to show. Every Dispatch row is a delivery order
+                          (pickup items never get one), so this is the driver's
+                          actual destination, not just a region. */}
+                      {dispatch.orderItem.order.deliveryAddress && (
+                        <div className="mt-0.5 max-w-52 truncate text-xs text-muted-foreground" title={dispatch.orderItem.order.deliveryAddress}>
+                          {dispatch.orderItem.order.deliveryAddress}
+                        </div>
+                      )}
                     </TableCell>
                     <TableCell className="py-3 text-ink">
                       {dispatch.vehicle ? (

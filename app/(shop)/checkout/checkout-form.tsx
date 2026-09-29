@@ -10,7 +10,9 @@ import { formatNaira } from '@/lib/format';
 import { getDeliveryCost, type FulfillmentMethod } from '@/lib/checkout/deliveryCost';
 import { MaterialImage } from '@/components/material-image';
 import { Button } from '@/components/ui/button';
+import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
+import { Textarea } from '@/components/ui/textarea';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 
 const FULFILLMENT_OPTIONS: { method: FulfillmentMethod; label: string }[] = [
@@ -28,12 +30,25 @@ const REGIONS = ['ABUJA', 'LAGOS', 'KANO'];
 
 type SubmitState = { status: 'idle' } | { status: 'submitting' } | { status: 'error'; message: string };
 
-export function CheckoutForm({ buyerId }: { buyerId: string }) {
+export function CheckoutForm({
+  buyerId,
+  defaultContactName,
+  defaultContactPhone,
+}: {
+  buyerId: string;
+  defaultContactName: string;
+  defaultContactPhone: string;
+}) {
   const router = useRouter();
   const { lines, subtotal, clear } = useCart();
   const [region, setRegion] = useState(REGIONS[0]);
   const [fulfillmentMethod, setFulfillmentMethod] = useState<FulfillmentMethod>('DELIVERY');
   const [paymentMethod, setPaymentMethod] = useState<PaymentMethod>('BANK_TRANSFER');
+  const [deliveryAddress, setDeliveryAddress] = useState('');
+  const [deliveryContactName, setDeliveryContactName] = useState(defaultContactName);
+  const [deliveryContactPhone, setDeliveryContactPhone] = useState(defaultContactPhone);
+  const [deliveryWindow, setDeliveryWindow] = useState('');
+  const [deliveryNotes, setDeliveryNotes] = useState('');
   const [state, setState] = useState<SubmitState>({ status: 'idle' });
 
   const deliveryCost = getDeliveryCost(region, fulfillmentMethod);
@@ -65,6 +80,9 @@ export function CheckoutForm({ buyerId }: { buyerId: string }) {
           fulfillmentMethod,
           paymentMethod,
           items: lines.map((l) => ({ materialId: l.materialId, quantity: l.quantity })),
+          ...(fulfillmentMethod === 'DELIVERY'
+            ? { deliveryAddress, deliveryContactName, deliveryContactPhone, deliveryWindow, deliveryNotes }
+            : {}),
         }),
       });
 
@@ -130,6 +148,77 @@ export function CheckoutForm({ buyerId }: { buyerId: string }) {
             </div>
           ))}
         </div>
+
+        {fulfillmentMethod === 'DELIVERY' && (
+          <>
+            <div className="mt-10 mb-3.5 text-[13px] font-bold text-slate">03 · Delivery details</div>
+            <div className="flex flex-col gap-4 rounded-lg border border-border bg-surface p-4">
+              <div>
+                <Label htmlFor="deliveryAddress" className="mb-1.5 text-xs font-semibold text-slate">
+                  Site address
+                </Label>
+                <Textarea
+                  id="deliveryAddress"
+                  value={deliveryAddress}
+                  onChange={(e) => setDeliveryAddress(e.target.value)}
+                  placeholder="Street address, landmark, and any access notes a driver would need to find the site"
+                  required
+                  rows={2}
+                />
+              </div>
+              <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
+                <div>
+                  <Label htmlFor="deliveryContactName" className="mb-1.5 text-xs font-semibold text-slate">
+                    Contact name
+                  </Label>
+                  <Input
+                    id="deliveryContactName"
+                    value={deliveryContactName}
+                    onChange={(e) => setDeliveryContactName(e.target.value)}
+                    placeholder="Who the driver should ask for"
+                    required
+                  />
+                </div>
+                <div>
+                  <Label htmlFor="deliveryContactPhone" className="mb-1.5 text-xs font-semibold text-slate">
+                    Contact phone
+                  </Label>
+                  <Input
+                    id="deliveryContactPhone"
+                    type="tel"
+                    value={deliveryContactPhone}
+                    onChange={(e) => setDeliveryContactPhone(e.target.value)}
+                    placeholder="A number reachable on delivery day"
+                    required
+                  />
+                </div>
+              </div>
+              <div>
+                <Label htmlFor="deliveryWindow" className="mb-1.5 text-xs font-semibold text-slate">
+                  Preferred delivery window <span className="font-normal text-muted-foreground">(optional)</span>
+                </Label>
+                <Input
+                  id="deliveryWindow"
+                  value={deliveryWindow}
+                  onChange={(e) => setDeliveryWindow(e.target.value)}
+                  placeholder="e.g. Weekday mornings, or any time"
+                />
+              </div>
+              <div>
+                <Label htmlFor="deliveryNotes" className="mb-1.5 text-xs font-semibold text-slate">
+                  Offload notes <span className="font-normal text-muted-foreground">(optional)</span>
+                </Label>
+                <Textarea
+                  id="deliveryNotes"
+                  value={deliveryNotes}
+                  onChange={(e) => setDeliveryNotes(e.target.value)}
+                  placeholder="e.g. Manual offload only, no crane access, call on arrival"
+                  rows={2}
+                />
+              </div>
+            </div>
+          </>
+        )}
 
         {state.status === 'error' && (
           <p className="mt-6 rounded-md border border-danger/20 bg-danger/5 px-4 py-3 text-sm text-danger">
