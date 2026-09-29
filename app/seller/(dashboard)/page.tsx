@@ -88,7 +88,6 @@ export default async function SellerDashboardPage() {
 
   return (
     <div className="mx-auto w-full max-w-6xl px-5 pt-6 pb-20 sm:px-8 sm:pt-8">
-      {!profile!.user.emailVerifiedAt && <VerifyEmailBanner />}
       <div className="mb-2.5 flex flex-wrap items-center gap-2">
         {profile!.kycStatus === 'APPROVED' ? (
           <Badge variant="outline" className={pillClass('success')}>
@@ -110,10 +109,15 @@ export default async function SellerDashboardPage() {
           Trust score {profile!.trustScore}
         </Badge>
       </div>
-      <h1 className="mb-1 text-[26px] font-bold tracking-tight text-ink">
+      <h1 className="mb-1 text-xl font-bold tracking-tight text-ink sm:text-[26px]">
         {profile!.user.businessName ?? profile!.user.name}
       </h1>
-      <p className="mb-7 text-sm text-muted-foreground">Serving {profile!.regionsServed.join(', ')}</p>
+      <p className="mb-6 text-sm text-muted-foreground">Serving {profile!.regionsServed.join(', ')}</p>
+
+      {/* Identity (badges, business name, region) renders first — the
+          verify-email nudge is real but secondary, so it no longer sits
+          above the seller's own name on a fresh page load. */}
+      {!profile!.user.emailVerifiedAt && <VerifyEmailBanner />}
 
       {profile!.kycStatus !== 'APPROVED' && (
         <Link

@@ -43,8 +43,8 @@ export function KpiCard({
 
   return (
     <div className="overflow-hidden rounded-2xl border border-border bg-surface p-[18px] shadow-[0_1px_2px_rgba(16,24,40,0.04),0_8px_24px_rgba(16,24,40,0.05)]">
-      <div className="mb-3 flex items-center justify-between gap-2">
-        <div className="text-xs font-bold tracking-[0.04em] text-muted-foreground uppercase">{label}</div>
+      <div className="mb-3 flex items-start justify-between gap-2">
+        <div className="line-clamp-2 text-xs font-bold tracking-[0.04em] text-muted-foreground uppercase">{label}</div>
         <span className={`flex size-7 shrink-0 items-center justify-center rounded-lg ${pillClass(tone)}`}>
           <Icon className="size-3.5" />
         </span>

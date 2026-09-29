@@ -1162,3 +1162,9 @@ User asked for complete prices for all items. 111 materials have no verified pri
 - Branded 404s (`app/(shop)/not-found.tsx` inside the storefront chrome; `app/not-found.tsx` for the rest) and error boundaries (`app/(shop)/error.tsx`, `app/error.tsx`) with retry and a way back to the catalogue.
 - Product pages have their own title, description and Open Graph share preview (name, price, unit, photo); `metadataBase` set to the production URL (override with `NEXT_PUBLIC_SITE_URL`); `getMaterialById` is `cache()`d so the page and its metadata share one query.
 - Not tested: an actual sign-up submit (agent doesn't create accounts) and the checkout page signed in.
+
+## Seller dashboard mobile header fix (2026-09-29)
+Second item from the UX audit's "Seller & admin" findings.
+- `components/kpi-card.tsx` (default variant, used sitewide — seller dashboard, admin dashboard, materials/haulage/escrow/orders KPI rows): label now `line-clamp-2` instead of wrapping unbounded, header row `items-start` so the icon doesn't drift when a label wraps. A long label ("Escrow locked custody", "GMV (month to date)") now clips cleanly at 2 lines everywhere instead of wrapping to 3 on phones.
+- `app/seller/(dashboard)/page.tsx`: business name `text-xl sm:text-[26px]` (was a fixed 26px, which wrapped 2-word+ names like "Northern Aggregates Company" to two large lines on phones); `VerifyEmailBanner` moved to render after the identity block (badges, name, "Serving …") instead of above everything, so a seller's own name is the first thing shown, not a warning banner.
+- Verified live at 375px signed in as the seller with the longest name (Northern Aggregates Company): name fits one line, banner sits below identity, KPI labels clip at 2 lines. Re-verified desktop 1440px unchanged. `tsc --noEmit` and `npm run lint` clean.
