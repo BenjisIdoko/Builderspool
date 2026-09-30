@@ -1,7 +1,7 @@
 'use client';
 
 import { useState, useTransition } from 'react';
-import { EyeIcon } from '@phosphor-icons/react/ssr';
+import { EyeIcon, CheckCircleIcon, WarningIcon } from '@phosphor-icons/react/ssr';
 import { approveKycAction, rejectKycAction } from '@/app/admin/(dashboard)/users/actions';
 import { kycStatusTone, pillClass } from '@/lib/statusColors';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription, DialogFooter } from '@/components/ui/dialog';
@@ -20,6 +20,11 @@ type SellerProfile = {
   documentUrl: string | null;
   kycSubmittedAt: Date | null;
   kycRejectionReason: string | null;
+  cacVerifiedAt: Date | null;
+  cacVerifiedCompanyName: string | null;
+  cacVerifiedStatus: string | null;
+  cacVerifiedEntityType: string | null;
+  cacVerificationError: string | null;
 };
 
 function Field({ label, value }: { label: string; value: string | null }) {
@@ -99,6 +104,23 @@ export function SellerKycReview({ sellerName, profile }: { sellerName: string; p
             <Field label="ID type" value={profile.idType} />
             <Field label="ID number" value={profile.idNumber} />
           </div>
+
+          {profile.cacVerifiedAt && profile.cacVerifiedCompanyName ? (
+            <p className="flex items-start gap-1.5 text-xs text-success">
+              <CheckCircleIcon className="size-3.5 shrink-0 translate-y-0.5" />
+              CAC verified against the registry — {profile.cacVerifiedCompanyName} (
+              {profile.cacVerifiedEntityType}, {profile.cacVerifiedStatus}) on{' '}
+              {profile.cacVerifiedAt.toLocaleDateString('en-NG', { dateStyle: 'medium' })}.
+            </p>
+          ) : profile.cacVerificationError ? (
+            <p className="flex items-start gap-1.5 text-xs text-danger">
+              <WarningIcon className="size-3.5 shrink-0 translate-y-0.5" />
+              CAC verification failed: {profile.cacVerificationError}
+            </p>
+          ) : (
+            <p className="text-xs text-muted-foreground">CAC number not yet verified against the registry.</p>
+          )}
+
           {profile.documentUrl && (
             <a
               href={profile.documentUrl}

@@ -3,7 +3,7 @@ import { CheckCircleIcon, ClockIcon, WarningIcon } from '@phosphor-icons/react/s
 import { getSellerIdFromSession } from '@/lib/seller/session';
 import { getSellerProfile } from '@/lib/queries/sellerPortal';
 import { kycStatusTone, pillClass } from '@/lib/statusColors';
-import { submitKyc } from './actions';
+import { submitKyc, verifyCacAction } from './actions';
 import { Badge } from '@/components/ui/badge';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
@@ -105,6 +105,29 @@ export default async function SellerKycPage() {
               <Input id="idNumber" name="idNumber" required defaultValue={profile.idNumber ?? ''} />
             </div>
           </div>
+
+          <div className="flex flex-col gap-2.5 rounded-md border border-border bg-well/40 p-3 sm:flex-row sm:items-center sm:justify-between">
+            <div className="text-xs text-muted-foreground">
+              Checks the CAC number above against the real Corporate Affairs Commission registry.
+              {profile.cacVerifiedAt && profile.cacVerifiedCompanyName && (
+                <p className="mt-1 flex items-center gap-1.5 text-success">
+                  <CheckCircleIcon className="size-3.5 shrink-0" />
+                  Verified — {profile.cacVerifiedCompanyName} ({profile.cacVerifiedEntityType},{' '}
+                  {profile.cacVerifiedStatus}).
+                </p>
+              )}
+              {profile.cacVerificationError && (
+                <p className="mt-1 flex items-center gap-1.5 text-danger">
+                  <WarningIcon className="size-3.5 shrink-0" />
+                  {profile.cacVerificationError}
+                </p>
+              )}
+            </div>
+            <Button type="submit" formAction={verifyCacAction} formNoValidate variant="outline" className="shrink-0">
+              Verify CAC number
+            </Button>
+          </div>
+
           <div>
             <Label htmlFor="documentUrl" className="mb-1.5 text-xs text-muted-foreground">
               Document link (optional)
@@ -131,6 +154,12 @@ export default async function SellerKycPage() {
             <div>
               <div className="text-xs text-muted-foreground">CAC number</div>
               <div className="text-ink">{profile.cacNumber}</div>
+              {profile.cacVerifiedAt && profile.cacVerifiedCompanyName && (
+                <div className="mt-1 flex items-center gap-1.5 text-xs text-success">
+                  <CheckCircleIcon className="size-3.5 shrink-0" />
+                  Verified — {profile.cacVerifiedCompanyName}
+                </div>
+              )}
             </div>
             <div>
               <div className="text-xs text-muted-foreground">ID type</div>

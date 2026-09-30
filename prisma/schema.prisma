@@ -241,6 +241,19 @@ model SellerProfile {
   kycReviewedAt      DateTime?
   kycRejectionReason String?
 
+  // CAC verification (2026-09-30) — an automated cross-check of cacNumber
+  // against the real Corporate Affairs Commission registry via MetaMap's
+  // GovChecks API (lib/kyc/metamap.ts), independent of the manual admin
+  // review above. Tied to the exact cacNumber it verified: submitKyc clears
+  // these when cacNumber changes so a stale result never describes a
+  // different company (same reasoning as Material.retired vs
+  // needsPriceReview never overlapping).
+  cacVerifiedAt          DateTime?
+  cacVerifiedCompanyName String?
+  cacVerifiedStatus      String? // CAC registry's own ACTIVE/INACTIVE, not kycStatus
+  cacVerifiedEntityType  String? // BN, RC, or LLC
+  cacVerificationError   String?
+
   user User @relation(fields: [userId], references: [id])
 }
 
