@@ -282,6 +282,15 @@ model Material {
   // looking fabricated number, until admin sets a real price via the
   // materials editor. Never set true any other way.
   needsPriceReview Boolean    @default(false)
+  // A row admin has deliberately taken off the live catalog — e.g. a
+  // duplicate of another row kept for its order/bid history, which can't be
+  // deleted outright. Distinct from needsPriceReview: a retired row is not
+  // "awaiting a price," so it must never sit in that review queue. Buyer
+  // queries exclude retired rows the same way they exclude needsPriceReview
+  // ones (see BUYER_VISIBLE, lib/queries/materials.ts); admin still sees
+  // them, badged, since this app keeps a real record rather than hiding
+  // state outright.
+  retired       Boolean       @default(false)
   sourcingScope SourcingScope @default(NATIONAL)
   createdAt     DateTime      @default(now())
 

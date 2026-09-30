@@ -1,10 +1,10 @@
 import Link from 'next/link';
 import { notFound } from 'next/navigation';
-import { ArrowLeftIcon, WarningIcon } from '@phosphor-icons/react/ssr';
+import { ArrowLeftIcon, WarningIcon, ArchiveIcon, ArrowCounterClockwiseIcon } from '@phosphor-icons/react/ssr';
 import { getMaterialForAdmin } from '@/lib/queries/adminMaterials';
 import { getPriceHistory } from '@/lib/queries/materials';
 import { formatNaira } from '@/lib/format';
-import { updateMaterialAction } from '../actions';
+import { updateMaterialAction, setMaterialRetiredAction } from '../actions';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Button } from '@/components/ui/button';
@@ -25,13 +25,42 @@ export default async function AdminMaterialEditPage({ params }: { params: Promis
         <ArrowLeftIcon className="size-3.5" />
         Catalog materials
       </Link>
-      <div className="mb-1 text-xs text-muted-foreground">{material.category}</div>
-      <h1 className="mb-1 text-2xl font-bold tracking-tight text-ink">{material.name}</h1>
+      <div className="mb-3 flex flex-wrap items-start justify-between gap-3">
+        <div>
+          <div className="mb-1 text-xs text-muted-foreground">{material.category}</div>
+          <h1 className="text-2xl font-bold tracking-tight text-ink">{material.name}</h1>
+        </div>
+        <form action={setMaterialRetiredAction}>
+          <input type="hidden" name="id" value={material.id} />
+          <input type="hidden" name="retired" value={(!material.retired).toString()} />
+          <Button type="submit" variant="outline" size="sm" className="gap-1.5">
+            {material.retired ? (
+              <>
+                <ArrowCounterClockwiseIcon className="size-3.5" />
+                Restore to catalog
+              </>
+            ) : (
+              <>
+                <ArchiveIcon className="size-3.5" />
+                Retire
+              </>
+            )}
+          </Button>
+        </form>
+      </div>
       <p className="mb-8 text-sm text-muted-foreground">
         Current catalog price {formatNaira(material.catalogPrice)}
         {lastSnapshot && ` · last recorded ${lastSnapshot.date.toLocaleDateString('en-NG', { dateStyle: 'medium' })}`}
         . Saving a new price writes a real price-history point the buyer-facing chart will show.
       </p>
+
+      {material.retired && (
+        <div className="mb-6 flex items-center gap-2 rounded-lg border border-border bg-well px-4 py-2.5 text-sm text-slate">
+          <ArchiveIcon className="size-4 shrink-0" />
+          Retired — off the live buyer catalog. Kept on record for its order/bid history rather than
+          deleted. Restore it above to make it purchasable again.
+        </div>
+      )}
 
       {material.needsPriceReview && (
         <div className="mb-6 flex items-center gap-2 rounded-lg border border-warning bg-warning-soft px-4 py-2.5 text-sm text-warning">

@@ -6,11 +6,13 @@ import {
   StackIcon,
   GlobeIcon,
   MapPinIcon,
+  ArchiveIcon,
 } from '@phosphor-icons/react/ssr';
 import {
   getMaterialsForAdmin,
   getAdminMaterialCategories,
   getMaterialsNeedingPriceReviewCount,
+  getRetiredMaterialsCount,
   getMaterialKpis,
 } from '@/lib/queries/adminMaterials';
 import { formatNaira } from '@/lib/format';
@@ -24,20 +26,22 @@ import { Table, TableBody, TableHead, TableHeader, TableRow } from '@/components
 export default async function AdminMaterialsPage({
   searchParams,
 }: {
-  searchParams: Promise<{ category?: string; q?: string; page?: string; review?: string; scope?: string }>;
+  searchParams: Promise<{ category?: string; q?: string; page?: string; review?: string; retired?: string; scope?: string }>;
 }) {
-  const { category, q, page: pageParam, review, scope: scopeParam } = await searchParams;
+  const { category, q, page: pageParam, review, retired: retiredParam, scope: scopeParam } = await searchParams;
   const page = Math.max(1, Number(pageParam) || 1);
   const needsReview = review === '1';
+  const showRetired = retiredParam === '1';
   const scope = (scopeParam?.split(',').filter((s) => s === 'NATIONAL' || s === 'REGIONAL') ?? []) as (
     | 'NATIONAL'
     | 'REGIONAL'
   )[];
 
-  const [{ materials, total, pageCount }, categories, needsReviewCount, kpis] = await Promise.all([
-    getMaterialsForAdmin({ category, query: q, page, needsReview, scope }),
+  const [{ materials, total, pageCount }, categories, needsReviewCount, retiredCount, kpis] = await Promise.all([
+    getMaterialsForAdmin({ category, query: q, page, needsReview, retired: showRetired, scope }),
     getAdminMaterialCategories(),
     getMaterialsNeedingPriceReviewCount(),
+    getRetiredMaterialsCount(),
     getMaterialKpis(),
   ]);
 
@@ -52,18 +56,27 @@ export default async function AdminMaterialsPage({
     },
     { label: 'National supply', value: String(kpis.national), icon: GlobeIcon, tone: 'info' as const, chip: 'Ships anywhere' },
     { label: 'Regional', value: String(kpis.regional), icon: MapPinIcon, tone: 'info' as const, chip: 'Region-limited' },
+    {
+      label: 'Retired',
+      value: String(kpis.retired),
+      icon: ArchiveIcon,
+      tone: 'neutral' as const,
+      chip: 'Off the live catalog',
+    },
   ];
 
-  function urlFor(overrides: { category?: string; q?: string; page?: number; review?: boolean }) {
+  function urlFor(overrides: { category?: string; q?: string; page?: number; review?: boolean; retired?: boolean }) {
     const params = new URLSearchParams();
     const c = overrides.category !== undefined ? overrides.category : category;
     const query = overrides.q !== undefined ? overrides.q : q;
     const p = overrides.page ?? 1;
     const r = overrides.review !== undefined ? overrides.review : needsReview;
+    const ret = overrides.retired !== undefined ? overrides.retired : showRetired;
     if (c) params.set('category', c);
     if (query) params.set('q', query);
     if (p > 1) params.set('page', String(p));
     if (r) params.set('review', '1');
+    if (ret) params.set('retired', '1');
     if (scope.length > 0) params.set('scope', scope.join(','));
     const qs = params.toString();
     return `/admin/materials${qs ? `?${qs}` : ''}`;
@@ -74,11 +87,12 @@ export default async function AdminMaterialsPage({
       <div className="mb-1 text-xs text-muted-foreground">Admin · ops desk</div>
       <h1 className="mb-1 text-[26px] font-bold tracking-tight text-ink">Catalog materials</h1>
       <p className="mb-8 text-sm text-muted-foreground">
-        The live buyer catalog — {total} materials. Admin is the only place these can be edited; every
-        price change is recorded as a real price-history point buyers can see.
+        {showRetired
+          ? `${total} retired material${total === 1 ? '' : 's'} — off the live catalog, kept for their order/bid history.`
+          : `The live buyer catalog — ${total} materials. Admin is the only place these can be edited; every price change is recorded as a real price-history point buyers can see.`}
       </p>
 
-      <div className="mb-8 grid grid-cols-2 gap-4 lg:grid-cols-4">
+      <div className="mb-8 grid grid-cols-2 gap-4 lg:grid-cols-5">
         {kpiCards.map((kpi) => (
           <KpiCard key={kpi.label} {...kpi} size="compact" />
         ))}
@@ -125,10 +139,23 @@ export default async function AdminMaterialsPage({
         </div>
 
         <div className="flex flex-wrap items-center gap-2">
+          {retiredCount > 0 && (
+            <Link href={urlFor({ retired: !showRetired, category: '', page: 1 })}>
+              <span
+                className={`inline-flex items-center gap-1.5 rounded-full px-3 py-1.5 text-xs font-semibold transition-colors ${
+                  showRetired ? 'bg-ink text-canvas' : 'bg-well text-slate hover:text-ink'
+                }`}
+              >
+                <ArchiveIcon className="size-3.5" />
+                {showRetired ? 'Showing retired' : `Retired (${retiredCount})`}
+              </span>
+            </Link>
+          )}
           <MaterialScopeFilter current={scope} />
           <form className="flex max-w-xs flex-1 items-center gap-2">
             {category && <input type="hidden" name="category" value={category} />}
             {needsReview && <input type="hidden" name="review" value="1" />}
+            {showRetired && <input type="hidden" name="retired" value="1" />}
             {scope.length > 0 && <input type="hidden" name="scope" value={scope.join(',')} />}
             <div className="relative flex-1">
               <MagnifyingGlassIcon className="pointer-events-none absolute top-1/2 left-3 size-4 -translate-y-1/2 text-muted-foreground" />
@@ -145,7 +172,11 @@ export default async function AdminMaterialsPage({
         <div className="flex flex-col items-center gap-3 rounded-2xl border border-border bg-surface px-6 py-16 text-center">
           <PackageIcon className="size-8 text-muted-foreground" />
           <p className="text-sm text-muted-foreground">
-            {q ? `No materials match "${q}".` : 'No materials in this category.'}
+            {q
+              ? `No materials match "${q}".`
+              : showRetired
+                ? 'No retired materials.'
+                : 'No materials in this category.'}
           </p>
         </div>
       ) : (
@@ -170,6 +201,7 @@ export default async function AdminMaterialsPage({
                   unit={m.unit}
                   priceFormatted={formatNaira(m.catalogPrice)}
                   needsPriceReview={m.needsPriceReview}
+                  retired={m.retired}
                   scopeLabel={m.sourcingScope === 'NATIONAL' ? 'National' : 'Regional'}
                   spec={m.spec}
                   grade={m.grade}

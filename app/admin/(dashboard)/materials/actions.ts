@@ -64,3 +64,26 @@ export async function updateMaterialAction(formData: FormData) {
   revalidatePath('/catalog');
   revalidatePath(`/catalog/${id}`);
 }
+
+// Takes a row off the live catalog without deleting it — for a duplicate or
+// otherwise superseded material that still has real order/bid history and so
+// can't be removed outright. Retiring also clears needsPriceReview: a
+// retired row is never "awaiting a price" (see the schema comment), so it
+// must not sit in that review queue once it's off the catalog either way.
+export async function setMaterialRetiredAction(formData: FormData) {
+  await requireAdmin();
+
+  const id = formData.get('id');
+  if (typeof id !== 'string') throw new Error('Missing material id.');
+  const retired = formData.get('retired') === 'true';
+
+  await prisma.material.update({
+    where: { id },
+    data: { retired, ...(retired ? { needsPriceReview: false } : {}) },
+  });
+
+  revalidatePath('/admin/materials');
+  revalidatePath(`/admin/materials/${id}`);
+  revalidatePath('/catalog');
+  revalidatePath(`/catalog/${id}`);
+}

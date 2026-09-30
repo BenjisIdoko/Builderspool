@@ -2,7 +2,7 @@
 
 import { useState } from 'react';
 import Link from 'next/link';
-import { PencilSimpleIcon, WarningIcon } from '@phosphor-icons/react/ssr';
+import { PencilSimpleIcon, WarningIcon, ArchiveIcon } from '@phosphor-icons/react/ssr';
 import { Badge } from '@/components/ui/badge';
 import { TableCell, TableRow } from '@/components/ui/table';
 
@@ -16,6 +16,7 @@ export function MaterialTableRow({
   unit,
   priceFormatted,
   needsPriceReview,
+  retired,
   scopeLabel,
   spec,
   grade,
@@ -29,6 +30,7 @@ export function MaterialTableRow({
   unit: string;
   priceFormatted: string;
   needsPriceReview: boolean;
+  retired: boolean;
   scopeLabel: string;
   spec: string | null;
   grade: string | null;
@@ -47,7 +49,15 @@ export function MaterialTableRow({
   return (
     <TableRow>
       <TableCell className="py-3 text-ink">
-        <div className="max-w-64 truncate font-medium">{name}</div>
+        <div className="flex items-center gap-1.5">
+          <div className="max-w-64 truncate font-medium">{name}</div>
+          {retired && (
+            <Badge variant="outline" className="w-fit shrink-0 gap-1 border-border text-muted-foreground">
+              <ArchiveIcon className="size-3" />
+              Retired
+            </Badge>
+          )}
+        </div>
         <div className="text-xs text-muted-foreground">{category}</div>
         {expanded && (
           <div className="mt-1.5 flex flex-col gap-0.5 text-[11.5px] text-slate">

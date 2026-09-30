@@ -11,18 +11,25 @@ export async function getMaterialsForAdmin({
   query,
   page = 1,
   needsReview,
+  retired,
   scope,
 }: {
   category?: string;
   query?: string;
   page?: number;
   needsReview?: boolean;
+  // undefined (default): live catalog only, retired rows excluded — matches
+  // this page's own "the live buyer catalog" framing. true: only retired
+  // rows, reachable via the explicit "Retired" filter, same pattern as
+  // needsReview — never mixed silently into the default list.
+  retired?: boolean;
   scope?: ('NATIONAL' | 'REGIONAL')[];
 }) {
   const where: Prisma.MaterialWhereInput = {
     category: category || undefined,
     name: query ? { contains: query, mode: 'insensitive' } : undefined,
     needsPriceReview: needsReview ? true : undefined,
+    retired: retired ? true : false,
     sourcingScope: scope && scope.length > 0 && scope.length < 2 ? scope[0] : undefined,
   };
 
@@ -62,20 +69,29 @@ export async function getAdminMaterialCategories() {
 // Powers the "Needs price review" quick filter — rows created with a
 // placeholder price by the catalogue-reference bulk import (see
 // prisma/seed.ts's seedMaterialsFromReference), not yet given a real price.
+// A retired row is never "awaiting a price" (see the schema comment on
+// Material.retired), so this and the count below never overlap.
 export async function getMaterialsNeedingPriceReviewCount() {
   return prisma.material.count({ where: { needsPriceReview: true } });
 }
 
+export async function getRetiredMaterialsCount() {
+  return prisma.material.count({ where: { retired: true } });
+}
+
 // Real KPI strip for the Materials page — every count is a direct
-// aggregate, nothing derived from a fabricated market index.
+// aggregate, nothing derived from a fabricated market index. total/national/
+// regional describe the live catalog, so retired rows are excluded from all
+// three, same as they're excluded from the buyer-facing site.
 export async function getMaterialKpis() {
-  const [total, needsReview, national, regional] = await Promise.all([
-    prisma.material.count(),
+  const [total, needsReview, national, regional, retired] = await Promise.all([
+    prisma.material.count({ where: { retired: false } }),
     prisma.material.count({ where: { needsPriceReview: true } }),
-    prisma.material.count({ where: { sourcingScope: 'NATIONAL' } }),
-    prisma.material.count({ where: { sourcingScope: 'REGIONAL' } }),
+    prisma.material.count({ where: { sourcingScope: 'NATIONAL', retired: false } }),
+    prisma.material.count({ where: { sourcingScope: 'REGIONAL', retired: false } }),
+    prisma.material.count({ where: { retired: true } }),
   ]);
-  return { total, needsReview, national, regional };
+  return { total, needsReview, national, regional, retired };
 }
 
 function toPlainMaterial<T extends { catalogPrice: unknown }>(material: T) {

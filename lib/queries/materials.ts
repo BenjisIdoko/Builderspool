@@ -48,7 +48,10 @@ function sortToOrderBy(sort: MaterialSort): Prisma.MaterialOrderByWithRelationIn
 // shown to buyers — a placeholder or unverified price must not be browsable,
 // searchable, linkable or purchasable. Admin queries are unaffected; clearing
 // the flag (saving a price in /admin/materials) publishes the item.
-const BUYER_VISIBLE = { needsPriceReview: false } as const;
+// Retired rows (superseded duplicates kept only for their order/bid history)
+// are excluded the same way — never browsable, searchable, linkable or
+// purchasable, but still visible to admin.
+const BUYER_VISIBLE = { needsPriceReview: false, retired: false } as const;
 
 export async function getMaterials({
   category,
