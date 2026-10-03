@@ -15,6 +15,15 @@ function requiredText(formData: FormData, key: string): string {
   return value.trim();
 }
 
+function isWebUrl(value: string): boolean {
+  try {
+    const { protocol } = new URL(value);
+    return protocol === 'https:' || protocol === 'http:';
+  } catch {
+    return false;
+  }
+}
+
 // Text/reference-only submission — this app has no file-storage infra yet
 // (see the schema comment on SellerProfile), so documentUrl is a link to
 // something already hosted, not a real upload.
@@ -28,6 +37,12 @@ export async function submitKyc(formData: FormData) {
   const idNumber = requiredText(formData, 'idNumber');
   const documentUrlRaw = formData.get('documentUrl');
   const documentUrl = typeof documentUrlRaw === 'string' && documentUrlRaw.trim() ? documentUrlRaw.trim() : null;
+  // <input type="url"> is browser-side only and accepts javascript:/data: —
+  // this link is later rendered in the admin review dialog, so only plain
+  // web links are allowed.
+  if (documentUrl && !isWebUrl(documentUrl)) {
+    throw new Error('Document link must be a web link starting with https:// (or http://).');
+  }
 
   const existing = await prisma.sellerProfile.findUniqueOrThrow({ where: { userId: sellerId } });
   const cacNumberChanged = existing.cacNumber !== cacNumber;

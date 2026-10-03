@@ -27,6 +27,11 @@ type SellerProfile = {
   cacVerificationError: string | null;
 };
 
+// Defence in depth for rows saved before the server validated the scheme.
+function isWebUrl(value: string): boolean {
+  return /^https?:\/\//i.test(value.trim());
+}
+
 function Field({ label, value }: { label: string; value: string | null }) {
   return (
     <div>
@@ -121,7 +126,7 @@ export function SellerKycReview({ sellerName, profile }: { sellerName: string; p
             <p className="text-xs text-muted-foreground">CAC number not yet verified against the registry.</p>
           )}
 
-          {profile.documentUrl && (
+          {profile.documentUrl && isWebUrl(profile.documentUrl) && (
             <a
               href={profile.documentUrl}
               target="_blank"
