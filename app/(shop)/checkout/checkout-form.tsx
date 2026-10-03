@@ -31,11 +31,9 @@ const REGIONS = ['ABUJA', 'LAGOS', 'KANO'];
 type SubmitState = { status: 'idle' } | { status: 'submitting' } | { status: 'error'; message: string };
 
 export function CheckoutForm({
-  buyerId,
   defaultContactName,
   defaultContactPhone,
 }: {
-  buyerId: string;
   defaultContactName: string;
   defaultContactPhone: string;
 }) {
@@ -75,7 +73,6 @@ export function CheckoutForm({
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
-          buyerId,
           region,
           fulfillmentMethod,
           paymentMethod,

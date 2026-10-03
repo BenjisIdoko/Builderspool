@@ -24,7 +24,6 @@ export default async function CheckoutPage() {
         Ordering as {buyer.name} ({buyer.email}).
       </p>
       <CheckoutForm
-        buyerId={buyer.id}
         defaultContactName={buyer.businessName ?? buyer.name}
         defaultContactPhone={buyer.phone ?? ''}
       />

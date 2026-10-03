@@ -19,6 +19,26 @@ export interface CheckoutInput {
   deliveryNotes?: string;
 }
 
+const MAX_LINE_QUANTITY = 100_000;
+
+// Quantities come straight from the request body (the cart's own server
+// actions reject <= 0, but checkout accepts items directly). A negative or
+// fractional line would reduce the computed total — and so the amount
+// charged — while still pooling into a bid cycle.
+function validateItems(items: CheckoutInput['items']) {
+  const seen = new Set<string>();
+  for (const item of items) {
+    if (!item || typeof item.materialId !== 'string' || !item.materialId) {
+      throw new Error('Invalid cart item.');
+    }
+    if (!Number.isInteger(item.quantity) || item.quantity < 1 || item.quantity > MAX_LINE_QUANTITY) {
+      throw new Error(`Quantity must be a whole number between 1 and ${MAX_LINE_QUANTITY.toLocaleString('en-NG')}.`);
+    }
+    if (seen.has(item.materialId)) throw new Error('Each material can only appear once per order.');
+    seen.add(item.materialId);
+  }
+}
+
 function requiredField(value: string | undefined, label: string): string {
   const trimmed = value?.trim();
   if (!trimmed) throw new Error(`${label} is required for delivery orders.`);
@@ -31,9 +51,10 @@ function requiredField(value: string | undefined, label: string): string {
  * payment is confirmed via webhook — see lib/bidding/joinCycle.ts.
  */
 export async function createOrder(input: CheckoutInput) {
-  if (input.items.length === 0) {
+  if (!Array.isArray(input.items) || input.items.length === 0) {
     throw new Error('Cannot checkout an empty cart.');
   }
+  validateItems(input.items);
 
   const materials = await prisma.material.findMany({
     where: { id: { in: input.items.map((item) => item.materialId) } },
