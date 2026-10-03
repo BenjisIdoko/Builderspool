@@ -1,16 +1,15 @@
 'use server';
 
-import { cookies } from 'next/headers';
 import { redirect } from 'next/navigation';
 import { prisma } from '@/lib/prisma';
 import { Role } from '@prisma/client';
 import { hashPassword, verifyPassword } from '@/lib/auth/password';
 import { assertNotRateLimited, recordLoginAttempt } from '@/lib/auth/rateLimit';
 import { sendVerificationForNewUser } from '@/lib/auth/emailVerification';
-import { BUYER_COOKIE } from '@/lib/buyer/session';
+import { BUYER_SESSION } from '@/lib/buyer/session';
+import { createSession, destroySession, SESSION_TTL } from '@/lib/auth/sessionStore';
 
 const EMAIL_RE = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-const SESSION_MAX_AGE = 60 * 60 * 24 * 30; // 30 days, used only when "remember me" is checked
 
 function requiredText(formData: FormData, key: string): string {
   const value = formData.get(key);
@@ -45,12 +44,9 @@ export async function signInBuyer(formData: FormData): Promise<{ error: string }
     }
     await recordLoginAttempt(email, true);
 
-    const store = await cookies();
-    store.set(BUYER_COOKIE, user.id, {
-      httpOnly: true,
-      sameSite: 'lax',
-      path: '/',
-      maxAge: remember ? SESSION_MAX_AGE : undefined,
+    await createSession(BUYER_SESSION, user.id, {
+      ttlMs: remember ? SESSION_TTL.buyerRemembered : SESSION_TTL.buyer,
+      persistent: remember,
     });
   } catch (err) {
     return { error: err instanceof Error ? err.message : 'Could not sign in.' };
@@ -90,15 +86,13 @@ export async function signUpBuyer(formData: FormData): Promise<{ error: string }
     });
     await sendVerificationForNewUser(user.id, user.email);
 
-    const store = await cookies();
-    store.set(BUYER_COOKIE, user.id, { httpOnly: true, sameSite: 'lax', path: '/' });
+    await createSession(BUYER_SESSION, user.id, { ttlMs: SESSION_TTL.buyer, persistent: false });
   } catch (err) {
     return { error: err instanceof Error ? err.message : 'Could not create your account.' };
   }
 }
 
 export async function signOutBuyer() {
-  const store = await cookies();
-  store.delete(BUYER_COOKIE);
+  await destroySession(BUYER_SESSION);
   redirect('/');
 }

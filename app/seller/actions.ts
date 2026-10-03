@@ -1,11 +1,11 @@
 'use server';
 
-import { cookies } from 'next/headers';
 import { redirect } from 'next/navigation';
 import { revalidatePath } from 'next/cache';
 import { prisma } from '@/lib/prisma';
 import { BidStatus, CycleStatus, Role } from '@prisma/client';
-import { SELLER_COOKIE, getSellerIdFromSession } from '@/lib/seller/session';
+import { SELLER_SESSION, getSellerIdFromSession } from '@/lib/seller/session';
+import { createSession, destroySession, SESSION_TTL } from '@/lib/auth/sessionStore';
 import { isSellerEligible } from '@/lib/bidding/scoring';
 import { isPastCutoff } from '@/lib/bidding/cycleWindow';
 import { hashPassword, verifyPassword } from '@/lib/auth/password';
@@ -45,8 +45,7 @@ export async function signInSeller(formData: FormData): Promise<{ error: string 
     }
     await recordLoginAttempt(email, true);
 
-    const store = await cookies();
-    store.set(SELLER_COOKIE, user.id, { httpOnly: true, sameSite: 'lax', path: '/' });
+    await createSession(SELLER_SESSION, user.id, { ttlMs: SESSION_TTL.seller, persistent: true });
   } catch (err) {
     return { error: err instanceof Error ? err.message : 'Could not sign in.' };
   }
@@ -79,16 +78,14 @@ export async function signUpSeller(formData: FormData): Promise<{ error: string 
     });
     await sendVerificationForNewUser(user.id, user.email);
 
-    const store = await cookies();
-    store.set(SELLER_COOKIE, user.id, { httpOnly: true, sameSite: 'lax', path: '/' });
+    await createSession(SELLER_SESSION, user.id, { ttlMs: SESSION_TTL.seller, persistent: true });
   } catch (err) {
     return { error: err instanceof Error ? err.message : 'Could not create your seller account.' };
   }
 }
 
 export async function signOutSeller() {
-  const store = await cookies();
-  store.delete(SELLER_COOKIE);
+  await destroySession(SELLER_SESSION);
   redirect('/seller/login');
 }
 

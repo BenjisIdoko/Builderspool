@@ -5,6 +5,7 @@ import { hashPassword } from '@/lib/auth/password';
 import { generateToken, hashToken } from '@/lib/auth/tokens';
 import { sendPasswordResetEmail } from '@/lib/email/send';
 import { getRequestOrigin } from '@/lib/http/origin';
+import { revokeAllSessions } from '@/lib/auth/sessionStore';
 
 const RESET_TOKEN_TTL_MS = 60 * 60 * 1000; // 1 hour
 
@@ -80,6 +81,10 @@ export async function resetPassword(formData: FormData): Promise<{ error: string
         data: { usedAt: new Date() },
       }),
     ]);
+
+    // A reset usually means the old password (and any session it opened) may
+    // be compromised — end every existing login for this user.
+    await revokeAllSessions(record.userId);
 
     return { success: true };
   } catch (err) {

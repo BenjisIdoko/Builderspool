@@ -156,6 +156,7 @@ model User {
   emailVerifiedAt DateTime?
 
   sellerProfile SellerProfile?
+  sessions      Session[]
   cartItems     CartItem[]
   orders        Order[]
   bids          Bid[]
@@ -201,6 +202,24 @@ model EmailVerificationToken {
 // check even resolves whether the email exists, so failed attempts against
 // a nonexistent account are throttled identically to a real one (no
 // enumeration signal via timing/lockout behavior).
+// Server-side login sessions (2026-10-03). The cookie holds a random 256-bit
+// token; only its SHA-256 hash is stored here (same principle as the
+// password-reset tokens), so a DB read can't forge a session and a leaked
+// user id is worthless. Rows are deleted on sign-out and on password reset,
+// which is what makes a session revocable.
+model Session {
+  id        String   @id @default(cuid())
+  tokenHash String   @unique
+  userId    String
+  role      Role
+  expiresAt DateTime
+  createdAt DateTime @default(now())
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId])
+}
+
 model LoginAttempt {
   id         String   @id @default(cuid())
   identifier String // lowercased email

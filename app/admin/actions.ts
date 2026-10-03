@@ -1,6 +1,5 @@
 'use server';
 
-import { cookies } from 'next/headers';
 import { redirect } from 'next/navigation';
 import { revalidatePath } from 'next/cache';
 // signInAdmin deliberately does NOT call redirect() itself — it's invoked
@@ -11,7 +10,8 @@ import { revalidatePath } from 'next/cache';
 // with no client wrapper, so it keeps calling redirect() directly.
 import { prisma } from '@/lib/prisma';
 import { CycleStatus, Role } from '@prisma/client';
-import { ADMIN_COOKIE, requireAdmin } from '@/lib/admin/session';
+import { ADMIN_SESSION, requireAdmin } from '@/lib/admin/session';
+import { createSession, destroySession, SESSION_TTL } from '@/lib/auth/sessionStore';
 import { verifyPassword } from '@/lib/auth/password';
 import { assertNotRateLimited, recordLoginAttempt } from '@/lib/auth/rateLimit';
 import { awardCycle } from '@/lib/bidding';
@@ -46,16 +46,14 @@ export async function signInAdmin(formData: FormData): Promise<{ error: string }
     }
     await recordLoginAttempt(email, true);
 
-    const store = await cookies();
-    store.set(ADMIN_COOKIE, admin.id, { httpOnly: true, sameSite: 'lax', path: '/' });
+    await createSession(ADMIN_SESSION, admin.id, { ttlMs: SESSION_TTL.admin, persistent: true });
   } catch (err) {
     return { error: err instanceof Error ? err.message : 'Could not sign in.' };
   }
 }
 
 export async function signOutAdmin() {
-  const store = await cookies();
-  store.delete(ADMIN_COOKIE);
+  await destroySession(ADMIN_SESSION);
   redirect('/admin/login');
 }
 

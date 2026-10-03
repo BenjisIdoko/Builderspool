@@ -1,5 +1,5 @@
 import { cache } from 'react';
-import { cookies } from 'next/headers';
+import { getSessionUserId } from '@/lib/auth/sessionStore';
 import { prisma } from '@/lib/prisma';
 import { Role } from '@prisma/client';
 
@@ -9,16 +9,18 @@ import { Role } from '@prisma/client';
 // there can be several assigned people, so the session identifies which one
 // rather than being a bare "signed in" flag. Because it's re-checked against
 // the database on every request, removing an admin (or demoting the row)
-// revokes their access immediately.
-export const ADMIN_COOKIE = 'bp_admin_session';
+// revokes their access immediately — and deleting the Session row ends a
+// specific login.
+export const ADMIN_COOKIE = 'bp_admin_session_v2';
+export const ADMIN_SESSION = { cookieName: ADMIN_COOKIE, role: Role.ADMIN };
 
 // React cache() dedupes the lookup within a single request — the layout,
 // the page, and any action in the same render all share one query.
 export const getCurrentAdmin = cache(async () => {
-  const store = await cookies();
-  const adminId = store.get(ADMIN_COOKIE)?.value;
-  // Pre-2026-09-19 sessions stored the literal 'true' — never a valid id, so
-  // those simply fail the lookup and the admin signs in again once.
+  // The cookie is a random session token, not an admin id (see
+  // lib/auth/sessionStore.ts). Old id-valued cookies use different names, so
+  // they're simply ignored and the admin signs in again once.
+  const adminId = await getSessionUserId(ADMIN_COOKIE, Role.ADMIN);
   if (!adminId) return null;
   return prisma.user.findFirst({ where: { id: adminId, role: Role.ADMIN } });
 });
