@@ -28,7 +28,13 @@ export const viewport: Viewport = {
 export default function RootLayout({ children }: LayoutProps<'/'>) {
   return (
     <html lang="en" className={`${plusJakartaSans.variable} h-full antialiased`}>
-      <body className="flex min-h-full flex-col bg-canvas text-ink">{children}
+      <body className="flex min-h-full flex-col bg-canvas text-ink">
+        {/* Reveal (components/motion/reveal.tsx) server-renders content hidden
+            until it scrolls into view; without JS that would never happen. */}
+        <noscript>
+          <style>{'[data-reveal]{opacity:1!important;transform:none!important}'}</style>
+        </noscript>
+        {children}
         <PwaRegister />
       </body>
     </html>

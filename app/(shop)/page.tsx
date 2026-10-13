@@ -1,3 +1,4 @@
+import { Reveal } from '@/components/motion/reveal';
 import Image from 'next/image';
 import Link from 'next/link';
 import { CertificateIcon, LockKeyIcon, ArrowUpRightIcon, PhoneIcon, MapPinIcon, EnvelopeSimpleIcon } from '@phosphor-icons/react/ssr';
@@ -96,6 +97,7 @@ export default async function Home() {
         <HeroLiveCard />
       </section>
 
+      <Reveal>
       <section className="mx-auto w-full max-w-section px-6 pt-8">
         <div className="mb-5 text-center text-[11.5px] font-bold tracking-[0.06em] text-muted-foreground uppercase">
           Trusted by suppliers and contractors nationwide
@@ -108,9 +110,11 @@ export default async function Home() {
           ))}
         </div>
       </section>
+      </Reveal>
 
       {/* Category marquee — infinite CSS scroll, real category names from
           the live catalog, doubled so the loop point is invisible. */}
+      <Reveal>
       <section className="px-6 pt-16">
         <div className="mx-auto max-w-section overflow-hidden rounded-[32px] bg-brand py-6.5">
           <div className="[mask-image:linear-gradient(90deg,transparent,#fff_4%,#fff_96%,transparent)] overflow-hidden">
@@ -128,13 +132,17 @@ export default async function Home() {
           </div>
         </div>
       </section>
+      </Reveal>
 
+      <Reveal>
       <section id="how-it-works" className="px-6 pt-16">
         <div className="mx-auto max-w-section">
           <PhilosophySteps />
         </div>
       </section>
+      </Reveal>
 
+      <Reveal>
       <section className="mx-auto w-full max-w-section px-6 pt-16">
         <div className="mb-5 flex items-baseline justify-between">
           <div>
@@ -153,11 +161,14 @@ export default async function Home() {
           ))}
         </div>
       </section>
+      </Reveal>
 
+      <Reveal>
       <section className="mx-auto w-full max-w-section px-6 pt-16">
         <h2 className="mb-5 text-[22px] font-bold tracking-[-0.025em] text-ink">Frequently asked questions</h2>
         <FaqAccordion />
       </section>
+      </Reveal>
 
       {/* CTA banner — visual treatment (dark photo card, fading to solid
           ink) adopted from the reference; copy reuses this app's existing
@@ -167,6 +178,7 @@ export default async function Home() {
           none of that exists here. Always shown, matching the reference
           (not gated on login state — buyer is still used for the header's
           own account/avatar treatment). */}
+      <Reveal>
       <section className="mx-auto w-full max-w-section px-6 pt-16">
         <div className="relative min-h-[280px] overflow-hidden rounded-3xl bg-ink">
           <Image
@@ -207,11 +219,13 @@ export default async function Home() {
           </div>
         </div>
       </section>
+      </Reveal>
 
       {/* Get in touch — real, active contact details confirmed by the
           user (not the reference's placeholder phone/email). Depot
           addresses use real fulfillment center data instead of the
           reference's fictional cities. */}
+      <Reveal>
       <section className="mx-auto w-full max-w-section px-6 pt-16 pb-16">
         <h2 className="mb-5 text-[22px] font-bold tracking-[-0.025em] text-ink">Get in touch</h2>
         <div className="grid grid-cols-1 gap-4 sm:grid-cols-3">
@@ -240,6 +254,7 @@ export default async function Home() {
           </div>
         </div>
       </section>
+      </Reveal>
     </div>
   );
 }

@@ -1,3 +1,4 @@
+import { Reveal } from '@/components/motion/reveal';
 import Link from 'next/link';
 import { TruckIcon } from '@phosphor-icons/react/ssr';
 import { getMaterials, getCategories, getFulfillmentCenters, MATERIAL_SORT_VALUES, type MaterialSort } from '@/lib/queries/materials';
@@ -152,11 +153,11 @@ export default async function CatalogPage({
             </div>
           ) : (
             <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 xl:grid-cols-3">
-              {materials.map((material) => (
+              {materials.map((material, index) => (
+                <Reveal key={material.id} className="h-full" delay={Math.min(index % 3, 2) * 0.05}>
                 <Link
-                  key={material.id}
                   href={`/catalog/${material.id}`}
-                  className="flex flex-col overflow-hidden rounded-[14px] border border-border bg-surface shadow-[0_1px_2px_rgba(16,24,40,0.04)] transition-[transform,box-shadow] duration-150 hover:-translate-y-1 hover:shadow-[0_16px_32px_rgba(16,24,40,0.12)]"
+                  className="flex h-full flex-col overflow-hidden rounded-[14px] border border-border bg-surface shadow-[0_1px_2px_rgba(16,24,40,0.04)] transition-[transform,box-shadow] duration-150 hover:-translate-y-1 hover:shadow-[0_16px_32px_rgba(16,24,40,0.12)]"
                 >
                   <div className="relative">
                     <MaterialImage
@@ -177,6 +178,7 @@ export default async function CatalogPage({
                     </div>
                   </div>
                 </Link>
+                </Reveal>
               ))}
             </div>
           )}
