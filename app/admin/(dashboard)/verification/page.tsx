@@ -1,3 +1,5 @@
+import { EmptyState } from '@/components/empty-state/empty-state';
+import { NoResultsIllustration } from '@/components/empty-state/illustrations';
 import Link from 'next/link';
 import { ShieldCheckIcon, ClockIcon, XCircleIcon, IdentificationCardIcon } from '@phosphor-icons/react/ssr';
 import { getSellersForVerification } from '@/lib/queries/adminVerification';
@@ -98,9 +100,8 @@ export default async function AdminVerificationPage({
       </div>
 
       {sellers.length === 0 ? (
-        <div className="flex flex-col items-center gap-3 rounded-lg border border-border bg-surface px-6 py-16 text-center">
-          <ShieldCheckIcon className="size-8 text-muted-foreground" />
-          <p className="text-sm text-muted-foreground">No sellers match this filter.</p>
+        <div className="rounded-lg border border-border bg-surface">
+          <EmptyState illustration={NoResultsIllustration} variant="inline" as="p" title="No sellers match this filter" />
         </div>
       ) : (
         <div className="overflow-hidden rounded-lg border border-border bg-surface">

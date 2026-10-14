@@ -1,3 +1,6 @@
+import { Button } from '@/components/ui/button';
+import { EmptyState } from '@/components/empty-state/empty-state';
+import { NoResultsIllustration } from '@/components/empty-state/illustrations';
 import { Reveal } from '@/components/motion/reveal';
 import Link from 'next/link';
 import { TruckIcon } from '@phosphor-icons/react/ssr';
@@ -146,10 +149,17 @@ export default async function CatalogPage({
           </div>
 
           {materials.length === 0 ? (
-            <div className="rounded-lg border border-border bg-surface px-6 py-16 text-center">
-              <p className="text-sm text-muted-foreground">
-                {q ? `No materials match "${q}".` : 'No materials in this category yet.'}
-              </p>
+            <div className="rounded-lg border border-border bg-surface">
+              <EmptyState
+                illustration={NoResultsIllustration}
+                variant="inline"
+                title={q ? `No materials match "${q}"` : 'No materials in this category yet'}
+                description={q ? 'Check the spelling or try a broader term.' : 'Try another category, or browse everything.'}
+              >
+                <Button asChild variant="outline">
+                  <Link href="/catalog">Clear filters</Link>
+                </Button>
+              </EmptyState>
             </div>
           ) : (
             <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 xl:grid-cols-3">

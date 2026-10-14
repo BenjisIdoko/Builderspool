@@ -1,3 +1,5 @@
+import { EmptyState } from '@/components/empty-state/empty-state';
+import { EmptyListIllustration, NoResultsIllustration } from '@/components/empty-state/illustrations';
 import { BooksIcon, StackIcon, TagIcon } from '@phosphor-icons/react/ssr';
 import { getReferenceCategories, getReferenceProducts, getReferenceStats } from '@/lib/queries/catalogueReference';
 import { CatalogueFilterBar } from '@/components/admin/catalogue-filter-bar';
@@ -48,10 +50,13 @@ export default async function CatalogueReferencePage({
       <CatalogueFilterBar categories={categories} category={category} q={q} />
 
       {products.length === 0 ? (
-        <div className="rounded-2xl border border-border bg-surface px-6 py-16 text-center">
-          <p className="text-sm text-muted-foreground">
-            {q ? `No products match "${q}".` : 'No products in this category.'}
-          </p>
+        <div className="rounded-2xl border border-border bg-surface">
+          <EmptyState
+            illustration={q ? NoResultsIllustration : EmptyListIllustration}
+            variant="inline"
+            as="p"
+            title={q ? `No products match "${q}"` : 'No products in this category'}
+          />
         </div>
       ) : (
         <div className="overflow-hidden rounded-2xl border border-border bg-surface">

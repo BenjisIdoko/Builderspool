@@ -2,7 +2,8 @@
 
 import { useEffect } from 'react';
 import Link from 'next/link';
-import { WarningCircleIcon } from '@phosphor-icons/react/ssr';
+import { EmptyState } from '@/components/empty-state/empty-state';
+import { ErrorIllustration } from '@/components/empty-state/illustrations';
 import { Button } from '@/components/ui/button';
 
 // Storefront error boundary: a transient failure (most often a database
@@ -14,24 +15,20 @@ export default function ShopError({ error, reset }: { error: Error & { digest?: 
   }, [error]);
 
   return (
-    <div className="mx-auto flex w-full max-w-md flex-1 flex-col items-center justify-center gap-4 px-6 pt-28 pb-24 text-center">
-      <span className="flex size-12 items-center justify-center rounded-full bg-danger-soft text-danger">
-        <WarningCircleIcon className="size-6" />
-      </span>
-      <div>
-        <h1 className="mb-1 text-xl font-bold tracking-tight text-ink">Something went wrong</h1>
-        <p className="text-sm text-muted-foreground">
-          This is usually a brief connection problem. Try again — your cart is safe.
-        </p>
-      </div>
-      <div className="flex flex-wrap justify-center gap-3">
+    <div className="mx-auto flex w-full max-w-md flex-1 flex-col items-center justify-center px-6 pt-28 pb-24">
+      <EmptyState
+        illustration={ErrorIllustration}
+        as="h1"
+        title="Something went wrong"
+        description="This is usually a brief connection problem. Try again — your cart is safe."
+      >
         <Button type="button" onClick={reset}>
           Try again
         </Button>
         <Button asChild variant="outline">
           <Link href="/catalog">Browse the catalogue</Link>
         </Button>
-      </div>
+      </EmptyState>
     </div>
   );
 }

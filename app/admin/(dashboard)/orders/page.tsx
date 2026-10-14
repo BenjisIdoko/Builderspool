@@ -1,3 +1,5 @@
+import { EmptyState } from '@/components/empty-state/empty-state';
+import { EmptyListIllustration, NoResultsIllustration } from '@/components/empty-state/illustrations';
 import Link from 'next/link';
 import {
   CaretDownIcon,
@@ -212,15 +214,19 @@ export default async function AdminOrdersPage({
       </div>
 
       {orders.length === 0 ? (
-        <div className="flex flex-col items-center gap-3 rounded-lg border border-border bg-surface px-6 py-16 text-center">
-          <ReceiptIcon className="size-8 text-muted-foreground" />
-          <p className="text-sm text-muted-foreground">
-            {q
-              ? `No orders match "${q}".`
-              : validStatus
-                ? `No ${(STATUS_LABEL[validStatus] ?? validStatus).toLowerCase()} orders right now.`
-                : 'No orders yet.'}
-          </p>
+        <div className="rounded-lg border border-border bg-surface">
+          <EmptyState
+            illustration={q || validStatus ? NoResultsIllustration : EmptyListIllustration}
+            variant="inline"
+            as="p"
+            title={
+              q
+                ? `No orders match "${q}"`
+                : validStatus
+                  ? `No ${(STATUS_LABEL[validStatus] ?? validStatus).toLowerCase()} orders right now`
+                  : 'No orders yet'
+            }
+          />
         </div>
       ) : (
         <div className="overflow-hidden rounded-lg border border-border bg-surface">

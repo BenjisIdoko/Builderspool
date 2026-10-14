@@ -1,3 +1,5 @@
+import { EmptyState } from '@/components/empty-state/empty-state';
+import { EmptyListIllustration } from '@/components/empty-state/illustrations';
 import { BellIcon, WalletIcon } from '@phosphor-icons/react/ssr';
 import { requireBuyer } from '@/lib/buyer/auth';
 import { getOrdersForBuyer } from '@/lib/queries/orders';
@@ -158,13 +160,16 @@ export default async function AccountPage() {
           <h2 className="text-sm font-bold text-slate">Order history</h2>
         </div>
         {orders.length === 0 ? (
-          <p className="p-5 text-sm text-muted-foreground">
-            No orders yet —{' '}
-            <Link href="/catalog" className="text-brand hover:underline">
-              browse the catalog
-            </Link>{' '}
-            to place your first one.
-          </p>
+          <EmptyState
+            illustration={EmptyListIllustration}
+            variant="inline"
+            title="No orders yet"
+            description="Your orders will show up here once you place your first one."
+          >
+            <Button asChild variant="outline">
+              <Link href="/catalog">Browse the catalog</Link>
+            </Button>
+          </EmptyState>
         ) : (
           <div className="divide-y divide-border">
             {orders.map((order) => (

@@ -4,6 +4,8 @@ import Link from 'next/link';
 import { LockKeyIcon, MinusIcon, PlusIcon, TrashIcon } from '@phosphor-icons/react/ssr';
 import { useCart } from '@/lib/cart/CartContext';
 import { formatNaira } from '@/lib/format';
+import { EmptyState } from '@/components/empty-state/empty-state';
+import { EmptyCartIllustration } from '@/components/empty-state/illustrations';
 import { Button } from '@/components/ui/button';
 import { MaterialImage } from '@/components/material-image';
 import { QuantityInput } from '@/components/quantity-input';
@@ -15,12 +17,17 @@ export default function CartPage() {
 
   if (lines.length === 0) {
     return (
-      <div className="mx-auto flex w-full max-w-3xl flex-1 flex-col items-center justify-center gap-4 px-6 pt-28 pb-24 text-center">
-        <h1 className="text-xl font-bold text-ink">Your cart is empty</h1>
-        <p className="text-slate">Add materials from the catalog to get started.</p>
-        <Button asChild size="lg">
-          <Link href="/catalog">Browse the catalog</Link>
-        </Button>
+      <div className="mx-auto flex w-full max-w-3xl flex-1 flex-col items-center justify-center px-6 pt-28 pb-24">
+        <EmptyState
+          illustration={EmptyCartIllustration}
+          as="h1"
+          title="Your cart is empty"
+          description="Add materials from the catalog to get started."
+        >
+          <Button asChild size="lg">
+            <Link href="/catalog">Browse the catalog</Link>
+          </Button>
+        </EmptyState>
       </div>
     );
   }

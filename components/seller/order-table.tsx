@@ -1,5 +1,7 @@
 'use client';
 
+import { EmptyState } from '@/components/empty-state/empty-state';
+import { NoResultsIllustration } from '@/components/empty-state/illustrations';
 import { useState } from 'react';
 import { MagnifyingGlassIcon } from '@phosphor-icons/react/ssr';
 import type { AllocationStatus } from '@prisma/client';
@@ -87,8 +89,8 @@ export function SellerOrderTable({ orders }: { orders: SellerOrderRow[] }) {
       </div>
 
       {filtered.length === 0 ? (
-        <div className="rounded-2xl border border-border bg-surface px-6 py-16 text-center text-sm text-muted-foreground">
-          No requisitions match this filter.
+        <div className="rounded-2xl border border-border bg-surface">
+          <EmptyState illustration={NoResultsIllustration} variant="inline" as="p" title="No requisitions match this filter" description="Try a different status." />
         </div>
       ) : (
         <>

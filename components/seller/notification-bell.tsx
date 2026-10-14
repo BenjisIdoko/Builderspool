@@ -1,5 +1,7 @@
 'use client';
 
+import { EmptyState } from '@/components/empty-state/empty-state';
+import { NoNotificationsIllustration } from '@/components/empty-state/illustrations';
 import { useTransition } from 'react';
 import Link from 'next/link';
 import {
@@ -110,7 +112,13 @@ export function NotificationBell({
         </div>
 
         {notifications.length === 0 ? (
-          <p className="px-3.5 py-8 text-center text-sm text-muted-foreground">No notifications yet.</p>
+          <EmptyState
+            illustration={NoNotificationsIllustration}
+            variant="inline"
+            as="p"
+            title="No notifications yet"
+            description="Cycle updates and payout notices will appear here."
+          />
         ) : (
           <div className="max-h-96 overflow-y-auto">
             {notifications.map((n) => (

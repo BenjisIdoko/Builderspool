@@ -173,3 +173,36 @@ body {
 @utility max-w-section {
   max-width: min(1366px, 100% - 2rem);
 }
+
+/* Empty-state illustration motion (components/empty-state/illustrations.tsx).
+   transform-box makes each group rotate/translate about its own center. */
+.bp-float,
+.bp-sway,
+.bp-bob {
+  transform-box: fill-box;
+  transform-origin: center;
+}
+.bp-float {
+  animation: bp-float 3.4s ease-in-out infinite;
+}
+.bp-sway {
+  animation: bp-sway 4.2s ease-in-out infinite;
+}
+.bp-bob {
+  animation: bp-bob 2.6s ease-in-out infinite;
+}
+@keyframes bp-float {
+  0%, 100% { transform: translateY(0); opacity: 0.55; }
+  50% { transform: translateY(-5px); opacity: 1; }
+}
+@keyframes bp-sway {
+  0%, 100% { transform: rotate(-1.6deg); }
+  50% { transform: rotate(1.6deg); }
+}
+@keyframes bp-bob {
+  0%, 100% { transform: translateY(0); }
+  50% { transform: translateY(-4px); }
+}
+@media (prefers-reduced-motion: reduce) {
+  .bp-float, .bp-sway, .bp-bob { animation: none; }
+}

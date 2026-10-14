@@ -1,3 +1,5 @@
+import { EmptyState } from '@/components/empty-state/empty-state';
+import { NoResultsIllustration } from '@/components/empty-state/illustrations';
 import Link from 'next/link';
 import { TruckIcon, MapPinIcon, PackageIcon, CheckCircleIcon, XCircleIcon, ClockIcon } from '@phosphor-icons/react/ssr';
 import { getDispatchesForAdmin } from '@/lib/queries/adminHaulage';
@@ -109,9 +111,8 @@ export default async function AdminHaulagePage({
       </div>
 
       {dispatches.length === 0 ? (
-        <div className="flex flex-col items-center gap-3 rounded-lg border border-border bg-surface px-6 py-16 text-center">
-          <TruckIcon className="size-8 text-muted-foreground" />
-          <p className="text-sm text-muted-foreground">No dispatches match this filter.</p>
+        <div className="rounded-lg border border-border bg-surface">
+          <EmptyState illustration={NoResultsIllustration} variant="inline" as="p" title="No dispatches match this filter" />
         </div>
       ) : (
         <div className="overflow-hidden rounded-lg border border-border bg-surface">

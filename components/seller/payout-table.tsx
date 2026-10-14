@@ -1,5 +1,7 @@
 'use client';
 
+import { EmptyState } from '@/components/empty-state/empty-state';
+import { NoResultsIllustration } from '@/components/empty-state/illustrations';
 import { useState } from 'react';
 import { Badge } from '@/components/ui/badge';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
@@ -52,7 +54,7 @@ export function PayoutTable({ payouts }: { payouts: PayoutRow[] }) {
       </div>
 
       {filtered.length === 0 ? (
-        <div className="px-6 py-16 text-center text-sm text-muted-foreground">No payouts match this filter.</div>
+        <EmptyState illustration={NoResultsIllustration} variant="inline" as="p" title="No payouts match this filter" description="Try a different status." />
       ) : (
         <>
         <div className="flex flex-col gap-2.5 p-4 md:hidden">

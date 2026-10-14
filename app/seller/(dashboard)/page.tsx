@@ -1,3 +1,5 @@
+import { EmptyState } from '@/components/empty-state/empty-state';
+import { EmptyListIllustration } from '@/components/empty-state/illustrations';
 import Link from 'next/link';
 import {
   AlarmIcon,
@@ -247,9 +249,14 @@ export default async function SellerDashboardPage() {
       </p>
 
       {cycles.length === 0 ? (
-        <div className="rounded-lg border border-border bg-surface px-6 py-16 text-center">
-          <ClockIcon className="mx-auto mb-3 size-8 text-muted-foreground" />
-          <p className="text-sm text-muted-foreground">No open cycles match your regions right now.</p>
+        <div className="rounded-lg border border-border bg-surface">
+          <EmptyState
+            illustration={EmptyListIllustration}
+            variant="inline"
+            as="p"
+            title="No open cycles right now"
+            description="New cycles in your regions will appear here as buyers' orders are pooled."
+          />
         </div>
       ) : (
         <div className="grid grid-cols-1 sm:grid-cols-3">

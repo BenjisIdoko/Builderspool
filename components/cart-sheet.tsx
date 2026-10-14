@@ -5,6 +5,8 @@ import Link from 'next/link';
 import { MinusIcon, PlusIcon, ShoppingCartIcon, XIcon } from '@phosphor-icons/react/ssr';
 import { useCart } from '@/lib/cart/CartContext';
 import { formatNaira } from '@/lib/format';
+import { EmptyState } from '@/components/empty-state/empty-state';
+import { EmptyCartIllustration } from '@/components/empty-state/illustrations';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { MaterialImage } from '@/components/material-image';
@@ -49,13 +51,19 @@ export function CartSheet() {
         </SheetHeader>
 
         {lines.length === 0 ? (
-          <div className="flex flex-1 flex-col items-center justify-center gap-3 px-6 text-center">
-            <p className="text-sm text-slate">Your cart is empty.</p>
-            <SheetClose asChild>
-              <Button asChild size="lg">
-                <Link href="/catalog">Browse the catalog</Link>
-              </Button>
-            </SheetClose>
+          <div className="flex flex-1 flex-col items-center justify-center px-6">
+            <EmptyState
+              illustration={EmptyCartIllustration}
+              variant="inline"
+              as="p"
+              title="Your cart is empty"
+            >
+              <SheetClose asChild>
+                <Button asChild size="lg">
+                  <Link href="/catalog">Browse the catalog</Link>
+                </Button>
+              </SheetClose>
+            </EmptyState>
           </div>
         ) : (
           <>

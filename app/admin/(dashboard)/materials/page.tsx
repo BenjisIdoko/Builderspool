@@ -1,7 +1,8 @@
+import { EmptyState } from '@/components/empty-state/empty-state';
+import { EmptyListIllustration, NoResultsIllustration } from '@/components/empty-state/illustrations';
 import Link from 'next/link';
 import {
   MagnifyingGlassIcon,
-  PackageIcon,
   WarningIcon,
   StackIcon,
   GlobeIcon,
@@ -169,15 +170,13 @@ export default async function AdminMaterialsPage({
       </div>
 
       {materials.length === 0 ? (
-        <div className="flex flex-col items-center gap-3 rounded-2xl border border-border bg-surface px-6 py-16 text-center">
-          <PackageIcon className="size-8 text-muted-foreground" />
-          <p className="text-sm text-muted-foreground">
-            {q
-              ? `No materials match "${q}".`
-              : showRetired
-                ? 'No retired materials.'
-                : 'No materials in this category.'}
-          </p>
+        <div className="rounded-2xl border border-border bg-surface">
+          <EmptyState
+            illustration={q ? NoResultsIllustration : EmptyListIllustration}
+            variant="inline"
+            as="p"
+            title={q ? `No materials match "${q}"` : showRetired ? 'No retired materials' : 'No materials in this category'}
+          />
         </div>
       ) : (
         <div className="overflow-hidden rounded-2xl border border-border bg-surface">

@@ -1,7 +1,8 @@
 'use client';
 
 import { useEffect } from 'react';
-import { WarningCircleIcon } from '@phosphor-icons/react/ssr';
+import { EmptyState } from '@/components/empty-state/empty-state';
+import { ErrorIllustration } from '@/components/empty-state/illustrations';
 import { Button } from '@/components/ui/button';
 
 // Root error boundary for the seller and admin areas (the storefront has its own).
@@ -11,17 +12,17 @@ export default function RootError({ error, reset }: { error: Error & { digest?: 
   }, [error]);
 
   return (
-    <div className="mx-auto flex min-h-screen w-full max-w-md flex-col items-center justify-center gap-4 px-6 text-center">
-      <span className="flex size-12 items-center justify-center rounded-full bg-danger-soft text-danger">
-        <WarningCircleIcon className="size-6" />
-      </span>
-      <div>
-        <h1 className="mb-1 text-xl font-bold tracking-tight text-ink">Something went wrong</h1>
-        <p className="text-sm text-muted-foreground">This is usually a brief connection problem. Try again in a moment.</p>
-      </div>
-      <Button type="button" onClick={reset}>
-        Try again
-      </Button>
+    <div className="mx-auto flex min-h-screen w-full max-w-md flex-col items-center justify-center px-6">
+      <EmptyState
+        illustration={ErrorIllustration}
+        as="h1"
+        title="Something went wrong"
+        description="This is usually a brief connection problem. Try again in a moment."
+      >
+        <Button type="button" onClick={reset}>
+          Try again
+        </Button>
+      </EmptyState>
     </div>
   );
 }
