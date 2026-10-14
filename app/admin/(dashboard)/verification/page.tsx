@@ -138,7 +138,11 @@ export default async function AdminVerificationPage({
                         : '—'}
                     </TableCell>
                     <TableCell className="py-3">
-                      <SellerKycReview sellerName={seller.businessName ?? seller.name} profile={profile} />
+                      <SellerKycReview
+                        sellerName={seller.businessName ?? seller.name}
+                        accountBusinessName={seller.businessName}
+                        profile={profile}
+                      />
                     </TableCell>
                   </TableRow>
                 );

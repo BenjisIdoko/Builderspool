@@ -4,6 +4,7 @@ import { useState, useTransition } from 'react';
 import { EyeIcon, CheckCircleIcon, WarningIcon } from '@phosphor-icons/react/ssr';
 import { approveKycAction, rejectKycAction } from '@/app/admin/(dashboard)/users/actions';
 import { kycStatusTone, pillClass } from '@/lib/statusColors';
+import { compareBusinessNames } from '@/lib/kyc/nameMatch';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription, DialogFooter } from '@/components/ui/dialog';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
@@ -43,7 +44,19 @@ function Field({ label, value }: { label: string; value: string | null }) {
   );
 }
 
-export function SellerKycReview({ sellerName, profile }: { sellerName: string; profile: SellerProfile }) {
+export function SellerKycReview({
+  sellerName,
+  accountBusinessName,
+  profile,
+}: {
+  sellerName: string;
+  accountBusinessName: string | null;
+  profile: SellerProfile;
+}) {
+  const nameMatch =
+    accountBusinessName && profile.cacVerifiedCompanyName
+      ? compareBusinessNames(accountBusinessName, profile.cacVerifiedCompanyName)
+      : null;
   const [open, setOpen] = useState(false);
   const [showRejectForm, setShowRejectForm] = useState(false);
   const [isPending, startTransition] = useTransition();
@@ -127,6 +140,24 @@ export function SellerKycReview({ sellerName, profile }: { sellerName: string; p
           ) : (
             <p className="text-xs text-muted-foreground">CAC number not yet verified against the registry.</p>
           )}
+          {nameMatch && profile.cacVerifiedAt ? (
+            <p
+              className={`rounded-md px-2.5 py-2 text-xs ${
+                nameMatch === 'MATCH'
+                  ? 'bg-success-soft text-success'
+                  : nameMatch === 'PARTIAL'
+                    ? 'bg-warning-soft text-warning'
+                    : 'bg-danger/10 text-danger'
+              }`}
+            >
+              {nameMatch === 'MATCH'
+                ? 'Registered name matches the account business name.'
+                : nameMatch === 'PARTIAL'
+                  ? 'Registered name only partly matches the account business name — worth a look.'
+                  : 'Registered name does not match the account business name — confirm this is the seller\'s own registration.'}{' '}
+              Account: &ldquo;{accountBusinessName}&rdquo; · Registry: &ldquo;{profile.cacVerifiedCompanyName}&rdquo;
+            </p>
+          ) : null}
 
           {profile.documentPath ? (
             <a
