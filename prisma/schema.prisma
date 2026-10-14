@@ -255,7 +255,9 @@ model SellerProfile {
   cacNumber          String?
   idType             String? // e.g. "NIN", "International passport", "Driver's licence"
   idNumber           String?
-  documentUrl        String?
+  documentUrl        String? // legacy pasted link, from before real upload
+  documentPath       String? // object path in the private kyc-documents bucket
+  documentName       String? // original filename, display only
   kycSubmittedAt     DateTime?
   kycReviewedAt      DateTime?
   kycRejectionReason String?

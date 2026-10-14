@@ -18,6 +18,8 @@ type SellerProfile = {
   idType: string | null;
   idNumber: string | null;
   documentUrl: string | null;
+  documentPath: string | null;
+  documentName: string | null;
   kycSubmittedAt: Date | null;
   kycRejectionReason: string | null;
   cacVerifiedAt: Date | null;
@@ -126,15 +128,27 @@ export function SellerKycReview({ sellerName, profile }: { sellerName: string; p
             <p className="text-xs text-muted-foreground">CAC number not yet verified against the registry.</p>
           )}
 
-          {profile.documentUrl && isWebUrl(profile.documentUrl) && (
+          {profile.documentPath ? (
             <a
-              href={profile.documentUrl}
+              href={`/admin/verification/document/${profile.userId}`}
               target="_blank"
               rel="noreferrer"
               className="text-sm text-brand hover:underline"
             >
-              View submitted document →
+              View {profile.documentName ?? 'submitted document'} →
             </a>
+          ) : (
+            profile.documentUrl &&
+            isWebUrl(profile.documentUrl) && (
+              <a
+                href={profile.documentUrl}
+                target="_blank"
+                rel="noreferrer"
+                className="text-sm text-brand hover:underline"
+              >
+                View submitted link →
+              </a>
+            )
           )}
 
           {error && <p className="text-sm text-danger">{error}</p>}

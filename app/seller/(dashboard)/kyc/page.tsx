@@ -4,6 +4,7 @@ import { getSellerIdFromSession } from '@/lib/seller/session';
 import { getSellerProfile } from '@/lib/queries/sellerPortal';
 import { kycStatusTone, pillClass } from '@/lib/statusColors';
 import { submitKyc, verifyCacAction } from './actions';
+import { KycDocumentInput } from '@/components/seller/kyc-document-input';
 import { Badge } from '@/components/ui/badge';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
@@ -30,8 +31,8 @@ export default async function SellerKycPage() {
       <div className="mb-1 text-xs text-muted-foreground">Seller portal</div>
       <h1 className="mb-1 text-2xl font-bold tracking-tight text-ink">KYC verification</h1>
       <p className="mb-6 text-sm text-muted-foreground">
-        Required before payouts can be disbursed to your account. Document links only — no file upload
-        yet, so use a link to something already hosted (Google Drive, a company site, etc.).
+        Required before payouts can be disbursed to your account. Attach a supporting document (a CAC
+        certificate or your ID) as a PDF, JPEG or PNG up to 4 MB.
       </p>
 
       <div className="mb-6 flex items-center gap-2.5 rounded-lg border border-border bg-surface p-4">
@@ -129,16 +130,15 @@ export default async function SellerKycPage() {
           </div>
 
           <div>
-            <Label htmlFor="documentUrl" className="mb-1.5 text-xs text-muted-foreground">
-              Document link (optional)
+            <Label htmlFor="document" className="mb-1.5 text-xs text-muted-foreground">
+              Supporting document (PDF, JPEG or PNG, up to 4 MB)
             </Label>
-            <Input
-              id="documentUrl"
-              name="documentUrl"
-              type="url"
-              placeholder="https://…"
-              defaultValue={profile.documentUrl ?? ''}
-            />
+            <KycDocumentInput />
+            {(profile.documentName || profile.documentUrl) && (
+              <p className="mt-1.5 text-xs text-muted-foreground">
+                On file: {profile.documentName ?? 'a previously submitted link'}. Choose a new file only to replace it.
+              </p>
+            )}
           </div>
           <div className="flex justify-end">
             <Button type="submit">{profile.kycStatus === 'REJECTED' ? 'Resubmit' : 'Submit for review'}</Button>
@@ -169,6 +169,12 @@ export default async function SellerKycPage() {
               <div className="text-xs text-muted-foreground">ID number</div>
               <div className="text-ink">{profile.idNumber}</div>
             </div>
+            {(profile.documentName || profile.documentUrl) && (
+              <div>
+                <div className="text-xs text-muted-foreground">Supporting document</div>
+                <div className="text-ink">{profile.documentName ?? 'Link submitted'}</div>
+              </div>
+            )}
           </div>
         </div>
       )}

@@ -6,6 +6,7 @@ import { prisma } from '@/lib/prisma';
 import { KycStatus } from '@prisma/client';
 import { getSellerIdFromSession } from '@/lib/seller/session';
 import { verifyCacNumber } from '@/lib/kyc/metamap';
+import { uploadKycDocument, deleteKycDocument } from '@/lib/storage/kycDocuments';
 
 function requiredText(formData: FormData, key: string): string {
   const value = formData.get(key);
@@ -15,18 +16,9 @@ function requiredText(formData: FormData, key: string): string {
   return value.trim();
 }
 
-function isWebUrl(value: string): boolean {
-  try {
-    const { protocol } = new URL(value);
-    return protocol === 'https:' || protocol === 'http:';
-  } catch {
-    return false;
-  }
-}
-
-// Text/reference-only submission — this app has no file-storage infra yet
-// (see the schema comment on SellerProfile), so documentUrl is a link to
-// something already hosted, not a real upload.
+// The supporting document is uploaded to a private Supabase Storage bucket
+// (lib/storage/kycDocuments.ts); optional on resubmission — leaving the file
+// input empty keeps whatever document is already on file.
 export async function submitKyc(formData: FormData) {
   const sellerId = await getSellerIdFromSession();
   if (!sellerId) redirect('/seller/login');
@@ -35,44 +27,49 @@ export async function submitKyc(formData: FormData) {
   const cacNumber = requiredText(formData, 'cacNumber');
   const idType = requiredText(formData, 'idType');
   const idNumber = requiredText(formData, 'idNumber');
-  const documentUrlRaw = formData.get('documentUrl');
-  const documentUrl = typeof documentUrlRaw === 'string' && documentUrlRaw.trim() ? documentUrlRaw.trim() : null;
-  // <input type="url"> is browser-side only and accepts javascript:/data: —
-  // this link is later rendered in the admin review dialog, so only plain
-  // web links are allowed.
-  if (documentUrl && !isWebUrl(documentUrl)) {
-    throw new Error('Document link must be a web link starting with https:// (or http://).');
-  }
+  const documentFile = formData.get('document');
+  const newDocument = documentFile instanceof File && documentFile.size > 0 ? documentFile : null;
 
   const existing = await prisma.sellerProfile.findUniqueOrThrow({ where: { userId: sellerId } });
   const cacNumberChanged = existing.cacNumber !== cacNumber;
 
-  await prisma.sellerProfile.update({
-    where: { userId: sellerId },
-    data: {
-      businessRegNumber,
-      cacNumber,
-      idType,
-      idNumber,
-      documentUrl,
-      kycStatus: KycStatus.PENDING,
-      kycSubmittedAt: new Date(),
-      kycReviewedAt: null,
-      kycRejectionReason: null,
-      // A CAC verification describes the exact number it checked — if the
-      // seller changes the number without re-running Verify, the old result
-      // would misleadingly describe a different company.
-      ...(cacNumberChanged
-        ? {
-            cacVerifiedAt: null,
-            cacVerifiedCompanyName: null,
-            cacVerifiedStatus: null,
-            cacVerifiedEntityType: null,
-            cacVerificationError: null,
-          }
-        : {}),
-    },
-  });
+  // Upload first so a rejected/failed file stops the whole submission before
+  // anything is written; if the DB write then fails, the orphan is removed.
+  const stored = newDocument ? await uploadKycDocument(sellerId, newDocument) : null;
+
+  try {
+    await prisma.sellerProfile.update({
+      where: { userId: sellerId },
+      data: {
+        businessRegNumber,
+        cacNumber,
+        idType,
+        idNumber,
+        ...(stored ? { documentPath: stored.path, documentName: stored.displayName } : {}),
+        kycStatus: KycStatus.PENDING,
+        kycSubmittedAt: new Date(),
+        kycReviewedAt: null,
+        kycRejectionReason: null,
+        // A CAC verification describes the exact number it checked — if the
+        // seller changes the number without re-running Verify, the old result
+        // would misleadingly describe a different company.
+        ...(cacNumberChanged
+          ? {
+              cacVerifiedAt: null,
+              cacVerifiedCompanyName: null,
+              cacVerifiedStatus: null,
+              cacVerifiedEntityType: null,
+              cacVerificationError: null,
+            }
+          : {}),
+      },
+    });
+  } catch (err) {
+    if (stored) await deleteKycDocument(stored.path);
+    throw err;
+  }
+
+  if (stored && existing.documentPath) await deleteKycDocument(existing.documentPath);
 
   revalidatePath('/seller/kyc');
   revalidatePath('/admin/verification');

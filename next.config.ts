@@ -36,6 +36,10 @@ const securityHeaders = [
 ];
 
 const nextConfig: NextConfig = {
+  // KYC document upload goes through a Server Action (default cap is 1MB);
+  // the document itself is limited to 4MB in lib/storage/kycDocuments.ts to
+  // stay under Vercel's 4.5MB request-body ceiling.
+  experimental: { serverActions: { bodySizeLimit: "5mb" } },
   async headers() {
     return [{ source: "/:path*", headers: securityHeaders }];
   },
