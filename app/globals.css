@@ -191,6 +191,12 @@ body {
 .bp-bob {
   animation: bp-bob 2.6s ease-in-out infinite;
 }
+.bp-dash {
+  animation: bp-dash 14s linear infinite;
+}
+@keyframes bp-dash {
+  to { stroke-dashoffset: -90; }
+}
 @keyframes bp-float {
   0%, 100% { transform: translateY(0); opacity: 0.55; }
   50% { transform: translateY(-5px); opacity: 1; }
@@ -204,5 +210,5 @@ body {
   50% { transform: translateY(-4px); }
 }
 @media (prefers-reduced-motion: reduce) {
-  .bp-float, .bp-sway, .bp-bob { animation: none; }
+  .bp-float, .bp-sway, .bp-bob, .bp-dash { animation: none; }
 }
