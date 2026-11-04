@@ -3,6 +3,7 @@ import Link from 'next/link';
 import { CaretLeftIcon } from '@phosphor-icons/react/ssr';
 import { getCycleDetail } from '@/lib/queries/adminBidding';
 import { formatNaira } from '@/lib/format';
+import { getSetting } from '@/lib/settings';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
@@ -29,6 +30,7 @@ const PAYOUT_STATUS_LABEL: Record<string, string> = {
 
 export default async function AdminCycleDetailPage({ params }: { params: Promise<{ id: string }> }) {
   const { id } = await params;
+  const payoutsEnabled = await getSetting<boolean>('money.sellerPayoutsEnabled');
   const cycle = await getCycleDetail(id);
   if (!cycle) notFound();
 
@@ -199,7 +201,7 @@ export default async function AdminCycleDetailPage({ params }: { params: Promise
                             </Button>
                           </form>
                         )}
-                        {allocation.payoutStatus === 'PROCESSED' && (
+                        {allocation.payoutStatus === 'PROCESSED' && payoutsEnabled && (
                           <form action={disbursePayoutAction}>
                             <input type="hidden" name="allocationId" value={allocation.id} />
                             <input type="hidden" name="cycleId" value={cycle.id} />

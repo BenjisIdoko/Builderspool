@@ -1,6 +1,8 @@
 import { prisma } from '../prisma';
 import { AllocationStatus, PayoutStatus } from '@prisma/client';
 import { creditSavingsForAllocation } from '../wallet';
+import { nairaToKobo } from '../money';
+import { postLedgerEntry } from '../ledger';
 
 function generateGrnNumber(date = new Date()) {
   const datePart = date.toISOString().slice(0, 10).replace(/-/g, '');
@@ -32,20 +34,40 @@ export async function issueGrn(allocationId: string) {
     throw new Error('A GRN has already been issued for this allocation.');
   }
 
-  const updated = await prisma.allocation.update({
-    where: { id: allocationId },
-    data: {
-      receivedAt: new Date(),
-      grnNumber: generateGrnNumber(),
-      status: AllocationStatus.FULFILLED,
-      payoutStatus: PayoutStatus.PROCESSED,
-    },
-  });
+  // One transaction: the receipt, what we now owe the seller, and the buyer's
+  // savings credit all land together or not at all.
+  const updated = await prisma.$transaction(async (tx) => {
+    const { count } = await tx.allocation.updateMany({
+      where: { id: allocationId, receivedAt: null, status: { not: AllocationStatus.CANCELLED } },
+      data: {
+        receivedAt: new Date(),
+        grnNumber: generateGrnNumber(),
+        status: AllocationStatus.FULFILLED,
+        payoutStatus: PayoutStatus.PROCESSED,
+      },
+    });
+    if (count === 0) throw new Error('A GRN has already been issued for this allocation.');
 
-  // Same real event that unlocks the seller's payout also finalizes the
-  // buyer's savings-wallet share, if the winning bid actually beat the
-  // reference price.
-  await creditSavingsForAllocation(allocation);
+    await postLedgerEntry(
+      {
+        account: 'SELLER_PAYABLE',
+        amountKobo: nairaToKobo(allocation.bid.unitPrice) * allocation.quantityFilled,
+        entryKey: `seller-payable:${allocation.id}`,
+        memo: 'Owed to the seller for goods received (GRN issued)',
+        orderId: allocation.orderItem.orderId,
+        orderItemId: allocation.orderItemId,
+        allocationId: allocation.id,
+        userId: allocation.bid.sellerId,
+      },
+      tx,
+    );
+
+    // Same real event that unlocks the seller's payout also finalizes the
+    // buyer's savings credit, if the winning bid actually beat the reference price.
+    await creditSavingsForAllocation(allocation, tx);
+
+    return tx.allocation.findUniqueOrThrow({ where: { id: allocationId } });
+  }, { timeout: 20_000, maxWait: 10_000 });
 
   return updated;
 }

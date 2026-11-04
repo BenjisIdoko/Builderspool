@@ -1,5 +1,8 @@
 import { prisma } from '../prisma';
 import { PayoutStatus } from '@prisma/client';
+import { getSetting } from '../settings';
+import { nairaToKobo } from '../money';
+import { postLedgerEntry } from '../ledger';
 
 function generatePayoutReference(date = new Date()) {
   const datePart = date.toISOString().slice(0, 10).replace(/-/g, '');
@@ -9,19 +12,36 @@ function generatePayoutReference(date = new Date()) {
 
 /** Disburses a seller's payout for an allocation once its GRN has cleared it (PROCESSED). */
 export async function disbursePayout(allocationId: string) {
-  const allocation = await prisma.allocation.findUniqueOrThrow({ where: { id: allocationId } });
+  if (!(await getSetting<boolean>('money.sellerPayoutsEnabled'))) {
+    throw new Error('Seller payouts are switched off in Settings until Paystack is live and reviewed.');
+  }
+  const allocation = await prisma.allocation.findUniqueOrThrow({ where: { id: allocationId }, include: { bid: true } });
 
   if (allocation.payoutStatus !== PayoutStatus.PROCESSED) {
     throw new Error('Only a payout cleared by GRN (PROCESSED) can be disbursed.');
   }
 
-  return prisma.allocation.update({
-    where: { id: allocationId },
-    data: {
-      payoutStatus: PayoutStatus.PAID,
-      payoutReference: generatePayoutReference(),
-      paidAt: new Date(),
-    },
+  return prisma.$transaction(async (tx) => {
+    const { count } = await tx.allocation.updateMany({
+      where: { id: allocationId, payoutStatus: PayoutStatus.PROCESSED },
+      data: { payoutStatus: PayoutStatus.PAID, payoutReference: generatePayoutReference(), paidAt: new Date() },
+    });
+    if (count === 0) throw new Error('Only a payout cleared by GRN (PROCESSED) can be disbursed.');
+
+    // Settles what the GRN made payable.
+    await postLedgerEntry(
+      {
+        account: 'SELLER_PAYABLE',
+        amountKobo: -(nairaToKobo(allocation.bid.unitPrice) * allocation.quantityFilled),
+        entryKey: `seller-paid:${allocation.id}`,
+        memo: 'Paid to the seller',
+        orderItemId: allocation.orderItemId,
+        allocationId: allocation.id,
+        userId: allocation.bid.sellerId,
+      },
+      tx,
+    );
+    return tx.allocation.findUniqueOrThrow({ where: { id: allocationId } });
   });
 }
 

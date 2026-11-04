@@ -1,6 +1,9 @@
 import { prisma } from '../prisma';
 import { WalletEntryState } from '@prisma/client';
-import type { Allocation, Bid, OrderItem, Order } from '@prisma/client';
+import type { Allocation, Bid, OrderItem, Order, Prisma } from '@prisma/client';
+import { getSetting } from '../settings';
+import { koboToNaira, nairaToKobo, splitKobo } from '../money';
+import { postLedgerEntry } from '../ledger';
 
 function generatePaymentReference(date = new Date()) {
   const datePart = date.toISOString().slice(0, 10).replace(/-/g, '');
@@ -9,34 +12,49 @@ function generatePaymentReference(date = new Date()) {
 }
 
 /**
- * Credits a buyer's savings-wallet share for one allocation, called right
- * after its GRN is issued — the same real event that unlocks the seller's
- * payout, so both sides of this transaction settle from one honest trigger.
- * Silently does nothing if the winning bid ended up at or above the
- * reference price — a margin loss the business absorbs, never a negative
- * wallet entry charged back to the buyer.
+ * Credits a buyer's savings credit for one allocation, called right after its
+ * GRN is issued — the same real event that unlocks the seller's payout, so both
+ * sides of this transaction settle from one honest trigger. The saving is split
+ * in whole kobo by `fees.poolSavingsBuyerSharePct`, any odd kobo going to the
+ * buyer, and both shares are posted to the append-only ledger. Does nothing if
+ * the winning bid ended up at or above the reference price — a margin loss the
+ * business absorbs, never a negative entry charged back to the buyer.
  */
 export async function creditSavingsForAllocation(
-  allocation: Allocation & { bid: Bid; orderItem: OrderItem & { order: Order } }
+  allocation: Allocation & { bid: Bid; orderItem: OrderItem & { order: Order } },
+  db: Prisma.TransactionClient | typeof prisma = prisma,
 ) {
-  const referenceValue = Number(allocation.orderItem.priceLocked) * allocation.quantityFilled;
-  const actualValue = Number(allocation.bid.unitPrice) * allocation.quantityFilled;
-  const grossSaving = referenceValue - actualValue;
+  const referenceKobo = nairaToKobo(allocation.orderItem.priceLocked) * allocation.quantityFilled;
+  const actualKobo = nairaToKobo(allocation.bid.unitPrice) * allocation.quantityFilled;
+  const grossKobo = referenceKobo - actualKobo;
 
-  if (grossSaving <= 0) return null;
+  if (grossKobo <= 0) return null;
 
-  const buyerShare = grossSaving / 2;
+  const buyerSharePct = await getSetting<number>('fees.poolSavingsBuyerSharePct');
+  const { first: buyerKobo, second: platformKobo } = splitKobo(grossKobo, buyerSharePct);
+  const buyerId = allocation.orderItem.order.buyerId;
 
-  return prisma.savingsWalletEntry.create({
+  const entry = await db.savingsWalletEntry.create({
     data: {
-      buyerId: allocation.orderItem.order.buyerId,
+      buyerId,
       allocationId: allocation.id,
-      referenceValue,
-      actualValue,
-      grossSaving,
-      buyerShare,
+      referenceValue: koboToNaira(referenceKobo),
+      actualValue: koboToNaira(actualKobo),
+      grossSaving: koboToNaira(grossKobo),
+      buyerShare: koboToNaira(buyerKobo),
     },
   });
+
+  const common = { orderId: allocation.orderItem.orderId, orderItemId: allocation.orderItemId, allocationId: allocation.id };
+  await postLedgerEntry(
+    { ...common, account: 'BUYER_SAVINGS_CREDIT', amountKobo: buyerKobo, entryKey: `savings-credit:${allocation.id}`, memo: 'Buyer share of verified Pool & Save saving', userId: buyerId },
+    db,
+  );
+  await postLedgerEntry(
+    { ...common, account: 'PLATFORM_SAVINGS_SHARE', amountKobo: platformKobo, entryKey: `savings-platform:${allocation.id}`, memo: 'BuildersPool share of verified Pool & Save saving' },
+    db,
+  );
+  return entry;
 }
 
 export async function getSavingsWalletForBuyer(buyerId: string) {
@@ -64,6 +82,9 @@ export async function getSavingsWalletForBuyer(buyerId: string) {
 
 /** Moves every AVAILABLE entry for a buyer into WITHDRAWAL_REQUESTED — a real ops queue, not an automated payout (no payment rail exists yet, same honest gap as checkout's own initiatePayment stub). */
 export async function requestWithdrawal(buyerId: string) {
+  if (!(await getSetting<boolean>('money.walletWithdrawalsEnabled'))) {
+    throw new Error('Savings-credit withdrawals are not available yet.');
+  }
   await prisma.savingsWalletEntry.updateMany({
     where: { buyerId, state: WalletEntryState.AVAILABLE },
     data: { state: WalletEntryState.WITHDRAWAL_REQUESTED, withdrawalRequestedAt: new Date() },

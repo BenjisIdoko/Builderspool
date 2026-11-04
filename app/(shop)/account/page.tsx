@@ -5,6 +5,7 @@ import { requireBuyer } from '@/lib/buyer/auth';
 import { getOrdersForBuyer } from '@/lib/queries/orders';
 import { getPriceAlertsForBuyer } from '@/lib/queries/priceAlerts';
 import { getSavingsWalletForBuyer } from '@/lib/wallet';
+import { getSetting } from '@/lib/settings';
 import { formatNaira } from '@/lib/format';
 import { orderStatusTone, walletEntryTone, pillClass } from '@/lib/statusColors';
 import { updateBuyerProfile, requestWithdrawalAction } from './actions';
@@ -33,10 +34,11 @@ const WALLET_LABEL: Record<string, string> = {
 
 export default async function AccountPage() {
   const buyer = await requireBuyer();
-  const [orders, priceAlerts, wallet] = await Promise.all([
+  const [orders, priceAlerts, wallet, withdrawalsEnabled] = await Promise.all([
     getOrdersForBuyer(buyer.id),
     getPriceAlertsForBuyer(buyer.id),
     getSavingsWalletForBuyer(buyer.id),
+    getSetting<boolean>('money.walletWithdrawalsEnabled'),
   ]);
   const activeOrders = orders.filter((o) => o.status !== 'CANCELLED').length;
 
@@ -61,28 +63,36 @@ export default async function AccountPage() {
         <div className="border-b border-border px-5 py-4">
           <h2 className="flex items-center gap-1.5 text-sm font-bold text-slate">
             <WalletIcon className="size-4" />
-            Savings wallet
+            Savings credit
           </h2>
           <p className="mt-1 text-xs text-muted-foreground">
-            Half of every real saving between what you paid and what a material actually cost to procure —
-            credited here once the fulfillment center confirms receipt.
+            Your share of every real saving between what you paid and what a material actually cost to
+            procure — credited here once the fulfillment center confirms receipt.
           </p>
         </div>
         <div className="grid grid-cols-1 gap-4 border-b border-border p-5 sm:grid-cols-3">
           <div>
-            <div className="text-xs text-muted-foreground">Available</div>
+            <div className="text-xs text-muted-foreground">{withdrawalsEnabled ? 'Available' : 'Savings credit'}</div>
             <div className="text-xl font-bold tabular-nums text-ink">{formatNaira(wallet.available)}</div>
           </div>
-          <div>
-            <div className="text-xs text-muted-foreground">Withdrawal requested</div>
-            <div className="text-xl font-bold tabular-nums text-ink">{formatNaira(wallet.withdrawalRequested)}</div>
-          </div>
-          <div>
-            <div className="text-xs text-muted-foreground">Paid out all-time</div>
-            <div className="text-xl font-bold tabular-nums text-ink">{formatNaira(wallet.paidOut)}</div>
-          </div>
+          {withdrawalsEnabled ? (
+            <>
+              <div>
+                <div className="text-xs text-muted-foreground">Withdrawal requested</div>
+                <div className="text-xl font-bold tabular-nums text-ink">{formatNaira(wallet.withdrawalRequested)}</div>
+              </div>
+              <div>
+                <div className="text-xs text-muted-foreground">Paid out all-time</div>
+                <div className="text-xl font-bold tabular-nums text-ink">{formatNaira(wallet.paidOut)}</div>
+              </div>
+            </>
+          ) : (
+            <p className="self-end text-xs text-muted-foreground sm:col-span-2">
+              Withdrawals aren&apos;t available yet. Your credit is recorded and stays on your account.
+            </p>
+          )}
         </div>
-        {wallet.available > 0 && (
+        {withdrawalsEnabled && wallet.available > 0 && (
           <div className="border-b border-border px-5 py-4">
             <form action={requestWithdrawalAction}>
               <Button type="submit" size="sm">

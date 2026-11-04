@@ -4,6 +4,7 @@ import { getAllocationsForSettlement } from '@/lib/queries/adminEscrow';
 import { formatNaira } from '@/lib/format';
 import { payoutStatusTone, pillClass } from '@/lib/statusColors';
 import { issueGrnAction, disbursePayoutAction, toggleAllocationHoldAction } from '@/app/admin/actions';
+import { getSetting } from '@/lib/settings';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { KpiCard } from '@/components/kpi-card';
@@ -29,6 +30,7 @@ export default async function AdminEscrowPage({
   searchParams: Promise<{ queue?: string }>;
 }) {
   const { queue } = await searchParams;
+  const payoutsEnabled = await getSetting<boolean>('money.sellerPayoutsEnabled');
   const validQueue = QUEUE_FILTERS.some((f) => f.value === queue) ? queue : undefined;
 
   const allocations = await getAllocationsForSettlement();
@@ -90,6 +92,13 @@ export default async function AdminEscrowPage({
         Every seller allocation&apos;s real escrow position in one queue, instead of clicking into each
         demand cycle separately. Funds move from locked to released only on a real fulfillment center GRN.
       </p>
+
+      {!payoutsEnabled && (
+        <div className="mb-6 rounded-lg border border-warning/40 bg-warning-soft/60 px-4 py-3 text-sm text-warning">
+          Seller payouts are switched off (Settings &rarr; Money) until Paystack is live and reviewed, so
+          cleared payouts can&apos;t be disbursed yet. GRNs still record what each seller is owed on the ledger.
+        </div>
+      )}
 
       <div className="mb-8 grid grid-cols-2 gap-4 sm:grid-cols-4">
         {kpiCards.map((kpi) => (
@@ -190,7 +199,7 @@ export default async function AdminEscrowPage({
                           </Button>
                         </form>
                       )}
-                      {allocation.payoutStatus === 'PROCESSED' && (
+                      {allocation.payoutStatus === 'PROCESSED' && payoutsEnabled && (
                         <form action={disbursePayoutAction}>
                           <input type="hidden" name="allocationId" value={allocation.id} />
                           <input type="hidden" name="cycleId" value={allocation.bid.cycleId} />

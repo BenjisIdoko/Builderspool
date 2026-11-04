@@ -1,4 +1,4 @@
-import { Prisma, type LedgerAccount } from '@prisma/client';
+import type { LedgerAccount, Prisma } from '@prisma/client';
 import { prisma } from './prisma';
 
 // Append-only money ledger (Transfer File, section 4). Rows are never updated
@@ -20,14 +20,18 @@ export interface LedgerPosting {
   userId?: string;
 }
 
-type Db = Pick<typeof prisma, 'ledgerEntry'>;
+type Db = Pick<Prisma.TransactionClient, 'ledgerEntry'>;
 
-/** Posts one entry; returns false when that entryKey was already posted. */
+/**
+ * Posts one entry; returns false when that entryKey was already posted.
+ * Uses ON CONFLICT DO NOTHING (skipDuplicates) rather than catching a unique
+ * violation, which would abort an enclosing database transaction.
+ */
 export async function postLedgerEntry(posting: LedgerPosting, db: Db = prisma): Promise<boolean> {
   if (!Number.isSafeInteger(posting.amountKobo)) throw new Error('Ledger amounts must be whole kobo.');
-  try {
-    await db.ledgerEntry.create({
-      data: {
+  const { count } = await db.ledgerEntry.createMany({
+    data: [
+      {
         account: posting.account,
         amountKobo: BigInt(posting.amountKobo),
         entryKey: posting.entryKey,
@@ -37,10 +41,8 @@ export async function postLedgerEntry(posting: LedgerPosting, db: Db = prisma): 
         allocationId: posting.allocationId,
         userId: posting.userId,
       },
-    });
-    return true;
-  } catch (err) {
-    if (err instanceof Prisma.PrismaClientKnownRequestError && err.code === 'P2002') return false;
-    throw err;
-  }
+    ],
+    skipDuplicates: true,
+  });
+  return count === 1;
 }
