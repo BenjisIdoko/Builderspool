@@ -6,7 +6,7 @@ import { formatNaira } from '@/lib/format';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
-import { forceAwardCycle, issueGrnAction, disbursePayoutAction, toggleAllocationHoldAction } from '@/app/admin/actions';
+import { forceAwardCycle, freezeCycleNowAction, issueGrnAction, disbursePayoutAction, toggleAllocationHoldAction } from '@/app/admin/actions';
 import { allocationStatusTone, bidStatusTone, cycleStatusTone, payoutStatusTone, pillClass } from '@/lib/statusColors';
 
 const PAYOUT_STATUS_LABEL: Record<string, string> = {
@@ -42,8 +42,11 @@ export default async function AdminCycleDetailPage({ params }: { params: Promise
             )}
           </div>
           <p className="mt-1 text-sm text-muted-foreground">
-            {cycle.region ?? 'National'} · cutoff{' '}
-            {cycle.cutoffAt.toLocaleString('en-NG', { dateStyle: 'medium', timeStyle: 'short' })}
+            {cycle.region ?? 'National'} · bids close{' '}
+            {(cycle.bidsCloseAt ?? cycle.cutoffAt).toLocaleString('en-NG', { dateStyle: 'medium', timeStyle: 'short', hour12: false, timeZone: 'Africa/Lagos' })}
+            {cycle.poolClosesAt &&
+              ` · pool closes ${cycle.poolClosesAt.toLocaleTimeString('en-NG', { hour: '2-digit', minute: '2-digit', hour12: false, timeZone: 'Africa/Lagos' })}`}{' '}
+            (Lagos time)
           </p>
           <p className="mt-2 text-sm text-ink">
             Demand: <span className="font-bold">{cycle.totalQuantityRequested}</span> {cycle.material.unit}{' '}
@@ -51,13 +54,23 @@ export default async function AdminCycleDetailPage({ params }: { params: Promise
           </p>
         </div>
 
-        {cycle.status === 'OPEN' && (
-          <form action={forceAwardCycle}>
-            <input type="hidden" name="cycleId" value={cycle.id} />
-            <Button type="submit" variant="outline">
-              Close &amp; award now
-            </Button>
-          </form>
+        {(cycle.status === 'OPEN' || cycle.status === 'BIDDING') && (
+          <div className="flex flex-wrap gap-2">
+            {cycle.status === 'OPEN' && (
+              <form action={freezeCycleNowAction}>
+                <input type="hidden" name="cycleId" value={cycle.id} />
+                <Button type="submit" variant="outline">
+                  Freeze pool &amp; open bidding now
+                </Button>
+              </form>
+            )}
+            <form action={forceAwardCycle}>
+              <input type="hidden" name="cycleId" value={cycle.id} />
+              <Button type="submit" variant="outline">
+                Close &amp; award now
+              </Button>
+            </form>
+          </div>
         )}
       </div>
 

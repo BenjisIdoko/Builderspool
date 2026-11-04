@@ -55,6 +55,8 @@ export async function getCycleDetail(id: string) {
     region: cycle.region,
     date: cycle.date,
     cutoffAt: cycle.cutoffAt,
+    poolClosesAt: cycle.poolClosesAt,
+    bidsCloseAt: cycle.bidsCloseAt,
     status: cycle.status,
     totalQuantityRequested,
     totalQuantityAllocated,
@@ -72,6 +74,7 @@ export async function getCycleDetail(id: string) {
       estimatedDeliveryDays: bid.estimatedDeliveryDays,
       score: bid.score,
       rank: bid.rank,
+      rejectionReason: bid.rejectionReason,
       status: bid.status,
       allocations: bid.allocations.map((a) => ({
         id: a.id,

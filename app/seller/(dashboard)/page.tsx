@@ -280,7 +280,11 @@ export default async function SellerDashboardPage() {
                 </span>
                 <span className="flex items-center gap-1 text-[11px] text-muted-foreground">
                   <ClockIcon className="size-3" />
-                  {cycle.cutoffAt.toLocaleString('en-NG', { dateStyle: 'medium', timeStyle: 'short' })}
+                  {cycle.canBid
+                    ? `Bids close ${cycle.bidsCloseAt.toLocaleTimeString('en-NG', { hour: '2-digit', minute: '2-digit', hour12: false, timeZone: 'Africa/Lagos' })}`
+                    : cycle.poolClosesAt
+                      ? `Pool closes ${cycle.poolClosesAt.toLocaleString('en-NG', { dateStyle: 'medium', timeStyle: 'short', hour12: false, timeZone: 'Africa/Lagos' })}`
+                      : cycle.cutoffAt.toLocaleString('en-NG', { dateStyle: 'medium', timeStyle: 'short', timeZone: 'Africa/Lagos' })}
                 </span>
               </div>
 
@@ -310,7 +314,17 @@ export default async function SellerDashboardPage() {
               )}
 
               <div className="mt-4">
-                <BidDialog cycle={cycle} />
+                {cycle.canBid ? (
+                  <BidDialog cycle={cycle} />
+                ) : (
+                  <p className="text-xs text-muted-foreground">
+                    Still collecting demand. Blind bidding opens when the pool closes
+                    {cycle.poolClosesAt
+                      ? ` at ${cycle.poolClosesAt.toLocaleTimeString('en-NG', { hour: '2-digit', minute: '2-digit', hour12: false, timeZone: 'Africa/Lagos' })}`
+                      : ''}
+                    .
+                  </p>
+                )}
               </div>
             </div>
           ))}

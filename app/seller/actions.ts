@@ -125,7 +125,10 @@ export async function submitBid(formData: FormData) {
   // minutes. Checking cutoffAt directly closes that grace-window gap, where
   // a seller could otherwise submit or amend a bid after the deadline every
   // other seller was told applied.
-  if (cycle.status !== CycleStatus.OPEN || isPastCutoff(cycle.cutoffAt)) {
+  if (cycle.status === CycleStatus.OPEN) {
+    throw new Error('Bidding for this pool opens when it closes to new demand.');
+  }
+  if (cycle.status !== CycleStatus.BIDDING || isPastCutoff(cycle.bidsCloseAt ?? cycle.cutoffAt)) {
     throw new Error('This cycle is no longer accepting bids.');
   }
   if (profile.kycStatus !== 'APPROVED') {
@@ -171,7 +174,7 @@ export async function withdrawBid(formData: FormData) {
   const bid = await prisma.bid.findUniqueOrThrow({ where: { id: bidId }, include: { cycle: true } });
   if (bid.sellerId !== sellerId) throw new Error('Not your bid.');
   if (bid.status !== BidStatus.SUBMITTED) throw new Error('Only a submitted bid can be withdrawn.');
-  if (isPastCutoff(bid.cycle.cutoffAt)) {
+  if (bid.cycle.status !== CycleStatus.BIDDING || isPastCutoff(bid.cycle.bidsCloseAt ?? bid.cycle.cutoffAt)) {
     throw new Error('This cycle has passed its cutoff — bids can no longer be withdrawn.');
   }
 

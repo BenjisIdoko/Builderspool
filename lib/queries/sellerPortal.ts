@@ -20,7 +20,9 @@ export async function getOpenCyclesForSeller(sellerId: string) {
   const profile = await prisma.sellerProfile.findUniqueOrThrow({ where: { userId: sellerId } });
 
   const cycles = await prisma.bidCycle.findMany({
-    where: { status: CycleStatus.OPEN },
+    // OPEN cycles are still collecting demand (sellers can see them, not bid);
+    // BIDDING cycles have frozen and issued the RFQ.
+    where: { status: { in: [CycleStatus.OPEN, CycleStatus.BIDDING] } },
     include: {
       material: true,
       orderItems: { select: { quantity: true } },
@@ -33,6 +35,7 @@ export async function getOpenCyclesForSeller(sellerId: string) {
     orderBy: [{ cutoffAt: 'asc' }, { createdAt: 'asc' }],
   });
 
+  const now = new Date();
   return cycles
     .filter((cycle) => isSellerEligible(profile, cycle))
     .map((cycle) => {
@@ -45,6 +48,10 @@ export async function getOpenCyclesForSeller(sellerId: string) {
         material: { ...cycle.material, catalogPrice: Number(cycle.material.catalogPrice) },
         region: cycle.region,
         cutoffAt: cycle.cutoffAt,
+        status: cycle.status,
+        poolClosesAt: cycle.poolClosesAt,
+        bidsCloseAt: cycle.bidsCloseAt ?? cycle.cutoffAt,
+        canBid: cycle.status === CycleStatus.BIDDING && now.getTime() < (cycle.bidsCloseAt ?? cycle.cutoffAt).getTime(),
         totalQuantityRequested: cycle.orderItems.reduce((sum, item) => sum + item.quantity, 0),
         myBid: myBid
           ? {

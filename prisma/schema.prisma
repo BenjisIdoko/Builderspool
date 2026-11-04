@@ -42,9 +42,10 @@ enum SourcingScope {
 }
 
 enum CycleStatus {
-  OPEN     // buyers' paid order items and sellers' bids can still join
-  CLOSED   // cutoff passed, demand frozen, being scored
-  AWARDED  // bids scored and allocated
+  OPEN     // collecting demand: paid order items join until poolClosesAt
+  BIDDING  // pool frozen, RFQ issued: approved sellers bid blind until bidsCloseAt
+  CLOSED   // bidding closed, being scored
+  AWARDED  // bids scored and allocated (acceptance, cascade and fallback follow)
 }
 
 enum BidStatus {
@@ -258,6 +259,35 @@ model SellerStaff {
   seller User @relation("SellerOwner", fields: [sellerUserId], references: [id], onDelete: Cascade)
 
   @@index([sellerUserId])
+}
+
+enum LedgerAccount {
+  BUYER_SAVINGS_CREDIT   // the buyer's share of a verified Pool & Save saving
+  PLATFORM_SAVINGS_SHARE // BuildersPool's share of that saving
+  SELLER_PAYABLE         // owed to a seller once goods are received (payouts disabled in the MVP)
+  BUYER_REFUND_DUE       // paid by the buyer for units no supplier covered
+  PLATFORM_COMMISSION    // Buy Direct commission
+  PLATFORM_DELIVERY      // platform delivery fee
+}
+
+// Append-only money ledger in integer kobo (Transfer File section 4). A row is
+// never updated or deleted — a correction is a new compensating row — which a
+// database trigger enforces. entryKey makes every write idempotent.
+model LedgerEntry {
+  id           String        @id @default(cuid())
+  account      LedgerAccount
+  amountKobo   BigInt
+  entryKey     String        @unique
+  memo         String
+  orderId      String?
+  orderItemId  String?
+  allocationId String?
+  userId       String? // the buyer or seller the entry is owed to / from
+  createdAt    DateTime      @default(now())
+
+  @@index([account, createdAt])
+  @@index([allocationId])
+  @@index([userId])
 }
 
 // Platform settings editable by admins (Admin > Settings). One row per key; a
@@ -497,6 +527,10 @@ model OrderItem {
   deliveryCost       Decimal  @default(0) @db.Decimal(12, 2)
   fulfilmentCenterId String?
   bidCycleId         String?
+  // Units no winning supplier covered once the fallback time passed. Never
+  // converted into a purchase the buyer didn't authorise; the unfilled value
+  // is recorded as a refund due on the ledger.
+  unfilledQuantity   Int      @default(0)
   createdAt          DateTime @default(now())
 
   order             Order              @relation(fields: [orderId], references: [id])
@@ -519,9 +553,20 @@ model BidCycle {
   materialId String
   region     String?
   date       DateTime    @db.Date
-  cutoffAt   DateTime
+  cutoffAt   DateTime // = bidsCloseAt; kept for older code and screens
   status     CycleStatus @default(OPEN)
   createdAt  DateTime    @default(now())
+
+  // The daily timeline (Transfer File 5.4), set from Admin > Settings in
+  // Africa/Lagos time when the cycle is created. Null on cycles created before
+  // 2026-11-05.
+  poolClosesAt        DateTime?
+  bidsCloseAt         DateTime?
+  acceptDeadlineAt    DateTime?
+  fallbackAt          DateTime?
+  frozenAt            DateTime?
+  awardedAt           DateTime?
+  fallbackProcessedAt DateTime?
 
   material   Material    @relation(fields: [materialId], references: [id])
   orderItems OrderItem[]
@@ -543,6 +588,9 @@ model Bid {
   rank                  Int? // filled in at award time
   status                BidStatus @default(SUBMITTED)
   submittedAt           DateTime  @default(now())
+  // Why an otherwise-submitted bid was excluded at award (eligibility reason
+  // code, e.g. NOT_APPROVED, OUTSIDE_SERVICE_AREA, OVER_WINNER_CAP).
+  rejectionReason       String?
 
   seller   User     @relation(fields: [sellerId], references: [id])
   material Material @relation(fields: [materialId], references: [id])
@@ -592,6 +640,14 @@ model Allocation {
   orderItemId    String
   quantityFilled Int
   status         AllocationStatus @default(PENDING)
+  // The seller must accept an award by acceptDeadlineAt (Transfer File 5.4); a
+  // decline or a timeout passes the quantity to the next-ranked bid
+  // (cascadeRound counts the passes; the second round is final).
+  acceptedAt       DateTime?
+  declinedAt       DateTime?
+  acceptDeadlineAt DateTime?
+  cascadeRound     Int       @default(0)
+  cancelReason     String?
   receivedAt     DateTime?
   grnNumber      String?          @unique // set together with receivedAt when the GRN is issued
   createdAt      DateTime         @default(now())

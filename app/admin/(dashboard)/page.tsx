@@ -40,6 +40,7 @@ function shortOrderNumber(id: string) {
 
 const CYCLE_STATUS_CHART_TONE = {
   OPEN: 'success',
+  BIDDING: 'info',
   CLOSED: 'warning',
   AWARDED: 'info',
 } as const;
@@ -144,10 +145,10 @@ export default async function AdminDashboardPage() {
   const maxWeeklyGmv = Math.max(1, ...weeklyGmv.map((w) => w.total));
 
   const openCycles = cycles
-    .filter((c) => c.status === 'OPEN')
+    .filter((c) => c.status === 'OPEN' || c.status === 'BIDDING')
     .sort((a, b) => a.cutoffAt.getTime() - b.cutoffAt.getTime());
 
-  const cycleStatusCounts = (['OPEN', 'CLOSED', 'AWARDED'] as const).map((status) => ({
+  const cycleStatusCounts = (['OPEN', 'BIDDING', 'CLOSED', 'AWARDED'] as const).map((status) => ({
     status,
     count: cycles.filter((c) => c.status === status).length,
   }));

@@ -35,6 +35,8 @@ export function cycleStatusTone(status: CycleStatus): PillTone {
   switch (status) {
     case CycleStatus.OPEN:
       return 'success';
+    case CycleStatus.BIDDING:
+      return 'info';
     case CycleStatus.CLOSED:
       return 'warning';
     case CycleStatus.AWARDED:

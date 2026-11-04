@@ -15,7 +15,7 @@ import { recordAudit } from '@/lib/audit';
 import { createSession, destroySession, SESSION_TTL } from '@/lib/auth/sessionStore';
 import { verifyPassword } from '@/lib/auth/password';
 import { assertNotRateLimited, recordLoginAttempt } from '@/lib/auth/rateLimit';
-import { awardCycle } from '@/lib/bidding';
+import { awardCycle, freezeCycle } from '@/lib/bidding';
 import { issueGrn, disbursePayout, toggleAllocationHold } from '@/lib/fulfillment';
 import { markWithdrawalPaid } from '@/lib/wallet';
 
@@ -76,15 +76,32 @@ export async function forceAwardCycle(formData: FormData) {
   // or a race against the cron itself must not both proceed to award the
   // same cycle twice.
   const { count } = await prisma.bidCycle.updateMany({
-    where: { id: cycleId, status: CycleStatus.OPEN },
+    where: { id: cycleId, status: { in: [CycleStatus.OPEN, CycleStatus.BIDDING] } },
     data: { status: CycleStatus.CLOSED },
   });
   if (count === 0) {
-    throw new Error('Only an open cycle can be closed and awarded.');
+    throw new Error('Only a cycle still collecting demand or taking bids can be closed and awarded.');
   }
 
   await awardCycle(cycleId);
   await recordAudit({ actor: { id: admin.id, role: admin.role }, action: 'cycle.force_awarded', entityType: 'BidCycle', entityId: cycleId, summary: 'Closed and awarded a cycle ahead of its cutoff' });
+
+  revalidatePath('/admin');
+  revalidatePath(`/admin/cycles/${cycleId}`);
+}
+
+/**
+ * Manual ops override: closes an OPEN pool to new demand and opens blind
+ * bidding now, instead of waiting for the pool-close time ("run cycle now").
+ */
+export async function freezeCycleNowAction(formData: FormData) {
+  const admin = await requireAdminUser();
+
+  const cycleId = formData.get('cycleId');
+  if (typeof cycleId !== 'string') throw new Error('Missing cycle id.');
+
+  if (!(await freezeCycle(cycleId))) throw new Error('Only a pool still collecting demand can be frozen.');
+  await recordAudit({ actor: { id: admin.id, role: admin.role }, action: 'cycle.frozen_now', entityType: 'BidCycle', entityId: cycleId, summary: 'Froze a pool and opened blind bidding ahead of the pool-close time' });
 
   revalidatePath('/admin');
   revalidatePath(`/admin/cycles/${cycleId}`);

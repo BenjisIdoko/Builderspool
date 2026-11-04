@@ -2,6 +2,7 @@ import Link from 'next/link';
 import { redirect } from 'next/navigation';
 import { MapPinIcon, SignOutIcon } from '@phosphor-icons/react/ssr';
 import { getSellerActor } from '@/lib/seller/session';
+import { maybeAdvanceCycles } from '@/lib/bidding';
 import { getSellerProfile } from '@/lib/queries/sellerPortal';
 import { signOutSeller } from '@/app/seller/actions';
 import { getNotificationsForSeller } from '@/lib/notifications';
@@ -37,6 +38,9 @@ export default async function SellerDashboardLayout({ children }: { children: Re
   const actor = await getSellerActor();
   if (!actor) redirect('/seller/login');
   const sellerId = actor.sellerId;
+
+  // Keeps the daily timeline honest on hosting plans that only run a daily cron.
+  await maybeAdvanceCycles();
 
   const profile = await getSellerProfile(sellerId);
   if (!profile) redirect('/seller/login');

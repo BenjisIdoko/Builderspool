@@ -68,7 +68,7 @@ export async function getAdminKpis() {
   const materialVolume = allocations.reduce((sum, a) => sum + a.quantityFilled, 0);
   const pendingGrnCount = allocations.filter((a) => !a.receivedAt).length;
 
-  const activeDemandPools = await prisma.bidCycle.count({ where: { status: CycleStatus.OPEN } });
+  const activeDemandPools = await prisma.bidCycle.count({ where: { status: { in: [CycleStatus.OPEN, CycleStatus.BIDDING] } } });
 
   return { platformGmv, margin, activeDemandPools, materialVolume, pendingGrnCount };
 }

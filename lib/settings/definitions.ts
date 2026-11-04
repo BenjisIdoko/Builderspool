@@ -36,8 +36,7 @@ export const SETTING_GROUPS: { id: SettingGroupId; title: string; description: s
 
 export const SETTING_DEFINITIONS: SettingDefinition[] = [
   { key: 'cycle.poolCloseTime', label: 'Pool closes (demand frozen, RFQs issued)', group: 'cycle', type: 'time', default: '17:00' },
-  { key: 'cycle.bidCloseTime', label: 'Blind bidding closes', group: 'cycle', type: 'time', default: '18:00' },
-  { key: 'cycle.awardTime', label: 'Scoring and award', group: 'cycle', type: 'time', default: '18:00' },
+  { key: 'cycle.bidCloseTime', label: 'Blind bidding closes (scoring and award run then)', group: 'cycle', type: 'time', default: '18:00' },
   { key: 'cycle.acceptDeadlineTime', label: 'Unaccepted awards pass to next-ranked bid', group: 'cycle', type: 'time', default: '19:00' },
   { key: 'cycle.fallbackTime', label: 'Buyer-authorised fallback, or line marked unsuccessful', group: 'cycle', type: 'time', default: '19:50' },
 

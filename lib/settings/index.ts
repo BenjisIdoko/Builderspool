@@ -49,7 +49,7 @@ export function validateSettingsSet(values: SettingValues): void {
   const total = weightKeys.reduce((sum, k) => sum + Number(values[k]), 0);
   if (total !== 100) throw new Error(`The six scoring weights add up to ${total}; they must add up to 100.`);
 
-  const order = ['cycle.poolCloseTime', 'cycle.bidCloseTime', 'cycle.awardTime', 'cycle.acceptDeadlineTime', 'cycle.fallbackTime'];
+  const order = ['cycle.poolCloseTime', 'cycle.bidCloseTime', 'cycle.acceptDeadlineTime', 'cycle.fallbackTime'];
   for (let i = 1; i < order.length; i++) {
     if (String(values[order[i]]) < String(values[order[i - 1]])) {
       throw new Error(`${SETTING_BY_KEY[order[i]].label} cannot be earlier than ${SETTING_BY_KEY[order[i - 1]].label.toLowerCase()}.`);

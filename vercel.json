@@ -1,5 +1,7 @@
 {
-  "regions": ["dub1"],
+  "regions": [
+    "dub1"
+  ],
   "crons": [
     {
       "path": "/api/cron/close-cycles",
@@ -7,7 +9,7 @@
     },
     {
       "path": "/api/cron/notify-closing-soon",
-      "schedule": "0 17 * * *"
+      "schedule": "30 16 * * *"
     }
   ]
 }

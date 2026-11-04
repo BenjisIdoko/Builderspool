@@ -11,6 +11,7 @@ import { MobileNav } from '@/components/mobile-nav';
 import { LogoMark } from '@/components/logo';
 import { Avatar } from '@/components/avatar';
 import { Button } from '@/components/ui/button';
+import { maybeAdvanceCycles } from '@/lib/bidding';
 import { PortalTopbar } from '@/components/portal-topbar';
 import { SearchProvider } from '@/components/portal-search';
 
@@ -25,6 +26,9 @@ const LINKS = [
 export default async function AdminDashboardLayout({ children }: { children: React.ReactNode }) {
   const admin = await getCurrentAdmin();
   if (!admin) redirect('/admin/login');
+
+  // Keeps the daily timeline honest on hosting plans that only run a daily cron.
+  await maybeAdvanceCycles();
 
   const [pendingVerificationCount, priceReviewCount, pendingGrnCount] = await Promise.all([
     getPendingVerificationCount(),
