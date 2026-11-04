@@ -75,6 +75,23 @@ export async function notifyBidLost(sellerId: string, materialName: string) {
   );
 }
 
+/** An award the seller no longer holds — declined, not accepted in time, or released on suspension. */
+export async function notifyAwardLapsed(
+  sellerId: string,
+  materialName: string,
+  quantity: number,
+  unit: string,
+  reason: 'DECLINED' | 'EXPIRED' | 'SELLER_SUSPENDED',
+) {
+  const body =
+    reason === 'DECLINED'
+      ? `You declined ${quantity} ${unit} of ${materialName}; it has been passed to the next supplier.`
+      : reason === 'EXPIRED'
+        ? `${quantity} ${unit} of ${materialName} wasn't accepted in time and has been passed to the next supplier.`
+        : `${quantity} ${unit} of ${materialName} was released because your account is suspended.`;
+  await createNotification(sellerId, NotificationType.BID_LOST, 'Award passed on', body, '/seller/allocations');
+}
+
 export async function getNotificationsForSeller(sellerId: string, limit = 12) {
   const [notifications, unreadCount] = await Promise.all([
     prisma.notification.findMany({

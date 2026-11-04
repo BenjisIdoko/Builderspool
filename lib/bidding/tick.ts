@@ -1,12 +1,15 @@
 import { prisma } from '../prisma';
-import { CycleStatus } from '@prisma/client';
+import { AllocationStatus, CycleStatus } from '@prisma/client';
 import { notifyCycleOpened } from '../notifications';
 import { awardCycle } from './award';
+import { expireOverdueAllocations, finalizeCycleFallback, type FallbackReport } from './fallback';
 import type { CycleCloseReport } from './types';
 
 export interface TickReport {
   frozen: string[];
   awarded: CycleCloseReport[];
+  expiredAwards: number;
+  fallbacks: FallbackReport[];
 }
 
 // Moves a cycle OPEN -> BIDDING: demand is frozen, the RFQ is issued and
@@ -41,7 +44,7 @@ export async function closeAndAwardCycle(cycleId: string): Promise<CycleCloseRep
  * page-load nudge, admin button): each stage is a compare-and-swap.
  */
 export async function advanceCycles(now = new Date()): Promise<TickReport> {
-  const report: TickReport = { frozen: [], awarded: [] };
+  const report: TickReport = { frozen: [], awarded: [], expiredAwards: 0, fallbacks: [] };
 
   const toFreeze = await prisma.bidCycle.findMany({
     where: { status: CycleStatus.OPEN, poolClosesAt: { lte: now } },
@@ -56,6 +59,21 @@ export async function advanceCycles(now = new Date()): Promise<TickReport> {
   for (const { id } of toAward) {
     const result = await closeAndAwardCycle(id);
     if (result) report.awarded.push(result);
+  }
+
+  // Awards nobody accepted by the deadline pass to the next-ranked bids (or
+  // lapse, if they already passed once); then cycles past their fallback time
+  // mark whatever is still uncovered as unsuccessful for the buyer. Expiry
+  // runs first so the fallback sees the final picture.
+  report.expiredAwards = await expireOverdueAllocations(now);
+
+  const toFinalize = await prisma.bidCycle.findMany({
+    where: { status: CycleStatus.AWARDED, fallbackProcessedAt: null, fallbackAt: { lte: now } },
+    select: { id: true },
+  });
+  for (const { id } of toFinalize) {
+    const result = await finalizeCycleFallback(id, now);
+    if (result) report.fallbacks.push(result);
   }
 
   return report;
@@ -76,8 +94,12 @@ export async function maybeAdvanceCycles(): Promise<void> {
       OR: [
         { status: CycleStatus.OPEN, poolClosesAt: { lte: now } },
         { status: CycleStatus.BIDDING, bidsCloseAt: { lte: now } },
+        { status: CycleStatus.AWARDED, fallbackProcessedAt: null, fallbackAt: { lte: now } },
       ],
     },
   });
-  if (due > 0) await advanceCycles(now);
+  const overdueAwards = await prisma.allocation.count({
+    where: { status: AllocationStatus.PENDING, acceptDeadlineAt: { lte: now } },
+  });
+  if (due + overdueAwards > 0) await advanceCycles(now);
 }

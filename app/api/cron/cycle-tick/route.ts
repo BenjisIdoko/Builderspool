@@ -13,7 +13,7 @@ export async function POST(request: NextRequest) {
   return handleTick(request);
 }
 
-// Advances every cycle whose deadline has passed (freeze -> award). Idempotent
+// Advances every cycle whose deadline has passed (freeze -> award -> expire unaccepted awards -> fallback). Idempotent
 // and safe to call as often as the host allows.
 async function handleTick(request: NextRequest) {
   try {
@@ -29,6 +29,8 @@ async function handleTick(request: NextRequest) {
       summary: {
         cyclesFrozen: report.frozen.length,
         cyclesAwarded: report.awarded.length,
+        awardsExpired: report.expiredAwards,
+        cyclesFallbackProcessed: report.fallbacks.length,
         cyclesNeedingAttention: report.awarded.filter((r) => r.needsAttention).length,
         reports: report.awarded,
       },

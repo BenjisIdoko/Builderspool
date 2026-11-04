@@ -3,11 +3,12 @@
 import { redirect } from 'next/navigation';
 import { revalidatePath } from 'next/cache';
 import { prisma } from '@/lib/prisma';
-import { BidStatus, CycleStatus, Role } from '@prisma/client';
+import { AllocationStatus, BidStatus, CycleStatus, Role } from '@prisma/client';
 import { SELLER_SESSION, getSellerIdFromSession } from '@/lib/seller/session';
 import { createSession, destroySession, SESSION_TTL } from '@/lib/auth/sessionStore';
 import { isSellerEligible } from '@/lib/bidding/scoring';
 import { isPastCutoff } from '@/lib/bidding/cycleWindow';
+import { releaseAllocation } from '@/lib/bidding/fallback';
 import { hashPassword, verifyPassword } from '@/lib/auth/password';
 import { assertNotRateLimited, recordLoginAttempt } from '@/lib/auth/rateLimit';
 import { sendVerificationForNewUser } from '@/lib/auth/emailVerification';
@@ -182,6 +183,71 @@ export async function withdrawBid(formData: FormData) {
 
   revalidatePath('/seller');
   revalidatePath('/seller/bids');
+}
+
+// Accepting or declining an award (Transfer File 5.4). Both return their
+// errors as data for the same reason signInSeller does.
+async function loadOwnAward(allocationId: unknown) {
+  const sellerId = await getSellerIdFromSession();
+  if (!sellerId) throw new Error('Sign in as a seller to respond to an award.');
+  if (typeof allocationId !== 'string') throw new Error('Missing award id.');
+  const allocation = await prisma.allocation.findUnique({ where: { id: allocationId }, include: { bid: true } });
+  if (!allocation || allocation.bid.sellerId !== sellerId) throw new Error('Not your award.');
+  return allocation;
+}
+
+function awardNoLongerWaiting(status: AllocationStatus, cancelReason: string | null): string {
+  if (status === AllocationStatus.CANCELLED) {
+    return cancelReason === 'EXPIRED' ? 'The time to accept this award has passed.' : 'This award has been withdrawn.';
+  }
+  return 'This award has already been accepted.';
+}
+
+export async function acceptAllocation(formData: FormData): Promise<{ error: string } | undefined> {
+  try {
+    const allocation = await loadOwnAward(formData.get('allocationId'));
+    const now = new Date();
+
+    const profile = await prisma.sellerProfile.findUniqueOrThrow({ where: { userId: allocation.bid.sellerId } });
+    if (profile.kycStatus !== 'APPROVED') throw new Error('Your account is not approved, so you cannot accept awards.');
+
+    // Compare-and-swap: only a still-waiting award inside its accept window.
+    const { count } = await prisma.allocation.updateMany({
+      where: {
+        id: allocation.id,
+        status: AllocationStatus.PENDING,
+        OR: [{ acceptDeadlineAt: null }, { acceptDeadlineAt: { gt: now } }],
+      },
+      data: { status: AllocationStatus.CONFIRMED, acceptedAt: now },
+    });
+    if (count === 0) {
+      const fresh = await prisma.allocation.findUniqueOrThrow({ where: { id: allocation.id } });
+      throw new Error(
+        fresh.status === AllocationStatus.PENDING
+          ? 'The time to accept this award has passed.'
+          : awardNoLongerWaiting(fresh.status, fresh.cancelReason),
+      );
+    }
+  } catch (err) {
+    return { error: err instanceof Error ? err.message : 'Could not accept this award.' };
+  }
+  revalidatePath('/seller/allocations');
+  revalidatePath('/seller', 'layout');
+}
+
+export async function declineAllocation(formData: FormData): Promise<{ error: string } | undefined> {
+  try {
+    const allocation = await loadOwnAward(formData.get('allocationId'));
+    const result = await releaseAllocation(allocation.id, 'DECLINED');
+    if (!result.released) {
+      const fresh = await prisma.allocation.findUniqueOrThrow({ where: { id: allocation.id } });
+      throw new Error(awardNoLongerWaiting(fresh.status, fresh.cancelReason));
+    }
+  } catch (err) {
+    return { error: err instanceof Error ? err.message : 'Could not decline this award.' };
+  }
+  revalidatePath('/seller/allocations');
+  revalidatePath('/seller', 'layout');
 }
 
 export async function markNotificationReadAction(formData: FormData) {

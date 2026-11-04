@@ -4,12 +4,20 @@ import { getSellerAllocations } from '@/lib/queries/sellerPortal';
 import { allocationStatusTone, payoutStatusTone, pillClass } from '@/lib/statusColors';
 import { Badge } from '@/components/ui/badge';
 import { MaterialImage } from '@/components/material-image';
+import { AwardResponse } from '@/components/seller/award-response';
+import { formatLagosTime } from '@/lib/bidding/schedule';
 
 const PAYOUT_STATUS_LABEL: Record<string, string> = {
   PENDING_GRN: 'Payout pending GRN',
   PROCESSED: 'Payout cleared',
   PAID: 'Payout sent',
   ON_HOLD: 'Payout on hold',
+};
+
+const CANCEL_LABEL: Record<string, string> = {
+  DECLINED: 'You declined this award',
+  EXPIRED: "Not accepted in time — passed to the next supplier",
+  SELLER_SUSPENDED: 'Released because your account was suspended',
 };
 
 export default async function SellerAllocationsPage() {
@@ -20,8 +28,9 @@ export default async function SellerAllocationsPage() {
     <div className="mx-auto w-full max-w-5xl px-6 py-12">
       <h1 className="mb-1 text-xl font-bold tracking-tight text-ink">Allocations</h1>
       <p className="mb-6 text-sm text-muted-foreground">
-        Materials awarded to you. Drop off at the fulfillment center listed — it confirms receipt (GRN),
-        which is what triggers your payout.
+        Materials awarded to you. Accept an award before its deadline or it passes to the next supplier.
+        Once accepted, drop off at the fulfillment center listed — it confirms receipt (GRN), which is what
+        triggers your payout.
       </p>
 
       {allocations.length === 0 ? (
@@ -52,14 +61,26 @@ export default async function SellerAllocationsPage() {
                 <div>
                   <div className="font-semibold text-ink">{allocation.bid.material.name}</div>
                   <Badge variant="outline" className={`${pillClass(allocationStatusTone(allocation.status))} mt-0.5`}>
-                    {allocation.status.toLowerCase()}
+                    {allocation.status === 'PENDING' && allocation.acceptDeadlineAt
+                      ? 'awaiting your acceptance'
+                      : allocation.status === 'CONFIRMED'
+                        ? 'accepted'
+                        : allocation.status.toLowerCase()}
                   </Badge>
+                  {allocation.cascadeRound > 0 && allocation.status !== 'CANCELLED' && (
+                    <div className="mt-1 text-xs text-muted-foreground">Passed to you from another supplier</div>
+                  )}
                 </div>
               </div>
 
               <div className="text-ink">
                 <span className="mr-1 text-xs text-muted-foreground sm:hidden">Quantity:</span>
                 {allocation.quantityFilled} {allocation.bid.material.unit}
+                {allocation.status === 'PENDING' && allocation.acceptDeadlineAt && (
+                  <div className="mt-1 text-xs font-medium text-warning">
+                    Accept by {formatLagosTime(allocation.acceptDeadlineAt)}
+                  </div>
+                )}
               </div>
 
               <div>
@@ -85,6 +106,13 @@ export default async function SellerAllocationsPage() {
                 )}
               </div>
 
+              {allocation.status === 'PENDING' && allocation.acceptDeadlineAt ? (
+                <AwardResponse allocationId={allocation.id} />
+              ) : allocation.status === 'CANCELLED' ? (
+                <div className="text-xs text-muted-foreground">
+                  {CANCEL_LABEL[allocation.cancelReason ?? ''] ?? 'This award was withdrawn'}
+                </div>
+              ) : (
               <div>
                 <span className="mb-1 block text-xs font-semibold text-muted-foreground sm:hidden">
                   Payout status
@@ -99,6 +127,7 @@ export default async function SellerAllocationsPage() {
                   <div className="mt-1 text-xs text-danger">{allocation.holdReason}</div>
                 )}
               </div>
+              )}
             </div>
           ))}
         </div>

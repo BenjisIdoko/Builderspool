@@ -5,6 +5,7 @@ import { prisma } from '@/lib/prisma';
 import { KycStatus } from '@prisma/client';
 import { requireAdminUser } from '@/lib/admin/session';
 import { recordAudit } from '@/lib/audit';
+import { releasePendingAllocationsForSeller } from '@/lib/bidding/fallback';
 
 export async function approveKycAction(formData: FormData) {
   const admin = await requireAdminUser();
@@ -62,7 +63,16 @@ export async function suspendSellerAction(formData: FormData) {
   });
   if (count === 0) throw new Error('Only an approved seller can be suspended.');
 
-  await recordAudit({ actor: { id: admin.id, role: admin.role }, action: 'seller.suspended', entityType: 'SellerProfile', entityId: userId, summary: `Suspended a seller — ${reason.trim()}` });
+  // Awards the seller hasn't accepted yet pass to the next-ranked bids.
+  const released = await releasePendingAllocationsForSeller(userId, 'SELLER_SUSPENDED');
+
+  await recordAudit({
+    actor: { id: admin.id, role: admin.role },
+    action: 'seller.suspended',
+    entityType: 'SellerProfile',
+    entityId: userId,
+    summary: `Suspended a seller — ${reason.trim()}${released > 0 ? ` (${released} unaccepted award${released === 1 ? '' : 's'} passed on)` : ''}`,
+  });
   revalidatePath('/admin/users');
   revalidatePath('/admin/verification');
   revalidatePath('/admin/sellers');

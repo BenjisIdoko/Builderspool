@@ -23,6 +23,11 @@ export async function issueGrn(allocationId: string) {
   if (allocation.status === AllocationStatus.CANCELLED) {
     throw new Error('A cancelled allocation cannot receive a GRN.');
   }
+  // Goods are only received against an award the seller accepted. Awards made
+  // before acceptance existed carry no deadline and are let through.
+  if (allocation.status === AllocationStatus.PENDING && allocation.acceptDeadlineAt) {
+    throw new Error('The seller has not accepted this award yet.');
+  }
   if (allocation.receivedAt) {
     throw new Error('A GRN has already been issued for this allocation.');
   }

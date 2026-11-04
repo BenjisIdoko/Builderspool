@@ -15,6 +15,9 @@ const REJECTION_LABEL: Record<string, string> = {
   INVALID_BID: 'Invalid price, quantity or delivery',
   OVER_WINNER_CAP: 'Winner cap reached for this category and zone',
   BELOW_MIN_BIDS: 'Too few eligible bids to award',
+  AWARD_DECLINED: 'Seller declined the award',
+  AWARD_EXPIRED: 'Seller did not accept in time',
+  SELLER_SUSPENDED: 'Seller suspended before accepting',
 };
 
 const PAYOUT_STATUS_LABEL: Record<string, string> = {

@@ -65,6 +65,14 @@ export default async function OrderConfirmationPage({
   }
 
   const subtotal = order.items.reduce((sum, item) => sum + item.priceLocked * item.quantity, 0);
+  // Units no supplier took on by the fallback time: not charged, refund due.
+  const refundDue = order.items.reduce(
+    (sum, item) =>
+      item.unfilledQuantity > 0
+        ? sum + item.priceLocked * item.unfilledQuantity + (item.deliveryCost * item.unfilledQuantity) / item.quantity
+        : sum,
+    0,
+  );
   const deliveryTotal = order.items.reduce((sum, item) => sum + item.deliveryCost, 0) / (order.items.length || 1);
   const center = order.items[0]?.fulfillmentCenter;
   const isPickup = order.items.every((item) => item.deliveryCost === 0);
@@ -293,7 +301,14 @@ export default async function OrderConfirmationPage({
                   className="size-12 shrink-0 rounded-md border border-border"
                   sizes="48px"
                 />
-                <div className="font-medium text-ink">{item.material.name}</div>
+                <div>
+                  <div className="font-medium text-ink">{item.material.name}</div>
+                  {item.unfilledQuantity > 0 && (
+                    <div className="mt-0.5 text-xs font-medium text-danger">
+                      No winning supplier for {item.unfilledQuantity} of {item.quantity} — not charged, refund due
+                    </div>
+                  )}
+                </div>
               </div>
               <div className="text-sm text-muted-foreground">
                 {item.quantity} × {formatNaira(item.priceLocked)}
@@ -317,6 +332,12 @@ export default async function OrderConfirmationPage({
             <span>Total</span>
             <span className="tabular-nums">{formatNaira(subtotal + deliveryTotal)}</span>
           </div>
+          {refundDue > 0 && (
+            <div className="flex justify-between text-sm font-bold text-danger">
+              <span>Refund due (units no supplier took)</span>
+              <span className="tabular-nums">{formatNaira(refundDue)}</span>
+            </div>
+          )}
         </div>
       </div>
 
