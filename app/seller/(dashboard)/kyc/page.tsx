@@ -4,6 +4,7 @@ import { getSellerIdFromSession } from '@/lib/seller/session';
 import { getSellerProfile } from '@/lib/queries/sellerPortal';
 import { kycStatusTone, pillClass } from '@/lib/statusColors';
 import { submitKyc, verifyCacAction } from './actions';
+import { isKycUploadConfigured } from '@/lib/storage/kycDocuments';
 import { KycDocumentInput } from '@/components/seller/kyc-document-input';
 import { Badge } from '@/components/ui/badge';
 import { Input } from '@/components/ui/input';
@@ -24,6 +25,7 @@ export default async function SellerKycPage() {
   const profile = await getSellerProfile(sellerId);
   if (!profile) redirect('/seller/login');
 
+  const uploadEnabled = isKycUploadConfigured();
   const editable = profile.kycStatus === 'NOT_SUBMITTED' || profile.kycStatus === 'REJECTED';
 
   return (
@@ -31,8 +33,8 @@ export default async function SellerKycPage() {
       <div className="mb-1 text-xs text-muted-foreground">Seller portal</div>
       <h1 className="mb-1 text-2xl font-bold tracking-tight text-ink">KYC verification</h1>
       <p className="mb-6 text-sm text-muted-foreground">
-        Required before payouts can be disbursed to your account. Attach a supporting document (a CAC
-        certificate or your ID) as a PDF, JPEG or PNG up to 4 MB.
+        Required before payouts can be disbursed to your account. Where available, attach a supporting
+        document (a CAC certificate or your ID) as a PDF, JPEG or PNG up to 4 MB.
       </p>
 
       <div className="mb-6 flex items-center gap-2.5 rounded-lg border border-border bg-surface p-4">
@@ -129,17 +131,27 @@ export default async function SellerKycPage() {
             </Button>
           </div>
 
-          <div>
-            <Label htmlFor="document" className="mb-1.5 text-xs text-muted-foreground">
-              Supporting document (PDF, JPEG or PNG, up to 4 MB)
-            </Label>
-            <KycDocumentInput />
-            {(profile.documentName || profile.documentUrl) && (
-              <p className="mt-1.5 text-xs text-muted-foreground">
-                On file: {profile.documentName ?? 'a previously submitted link'}. Choose a new file only to replace it.
-              </p>
-            )}
-          </div>
+          {uploadEnabled ? (
+            <div>
+              <Label htmlFor="document" className="mb-1.5 text-xs text-muted-foreground">
+                Supporting document (PDF, JPEG or PNG, up to 4 MB)
+              </Label>
+              <KycDocumentInput />
+              {(profile.documentName || profile.documentUrl) && (
+                <p className="mt-1.5 text-xs text-muted-foreground">
+                  On file: {profile.documentName ?? 'a previously submitted link'}. Choose a new file only to replace it.
+                </p>
+              )}
+            </div>
+          ) : (
+            <p className="text-xs text-muted-foreground">
+              {profile.documentName || profile.documentUrl
+                ? `On file: ${profile.documentName ?? 'a previously submitted link'}. `
+                : ''}
+              Document upload isn&apos;t available yet — you can submit without one and our team will follow up.
+            </p>
+          )}
+
           <div className="flex justify-end">
             <Button type="submit">{profile.kycStatus === 'REJECTED' ? 'Resubmit' : 'Submit for review'}</Button>
           </div>

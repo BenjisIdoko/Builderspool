@@ -6,6 +6,12 @@ const BUCKET = 'kyc-documents';
 // can't safely exceed this regardless of what the storage bucket allows.
 export const MAX_KYC_DOCUMENT_BYTES = 4 * 1024 * 1024;
 
+// Lets the seller page hide the file input (rather than offering one that
+// can only fail) until Storage is configured.
+export function isKycUploadConfigured(): boolean {
+  return Boolean(process.env.NEXT_PUBLIC_SUPABASE_URL && process.env.SUPABASE_SERVICE_ROLE_KEY);
+}
+
 function getConfig(): { baseUrl: string; serviceKey: string } {
   const url = process.env.NEXT_PUBLIC_SUPABASE_URL;
   const serviceKey = process.env.SUPABASE_SERVICE_ROLE_KEY;
