@@ -100,9 +100,21 @@ export default async function SellerDashboardPage() {
           <Link href="/seller/kyc">
             <Badge
               variant="outline"
-              className={pillClass(profile!.kycStatus === 'PENDING' ? 'warning' : 'neutral')}
+              className={pillClass(
+                profile!.kycStatus === 'PENDING'
+                  ? 'warning'
+                  : profile!.kycStatus === 'REJECTED' || profile!.kycStatus === 'SUSPENDED'
+                    ? 'danger'
+                    : 'neutral',
+              )}
             >
-              {profile!.kycStatus === 'PENDING' ? 'KYC pending review' : 'KYC not started'}
+              {profile!.kycStatus === 'PENDING'
+                ? 'KYC pending review'
+                : profile!.kycStatus === 'REJECTED'
+                  ? 'KYC rejected — resubmit to bid'
+                  : profile!.kycStatus === 'SUSPENDED'
+                    ? 'Account suspended'
+                    : 'Complete KYC to bid'}
             </Badge>
           </Link>
         )}

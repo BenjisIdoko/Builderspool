@@ -17,11 +17,15 @@ export interface ScoredBid extends EligibleBid {
 }
 
 /**
- * Geography is a hard eligibility filter, not a scored dimension — a seller
- * who doesn't serve a regional cycle's region is excluded before scoring
- * runs at all. A null (national) region has no regional restriction.
+ * Eligibility is a hard filter, not a scored dimension. Only prequalified
+ * (KYC-approved, not suspended) sellers can bid or win, and a seller who
+ * doesn't serve a regional cycle's region is excluded before scoring runs at
+ * all. A null (national) region has no regional restriction. Used for what a
+ * seller sees, whether a bid is accepted, and at award time — so suspending a
+ * seller also drops any bid they already placed from that cycle's award.
  */
 export function isSellerEligible(sellerProfile: SellerProfile, cycle: BidCycle): boolean {
+  if (sellerProfile.kycStatus !== 'APPROVED') return false;
   if (!cycle.region) return true;
   return sellerProfile.regionsServed.includes(cycle.region);
 }

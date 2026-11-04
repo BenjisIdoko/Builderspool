@@ -6,6 +6,9 @@ import { KycStatus } from '@prisma/client';
 import { requireSellerOwner } from '@/lib/seller/session';
 import { verifyCacNumber } from '@/lib/kyc/metamap';
 import { uploadKycDocument, deleteKycDocument } from '@/lib/storage/kycDocuments';
+import { compareBusinessNames } from '@/lib/kyc/nameMatch';
+import { getSetting } from '@/lib/settings';
+import { recordAudit } from '@/lib/audit';
 
 function requiredText(formData: FormData, key: string): string {
   const value = formData.get(key);
@@ -20,17 +23,48 @@ function requiredText(formData: FormData, key: string): string {
 // input empty keeps whatever document is already on file.
 export async function submitKyc(formData: FormData) {
   // KYC is the owner's: staff cannot change what the business declares.
-  const { sellerId } = await requireSellerOwner();
+  const { sellerId, userId: actorId } = await requireSellerOwner();
 
   const businessRegNumber = requiredText(formData, 'businessRegNumber');
   const cacNumber = requiredText(formData, 'cacNumber');
   const idType = requiredText(formData, 'idType');
   const idNumber = requiredText(formData, 'idNumber');
+
+  const tin = requiredText(formData, 'tin');
+  if (!/^[A-Za-z0-9-]{6,20}$/.test(tin)) throw new Error('Enter a valid TIN (6–20 letters, digits or hyphens).');
+  const businessAddress = requiredText(formData, 'businessAddress');
+  if (businessAddress.length < 10) throw new Error('Enter the full business address.');
+  const bankName = requiredText(formData, 'bankName');
+  const bankAccountNumber = requiredText(formData, 'bankAccountNumber');
+  if (!/^\d{10}$/.test(bankAccountNumber)) throw new Error('A Nigerian bank account number has 10 digits.');
+  const bankAccountName = requiredText(formData, 'bankAccountName');
+  if (formData.get('termsAccepted') !== 'on') throw new Error('Accept the seller terms to submit.');
+
+  const expiryRaw = formData.get('documentExpiresAt');
+  let documentExpiresAt: Date | null = null;
+  if (typeof expiryRaw === 'string' && expiryRaw.trim()) {
+    documentExpiresAt = new Date(`${expiryRaw.trim()}T00:00:00`);
+    if (Number.isNaN(documentExpiresAt.getTime())) throw new Error('Enter a valid document expiry date.');
+    const today = new Date();
+    if (documentExpiresAt < new Date(today.getFullYear(), today.getMonth(), today.getDate())) {
+      throw new Error('That document has already expired — upload a current one.');
+    }
+  }
   const documentFile = formData.get('document');
   const newDocument = documentFile instanceof File && documentFile.size > 0 ? documentFile : null;
 
-  const existing = await prisma.sellerProfile.findUniqueOrThrow({ where: { userId: sellerId } });
+  const [existing, owner, termsVersion] = await Promise.all([
+    prisma.sellerProfile.findUniqueOrThrow({ where: { userId: sellerId } }),
+    prisma.user.findUniqueOrThrow({ where: { id: sellerId }, select: { name: true, businessName: true } }),
+    getSetting<string>('accounts.termsVersion'),
+  ]);
   const cacNumberChanged = existing.cacNumber !== cacNumber;
+
+  // The account name should be the business's own — compared with the CAC-
+  // verified company name when that check is current, else the account's
+  // business name. Advisory for the reviewer; it never blocks submission.
+  const nameToMatch = existing.cacVerifiedAt && !cacNumberChanged ? existing.cacVerifiedCompanyName : null;
+  const bankNameMatch = compareBusinessNames(bankAccountName, nameToMatch ?? owner.businessName ?? owner.name);
 
   // Upload first so a rejected/failed file stops the whole submission before
   // anything is written; if the DB write then fails, the orphan is removed.
@@ -44,6 +78,13 @@ export async function submitKyc(formData: FormData) {
         cacNumber,
         idType,
         idNumber,
+        tin,
+        businessAddress,
+        bankName,
+        bankAccountNumber,
+        bankAccountName,
+        bankNameMatch,
+        documentExpiresAt,
         ...(stored ? { documentPath: stored.path, documentName: stored.displayName } : {}),
         kycStatus: KycStatus.PENDING,
         kycSubmittedAt: new Date(),
@@ -70,8 +111,41 @@ export async function submitKyc(formData: FormData) {
 
   if (stored && existing.documentPath) await deleteKycDocument(existing.documentPath);
 
+  // Terms acceptance is a history by version, never overwritten.
+  const alreadyAccepted = await prisma.sellerTermsAcceptance.findFirst({ where: { sellerUserId: sellerId, version: termsVersion } });
+  if (!alreadyAccepted) {
+    await prisma.sellerTermsAcceptance.create({ data: { sellerUserId: sellerId, version: termsVersion, acceptedById: actorId } });
+  }
+  await recordAudit({
+    actor: { id: actorId, role: 'SELLER' },
+    action: 'kyc.submitted',
+    entityType: 'SellerProfile',
+    entityId: sellerId,
+    summary: `Submitted KYC for review (terms ${termsVersion}, bank name ${bankNameMatch.toLowerCase()})`,
+  });
+
   revalidatePath('/seller/kyc');
   revalidatePath('/admin/verification');
+}
+
+// When admins publish a new terms version (Settings > accounts.termsVersion),
+// the owner of an already-approved seller re-accepts it here.
+export async function acceptCurrentTermsAction() {
+  const { sellerId, userId } = await requireSellerOwner();
+  const version = await getSetting<string>('accounts.termsVersion');
+
+  const already = await prisma.sellerTermsAcceptance.findFirst({ where: { sellerUserId: sellerId, version } });
+  if (!already) {
+    await prisma.sellerTermsAcceptance.create({ data: { sellerUserId: sellerId, version, acceptedById: userId } });
+    await recordAudit({
+      actor: { id: userId, role: 'SELLER' },
+      action: 'terms.accepted',
+      entityType: 'SellerProfile',
+      entityId: sellerId,
+      summary: `Accepted seller terms ${version}`,
+    });
+  }
+  revalidatePath('/seller/kyc');
 }
 
 // Cross-checks the CAC number against the real registry (lib/kyc/metamap.ts)

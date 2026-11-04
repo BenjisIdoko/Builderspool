@@ -25,6 +25,7 @@ const KYC_BADGE_LABEL: Record<string, string> = {
   PENDING: 'Pending',
   APPROVED: 'Verified',
   REJECTED: 'Rejected',
+  SUSPENDED: 'Suspended',
 };
 
 const LINK_GROUPS = [

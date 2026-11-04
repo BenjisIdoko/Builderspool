@@ -233,6 +233,18 @@ model Session {
   @@index([userId])
 }
 
+// Every acceptance of the seller terms, by version — never overwritten, so we
+// can show who accepted which version when.
+model SellerTermsAcceptance {
+  id           String   @id @default(cuid())
+  sellerUserId String
+  version      String
+  acceptedById String
+  acceptedAt   DateTime @default(now())
+
+  @@index([sellerUserId, version])
+}
+
 // Links a SELLER_STAFF user to the seller owner they work for. Staff act on the
 // owner's seller account (bids, orders, allocations) through the same portal.
 model SellerStaff {
@@ -292,6 +304,9 @@ enum KycStatus {
   PENDING
   APPROVED
   REJECTED
+  // An approved seller an admin has paused (Transfer File 5.3): they keep their
+  // login but cannot bid or be awarded until reactivated.
+  SUSPENDED
 }
 
 // Seller-specific data. regionsServed feeds the geography eligibility filter;
@@ -327,6 +342,20 @@ model SellerProfile {
   // these when cacNumber changes so a stale result never describes a
   // different company (same reasoning as Material.retired vs
   // needsPriceReview never overlapping).
+  // KYC to spec (2026-11-04, Transfer File 5.3). bankNameMatch compares the
+  // account name with the verified company name (lib/kyc/nameMatch.ts) so a
+  // reviewer sees a mismatch before approving; documentExpiresAt is the
+  // supporting document's own expiry (e.g. a SON certificate).
+  tin                String?
+  businessAddress    String?
+  bankName           String?
+  bankAccountNumber  String?
+  bankAccountName    String?
+  bankNameMatch      String? // MATCH | PARTIAL | MISMATCH
+  documentExpiresAt  DateTime?
+  suspendedAt        DateTime?
+  suspensionReason   String?
+
   cacVerifiedAt          DateTime?
   cacVerifiedCompanyName String?
   cacVerifiedStatus      String? // CAC registry's own ACTIVE/INACTIVE, not kycStatus

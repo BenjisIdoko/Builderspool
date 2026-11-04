@@ -7,7 +7,8 @@ const STATUS_PRIORITY: Record<KycStatus, number> = {
   [KycStatus.PENDING]: 0,
   [KycStatus.NOT_SUBMITTED]: 1,
   [KycStatus.REJECTED]: 2,
-  [KycStatus.APPROVED]: 3,
+  [KycStatus.SUSPENDED]: 3,
+  [KycStatus.APPROVED]: 4,
 };
 
 export async function getPendingVerificationCount() {

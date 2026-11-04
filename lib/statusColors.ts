@@ -74,6 +74,7 @@ export function kycStatusTone(status: KycStatus): PillTone {
     case KycStatus.PENDING:
       return 'warning';
     case KycStatus.REJECTED:
+    case KycStatus.SUSPENDED:
       return 'danger';
     case KycStatus.NOT_SUBMITTED:
       return 'neutral';

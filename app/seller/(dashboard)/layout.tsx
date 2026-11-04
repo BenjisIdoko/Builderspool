@@ -30,6 +30,7 @@ const KYC_LABEL: Record<string, string> = {
   PENDING: 'KYC pending review',
   APPROVED: 'KYC verified',
   REJECTED: 'KYC rejected',
+  SUSPENDED: 'Account suspended',
 };
 
 export default async function SellerDashboardLayout({ children }: { children: React.ReactNode }) {

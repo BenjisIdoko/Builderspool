@@ -128,6 +128,13 @@ export async function submitBid(formData: FormData) {
   if (cycle.status !== CycleStatus.OPEN || isPastCutoff(cycle.cutoffAt)) {
     throw new Error('This cycle is no longer accepting bids.');
   }
+  if (profile.kycStatus !== 'APPROVED') {
+    throw new Error(
+      profile.kycStatus === 'SUSPENDED'
+        ? 'Your account is suspended, so you cannot bid. Contact BuildersPool support.'
+        : 'Your account must pass KYC review before you can bid.',
+    );
+  }
   if (!isSellerEligible(profile, cycle)) {
     throw new Error("Your account doesn't serve this cycle's region.");
   }

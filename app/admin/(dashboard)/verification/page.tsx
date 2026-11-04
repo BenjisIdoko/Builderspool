@@ -3,18 +3,21 @@ import { NoResultsIllustration } from '@/components/empty-state/illustrations';
 import Link from 'next/link';
 import { ShieldCheckIcon, ClockIcon, XCircleIcon, IdentificationCardIcon } from '@phosphor-icons/react/ssr';
 import { getSellersForVerification } from '@/lib/queries/adminVerification';
+import { getSettings } from '@/lib/settings';
+import { prisma } from '@/lib/prisma';
 import { SellerKycReview } from '@/components/admin/seller-kyc-review';
 import { Avatar } from '@/components/avatar';
 import { KpiCard } from '@/components/kpi-card';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import type { KycStatus } from '@prisma/client';
 
-const STATUS_FILTERS = ['PENDING', 'APPROVED', 'REJECTED', 'NOT_SUBMITTED'] as const;
+const STATUS_FILTERS = ['PENDING', 'APPROVED', 'REJECTED', 'SUSPENDED', 'NOT_SUBMITTED'] as const;
 
 const STATUS_LABEL: Record<KycStatus, string> = {
   PENDING: 'Pending review',
   APPROVED: 'Verified',
   REJECTED: 'Rejected',
+  SUSPENDED: 'Suspended',
   NOT_SUBMITTED: 'Not submitted',
 };
 
@@ -26,7 +29,16 @@ export default async function AdminVerificationPage({
   const { status } = await searchParams;
   const validStatus = status && (STATUS_FILTERS as readonly string[]).includes(status) ? (status as KycStatus) : undefined;
 
-  const allSellers = await getSellersForVerification();
+  const [allSellers, settings, acceptances] = await Promise.all([
+    getSellersForVerification(),
+    getSettings(),
+    prisma.sellerTermsAcceptance.findMany({ orderBy: { acceptedAt: 'desc' } }),
+  ]);
+  const currentTermsVersion = String(settings['accounts.termsVersion']);
+  const expiryWarnDays = Number(settings['accounts.documentExpiryWarnDays']);
+  // Latest acceptance per seller (rows arrive newest-first).
+  const latestTerms = new Map<string, { version: string; at: Date }>();
+  for (const a of acceptances) if (!latestTerms.has(a.sellerUserId)) latestTerms.set(a.sellerUserId, { version: a.version, at: a.acceptedAt });
   const sellers = validStatus ? allSellers.filter((s) => s.sellerProfile!.kycStatus === validStatus) : allSellers;
   const pendingCount = allSellers.filter((s) => s.sellerProfile!.kycStatus === 'PENDING').length;
 
@@ -143,6 +155,9 @@ export default async function AdminVerificationPage({
                         sellerName={seller.businessName ?? seller.name}
                         accountBusinessName={seller.businessName}
                         profile={profile}
+                        termsAccepted={latestTerms.get(seller.id) ?? null}
+                        currentTermsVersion={currentTermsVersion}
+                        expiryWarnDays={expiryWarnDays}
                       />
                     </TableCell>
                   </TableRow>
