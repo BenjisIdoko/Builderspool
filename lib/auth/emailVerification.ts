@@ -5,7 +5,7 @@ import { generateToken, hashToken } from '@/lib/auth/tokens';
 import { sendVerificationEmail } from '@/lib/email/send';
 import { getRequestOrigin } from '@/lib/http/origin';
 import { getBuyerIdFromSession } from '@/lib/buyer/session';
-import { getSellerIdFromSession } from '@/lib/seller/session';
+import { getSellerActor } from '@/lib/seller/session';
 
 const VERIFICATION_TOKEN_TTL_MS = 48 * 60 * 60 * 1000; // 48 hours
 
@@ -63,8 +63,8 @@ export async function verifyEmailToken(token: string): Promise<{ success: true }
 export async function resendVerificationEmailAction(): Promise<{ message: string } | { error: string }> {
   try {
     const buyerId = await getBuyerIdFromSession();
-    const sellerId = await getSellerIdFromSession();
-    const userId = buyerId ?? sellerId;
+    const sellerUserId = (await getSellerActor())?.userId ?? null;
+    const userId = buyerId ?? sellerUserId;
     if (!userId) throw new Error('You must be signed in to resend a verification email.');
 
     const user = await prisma.user.findUnique({ where: { id: userId } });

@@ -33,10 +33,16 @@ export async function signInSeller(formData: FormData): Promise<{ error: string 
 
     await assertNotRateLimited(email);
 
-    const user = await prisma.user.findUnique({ where: { email } });
-    if (!user || user.role !== Role.SELLER || !user.passwordHash) {
+    const user = await prisma.user.findUnique({ where: { email }, include: { staffMembership: true } });
+    const isSellerLogin =
+      !!user && (user.role === Role.SELLER || (user.role === Role.SELLER_STAFF && !!user.staffMembership));
+    if (!user || !isSellerLogin || !user.passwordHash) {
       await recordLoginAttempt(email, false);
       throw new Error('No seller account matches that email and password.');
+    }
+    if (user.disabledAt) {
+      await recordLoginAttempt(email, false);
+      throw new Error('This account has been disabled. Contact the account owner or BuildersPool support.');
     }
     const valid = await verifyPassword(password, user.passwordHash);
     if (!valid) {

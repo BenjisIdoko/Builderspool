@@ -26,6 +26,14 @@ enum Role {
   BUYER
   SELLER
   ADMIN
+  // Added 2026-11-04 (Transfer File section 5.1). SELLER_STAFF acts for one
+  // seller owner (see SellerStaff) and cannot change bank details, terms or
+  // KYC. The other three are internal BuildersPool operations roles; their
+  // consoles ship with the catalogue (QC) and fulfilment phases.
+  SELLER_STAFF
+  QC_OFFICER
+  FULFILMENT_OPERATOR
+  DELIVERY_PARTNER
 }
 
 enum SourcingScope {
@@ -154,7 +162,12 @@ model User {
   // dismissible banner, not a hard requirement, so verification doesn't
   // change any existing user's ability to use the app.
   emailVerifiedAt DateTime?
+  // Set by an admin (internal staff) or the seller owner (their staff) to stop
+  // an account signing in; sessions are revoked at the same moment.
+  disabledAt DateTime?
 
+  staffMembership SellerStaff?  @relation("StaffUser")
+  staff           SellerStaff[] @relation("SellerOwner")
   sellerProfile SellerProfile?
   sessions      Session[]
   cartItems     CartItem[]
@@ -218,6 +231,21 @@ model Session {
   user User @relation(fields: [userId], references: [id], onDelete: Cascade)
 
   @@index([userId])
+}
+
+// Links a SELLER_STAFF user to the seller owner they work for. Staff act on the
+// owner's seller account (bids, orders, allocations) through the same portal.
+model SellerStaff {
+  id           String   @id @default(cuid())
+  userId       String   @unique
+  sellerUserId String
+  createdById  String?
+  createdAt    DateTime @default(now())
+
+  user   User @relation("StaffUser", fields: [userId], references: [id], onDelete: Cascade)
+  seller User @relation("SellerOwner", fields: [sellerUserId], references: [id], onDelete: Cascade)
+
+  @@index([sellerUserId])
 }
 
 // Platform settings editable by admins (Admin > Settings). One row per key; a

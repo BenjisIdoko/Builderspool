@@ -1,7 +1,7 @@
 import Link from 'next/link';
 import { redirect } from 'next/navigation';
 import { MapPinIcon, SignOutIcon } from '@phosphor-icons/react/ssr';
-import { getSellerIdFromSession } from '@/lib/seller/session';
+import { getSellerActor } from '@/lib/seller/session';
 import { getSellerProfile } from '@/lib/queries/sellerPortal';
 import { signOutSeller } from '@/app/seller/actions';
 import { getNotificationsForSeller } from '@/lib/notifications';
@@ -23,6 +23,7 @@ const LINKS = [
   { href: '/seller/allocations', label: 'Allocations' },
   { href: '/seller/kyc', label: 'KYC verification' },
 ];
+const OWNER_LINKS = [{ href: '/seller/team', label: 'Team' }];
 
 const KYC_LABEL: Record<string, string> = {
   NOT_SUBMITTED: 'KYC not started',
@@ -32,8 +33,9 @@ const KYC_LABEL: Record<string, string> = {
 };
 
 export default async function SellerDashboardLayout({ children }: { children: React.ReactNode }) {
-  const sellerId = await getSellerIdFromSession();
-  if (!sellerId) redirect('/seller/login');
+  const actor = await getSellerActor();
+  if (!actor) redirect('/seller/login');
+  const sellerId = actor.sellerId;
 
   const profile = await getSellerProfile(sellerId);
   if (!profile) redirect('/seller/login');
@@ -43,11 +45,11 @@ export default async function SellerDashboardLayout({ children }: { children: Re
   return (
     <SearchProvider portal="seller">
       <div className="flex flex-1">
-        <SellerSidebar profile={profile} />
+        <SellerSidebar profile={profile} isOwner={actor.isOwner} />
         <div className="flex min-w-0 flex-1 flex-col">
           <header className="flex h-16 items-center gap-3 border-b border-border bg-surface/95 px-5 backdrop-blur lg:hidden">
             <MobileNav
-              links={LINKS}
+              links={actor.isOwner ? [...LINKS, ...OWNER_LINKS] : LINKS}
               title="Seller portal"
               hideFrom="lg"
               footer={

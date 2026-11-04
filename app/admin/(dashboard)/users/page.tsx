@@ -15,12 +15,20 @@ const ROLE_LABEL: Record<Role, string> = {
   BUYER: 'Buyer',
   SELLER: 'Seller',
   ADMIN: 'Admin',
+  SELLER_STAFF: 'Seller staff',
+  QC_OFFICER: 'QC officer',
+  FULFILMENT_OPERATOR: 'Fulfilment operator',
+  DELIVERY_PARTNER: 'Delivery partner',
 };
 
 const ROLE_TONE: Record<Role, 'info' | 'success' | 'neutral'> = {
   BUYER: 'info',
   SELLER: 'success',
   ADMIN: 'neutral',
+  SELLER_STAFF: 'success',
+  QC_OFFICER: 'neutral',
+  FULFILMENT_OPERATOR: 'neutral',
+  DELIVERY_PARTNER: 'neutral',
 };
 
 const KYC_LABEL: Record<string, string> = {
@@ -35,6 +43,7 @@ const ROLE_FILTERS = [
   { value: Role.BUYER, label: 'Buyers', countKey: 'buyers' as const },
   { value: Role.SELLER, label: 'Sellers', countKey: 'sellers' as const },
   { value: Role.ADMIN, label: 'Admins', countKey: 'admins' as const },
+  { value: 'STAFF' as const, label: 'Staff', countKey: 'staff' as const },
 ];
 
 export default async function AdminUsersPage({
@@ -44,7 +53,7 @@ export default async function AdminUsersPage({
 }) {
   const { role, q, page: pageParam } = await searchParams;
   const page = Math.max(1, Number(pageParam) || 1);
-  const validRole = role && role in Role ? (role as Role) : undefined;
+  const validRole = role === 'STAFF' ? ('STAFF' as const) : role && role in Role ? (role as Role) : undefined;
 
   const [{ users, total, pageCount }, counts] = await Promise.all([
     getUsersForAdmin({ role: validRole, query: q, page }),
@@ -71,7 +80,7 @@ export default async function AdminUsersPage({
         Every real account on the platform — buyers, sellers, and admins.
       </p>
 
-      <div className="mb-10 grid grid-cols-2 gap-4 sm:grid-cols-4">
+      <div className="mb-10 grid grid-cols-2 gap-4 sm:grid-cols-5">
         {ROLE_FILTERS.map((f) => (
           <div key={f.label} className="rounded-lg border border-border bg-surface p-4">
             <div className="mb-1 text-[11px] text-muted-foreground">{f.label}</div>

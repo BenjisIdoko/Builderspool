@@ -42,6 +42,7 @@ export async function signInBuyer(formData: FormData): Promise<{ error: string }
       await recordLoginAttempt(email, false);
       throw new Error('No buyer account matches that email and password.');
     }
+    if (user.disabledAt) throw new Error('This account has been disabled. Contact BuildersPool support.');
     await recordLoginAttempt(email, true);
 
     await createSession(BUYER_SESSION, user.id, {

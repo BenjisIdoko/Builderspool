@@ -11,6 +11,7 @@ import {
   ReceiptIcon,
   StackIcon,
   TruckIcon,
+  UsersThreeIcon,
   WalletIcon,
 } from '@phosphor-icons/react/ssr';
 import { signOutSeller } from '@/app/seller/actions';
@@ -44,6 +45,7 @@ const LINK_GROUPS = [
     label: 'Account',
     links: [
       { href: '/seller/kyc', label: 'KYC verification', icon: IdentificationCardIcon },
+      { href: '/seller/team', label: 'Team', icon: UsersThreeIcon, ownerOnly: true },
       { href: '/seller/settings', label: 'Settings', icon: GearIcon },
     ],
   },
@@ -51,8 +53,10 @@ const LINK_GROUPS = [
 
 export function SellerSidebar({
   profile,
+  isOwner,
 }: {
   profile: NonNullable<Awaited<ReturnType<typeof getSellerProfile>>>;
+  isOwner: boolean;
 }) {
   const pathname = usePathname();
 
@@ -82,7 +86,7 @@ export function SellerSidebar({
               {group.label}
             </div>
             <div className="flex flex-col gap-1">
-              {group.links.map((link) => {
+              {group.links.filter((link) => isOwner || !('ownerOnly' in link && link.ownerOnly)).map((link) => {
                 const active = pathname === link.href;
                 return (
                   <Link

@@ -16,6 +16,7 @@ import {
   StorefrontIcon,
   TruckIcon,
   UsersIcon,
+  UsersThreeIcon,
   WalletIcon,
 } from '@phosphor-icons/react/ssr';
 import { signOutAdmin } from '@/app/admin/actions';
@@ -43,6 +44,7 @@ const LINK_GROUPS = [
     label: 'Account',
     links: [
       { href: '/admin/users', label: 'Users', icon: UsersIcon },
+      { href: '/admin/team', label: 'Operations team', icon: UsersThreeIcon },
       { href: '/admin/verification', label: 'Vendor verification', icon: ShieldCheckIcon },
     ],
   },

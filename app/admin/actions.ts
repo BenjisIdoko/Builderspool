@@ -45,6 +45,7 @@ export async function signInAdmin(formData: FormData): Promise<{ error: string }
       await recordLoginAttempt(email, false);
       throw new Error('Incorrect email or password.');
     }
+    if (admin.disabledAt) throw new Error('This account has been disabled.');
     await recordLoginAttempt(email, true);
 
     await createSession(ADMIN_SESSION, admin.id, { ttlMs: SESSION_TTL.admin, persistent: true });

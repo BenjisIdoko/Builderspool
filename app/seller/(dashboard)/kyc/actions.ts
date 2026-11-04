@@ -1,10 +1,9 @@
 'use server';
 
-import { redirect } from 'next/navigation';
 import { revalidatePath } from 'next/cache';
 import { prisma } from '@/lib/prisma';
 import { KycStatus } from '@prisma/client';
-import { getSellerIdFromSession } from '@/lib/seller/session';
+import { requireSellerOwner } from '@/lib/seller/session';
 import { verifyCacNumber } from '@/lib/kyc/metamap';
 import { uploadKycDocument, deleteKycDocument } from '@/lib/storage/kycDocuments';
 
@@ -20,8 +19,8 @@ function requiredText(formData: FormData, key: string): string {
 // (lib/storage/kycDocuments.ts); optional on resubmission — leaving the file
 // input empty keeps whatever document is already on file.
 export async function submitKyc(formData: FormData) {
-  const sellerId = await getSellerIdFromSession();
-  if (!sellerId) redirect('/seller/login');
+  // KYC is the owner's: staff cannot change what the business declares.
+  const { sellerId } = await requireSellerOwner();
 
   const businessRegNumber = requiredText(formData, 'businessRegNumber');
   const cacNumber = requiredText(formData, 'cacNumber');
@@ -82,8 +81,8 @@ export async function submitKyc(formData: FormData) {
 // field and shown inline, not thrown — those are expected outcomes, not
 // application errors.
 export async function verifyCacAction(formData: FormData) {
-  const sellerId = await getSellerIdFromSession();
-  if (!sellerId) redirect('/seller/login');
+  // KYC is the owner's: staff cannot change what the business declares.
+  const { sellerId } = await requireSellerOwner();
 
   const cacNumberRaw = formData.get('cacNumber');
   const cacNumber = typeof cacNumberRaw === 'string' ? cacNumberRaw.trim() : '';

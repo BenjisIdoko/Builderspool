@@ -1,6 +1,6 @@
 import { redirect } from 'next/navigation';
 import { CheckCircleIcon, ClockIcon, WarningIcon } from '@phosphor-icons/react/ssr';
-import { getSellerIdFromSession } from '@/lib/seller/session';
+import { getSellerActor } from '@/lib/seller/session';
 import { getSellerProfile } from '@/lib/queries/sellerPortal';
 import { kycStatusTone, pillClass } from '@/lib/statusColors';
 import { submitKyc, verifyCacAction } from './actions';
@@ -19,14 +19,15 @@ const KYC_LABEL: Record<string, string> = {
 };
 
 export default async function SellerKycPage() {
-  const sellerId = await getSellerIdFromSession();
-  if (!sellerId) redirect('/seller/login');
+  const actor = await getSellerActor();
+  if (!actor) redirect('/seller/login');
 
-  const profile = await getSellerProfile(sellerId);
+  const profile = await getSellerProfile(actor.sellerId);
   if (!profile) redirect('/seller/login');
 
   const uploadEnabled = isKycUploadConfigured();
-  const editable = profile.kycStatus === 'NOT_SUBMITTED' || profile.kycStatus === 'REJECTED';
+  // Only the owner can change what the business declares; staff see it read-only.
+  const editable = actor.isOwner && (profile.kycStatus === 'NOT_SUBMITTED' || profile.kycStatus === 'REJECTED');
 
   return (
     <div className="mx-auto w-full max-w-2xl px-6 py-10">
