@@ -10,7 +10,8 @@ import { revalidatePath } from 'next/cache';
 // with no client wrapper, so it keeps calling redirect() directly.
 import { prisma } from '@/lib/prisma';
 import { CycleStatus, Role } from '@prisma/client';
-import { ADMIN_SESSION, requireAdmin } from '@/lib/admin/session';
+import { ADMIN_SESSION, requireAdminUser } from '@/lib/admin/session';
+import { recordAudit } from '@/lib/audit';
 import { createSession, destroySession, SESSION_TTL } from '@/lib/auth/sessionStore';
 import { verifyPassword } from '@/lib/auth/password';
 import { assertNotRateLimited, recordLoginAttempt } from '@/lib/auth/rateLimit';
@@ -64,7 +65,7 @@ export async function signOutAdmin() {
  * cycle that needs resolving before its scheduled cutoff).
  */
 export async function forceAwardCycle(formData: FormData) {
-  await requireAdmin();
+  const admin = await requireAdminUser();
 
   const cycleId = formData.get('cycleId');
   if (typeof cycleId !== 'string') throw new Error('Missing cycle id.');
@@ -82,6 +83,7 @@ export async function forceAwardCycle(formData: FormData) {
   }
 
   await awardCycle(cycleId);
+  await recordAudit({ actor: { id: admin.id, role: admin.role }, action: 'cycle.force_awarded', entityType: 'BidCycle', entityId: cycleId, summary: 'Closed and awarded a cycle ahead of its cutoff' });
 
   revalidatePath('/admin');
   revalidatePath(`/admin/cycles/${cycleId}`);
@@ -97,10 +99,11 @@ function requireAllocationFields(formData: FormData) {
 }
 
 export async function issueGrnAction(formData: FormData) {
-  await requireAdmin();
+  const admin = await requireAdminUser();
 
   const { allocationId, cycleId } = requireAllocationFields(formData);
   await issueGrn(allocationId);
+  await recordAudit({ actor: { id: admin.id, role: admin.role }, action: 'grn.issued', entityType: 'Allocation', entityId: allocationId, summary: 'Issued a goods received note' });
 
   revalidatePath(`/admin/cycles/${cycleId}`);
   revalidatePath('/admin/escrow');
@@ -108,10 +111,11 @@ export async function issueGrnAction(formData: FormData) {
 }
 
 export async function disbursePayoutAction(formData: FormData) {
-  await requireAdmin();
+  const admin = await requireAdminUser();
 
   const { allocationId, cycleId } = requireAllocationFields(formData);
   await disbursePayout(allocationId);
+  await recordAudit({ actor: { id: admin.id, role: admin.role }, action: 'payout.disbursed', entityType: 'Allocation', entityId: allocationId, summary: 'Disbursed a seller payout' });
 
   revalidatePath(`/admin/cycles/${cycleId}`);
   revalidatePath('/admin/escrow');
@@ -119,12 +123,13 @@ export async function disbursePayoutAction(formData: FormData) {
 }
 
 export async function toggleAllocationHoldAction(formData: FormData) {
-  await requireAdmin();
+  const admin = await requireAdminUser();
 
   const { allocationId, cycleId } = requireAllocationFields(formData);
   const reason = formData.get('reason');
 
   await toggleAllocationHold(allocationId, typeof reason === 'string' ? reason : undefined);
+  await recordAudit({ actor: { id: admin.id, role: admin.role }, action: 'allocation.hold_toggled', entityType: 'Allocation', entityId: allocationId, summary: `Toggled a payout hold${typeof reason === 'string' && reason ? ` — ${reason}` : ''}` });
 
   revalidatePath(`/admin/cycles/${cycleId}`);
   revalidatePath('/admin/escrow');
@@ -132,12 +137,13 @@ export async function toggleAllocationHoldAction(formData: FormData) {
 }
 
 export async function markWithdrawalPaidAction(formData: FormData) {
-  await requireAdmin();
+  const admin = await requireAdminUser();
 
   const entryId = formData.get('entryId');
   if (typeof entryId !== 'string') throw new Error('Missing wallet entry id.');
 
   await markWithdrawalPaid(entryId);
+  await recordAudit({ actor: { id: admin.id, role: admin.role }, action: 'withdrawal.marked_paid', entityType: 'SavingsWalletEntry', entityId: entryId, summary: 'Marked a savings withdrawal as paid' });
 
   revalidatePath('/admin/savings');
   revalidatePath('/account');

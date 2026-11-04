@@ -3,7 +3,8 @@
 import { revalidatePath } from 'next/cache';
 import { prisma } from '@/lib/prisma';
 import { ProjectScale, SourcingModel } from '@prisma/client';
-import { requireAdmin } from '@/lib/admin/session';
+import { requireAdminUser } from '@/lib/admin/session';
+import { recordAudit } from '@/lib/audit';
 
 function optionalText(formData: FormData, key: string): string | null {
   const value = formData.get(key);
@@ -25,7 +26,7 @@ function requiredText(formData: FormData, key: string): string {
 // facing, so edits here carry no pricing/mechanism-leak risk the live
 // Material catalog editor has to worry about.
 export async function updateReferenceProductAction(formData: FormData) {
-  await requireAdmin();
+  const admin = await requireAdminUser();
 
   const id = requiredText(formData, 'id');
 
@@ -63,13 +64,15 @@ export async function updateReferenceProductAction(formData: FormData) {
     },
   });
 
+  await recordAudit({ actor: { id: admin.id, role: admin.role }, action: 'reference_product.updated', entityType: 'Product', entityId: id, summary: 'Edited a catalogue reference product' });
   revalidatePath('/admin/catalogue-reference');
 }
 
 export async function deleteReferenceProductAction(formData: FormData) {
-  await requireAdmin();
+  const admin = await requireAdminUser();
 
   const id = requiredText(formData, 'id');
   await prisma.product.delete({ where: { id } });
+  await recordAudit({ actor: { id: admin.id, role: admin.role }, action: 'reference_product.deleted', entityType: 'Product', entityId: id, summary: 'Deleted a catalogue reference product' });
   revalidatePath('/admin/catalogue-reference');
 }

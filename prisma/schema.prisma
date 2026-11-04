@@ -220,6 +220,36 @@ model Session {
   @@index([userId])
 }
 
+// Platform settings editable by admins (Admin > Settings). One row per key; a
+// key with no row falls back to the default in lib/settings/definitions.ts, so
+// a fresh database needs no seeding. Values are JSON (numbers, strings,
+// booleans). Every change is also written to AuditLog.
+model AdminSetting {
+  key         String   @id
+  value       Json
+  updatedAt   DateTime @updatedAt
+  updatedById String?
+}
+
+// Append-only record of who did what — admin and ops actions that change
+// money, access or configuration. Rows are never updated or deleted by the
+// app; a correction is a new row.
+model AuditLog {
+  id         String   @id @default(cuid())
+  actorId    String?
+  actorRole  String?
+  action     String // dotted verb, e.g. "kyc.approved", "settings.updated"
+  entityType String // e.g. "SellerProfile", "Allocation", "AdminSetting"
+  entityId   String?
+  summary    String
+  metadata   Json?
+  createdAt  DateTime @default(now())
+
+  @@index([createdAt])
+  @@index([entityType, entityId])
+  @@index([actorId])
+}
+
 model LoginAttempt {
   id         String   @id @default(cuid())
   identifier String // lowercased email

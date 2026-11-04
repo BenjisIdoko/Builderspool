@@ -35,7 +35,12 @@ export async function isAdminSignedIn(): Promise<boolean> {
 // that triggers it. Every admin mutation must call this itself; relying on
 // the dashboard layout's gate alone leaves the action reachable by anyone.
 export async function requireAdmin(): Promise<void> {
-  if (!(await isAdminSignedIn())) {
-    throw new Error('Admin session required.');
-  }
+  await requireAdminUser();
+}
+
+// Same gate, but returns the signed-in admin so the action can record who did it.
+export async function requireAdminUser() {
+  const admin = await getCurrentAdmin();
+  if (!admin) throw new Error('Admin session required.');
+  return admin;
 }

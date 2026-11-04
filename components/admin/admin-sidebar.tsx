@@ -6,7 +6,9 @@ import {
   BooksIcon,
   CaretUpDownIcon,
   DotsThreeVerticalIcon,
+  ClockCounterClockwiseIcon,
   GaugeIcon,
+  GearIcon,
   LockKeyIcon,
   PackageIcon,
   ReceiptIcon,
@@ -42,6 +44,13 @@ const LINK_GROUPS = [
     links: [
       { href: '/admin/users', label: 'Users', icon: UsersIcon },
       { href: '/admin/verification', label: 'Vendor verification', icon: ShieldCheckIcon },
+    ],
+  },
+  {
+    label: 'System',
+    links: [
+      { href: '/admin/settings', label: 'Settings', icon: GearIcon },
+      { href: '/admin/audit-log', label: 'Audit log', icon: ClockCounterClockwiseIcon },
     ],
   },
 ];

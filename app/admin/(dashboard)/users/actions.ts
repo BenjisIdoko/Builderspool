@@ -3,10 +3,11 @@
 import { revalidatePath } from 'next/cache';
 import { prisma } from '@/lib/prisma';
 import { KycStatus } from '@prisma/client';
-import { requireAdmin } from '@/lib/admin/session';
+import { requireAdminUser } from '@/lib/admin/session';
+import { recordAudit } from '@/lib/audit';
 
 export async function approveKycAction(formData: FormData) {
-  await requireAdmin();
+  const admin = await requireAdminUser();
 
   const userId = formData.get('userId');
   if (typeof userId !== 'string') throw new Error('Missing seller id.');
@@ -15,6 +16,7 @@ export async function approveKycAction(formData: FormData) {
     where: { userId },
     data: { kycStatus: KycStatus.APPROVED, kycReviewedAt: new Date(), kycRejectionReason: null },
   });
+  await recordAudit({ actor: { id: admin.id, role: admin.role }, action: 'kyc.approved', entityType: 'SellerProfile', entityId: userId, summary: 'Approved a seller KYC submission' });
 
   revalidatePath('/admin/users');
   revalidatePath('/admin/verification');
@@ -22,7 +24,7 @@ export async function approveKycAction(formData: FormData) {
 }
 
 export async function rejectKycAction(formData: FormData) {
-  await requireAdmin();
+  const admin = await requireAdminUser();
 
   const userId = formData.get('userId');
   const reason = formData.get('reason');
@@ -33,6 +35,7 @@ export async function rejectKycAction(formData: FormData) {
     where: { userId },
     data: { kycStatus: KycStatus.REJECTED, kycReviewedAt: new Date(), kycRejectionReason: reason.trim() },
   });
+  await recordAudit({ actor: { id: admin.id, role: admin.role }, action: 'kyc.rejected', entityType: 'SellerProfile', entityId: userId, summary: `Rejected a seller KYC submission — ${reason.trim()}` });
 
   revalidatePath('/admin/users');
   revalidatePath('/admin/verification');

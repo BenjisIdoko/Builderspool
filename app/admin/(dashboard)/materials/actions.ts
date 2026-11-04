@@ -3,7 +3,8 @@
 import { revalidatePath } from 'next/cache';
 import { prisma } from '@/lib/prisma';
 import { SourcingScope } from '@prisma/client';
-import { requireAdmin } from '@/lib/admin/session';
+import { requireAdminUser } from '@/lib/admin/session';
+import { recordAudit } from '@/lib/audit';
 
 function optionalText(formData: FormData, key: string): string | null {
   const value = formData.get(key);
@@ -18,7 +19,7 @@ function optionalText(formData: FormData, key: string): string | null {
 // history chart (lib/queries/materials.ts's getPriceHistory) picks it up
 // honestly instead of silently drifting out of sync with catalogPrice.
 export async function updateMaterialAction(formData: FormData) {
-  await requireAdmin();
+  const admin = await requireAdminUser();
 
   const id = formData.get('id');
   if (typeof id !== 'string') throw new Error('Missing material id.');
@@ -58,6 +59,16 @@ export async function updateMaterialAction(formData: FormData) {
   if (priceChanged) {
     await prisma.priceSnapshot.create({ data: { materialId: id, price } });
   }
+  await recordAudit({
+    actor: { id: admin.id, role: admin.role },
+    action: priceChanged ? 'material.price_changed' : 'material.updated',
+    entityType: 'Material',
+    entityId: id,
+    summary: priceChanged
+      ? `Changed the catalogue price of ${existing.name} from ${Number(existing.catalogPrice)} to ${price}`
+      : `Edited ${existing.name}`,
+    metadata: priceChanged ? { from: Number(existing.catalogPrice), to: price } : undefined,
+  });
 
   revalidatePath('/admin/materials');
   revalidatePath(`/admin/materials/${id}`);
@@ -71,7 +82,7 @@ export async function updateMaterialAction(formData: FormData) {
 // retired row is never "awaiting a price" (see the schema comment), so it
 // must not sit in that review queue once it's off the catalog either way.
 export async function setMaterialRetiredAction(formData: FormData) {
-  await requireAdmin();
+  const admin = await requireAdminUser();
 
   const id = formData.get('id');
   if (typeof id !== 'string') throw new Error('Missing material id.');
@@ -80,6 +91,13 @@ export async function setMaterialRetiredAction(formData: FormData) {
   await prisma.material.update({
     where: { id },
     data: { retired, ...(retired ? { needsPriceReview: false } : {}) },
+  });
+  await recordAudit({
+    actor: { id: admin.id, role: admin.role },
+    action: retired ? 'material.retired' : 'material.restored',
+    entityType: 'Material',
+    entityId: id,
+    summary: retired ? 'Retired a material from the live catalogue' : 'Restored a material to the live catalogue',
   });
 
   revalidatePath('/admin/materials');
