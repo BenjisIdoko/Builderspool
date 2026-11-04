@@ -9,6 +9,14 @@ import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@
 import { forceAwardCycle, freezeCycleNowAction, issueGrnAction, disbursePayoutAction, toggleAllocationHoldAction } from '@/app/admin/actions';
 import { allocationStatusTone, bidStatusTone, cycleStatusTone, payoutStatusTone, pillClass } from '@/lib/statusColors';
 
+const REJECTION_LABEL: Record<string, string> = {
+  NOT_APPROVED: 'Seller not approved',
+  OUTSIDE_SERVICE_AREA: "Doesn't serve this region",
+  INVALID_BID: 'Invalid price, quantity or delivery',
+  OVER_WINNER_CAP: 'Winner cap reached for this category and zone',
+  BELOW_MIN_BIDS: 'Too few eligible bids to award',
+};
+
 const PAYOUT_STATUS_LABEL: Record<string, string> = {
   PENDING_GRN: 'Pending GRN',
   PROCESSED: 'Cleared',
@@ -89,7 +97,7 @@ export default async function AdminCycleDetailPage({ params }: { params: Promise
                 <TableHead>Price</TableHead>
                 <TableHead>Qty offered</TableHead>
                 <TableHead>Delivery</TableHead>
-                <TableHead>Score</TableHead>
+                <TableHead>Score (0–100)</TableHead>
                 <TableHead>Status</TableHead>
               </TableRow>
             </TableHeader>
@@ -103,11 +111,16 @@ export default async function AdminCycleDetailPage({ params }: { params: Promise
                     {bid.quantityOffered} {cycle.material.unit}
                   </TableCell>
                   <TableCell className="text-ink">{bid.estimatedDeliveryDays}d</TableCell>
-                  <TableCell className="text-ink">{bid.score ? bid.score.toFixed(3) : '—'}</TableCell>
+                  <TableCell className="text-ink">{bid.score ? bid.score.toFixed(1) : '—'}</TableCell>
                   <TableCell>
                     <Badge variant="outline" className={pillClass(bidStatusTone(bid.status))}>
                       {bid.status.replace('_', ' ').toLowerCase()}
                     </Badge>
+                    {bid.rejectionReason && (
+                      <div className="mt-1 text-[11px] text-muted-foreground">
+                        {REJECTION_LABEL[bid.rejectionReason] ?? bid.rejectionReason}
+                      </div>
+                    )}
                   </TableCell>
                 </TableRow>
               ))}

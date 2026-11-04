@@ -1,5 +1,6 @@
 export * from './types';
 export * from './scoring';
+export * from './allocate';
 export * from './award';
 export * from './fallback';
 export * from './cycleWindow';

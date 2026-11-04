@@ -46,12 +46,21 @@ export async function notifyCycleClosingSoon(cycle: BidCycle, materialName: stri
   );
 }
 
-export async function notifyBidWon(sellerId: string, materialName: string, quantityFilled: number, unit: string) {
+export async function notifyBidWon(
+  sellerId: string,
+  materialName: string,
+  quantityFilled: number,
+  unit: string,
+  acceptDeadlineAt?: Date | null,
+) {
+  const by = acceptDeadlineAt
+    ? ` Accept it by ${acceptDeadlineAt.toLocaleTimeString('en-NG', { hour: '2-digit', minute: '2-digit', hour12: false, timeZone: 'Africa/Lagos' })} or it passes to the next supplier.`
+    : '';
   await createNotification(
     sellerId,
     NotificationType.BID_WON,
-    'Bid awarded',
-    `You were awarded ${quantityFilled} ${unit} of ${materialName}.`,
+    'Bid awarded — please accept',
+    `You were awarded ${quantityFilled} ${unit} of ${materialName}.${by}`,
     '/seller/allocations'
   );
 }
