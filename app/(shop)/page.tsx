@@ -6,11 +6,9 @@ import {
   KeyIcon,
   LockKeyIcon,
   ScalesIcon,
-    TagIcon,
-  TruckIcon,
 } from '@phosphor-icons/react/ssr';
 import { getMaterials, getCategories } from '@/lib/queries/materials';
-import { PoolModule } from '@/components/pool-module';
+import { HeroPoolBar } from '@/components/hero-pool-bar';
 import { PoolSaveSteps } from '@/components/pool-save-steps';
 import { Button } from '@/components/ui/button';
 import { ProductRail } from '@/components/product-rail';
@@ -25,11 +23,6 @@ const DELIVERY_ZONES = [
   'Gwagwalada Area Council',
 ];
 
-const HERO_TILES = [
-  { href: '/catalog', icon: TagIcon, title: 'Buy Direct', sub: 'Compare sellers, buy now', tone: 'bg-surface', iconTone: 'text-orange-text' },
-  { href: '#delivery', icon: TruckIcon, title: 'Free collection', sub: 'At Ushafa, ₦0 delivery', tone: 'bg-surface', iconTone: 'text-cyan-strong' },
-  { href: '#safe', icon: CertificateIcon, title: 'Verified suppliers', sub: 'Paid only after delivery', tone: 'bg-surface', iconTone: 'text-cyan-strong' },
-];
 
 const TRUST = [
   { icon: CertificateIcon, title: 'Verified suppliers', sub: 'CAC, ID and address checked' },
@@ -51,79 +44,43 @@ export default async function Home() {
 
   return (
     <div className="flex flex-1 flex-col">
-      <section className="mx-auto w-full max-w-section px-3 pt-3 sm:px-0 sm:pt-4">
-        <div className="grid gap-3 lg:grid-cols-[1fr_280px]">
-          <div className="relative min-h-[340px] overflow-hidden rounded-md bg-ink lg:min-h-[400px]">
-            <Image
-              src="/hero.png"
-              alt=""
-              fill
-              sizes="100vw"
-              className="object-cover"
-              style={{ objectPosition: 'center 25%' }}
-              priority
-            />
-            <div className="absolute inset-0 bg-[linear-gradient(100deg,rgba(21,24,28,0.92)_0%,rgba(21,24,28,0.68)_35%,rgba(21,24,28,0.3)_58%,rgba(21,24,28,0.05)_78%,rgba(21,24,28,0)_100%)] max-[759px]:bg-[linear-gradient(180deg,rgba(21,24,28,0.75)_0%,rgba(21,24,28,0.6)_45%,rgba(21,24,28,0.35)_100%)]" />
-
-            <div className="relative z-[2] flex min-h-[340px] flex-col justify-center px-5 py-8 min-[760px]:px-8 lg:min-h-[400px]">
-              <div className="max-w-2xl">
-                <h1 className="text-display-xl text-white">
-                  Build Smarter.
-                  <br />
-                  <span className="text-cyan">Save More.</span>
-                </h1>
-                <p className="mt-4 max-w-md text-sm leading-[1.55] text-white/85 min-[760px]:text-[16.5px] min-[760px]:leading-relaxed">
-                  Join today’s pool with other builders. Verified suppliers compete for the combined order.
-                </p>
-                <div className="mt-5 inline-flex items-center gap-3 rounded-md bg-pale-blue px-4 py-3">
-                  <span className="font-mono text-4xl leading-none font-medium text-cyan-text">50%</span>
-                  <span className="text-[11.5px] leading-tight font-bold tracking-[0.06em] text-ink uppercase">
-                    Of verified
-                    <br />
-                    savings back to you
-                  </span>
-                </div>
-                <p className="mt-2 text-[13px] text-white/80">
-                  <Link href="#how" className="underline underline-offset-2 hover:text-white">
-                    How the saving is calculated
-                  </Link>
-                </p>
-                <div className="mt-5 flex flex-wrap gap-3">
-                  <Button asChild variant="cta" size="lg" className="px-6">
-                    <Link href="#pool">Join today’s pool</Link>
-                  </Button>
-                  <Button
-                    asChild
-                    variant="outline"
-                    size="lg"
-                    className="border-white/40 bg-transparent px-6 text-white hover:bg-white/10 hover:text-white"
-                  >
-                    <Link href="#how">How it works</Link>
-                  </Button>
-                </div>
-              </div>
+      <section className="relative isolate overflow-hidden bg-ink text-white">
+        <Image
+          src="/hero/warehouse.webp"
+          alt=""
+          fill
+          priority
+          sizes="100vw"
+          className="-z-20 object-cover object-[50%_40%]"
+        />
+        <div className="absolute inset-0 -z-10 bg-[linear-gradient(90deg,rgba(11,31,58,0.94)_0%,rgba(11,31,58,0.78)_40%,rgba(11,31,58,0.15)_75%,rgba(11,31,58,0)_100%)] max-md:bg-[linear-gradient(180deg,rgba(11,31,58,0.9)_0%,rgba(11,31,58,0.72)_100%)]" />
+        <div className="mx-auto flex min-h-[560px] w-full max-w-section flex-col justify-between px-4 pt-12 sm:px-0 lg:min-h-[620px] lg:pt-20">
+          <div>
+            <p className="text-label uppercase text-cyan">Pool &amp; Save · Abuja</p>
+            <h1 className="mt-4 max-w-[12ch] text-display-xl text-white">
+              Build smarter. <span className="text-cyan">Save more.</span>
+            </h1>
+            <p className="mt-5 max-w-[34ch] text-body-lg text-white/85">
+              Join today’s pool with other builders. Verified suppliers compete for the combined order.
+            </p>
+            <p className="mt-4 text-body-sm text-white/85">
+              <span className="font-mono font-medium text-cyan">50%</span> of the verified saving comes back to you.{' '}
+              <Link href="#how" className="text-white underline underline-offset-2">
+                How it’s calculated
+              </Link>
+            </p>
+            <div className="mt-7 flex flex-wrap items-center gap-x-6 gap-y-3">
+              <Button asChild variant="cta" size="lg" className="h-12 px-7 text-base">
+                <Link href="#join">Join today’s pool</Link>
+              </Button>
+              <Link href="/catalog" className="text-body font-bold underline-offset-4 hover:underline">
+                Shop materials →
+              </Link>
             </div>
           </div>
-
-          <div className="grid grid-cols-1 gap-2 sm:grid-cols-3 lg:grid-rows-3 lg:grid-cols-1">
-            {HERO_TILES.map(({ href, icon: Icon, title, sub, tone, iconTone }) => (
-              <Link
-                key={title}
-                href={href}
-                className={`flex items-center gap-3 rounded-md ${tone} px-4 py-3 transition-shadow hover:shadow-card-hover`}
-              >
-                <Icon className={`size-7 shrink-0 ${iconTone}`} />
-                <span className="min-w-0">
-                  <span className="block text-sm font-bold text-ink">{title}</span>
-                  <span className="block text-[13px] text-slate">{sub}</span>
-                </span>
-              </Link>
-            ))}
-          </div>
+          <HeroPoolBar />
         </div>
       </section>
-
-      <PoolModule />
 
       <Reveal>
         <section id="how" className="mx-auto w-full max-w-section scroll-mt-40 px-3 pt-3 sm:px-0">
@@ -132,12 +89,14 @@ export default async function Home() {
       </Reveal>
 
       <div className="mx-auto flex w-full max-w-section flex-col gap-3 px-3 pt-3 sm:px-0">
+        <div id="join" className="scroll-mt-40">
         <ProductRail
           title="Join today’s pool"
           subtitle="Pick a product, quantity and site. Change or withdraw until 12:00."
           href="/catalog"
           materials={poolPicks}
         />
+        </div>
 
         <ProductRail
           title="Lowest prices"
