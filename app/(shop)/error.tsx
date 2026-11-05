@@ -15,7 +15,7 @@ export default function ShopError({ error, reset }: { error: Error & { digest?: 
   }, [error]);
 
   return (
-    <div className="mx-auto flex w-full max-w-md flex-1 flex-col items-center justify-center px-6 pt-28 pb-24">
+    <div className="mx-auto flex w-full max-w-md flex-1 flex-col items-center justify-center px-6 pt-12 pb-24">
       <EmptyState
         illustration={ErrorIllustration}
         as="h1"

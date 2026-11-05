@@ -41,7 +41,7 @@ export function FaqAccordion() {
   return (
     <div className="flex flex-col gap-2.5">
       {FAQS.map((faq, i) => (
-        <div key={faq.q} className="overflow-hidden rounded-2xl border border-border bg-surface">
+        <div key={faq.q} className="overflow-hidden rounded-xl border border-border bg-surface">
           <button
             type="button"
             onClick={() => setOpen(open === i ? -1 : i)}

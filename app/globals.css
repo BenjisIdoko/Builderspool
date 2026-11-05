@@ -3,87 +3,89 @@
 @import "shadcn/tailwind.css";
 
 :root {
-  /* Brand tokens — see BUILDERSPOOL_PROJECT_BRIEF.md's Design Direction
-     section. Values adopted from the Fable/Design handoff (Sept 2026,
-     "Design system scope discussion") — a denser, more "engineered B2B"
-     feel — still Stripe/Linear/Mercury-restrained, hairline borders over
-     shadows. Everything below (including shadcn/ui's semantic tokens)
-     derives from these. */
-  --color-canvas: #fafafa;
-  --gradient-canvas: linear-gradient(180deg, #eef3fd 0%, #f6f8fc 45%, #fafbfc 100%); /* sitewide body
-    background — a soft blue-to-neutral wash replacing the flat canvas color; surface cards/sections
-    still sit on top via bg-surface as before, this only changes what shows through behind them */
+  /* BuildersPool design system v2.0 (DESIGN.md). One colour, one job:
+     orange (cta) = spend money or search; cyan / pale-blue = Pool & Save and
+     savings; navy = brand voice and everything structural. Legacy token names
+     (brand, ink, slate, well, surface ...) are kept so existing screens pick up
+     the new palette without per-file edits; "brand" is now navy. */
+  --color-canvas: #f1f1f2; /* page ground (Jumia-style light gray) */
   --color-surface: #ffffff;
-  --color-well: #f1f3f5; /* distinct from canvas — inactive table headers, input backdrops, inset blocks */
-  --color-ink: #15181c;
-  --color-brand: #2954e5; /* "accent" is reserved below for shadcn/ui's own hover/highlight token */
+  --color-card-alt: #fbfcfd;
+  --color-well: #e4e9ef; /* muted: inactive table headers, inset blocks */
+  --color-ink: #0b1f3a; /* navy: primary text, primary buttons, sidebar */
+  --color-text-storefront: #282828; /* storefront body / product names */
+  --color-brand: #0b1f3a;
   --color-brand-ink: #ffffff;
-  --color-brand-deep: #3730a3; /* mid-stop for the signature gradient — steel blue toward indigo */
-  --color-brand-warm: #ea580c; /* construction-amber counterpoint to the brand blue — the signature
-                                   gradient (blue -> indigo -> amber), used deliberately in a small
-                                   number of high-impact spots (hero, headline accent, stat card),
-                                   never on routine controls — see Design Direction. */
-  --color-slate: #5b6068;
-  --color-muted-text: #656a71; /* exposed as the utility `text-muted-foreground`, shadcn/ui's own name for this.
-                                   Was #8a8f97 — measured 3.09-3.25:1 against this app's own white/#f8f9fa
-                                   surfaces (axe-core, 2026-09-29), below WCAG AA's 4.5:1 for normal-weight
-                                   text. This shade clears 4.5:1 on every surface it's used against while
-                                   staying visibly lighter than --color-slate, which is the darker, more
-                                   readable secondary-text tier this app already has. */
-  --color-border: #e6e7ea;
-  --color-border-strong: #c2cad3; /* input boundaries, active tab lines, hover states */
-  --color-success: #2e6b45;
-  --color-success-soft: #eaf3ec;
-  --color-warning: #8a5a20;
-  --color-warning-soft: #fbf1e4;
-  --color-danger: #a0432c;
-  --color-danger-soft: #f7e9e6;
-  --color-info: var(--color-brand);
-  --color-info-soft: #e9edfb;
+  --color-brand-deep: #123560;
+  --color-brand-warm: #f47b20;
+  --color-slate: #545459; /* text-secondary */
+  --color-muted-text: #5a6b80; /* exposed as text-muted-foreground */
+  --color-border: #d5dde6;
+  --color-border-strong: #b7c3d0;
+  --color-hairline: #e6e6e8; /* storefront header / category / tab-bar rules */
 
-  /* shadcn/ui semantic tokens, mapped onto the brand tokens above rather than
-     left on the library's default neutral palette — so shadcn components
-     (Button, Card, Input, ...) render in this app's actual look. */
+  /* Orange: CTA fill is the dark orange so white text passes 4.5:1. The logo
+     orange is decoration only (badges, wordmark, icons). */
+  --color-cta: #cc4e00;
+  --color-cta-hover: #b34400;
+  --color-orange: #f47b20;
+  --color-orange-soft: #fdebdd;
+  --color-orange-text: #b34400;
+
+  /* Cyan: Pool & Save and savings. White text on --color-cyan fails 4.5:1;
+     use navy on it, or cyan-strong / cyan-text for text on white. */
+  --color-cyan: #1ba6de;
+  --color-cyan-strong: #0f86b8;
+  --color-cyan-text: #0b5f86;
+  --color-pale-blue: #e6f4fb;
+
+  --color-logo-gray: #3d4752;
+
+  --color-success: #1f7a4d;
+  --color-success-soft: #e3f3ea;
+  --color-warning: #b26a00; /* also the TEST-mode tag */
+  --color-warning-soft: #fff3dc;
+  --color-danger: #b42318;
+  --color-danger-soft: #fbe9e7;
+  --color-info: #1ba6de;
+  --color-info-soft: #e6f4fb;
+
+  /* shadcn/ui semantic tokens mapped onto the tokens above. */
   --background: var(--color-canvas);
   --foreground: var(--color-ink);
   --card: var(--color-surface);
   --card-foreground: var(--color-ink);
   --popover: var(--color-surface);
   --popover-foreground: var(--color-ink);
-  --primary: var(--color-brand); /* primary buttons use the brand blue, not ink */
-  --primary-foreground: var(--color-brand-ink);
+  --primary: var(--color-ink); /* workspaces: navy primary */
+  --primary-foreground: #ffffff;
   --secondary: var(--color-surface);
   --secondary-foreground: var(--color-ink);
   --muted: var(--color-well);
   --muted-foreground: var(--color-muted-text);
-  --accent: var(--color-well); /* shadcn's own hover/highlight token — kept neutral, distinct from --color-brand */
+  --accent: var(--color-well);
   --accent-foreground: var(--color-ink);
   --destructive: var(--color-danger);
   --border: var(--color-border);
   --input: var(--color-border-strong);
-  --ring: var(--color-brand); /* the one confident accent color, used functionally on focus */
+  --ring: var(--color-cyan);
 
-  /* Softer, rounder scale than the original tight-industrial Stitch spec —
-     buttons and badges go fully pill-shaped (rounded-full, not token-driven)
-     regardless of this scale; this governs inputs/selects (md) and
-     cards/containers (lg/xl). --radius-md matches the Fable handoff's 8px
-     button/input radius exactly. */
-  --radius-sm: 0.375rem;
-  --radius-md: 0.5rem;
-  --radius-lg: 0.875rem;
-  --radius-xl: 1.25rem;
-}
+  --radius-sm: 0.25rem; /* 4px */
+  --radius-md: 0.375rem; /* 6px: default for buttons, inputs, product cards */
+  --radius-lg: 0.5rem; /* 8px */
+  --radius-xl: 0.625rem; /* 10px: the largest non-pill radius */
 
-body {
-  background-image: var(--gradient-canvas);
-  background-attachment: fixed;
+  --shadow-card-hover: 0 4px 14px rgba(11, 31, 58, 0.14);
+  --shadow-focus: 0 0 0 3px rgba(27, 166, 222, 0.35);
 }
 
 @theme inline {
   --color-canvas: var(--color-canvas);
   --color-surface: var(--color-surface);
+  --color-card-alt: var(--color-card-alt);
   --color-well: var(--color-well);
   --color-ink: var(--color-ink);
+  --color-text-storefront: var(--color-text-storefront);
   --color-brand: var(--color-brand);
   --color-brand-ink: var(--color-brand-ink);
   --color-brand-deep: var(--color-brand-deep);
@@ -91,6 +93,17 @@ body {
   --color-slate: var(--color-slate);
   --color-border: var(--color-border);
   --color-border-strong: var(--color-border-strong);
+  --color-hairline: var(--color-hairline);
+  --color-cta: var(--color-cta);
+  --color-cta-hover: var(--color-cta-hover);
+  --color-orange: var(--color-orange);
+  --color-orange-soft: var(--color-orange-soft);
+  --color-orange-text: var(--color-orange-text);
+  --color-cyan: var(--color-cyan);
+  --color-cyan-strong: var(--color-cyan-strong);
+  --color-cyan-text: var(--color-cyan-text);
+  --color-pale-blue: var(--color-pale-blue);
+  --color-logo-gray: var(--color-logo-gray);
   --color-success: var(--color-success);
   --color-success-soft: var(--color-success-soft);
   --color-warning: var(--color-warning);
@@ -99,7 +112,10 @@ body {
   --color-danger-soft: var(--color-danger-soft);
   --color-info: var(--color-info);
   --color-info-soft: var(--color-info-soft);
-  --font-sans: var(--font-plus-jakarta-sans);
+
+  --font-sans: var(--font-roboto), system-ui, -apple-system, 'Segoe UI', Arial, sans-serif;
+  --font-display: var(--font-poppins), var(--font-roboto), system-ui, sans-serif;
+  --font-mono: var(--font-plex-mono), ui-monospace, Menlo, monospace;
 
   --color-background: var(--background);
   --color-foreground: var(--foreground);
@@ -122,6 +138,9 @@ body {
   --radius-md: var(--radius-md);
   --radius-lg: var(--radius-lg);
   --radius-xl: var(--radius-xl);
+
+  --shadow-card-hover: var(--shadow-card-hover);
+  --shadow-focus: var(--shadow-focus);
 }
 
 @layer base {
@@ -135,25 +154,22 @@ body {
     @apply border-border outline-ring/50;
   }
   body {
-    @apply bg-background text-foreground text-base;
-    line-height: 1.6; /* relaxed reading line-height for body copy */
+    @apply bg-background text-foreground;
+    font-size: 15px;
+    line-height: 1.5;
   }
   html {
     @apply font-sans;
   }
 
-  /* Every heading is bold (700) per explicit instruction — h1 keeps its
-     tight tracking for display/hero text. h3+ isn't used anywhere in this
-     app yet; add it here if that changes.
-     A brief serif (Fraunces) personality pass on h1 was tried and then
-     superseded by the Fable/Design handoff's pure Plus-Jakarta-Sans system
-     (2026-09-13) — every heading is sans again. */
+  /* Poppins is for titles only: wordmark, page titles, section headings.
+     Body text, buttons and tables stay Roboto. */
   h1 {
-    @apply font-bold tracking-tight;
+    @apply font-display font-bold tracking-tight;
   }
   h2 {
-    @apply font-bold;
-    letter-spacing: -0.025em;
+    @apply font-display font-bold;
+    letter-spacing: -0.015em;
   }
 }
 

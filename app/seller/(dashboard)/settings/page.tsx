@@ -46,7 +46,7 @@ export default async function SellerSettingsPage() {
       <p className="mb-6 text-sm text-muted-foreground">Business profile and verification status.</p>
 
       <div className="flex flex-col gap-4">
-        <div className="rounded-2xl border border-border bg-surface p-6">
+        <div className="rounded-xl border border-border bg-surface p-6">
           <h2 className="mb-4 text-[11.5px] font-bold tracking-wide text-muted-foreground uppercase">
             Business profile
           </h2>
@@ -60,7 +60,7 @@ export default async function SellerSettingsPage() {
           </div>
         </div>
 
-        <div className="rounded-2xl border border-border bg-surface p-6">
+        <div className="rounded-xl border border-border bg-surface p-6">
           <h2 className="mb-4 text-[11.5px] font-bold tracking-wide text-muted-foreground uppercase">
             Verification documents
           </h2>
@@ -83,7 +83,7 @@ export default async function SellerSettingsPage() {
           </p>
         </div>
 
-        <div className="rounded-2xl border border-border bg-surface p-6">
+        <div className="rounded-xl border border-border bg-surface p-6">
           <h2 className="mb-2 text-[11.5px] font-bold tracking-wide text-muted-foreground uppercase">
             Notification preferences
           </h2>

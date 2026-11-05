@@ -21,8 +21,8 @@ export function PhilosophySteps() {
   const [active, setActive] = useState(0);
 
   return (
-    <div className="grid grid-cols-1 items-center gap-8 rounded-[28px] bg-info-soft p-6 sm:gap-10 sm:p-10 lg:grid-cols-2 lg:p-12">
-      <div className="relative aspect-square overflow-hidden rounded-2xl">
+    <div className="grid grid-cols-1 items-center gap-8 rounded-xl bg-info-soft p-6 sm:gap-10 sm:p-10 lg:grid-cols-2 lg:p-12">
+      <div className="relative aspect-square overflow-hidden rounded-xl">
         {STEPS.map((step, i) => (
           <Image
             key={step.img + i}

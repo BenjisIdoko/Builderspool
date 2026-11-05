@@ -30,15 +30,14 @@ export function CartSheet() {
       <SheetTrigger asChild>
         <Button
           variant="ghost"
-          size="icon-sm"
-          className="relative size-[34px] rounded-full text-slate"
+          className="relative size-11 rounded-md p-0 text-text-storefront hover:text-orange-text"
           aria-label={`Cart, ${itemCount} ${itemCount === 1 ? 'item' : 'items'}`}
         >
-          <ShoppingCartIcon className="size-4.5" />
+          <ShoppingCartIcon className="size-6" />
           {itemCount > 0 && (
-            <Badge className="absolute -top-0.5 -right-0.5 min-w-[1rem] justify-center rounded-full px-1 text-[10px]">
+            <span className="absolute top-0.5 right-0.5 flex h-[18px] min-w-[18px] items-center justify-center rounded-full bg-cta px-1 text-[11px] font-bold text-white">
               {itemCount}
-            </Badge>
+            </span>
           )}
         </Button>
       </SheetTrigger>

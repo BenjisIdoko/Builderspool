@@ -17,7 +17,7 @@ export default function CartLoading() {
             </div>
           ))}
         </div>
-        <div className="rounded-2xl border border-border bg-surface p-6">
+        <div className="rounded-xl border border-border bg-surface p-6">
           <Skeleton className="mb-4 h-5 w-32" />
           <Skeleton className="mb-2 h-4 w-full" />
           <Skeleton className="mb-6 h-4 w-2/3" />

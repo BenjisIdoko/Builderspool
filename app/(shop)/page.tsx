@@ -40,11 +40,7 @@ export default async function Home() {
 
   return (
     <div className="flex flex-1 flex-col">
-      {/* Full-bleed hero, min-h-[100svh] — the fixed SiteHeader floats over
-          it with a blurred pill, so this section deliberately gets no top
-          padding (every other page reserves pt-28 for the header; this is
-          the one exception, matching the Fable handoff). */}
-      <section className="relative min-h-[100svh] w-full overflow-hidden bg-ink">
+      <section className="relative min-h-[460px] w-full overflow-hidden bg-ink lg:min-h-[520px]">
         <Image
           src="/hero.png"
           alt=""
@@ -57,7 +53,7 @@ export default async function Home() {
         <div className="absolute inset-0 bg-[linear-gradient(100deg,rgba(21,24,28,0.92)_0%,rgba(21,24,28,0.68)_35%,rgba(21,24,28,0.3)_58%,rgba(21,24,28,0.05)_78%,rgba(21,24,28,0)_100%)] max-[759px]:bg-[linear-gradient(180deg,rgba(21,24,28,0.75)_0%,rgba(21,24,28,0.6)_45%,rgba(21,24,28,0.35)_100%)]" />
         <div className="absolute inset-0 bg-[linear-gradient(180deg,rgba(21,24,28,0)_50%,rgba(21,24,28,0.4)_100%)] max-[759px]:bg-[linear-gradient(180deg,rgba(21,24,28,0.15)_0%,rgba(21,24,28,0.65)_65%,rgba(21,24,28,0.85)_100%)]" />
 
-        <div className="relative z-[2] mx-auto flex min-h-[100svh] max-w-section flex-col justify-center px-5 pt-[110px] pb-12 min-[760px]:px-6 min-[760px]:py-12">
+        <div className="relative z-[2] mx-auto flex min-h-[460px] max-w-section flex-col justify-center px-5 py-10 min-[760px]:px-6 lg:min-h-[520px]">
           <div className="max-w-2xl">
             <div className="mb-5 flex flex-wrap items-center gap-2.5 text-[13px] text-white/85">
               <span className="flex items-center gap-1.5 font-semibold">
@@ -70,23 +66,24 @@ export default async function Home() {
                 Secure payments
               </span>
             </div>
-            <h1 className="text-[clamp(32px,5vw,4rem)] leading-[1.1] font-extrabold tracking-[-0.02em] text-white">
+            <h1 className="text-[clamp(26px,4.5vw,44px)] leading-[1.15] font-bold tracking-[-0.02em] text-white">
               Construction materials,
               <br />
-              <span className="text-[#7c9cff]">delivered at a fair price.</span>
+              <span className="text-orange">delivered at a fair price.</span>
             </h1>
             <p className="mt-4.5 max-w-md text-sm leading-[1.55] text-white/82 min-[760px]:text-[16.5px] min-[760px]:leading-relaxed">
               Cement, blocks, rebar, roofing and fittings — one fixed price, no back-and-forth. Pick up
               at a fulfillment center or get it delivered to site.
             </p>
             <div className="mt-[22px] flex flex-wrap gap-3 min-[760px]:mt-7">
-              <Button asChild className="h-[42px] rounded-full bg-brand px-5 text-[13.5px] font-bold min-[760px]:h-[46px] min-[760px]:px-6.5 min-[760px]:text-[14.5px] shadow-[0_10px_24px_rgba(41,84,229,0.4)]">
+              <Button asChild variant="cta" size="lg" className="px-6">
                 <Link href="/catalog">Start Procuring</Link>
               </Button>
               <Button
                 asChild
                 variant="outline"
-                className="h-[42px] rounded-full border-white/40 bg-transparent px-5 text-[13.5px] font-bold min-[760px]:h-[46px] min-[760px]:px-6.5 min-[760px]:text-[14.5px] text-white hover:bg-white/10"
+                size="lg"
+                className="border-white/40 bg-transparent px-6 text-white hover:bg-white/10 hover:text-white"
               >
                 <Link href="#how-it-works">See How It Works</Link>
               </Button>
@@ -104,7 +101,7 @@ export default async function Home() {
         </div>
         <div className="flex flex-wrap items-center justify-center gap-3.5 min-[760px]:gap-6">
           {PARTNER_LOGOS.map((label) => (
-            <div key={label} className="text-[12.5px] font-bold tracking-normal text-[#9aa0a8] uppercase min-[760px]:text-base min-[760px]:tracking-[0.01em]">
+            <div key={label} className="text-[12.5px] font-bold tracking-normal text-muted-foreground uppercase min-[760px]:text-base min-[760px]:tracking-[0.01em]">
               {label}
             </div>
           ))}
@@ -116,7 +113,7 @@ export default async function Home() {
           the live catalog, doubled so the loop point is invisible. */}
       <Reveal>
       <section className="px-6 pt-16">
-        <div className="mx-auto max-w-section overflow-hidden rounded-[32px] bg-brand py-6.5">
+        <div className="mx-auto max-w-section overflow-hidden rounded-lg bg-ink py-6.5">
           <div className="[mask-image:linear-gradient(90deg,transparent,#fff_4%,#fff_96%,transparent)] overflow-hidden">
             <div
               className="flex w-max items-center"
@@ -151,7 +148,7 @@ export default async function Home() {
               Fixed catalogue price, checked against real fulfillment center stock.
             </p>
           </div>
-          <Link href="/catalog" className="text-[13px] font-bold text-ink hover:text-brand">
+          <Link href="/catalog" className="text-[13px] font-bold text-ink hover:text-orange-text">
             View all →
           </Link>
         </div>
@@ -180,7 +177,7 @@ export default async function Home() {
           own account/avatar treatment). */}
       <Reveal>
       <section className="mx-auto w-full max-w-section px-6 pt-16">
-        <div className="relative min-h-[280px] overflow-hidden rounded-3xl bg-ink">
+        <div className="relative min-h-[280px] overflow-hidden rounded-xl bg-ink">
           <Image
             src="/materials/rebar.jpg"
             alt=""
@@ -200,14 +197,15 @@ export default async function Home() {
                 : 'Create a free account to check out, track orders, and set price alerts.'}
             </p>
             <div className="mt-1 flex flex-wrap gap-3">
-              <Button asChild className="h-12 rounded-full bg-white px-6 text-ink hover:bg-white/90">
+              <Button asChild variant="cta" size="lg" className="px-6">
                 <Link href={buyer ? '/catalog' : '/signup'}>{buyer ? 'Browse the catalog' : 'Join Builders Pool'}</Link>
               </Button>
               {!buyer && (
                 <Button
                   asChild
                   variant="outline"
-                  className="h-12 gap-2 rounded-full border-white/40 bg-transparent px-6 text-white hover:bg-white/10"
+                  size="lg"
+                  className="gap-2 border-white/40 bg-transparent px-6 text-white hover:bg-white/10 hover:text-white"
                 >
                   <Link href="/catalog">
                     Browse the catalog
@@ -231,22 +229,22 @@ export default async function Home() {
         <div className="grid grid-cols-1 gap-4 sm:grid-cols-3">
           <a
             href="tel:+2348133941775"
-            className="flex flex-col gap-2.5 rounded-2xl border border-border bg-surface p-5.5 text-ink no-underline transition-colors hover:border-border-strong"
+            className="flex flex-col gap-2.5 rounded-lg bg-surface p-5.5 text-ink no-underline transition-shadow hover:shadow-card-hover"
           >
-            <PhoneIcon className="size-5.5 text-brand" />
+            <PhoneIcon className="size-5.5 text-cyan-strong" />
             <div className="text-sm font-bold">Procurement desk</div>
             <div className="text-[13px] text-slate">+234 813 394 1775</div>
           </a>
           <a
             href="mailto:info@builderspool.com.ng"
-            className="flex flex-col gap-2.5 rounded-2xl border border-border bg-surface p-5.5 text-ink no-underline transition-colors hover:border-border-strong"
+            className="flex flex-col gap-2.5 rounded-lg bg-surface p-5.5 text-ink no-underline transition-shadow hover:shadow-card-hover"
           >
-            <EnvelopeSimpleIcon className="size-5.5 text-brand" />
+            <EnvelopeSimpleIcon className="size-5.5 text-cyan-strong" />
             <div className="text-sm font-bold">Email us</div>
             <div className="text-[13px] text-slate">info@builderspool.com.ng</div>
           </a>
-          <div className="flex flex-col gap-2.5 rounded-2xl border border-border bg-surface p-5.5">
-            <MapPinIcon className="size-5.5 text-brand" />
+          <div className="flex flex-col gap-2.5 rounded-lg bg-surface p-5.5">
+            <MapPinIcon className="size-5.5 text-cyan-strong" />
             <div className="text-sm font-bold text-ink">Visit a depot</div>
             <div className="text-[13px] text-slate">
               {centers.map((c) => c.region).join(' · ')}

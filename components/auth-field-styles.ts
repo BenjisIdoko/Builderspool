@@ -5,6 +5,6 @@
 export const AUTH_INPUT =
   'h-12 rounded-lg px-4 text-base sm:h-11 md:text-base';
 export const AUTH_LABEL = 'mb-2 text-sm font-medium text-slate';
-export const AUTH_BUTTON = 'h-12 w-full rounded-full text-base font-bold sm:h-11';
+export const AUTH_BUTTON = 'h-12 w-full text-base font-bold sm:h-11';
 export const AUTH_SELECT =
   'h-12 w-full rounded-lg border border-input bg-transparent px-4 text-base outline-none focus-visible:border-ring focus-visible:ring-3 focus-visible:ring-ring/50 sm:h-11';

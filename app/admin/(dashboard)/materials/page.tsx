@@ -170,7 +170,7 @@ export default async function AdminMaterialsPage({
       </div>
 
       {materials.length === 0 ? (
-        <div className="rounded-2xl border border-border bg-surface">
+        <div className="rounded-xl border border-border bg-surface">
           <EmptyState
             illustration={q ? NoResultsIllustration : EmptyListIllustration}
             variant="inline"
@@ -179,7 +179,7 @@ export default async function AdminMaterialsPage({
           />
         </div>
       ) : (
-        <div className="overflow-hidden rounded-2xl border border-border bg-surface">
+        <div className="overflow-hidden rounded-xl border border-border bg-surface">
           <Table>
             <TableHeader>
               <TableRow>

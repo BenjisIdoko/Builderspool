@@ -53,7 +53,7 @@ export function SellerDirectoryRow({ entry }: { entry: SellerDirectoryEntry }) {
         {entry.kycStatus === 'PENDING' && (
           <form action={approveKycAction} className="mr-1.5 inline-block">
             <input type="hidden" name="userId" value={entry.id} />
-            <Button type="submit" size="sm" className="h-7 rounded-full px-3 text-xs">
+            <Button type="submit" size="sm" className="h-7 px-3 text-xs">
               Approve
             </Button>
           </form>

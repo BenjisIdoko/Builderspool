@@ -43,7 +43,7 @@ export default async function AccountPage() {
   const activeOrders = orders.filter((o) => o.status !== 'CANCELLED').length;
 
   return (
-    <div className="mx-auto w-full max-w-3xl px-6 pt-28 pb-10">
+    <div className="mx-auto w-full max-w-3xl px-6 pt-6 pb-10">
       {!buyer.emailVerifiedAt && <VerifyEmailBanner />}
       <div className="mb-8 flex items-start justify-between gap-4">
         <div>

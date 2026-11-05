@@ -57,7 +57,7 @@ export function MobileTabBar() {
       />
       <nav
         aria-label="Primary"
-        className="fixed inset-x-0 bottom-0 z-40 flex border-t border-border bg-surface/95 px-1.5 pt-2 pb-[calc(4px+env(safe-area-inset-bottom))] backdrop-blur-[10px] lg:hidden"
+        className="fixed inset-x-0 bottom-0 z-30 flex border-t border-hairline bg-surface px-1.5 pt-1.5 pb-[calc(4px+env(safe-area-inset-bottom))] lg:hidden"
       >
         {TABS.map(({ href, label, icon: Icon, match }) => {
           const active = match(pathname);
@@ -66,7 +66,7 @@ export function MobileTabBar() {
               key={href}
               href={href}
               aria-current={active ? "page" : undefined}
-              className={`relative flex min-h-12 flex-1 flex-col items-center justify-center gap-[3px] text-[10.5px] font-bold ${active ? "text-brand" : "text-muted-foreground"}`}
+              className={`relative flex min-h-12 flex-1 flex-col items-center justify-center gap-[3px] text-[11px] ${active ? "font-bold text-orange-text" : "font-medium text-muted-foreground"}`}
             >
               <Icon
                 weight={active ? "fill" : "regular"}
@@ -74,7 +74,7 @@ export function MobileTabBar() {
               />
               {label}
               {label === "Cart" && itemCount > 0 && (
-                <span className="absolute top-0.5 left-1/2 ml-2.5 flex h-[15px] min-w-[15px] items-center justify-center rounded-full bg-brand px-[3px] text-[9px] font-extrabold text-white">
+                <span className="absolute top-0.5 left-1/2 ml-2.5 flex h-[15px] min-w-[15px] items-center justify-center rounded-full bg-cta px-[3px] text-[10px] font-bold text-white">
                   {itemCount}
                 </span>
               )}

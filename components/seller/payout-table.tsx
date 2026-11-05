@@ -59,7 +59,7 @@ export function PayoutTable({ payouts }: { payouts: PayoutRow[] }) {
         <>
         <div className="flex flex-col gap-2.5 p-4 md:hidden">
           {filtered.map((p) => (
-            <div key={p.id} className="rounded-[14px] border border-border bg-surface p-3.5">
+            <div key={p.id} className="rounded-xl border border-border bg-surface p-3.5">
               <div className="mb-1 flex items-center justify-between gap-2">
                 <span className="text-[13px] font-bold text-ink">{p.date ?? 'Not yet paid'}</span>
                 <Badge variant="outline" className={pillClass(payoutStatusTone(p.status))}>

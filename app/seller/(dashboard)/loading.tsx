@@ -10,7 +10,7 @@ export default function SellerDashboardLoading() {
       <KpiRowSkeleton count={4} />
       <div className="mb-14 grid grid-cols-1 gap-5 lg:grid-cols-[1fr_280px]">
         <TableSkeleton rows={5} cols={4} />
-        <div className="rounded-2xl border border-border bg-surface p-4.5">
+        <div className="rounded-xl border border-border bg-surface p-4.5">
           <Skeleton className="mb-3 h-4 w-24" />
           {Array.from({ length: 3 }).map((_, i) => (
             <Skeleton key={i} className="mb-2.5 h-8 w-full" />

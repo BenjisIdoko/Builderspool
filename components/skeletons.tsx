@@ -21,7 +21,7 @@ export function KpiRowSkeleton({ count = 4 }: { count?: number }) {
   return (
     <div className="mb-8 grid grid-cols-2 gap-4 sm:grid-cols-4" style={{ gridTemplateColumns: `repeat(${count}, minmax(0, 1fr))` }}>
       {Array.from({ length: count }).map((_, i) => (
-        <div key={i} className="rounded-2xl border border-border bg-surface p-5">
+        <div key={i} className="rounded-xl border border-border bg-surface p-5">
           <Skeleton className="mb-4 size-9 rounded-lg" />
           <Skeleton className="mb-1.5 h-3 w-20" />
           <Skeleton className="mb-2.5 h-6 w-16" />
@@ -59,7 +59,7 @@ export function CardGridSkeleton({ count = 8 }: { count?: number }) {
   return (
     <div className="grid grid-cols-2 gap-4 sm:grid-cols-3 lg:grid-cols-4">
       {Array.from({ length: count }).map((_, i) => (
-        <div key={i} className="overflow-hidden rounded-[14px] border border-border bg-surface">
+        <div key={i} className="overflow-hidden rounded-xl border border-border bg-surface">
           <Skeleton className="aspect-square w-full rounded-none" />
           <div className="p-3">
             <Skeleton className="mb-2 h-3 w-16" />
@@ -76,7 +76,7 @@ export function DetailSkeleton() {
   return (
     <div className="grid grid-cols-1 gap-8 lg:grid-cols-[1fr_380px]">
       <div>
-        <Skeleton className="aspect-square w-full rounded-2xl" />
+        <Skeleton className="aspect-square w-full rounded-xl" />
         <div className="mt-3 grid grid-cols-4 gap-2.5">
           {Array.from({ length: 4 }).map((_, i) => (
             <Skeleton key={i} className="aspect-square rounded-lg" />
@@ -86,7 +86,7 @@ export function DetailSkeleton() {
         <Skeleton className="mt-3 h-4 w-full" />
         <Skeleton className="mt-2 h-4 w-5/6" />
       </div>
-      <div className="rounded-2xl border border-border bg-surface p-6">
+      <div className="rounded-xl border border-border bg-surface p-6">
         <Skeleton className="mb-4 h-6 w-1/2" />
         <Skeleton className="mb-2 h-4 w-full" />
         <Skeleton className="mb-6 h-4 w-2/3" />

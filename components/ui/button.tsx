@@ -4,17 +4,17 @@ import { cn } from "cn"
 import { Slot } from "radix-ui"
 
 const buttonVariants = cva(
-  "group/button inline-flex shrink-0 items-center justify-center rounded-full border border-transparent bg-clip-padding text-sm font-bold whitespace-nowrap transition-all outline-none select-none focus-visible:border-ring focus-visible:ring-3 focus-visible:ring-ring/50 active:not-aria-[haspopup]:translate-y-px disabled:pointer-events-none disabled:opacity-50 aria-invalid:border-destructive aria-invalid:ring-3 aria-invalid:ring-destructive/20 dark:aria-invalid:border-destructive/50 dark:aria-invalid:ring-destructive/40 [&_svg]:pointer-events-none [&_svg]:shrink-0 [&_svg:not([class*='size-'])]:size-4",
+  "group/button inline-flex shrink-0 items-center justify-center rounded-md border border-transparent bg-clip-padding text-sm font-bold whitespace-nowrap transition-all outline-none select-none focus-visible:border-ring focus-visible:ring-3 focus-visible:ring-ring/35 active:not-aria-[haspopup]:translate-y-px disabled:pointer-events-none disabled:opacity-50 aria-invalid:border-destructive aria-invalid:ring-3 aria-invalid:ring-destructive/20 dark:aria-invalid:border-destructive/50 dark:aria-invalid:ring-destructive/40 [&_svg]:pointer-events-none [&_svg]:shrink-0 [&_svg:not([class*='size-'])]:size-4",
   {
     variants: {
       variant: {
-        // The colored "glow" shadow on the solid brand button is a real,
-        // deliberate adoption from the Fable handoff — every solid
-        // brand-filled button across every screen (buyer AND admin) has
-        // it in the reference markup (box-shadow:0 8px 20px
-        // rgba(41,84,229,0.35)); it's the one shadow this app's outline/
-        // secondary/ghost/destructive variants still never get.
-        default: "bg-primary text-primary-foreground shadow-[0_8px_20px_rgba(41,84,229,0.35)] hover:bg-primary/80",
+        // Primary = navy: the main action in Seller Centre, Admin and forms.
+        default: "bg-primary text-primary-foreground shadow-[0_1px_2px_rgba(11,31,58,0.06)] hover:bg-primary/90 hover:shadow-[0_2px_8px_rgba(11,31,58,0.12)]",
+        // CTA = orange: spend money or search (add to cart, buy now,
+        // checkout, pay, search). White text on #cc4e00 passes 4.5:1.
+        cta: "bg-cta text-white hover:bg-cta-hover",
+        // Pool = Pool & Save only (join pool, view pool). Never orange.
+        pool: "bg-pale-blue text-cyan-text hover:bg-pale-blue/70",
         outline:
           "border-border bg-background hover:bg-muted hover:text-foreground aria-expanded:bg-muted aria-expanded:text-foreground dark:border-input dark:bg-input/30 dark:hover:bg-input/50",
         secondary:
@@ -26,11 +26,8 @@ const buttonVariants = cva(
         link: "text-primary underline-offset-4 hover:underline",
       },
       size: {
-        // Heights match the Fable handoff's real rendered buttons exactly:
-        // 36px for standard actions (admin/seller buttons), 44px for
-        // primary CTAs (buyer hero/PDP/cart) — not the 32px/36px this app
-        // used before, which was never actually measured against the
-        // reference.
+        // sm 32px, md 36px, lg 44px. On phones, any button a buyer taps to
+        // spend money or join a pool is lg and usually full width.
         default:
           "h-9 gap-1.5 px-3 has-data-[icon=inline-end]:pr-2.5 has-data-[icon=inline-start]:pl-2.5",
         xs: "h-6 gap-1 px-2 text-xs in-data-[slot=button-group]:rounded-lg has-data-[icon=inline-end]:pr-1.5 has-data-[icon=inline-start]:pl-1.5 [&_svg:not([class*='size-'])]:size-3",

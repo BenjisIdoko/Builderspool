@@ -64,7 +64,7 @@ export function AdminSidebar({ adminName }: { adminName: string }) {
     <aside className="hidden w-[264px] shrink-0 flex-col border-r border-border bg-surface shadow-[1px_0_0_#eef0f3,6px_0_32px_rgba(16,24,40,0.05)] lg:flex">
       <Link href="/admin" className="flex items-center justify-between gap-2 border-b border-border px-[18px] py-[22px] pb-4">
         <span className="flex items-center gap-2.5">
-          <span className="flex size-8 shrink-0 items-center justify-center rounded-[10px] bg-gradient-to-br from-[#4d7bff] to-brand text-[13px] font-extrabold text-white shadow-[0_4px_14px_rgba(41,84,229,0.35)]">
+          <span className="flex size-8 shrink-0 items-center justify-center rounded-md bg-ink text-[13px] font-extrabold text-white">
             BP
           </span>
           <span className="leading-tight">
@@ -108,7 +108,7 @@ export function AdminSidebar({ adminName }: { adminName: string }) {
 
       <div className="mt-auto p-3.5">
         <div className="flex items-center gap-2.5 rounded-xl border border-border bg-well/60 px-3 py-2.5">
-          <Avatar name={adminName} className="size-8 shrink-0 text-xs shadow-[0_4px_10px_rgba(41,84,229,0.3)]" />
+          <Avatar name={adminName} className="size-8 shrink-0 text-xs" />
           <div className="min-w-0 flex-1">
             <div className="truncate text-[13px] font-bold text-ink">{adminName}</div>
             <form action={signOutAdmin}>

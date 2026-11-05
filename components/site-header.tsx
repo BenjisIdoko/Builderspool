@@ -1,55 +1,79 @@
 import Link from 'next/link';
+import { StorefrontIcon, UserIcon } from '@phosphor-icons/react/ssr';
 import { getCurrentBuyer } from '@/lib/buyer/auth';
+import { getCategories } from '@/lib/queries/materials';
 import { CartSheet } from './cart-sheet';
 import { HeaderSearch } from './header-search';
-import { HeaderNavLinks } from './header-nav-links';
-import { Avatar } from './avatar';
-import { Button } from './ui/button';
-import { LogoMark } from './logo';
+import { CategoryStrip } from './category-strip';
+import { LogoMark, Wordmark } from './logo';
 
+// Jumia-style storefront shell: utility strip (desktop), sticky white header
+// with a pill search, then a scrollable category strip. On phones the search
+// moves to its own row under the header and the utility strip hides.
 export async function SiteHeader() {
-  const buyer = await getCurrentBuyer();
+  const [buyer, categories] = await Promise.all([getCurrentBuyer(), getCategories()]);
 
   return (
-    // Fixed, not sticky — floats over the homepage's full-bleed hero, per
-    // the Fable handoff's SiteHeader spec. Every page under this layout
-    // must reserve 112px (pt-28) of top padding so content doesn't render
-    // underneath it; the homepage is the one exception, since its hero is
-    // deliberately full-bleed behind the floating pill.
-    <div className="fixed inset-x-0 top-4 z-50 px-4 sm:px-6">
-      <header className="mx-auto flex h-[58px] max-w-section items-center justify-between gap-4 rounded-full border border-border/70 bg-surface/85 px-3.5 shadow-[0_12px_32px_rgba(15,23,42,0.08),0_2px_6px_rgba(15,23,42,0.04)] backdrop-blur-[14px] sm:gap-6 sm:px-4.5">
-        <div className="flex min-w-0 items-center gap-8">
-          <Link href="/" className="flex shrink-0 items-center gap-2">
-            <LogoMark className="size-7 shrink-0" />
-            <span className="hidden text-[1.5rem] leading-none font-extrabold sm:inline">
-              <span className="text-ink">Builders</span> <span className="text-brand">Pool</span>
-            </span>
+    <div className="sticky top-0 z-20 bg-surface shadow-[0_1px_0_var(--color-hairline)]">
+      <div className="hidden bg-canvas lg:block">
+        <div className="mx-auto flex h-10 max-w-section items-center justify-between text-[13px]">
+          <Link
+            href="/seller/signup"
+            className="inline-flex min-h-8 items-center gap-1.5 font-medium text-orange-text hover:underline"
+          >
+            <StorefrontIcon className="size-4" />
+            Sell on BuildersPool
           </Link>
-
-          <HeaderNavLinks />
-        </div>
-
-        <div className="flex min-w-0 flex-1 items-center justify-end gap-1 sm:gap-3.5 lg:flex-none lg:shrink-0">
-          <HeaderSearch />
           {buyer ? (
-            <div className="hidden items-center gap-1 sm:gap-3.5 lg:flex">
-              <Link href="/account" aria-label="Account">
-                <Avatar name={buyer.name} className="size-8" />
+            <div className="flex items-center gap-5 text-slate">
+              <Link href="/orders" className="hover:text-orange-text">
+                Orders
               </Link>
-              <CartSheet />
+              <Link href="/account" className="hover:text-orange-text">
+                {buyer.name}
+              </Link>
             </div>
           ) : (
-            <div className="hidden items-center gap-3.5 lg:flex">
-              <Link href="/login" className="px-1 text-sm font-semibold text-slate hover:text-ink">
+            <div className="flex items-center gap-5 text-slate">
+              <Link href="/login" className="hover:text-orange-text">
                 Log in
               </Link>
-              <Button asChild size="sm" className="h-[34px] rounded-full px-4.5 text-[13.5px] font-bold">
-                <Link href="/signup">Sign up</Link>
-              </Button>
+              <Link href="/signup" className="hover:text-orange-text">
+                Create account
+              </Link>
             </div>
           )}
         </div>
+      </div>
+
+      <header className="mx-auto max-w-section">
+        <div className="flex h-14 items-center gap-3 lg:h-[68px] lg:gap-6">
+          <Link href="/" className="flex shrink-0 items-center gap-2" aria-label="BuildersPool home">
+            <LogoMark className="size-8 shrink-0 lg:size-10" />
+            <Wordmark className="text-[20px] leading-none lg:text-[26px]" />
+          </Link>
+
+          <div className="hidden min-w-0 flex-1 lg:block">
+            <HeaderSearch />
+          </div>
+
+          <div className="ml-auto flex shrink-0 items-center gap-1 lg:ml-0 lg:gap-3">
+            <Link
+              href={buyer ? '/account' : '/login'}
+              className="hidden min-h-11 items-center gap-1.5 rounded-md px-2 text-[15px] font-medium text-text-storefront hover:text-orange-text lg:inline-flex"
+            >
+              <UserIcon className="size-5" />
+              {buyer ? 'Account' : 'Log in'}
+            </Link>
+            <CartSheet />
+          </div>
+        </div>
+        <div className="pb-2.5 lg:hidden">
+          <HeaderSearch />
+        </div>
       </header>
+
+      <CategoryStrip categories={categories.map((c) => c.name)} />
     </div>
   );
 }

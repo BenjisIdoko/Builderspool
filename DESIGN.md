@@ -1,274 +1,296 @@
-# Builders Pool — Design System
+---
+name: BuildersPool
+version: 2.0
+updated: 2026-11-05
+owner: Builders' Pool Technologies Ltd (RC 9317391)
+source_of_truth: Floot project "BuildersPool" — base.css, AppShell, ProductCard, Button, Badge
+supersedes: static/__dev/design-principles.md (pre-November "site ledger" direction — no orange, Bricolage/IBM Plex)
 
-This is a **reverse-documented** design spec: every value below is pulled directly from the live
-codebase (`app/globals.css`, `components/ui/*`, and the pages that use them), not invented for this
-file. Use it to rebuild or extend the UI in Figma, Sketch, Google Stitch, or Fable with pixel-accurate
-tokens — if a design tool produces something that doesn't match a value here, the code is the source of
-truth, not this document.
+colors:
+  # Brand voice
+  navy: "#0B1F3A"            # primary text, primary buttons, sidebar, chart series 1
+  cyan: "#1BA6DE"            # Pool & Save signal, focus, info, savings
+  cyan-strong: "#0F86B8"     # cyan when it must carry text on white
+  cyan-text: "#0B5F86"       # cyan-family text on white/pale blue (seller counts, Pool CTA label)
+  pale-blue: "#E6F4FB"       # Pool & Save panels, selected rows, secondary surfaces
+  orange: "#F47B20"          # logo orange — badges, accents, decoration only
+  orange-soft: "#FDEBDD"     # orange tint backgrounds
+  cta: "#CC4E00"             # buy/search/checkout buttons (white text passes 4.5:1)
+  cta-hover: "#B34400"
+  orange-text: "#B34400"     # orange text, hover links, active tab
+  logo-gray: "#3D4752"       # "BUILDERS" wordmark gray
 
-Stack: Next.js 16 (App Router) · Tailwind CSS v4 (CSS-first `@theme`) · shadcn/ui (Radix primitives) ·
-Phosphor Icons · Plus Jakarta Sans.
+  # Surfaces
+  background: "#F1F1F2"      # page ground (Jumia-style light gray)
+  card: "#FFFFFF"            # product cards, header, category row, tab bar
+  card-alt: "#FBFCFD"        # form/dashboard cards
+  surface: "#E9EEF4"
+  muted: "#E4E9EF"
+  popup: "#FFFFFF"
+
+  # Text
+  foreground: "#0B1F3A"
+  text-storefront: "#282828" # storefront body/product names (Jumia neutral)
+  text-secondary: "#545459"
+  muted-foreground: "#5A6B80"
+  placeholder: "#6B6B70"
+
+  # Lines
+  border: "#D5DDE6"
+  border-strong: "#B7C3D0"
+  hairline: "#E6E6E8"        # storefront header/category/tab-bar rules
+
+  # Status (always paired with a text label)
+  success: "#1F7A4D"
+  success-soft: "#E3F3EA"
+  warning: "#B26A00"         # also the TEST-mode tag
+  warning-soft: "#FFF3DC"
+  error: "#B42318"
+  error-soft: "#FBE9E7"
+  info: "#1BA6DE"
+
+  charts: ["#0B1F3A", "#1BA6DE", "#7FC8EA", "#5A6B80", "#B7C3D0"]
+
+typography:
+  families:
+    base: "Roboto, system-ui, -apple-system, 'Segoe UI', Arial, sans-serif"
+    display: "Poppins, Roboto, system-ui, sans-serif"
+    mono: "'IBM Plex Mono', ui-monospace, Menlo, monospace"
+  weights: { roboto: [400, 500, 700, 900], poppins: [600, 700, 800], plex-mono: [400, 500] }
+  scale:
+    wordmark:   { family: display, size: 26px, weight: 800, tracking: -0.02em, mobile: 20px }
+    h1:         { family: display, size: 28px, weight: 700, line: 1.2, mobile: 22px }
+    h2:         { family: display, size: 22px, weight: 700, line: 1.25, mobile: 18px }
+    h3:         { family: base,    size: 18px, weight: 700, line: 1.3 }
+    body:       { family: base,    size: 15px, weight: 400, line: 1.5 }
+    body-sm:    { family: base,    size: 14px, weight: 400, line: 1.4 }
+    product-name: { family: base,  size: 14px, weight: 400, line: 1.35, clamp: 2 }
+    price:      { family: base,    size: 18px, weight: 700, numerals: tabular }
+    caption:    { family: base,    size: 12px, weight: 400 }
+    micro:      { family: base,    size: 11px, weight: 700 }   # tags, cart count, tab labels
+    search:     { family: base,    size: 17px, weight: 400 }
+    figures:    { family: mono,    numerals: tabular }          # order numbers, ledger, kobo-exact amounts
+
+spacing: { 1: 4px, 2: 8px, 3: 12px, 4: 16px, 6: 24px, 8: 32px, 12: 48px, 16: 64px, 20: 80px }
+
+radius: { sm: 4px, default: 6px, md: 8px, lg: 10px, full: 9999px }
+
+elevation:
+  shadow: "0 1px 2px rgba(11,31,58,0.06)"
+  shadow-md: "0 2px 8px rgba(11,31,58,0.08)"
+  shadow-lg: "0 12px 32px rgba(11,31,58,0.14)"
+  card-hover: "0 4px 14px rgba(11,31,58,0.14)"
+  focus: "0 0 0 3px rgba(27,166,222,0.35)"
+
+motion: { fast: 120ms, normal: 200ms, slow: 320ms, easing: ease }
+
+layout:
+  content-max-width: 1200px
+  topbar-height: 68px        # 56px on phones
+  tap-target: 44px
+  breakpoints: { phone: "≤900px", tablet: "≤1100px", desktop: ">1100px", min-test-width: 360px }
+
+z-index: { header: 20, tab-bar: 30, overlay: 400, spotlight: 1000, critical: 2000 }
+---
+
+# BuildersPool Design System
+
+BuildersPool is a construction-materials marketplace for Abuja with a built-in collaborative buying engine (Pool & Save). The interface follows **Jumia's marketplace layout and type feel** — light gray ground, white product cards, a big rounded search bar, a strong orange buy button — but wears **BuildersPool's own identity**: the navy and cyan of the logo's "B", the orange of "POOL", and the logo's charcoal wordmark.
+
+Use this file as the brief for any screen, component, page, deck-to-web conversion or AI-generated UI for the platform. Token values above are the live values in the app's `base.css`; if the two ever disagree, update this file to match the app.
 
 ---
 
-## 1. Design philosophy
+## 1. Design principles
 
-Three rules govern every screen in this app, in priority order:
-
-1. **Hairline borders over shadows.** No `box-shadow`, no `ring` on static surfaces. Every table, input,
-   plain row, and dialog is separated from its background with a single `1px` `border-border` line. This
-   was an explicit, repeated correction during development — shadcn's default `Card` ships with
-   `ring-1 ring-foreground/10`; it was patched out (see `components/ui/card.tsx`). Treat any shadow on a
-   static (non-hover, non-modal-overlay) element as a bug — **with one deliberate exception, broader than
-   first documented**: raised, standalone card surfaces (KPI cards via the shared `components/kpi-card.tsx`,
-   catalog/material product cards, the PDP gallery image and buy-box, the checkout summary card, the
-   homepage hero) use a single, very subtle shadow value (`shadow-[0_1px_2px_rgba(16,24,40,0.04)]`, often
-   paired with a second soft ambient layer like `0_8px_24px_rgba(16,24,40,0.05)`; the hero itself
-   additionally gets `shadow-[0_32px_64px_-12px_rgba(41,84,229,0.35),0_8px_24px_rgba(15,23,42,0.12)]`),
-   adopted from the Fable design handoff. This applies across buyer, seller, **and** admin — it was first
-   scoped to buyer-marketing surfaces only, but the same treatment turned out to be present on admin/seller
-   KPI cards too (confirmed when the seller dashboard was measured against the reference and `KpiCard` was
-   extracted as a shared component). It still does **not** extend to tables, dialogs, sidebars, or routine
-   controls — only to this specific set of raised card surfaces.
-2. **Real data only.** Nothing in this app shows a number, chip, or chart it can't honestly derive from
-   stored data. There is no fabricated "+12% vs last week," no placeholder avatar photo, no invented
-   delivery ETA. When a value truly isn't known yet, the UI says so explicitly (an empty state, a "verify
-   live" note, a "needs review" flag) rather than inventing something plausible-looking.
-3. **Dense, restrained, "engineered B2B."** Closer to Stripe/Linear/Mercury than a consumer storefront.
-   Generous but not loose spacing, small type at high information density in tables/dashboards, color
-   used functionally (status, brand actions) rather than decoratively.
+1. **Shop like Jumia, trust like a bank.** The storefront should feel instantly familiar to Nigerian online shoppers; money screens (checkout, ledger, savings, payouts) should feel exact and calm.
+2. **One colour, one job.**
+   - **Orange (CTA)** = spend money or search: *Add to cart, Buy now, Checkout, Search*.
+   - **Cyan / pale blue** = Pool & Save and savings: *Join pool, estimated/verified saving, pool status*.
+   - **Navy** = the brand voice and everything structural: text, primary admin/seller buttons, sidebars.
+   Never swap these roles. A Pool & Save action is never orange; a Buy Direct action is never cyan.
+3. **Phone first, sun-readable.** Most users are on low-cost Android phones, often outdoors on site or in a market. Light mode only, high contrast, 44px touch targets, nothing that depends on hover.
+4. **Information before decoration.** Dense, scannable catalogue rows and tables. No hazard stripes, stencil fonts, hard-hat clip art or "construction costume".
+5. **Honest numbers.** Prices are exact, savings are labelled *Estimated* until a pool is awarded and *Verified* after, and test payments are impossible to mistake for real ones.
+6. **Light on data.** Images lazy-load, video and audio never autoplay, pages target < 3 s on a throttled mobile connection.
 
 ---
 
-## 2. Color tokens
+## 2. Brand assets
 
-All colors are CSS custom properties defined once in `app/globals.css` under `:root`, then re-exposed to
-Tailwind via `@theme inline` so they're usable as utilities (`bg-ink`, `text-brand`, `border-border`,
-etc.). There is no dark mode yet — every screen is light-only.
+| Asset | Use |
+| --- | --- |
+| Full logo (B monogram + BUILDERSPOOL wordmark) | Splash screen, login, footer, printed material, share images |
+| Monogram mark (`/_cdn/static/bp-icon-512.png`) | Header (40px desktop / 32px phone, 6px radius), app icon, favicon |
+| Wordmark in text | Header: **BUILDERS** in `logo-gray #3D4752` + **POOL** in `orange #F47B20`, Poppins 800 |
 
-### Core palette
-
-| Token | Hex | Utility | Usage |
-|---|---|---|---|
-| `--color-canvas` | `#fafafa` | `bg-canvas` | Fallback flat background color |
-| `--gradient-canvas` | `linear-gradient(180deg, #eef3fd 0%, #f6f8fc 45%, #fafbfc 100%)` | applied to `<body>` | **The actual sitewide background** — a soft blue-to-neutral wash, not a flat color. Fixed attachment. |
-| `--color-surface` | `#ffffff` | `bg-surface` | Cards, headers, sidebars, table backgrounds — anything that sits "on top of" the canvas |
-| `--color-well` | `#f1f3f5` | `bg-well` | Inactive table headers, input backdrops, inset/recessed blocks — one step darker than surface |
-| `--color-ink` | `#15181c` | `text-ink`, `bg-ink` | Primary text; also the "active/selected" solid-fill color for pills and filters |
-| `--color-slate` | `#5b6068` | `text-slate` | Secondary headings, icon-adjacent labels |
-| `--color-muted-text` | `#8a8f97` | `text-muted-foreground` | Tertiary text, captions, placeholder-adjacent copy |
-| `--color-border` | `#e6e7ea` | `border-border` | The one hairline border color used everywhere |
-| `--color-border-strong` | `#c2cad3` | `border-input` (via `--input`) | Input/select boundaries, active tab underlines, hover states |
-
-### Brand
-
-| Token | Hex | Usage |
-|---|---|---|
-| `--color-brand` | `#2954e5` | Primary buttons, links, active nav states, focus ring (`--ring`). The one confident accent color — used functionally, never decoratively. |
-| `--color-brand-ink` | `#ffffff` | Text/icon color on top of a brand-filled surface |
-| `--color-brand-deep` | `#3730a3` | Mid-stop of the signature gradient (steel blue → indigo) |
-| `--color-brand-warm` | `#ea580c` | Construction-amber counterpoint. Reserved for a **small number of high-impact spots only** — hero, headline accent, one stat card. Never on routine controls, never as a status color. |
-
-The signature gradient (`brand` → `brand-deep` → `brand-warm`) appears in exactly one place: the
-storefront homepage hero. Don't reuse it as a generic decorative background elsewhere.
-
-### Status (4-category pill system)
-
-One shared system (`lib/statusColors.ts`) maps every real status enum in the app — `OrderStatus`,
-`CycleStatus`, `BidStatus`, `AllocationStatus`, `PayoutStatus`, plus derived fulfillment-stage strings —
-onto four tones. Every status anywhere in the app uses one of these four; nothing invents a fifth.
-
-| Tone | Text | Soft background | Meaning |
-|---|---|---|---|
-| `success` | `#2e6b45` | `#eaf3ec` | Paid, filled, delivered, confirmed-good |
-| `warning` | `#8a5a20` | `#fbf1e4` | Pending, awaiting action, needs attention |
-| `danger` | `#a0432c` | `#f7e9e6` | Cancelled, rejected, on hold |
-| `info` | same as `--color-brand` | `#e9edfb` | Neutral-active, in-progress, informational |
-| `neutral` | `--color-slate` | transparent, `border-border` outline | Default/unclassified |
-
-Rendering rule: **light background + saturated text, never a solid fill**, via `Badge variant="outline"`
-plus the tone's soft-background class (`pillClass(tone)` in `lib/statusColors.ts`). A status pill is
-never a solid-colored chip with white text — that's reserved for the "active filter" pattern (see §5).
+Rules: keep clear space of at least the height of the "B" counter around the full logo; never recolour, outline, stretch or place the logo on orange or busy photography; on navy, use the white-wordmark version.
 
 ---
 
-## 3. Typography
+## 3. Colour usage
 
-**Single typeface: Plus Jakarta Sans**, loaded via `next/font/google` in `app/layout.tsx`, applied
-globally as `font-sans`. There is deliberately no second/monospace typeface anywhere — an earlier pass
-added JetBrains Mono for prices/quantities/IDs and it was fully removed; don't reintroduce a numeric
-monospace face without an explicit decision to do so.
+| Role | Token | Do | Don't |
+| --- | --- | --- | --- |
+| Page ground | `background #F1F1F2` | Behind all storefront content | Use pure white as the page ground |
+| Cards & bars | `card #FFFFFF` | Product cards, header, category strip, tab bar | Add borders to storefront product cards (the gray ground separates them) |
+| Buy / search CTA | `cta #CC4E00` → hover `#B34400` | White text, bold | Use logo orange `#F47B20` behind white text (fails contrast) |
+| Orange accent | `orange #F47B20`, `orange-soft` | Wordmark, promo badges, icons, discount flags | Body text, large fills |
+| Orange text | `orange-text #B34400` | "Sell on BuildersPool" link, hover state of nav links, active phone tab | — |
+| Pool & Save | `cyan #1BA6DE`, `pale-blue #E6F4FB`, `cyan-text #0B5F86` | Pool tag on cards (cyan fill + **navy** text), Join-pool button (pale-blue fill + cyan-text label), savings figures, pool panels | White text on `#1BA6DE` (fails 4.5:1) — use navy text or `cyan-strong` |
+| Primary (workspaces) | `navy #0B1F3A` | Primary buttons in Seller Centre, Admin, Hub, Dispatch; sidebar | Mixing navy and orange primaries on the same form |
+| Focus | `focus` ring (cyan 35%) | Every interactive element, keyboard and search focus | Removing outlines without a replacement |
+| Status | success / warning / error + `-soft` | Soft-tint badge + coloured text + a word | Colour alone to signal state |
 
-- **Base size is fluid**: `clamp(1rem, 0.9561rem + 0.1876vw, 1.125rem)` on `<html>` — 16px on narrow
-  viewports scaling up to 18px on wide ones. Every `rem`-based size in the app scales with this.
-- **Body line-height**: `1.6` (relaxed, for reading comfort in descriptions/paragraphs).
-- **Every heading is bold (700)** — no medium-weight headings anywhere.
-  - `h1`: bold + tight tracking (`tracking-tight`). The homepage hero `h1` additionally goes
-    `font-extrabold` (800) at a large explicit size — the one deliberate exception to the shared `h1` rule.
-  - `h2`: bold + `letter-spacing: -0.025em`.
-  - `h3` and below aren't used yet in this app — if you add one, keep it bold, matching the pattern.
-- **Section eyebrows / overline labels**: `text-xs font-bold tracking-wide text-slate uppercase` (e.g.
-  "QUICK STATS", "ALL ORDERS · 9 MATCHING" on admin pages).
-- **Page kicker**: `text-xs text-muted-foreground` above an `h1` (e.g. "Admin · ops desk").
+**Contrast minimums:** body text 4.5:1, large text and icons 3:1. The token pairs above are pre-checked; new pairs must be checked before use.
 
 ---
 
-## 4. Spacing, radius, layout grid
+## 4. Typography
 
-- **Radius scale**: `--radius-sm: 0.375rem` (6px) · `--radius-md: 0.5rem` (8px, inputs/selects) ·
-  `--radius-lg: 0.875rem` (14px, cards/containers) · `--radius-xl: 1.25rem` (20px, large panels).
-  **Buttons and badges are always fully pill-shaped** (`rounded-full`) regardless of this scale — that's
-  a separate, deliberate rule, not token-driven.
-- **Page container**: `mx-auto w-full max-w-6xl px-6 py-10` — the standard wrapper for every
-  buyer/seller/admin content page. Detail/edit pages that don't need a wide table narrow this to
-  `max-w-3xl` (e.g. the material edit form).
-- **Card padding**: `p-6` for a standalone content card, `p-4`–`p-5` for a denser KPI/stat card.
-- **Table row height**: `py-3` per cell (not the shadcn default `py-2`) — deliberately slightly taller
-  for readability at this app's data density.
+- **Roboto** is the workhorse for everything on the storefront and in workspaces (Jumia's feel: neutral, compact, very legible on Android).
+- **Poppins** (600–800) is reserved for the wordmark, page titles, section headings on the home page and hero banners. Never for body text, buttons or tables.
+- **IBM Plex Mono** with tabular numerals for order numbers, reference codes, ledger rows, kobo-exact amounts and admin data tables.
+- Product names: 14px regular, clamped to 2 lines. Prices: 18px bold, tabular numerals, `#282828`.
+- Sentence case for headings and buttons ("Add to cart", not "ADD TO CART"). Uppercase only for tiny eyebrow labels and the TEST tag.
 
----
+### Money and quantities
 
-## 5. Core components
-
-All components live in `components/ui/` (shadcn-installed, then patched to match this system) or
-`components/` (hand-built, following the same rules). Install additional shadcn components the same
-way: `npx shadcn@latest add <name>`, then strip any shadow/ring and confirm radius matches §4.
-
-### Button (`components/ui/button.tsx`)
-- Always `rounded-full`, bold text, no shadow.
-- Variants: `default` (brand-filled, white text — primary actions), `outline` (bordered, transparent —
-  secondary actions), `secondary`, `ghost` (icon-only rows, kebab triggers), `destructive` (soft-red fill,
-  red text — never a solid red button), `link`.
-- Sizes: `default` (h-8), `sm` (h-7), `lg` (h-9), plus square icon variants `icon` / `icon-sm` / `icon-xs`
-  / `icon-lg` for icon-only buttons (kebab menus, close buttons).
-
-### Input / Label / Select (`components/ui/input.tsx`, `label.tsx`, `select.tsx`)
-- Inputs: `h-8`, `rounded-md`, `border-input` (the `--border-strong` token), transparent background,
-  focus ring in brand color.
-- Plain native `<select>` elements (styled to match `Input`) are used for simple in-page filters instead
-  of the shadcn `Select` primitive where no rich popover behavior is needed — see any admin filter bar.
-
-### Badge / status pill (`components/ui/badge.tsx` + `lib/statusColors.ts`)
-- `variant="outline"` + a tone class from `pillClass()` is the standard status pill — see §2.
-- A **solid** pill (`bg-ink text-canvas`) is reserved for the "currently active" state of a filter chip
-  (e.g. the selected status tab on the Orders page) — visually distinct from a status badge on purpose,
-  so users never confuse "this is the active filter" with "this row's status is X."
-
-### Card (`components/ui/card.tsx`)
-- `rounded-lg`, `border border-border`, `bg-card` (white), no shadow/ring. This is the patched version —
-  never reintroduce the shadcn default's `ring-1 ring-foreground/10`.
-
-### Table (`components/ui/table.tsx`)
-- Full-bleed inside a `rounded-lg border border-border bg-surface` wrapper `div`, not bordered itself.
-- Header row: `border-b`, muted/small text, often uppercase section label above it (not in the header
-  row itself — see §3's "eyebrow" pattern).
-- Row hover: subtle `bg-muted/50`.
-- Sortable columns (introduced on the admin Orders table): each header is a `<Link>` toggling `asc`/`desc`
-  via URL search params, with a `CaretUp`/`CaretDown`/`CaretUpDown` (unsorted) icon from Phosphor.
-
-### Dialog (`components/ui/dialog.tsx`)
-- Centered modal, `rounded-lg`, `border border-border`, **no shadow** (patched from the shadcn default),
-  backdrop blur (`supports-backdrop-filter:backdrop-blur-xs`) over a light `bg-black/10` overlay.
-- Used for: image lightboxes (PDP gallery zoom), and admin view/edit/delete flows (e.g. the catalogue
-  reference library's per-row actions).
-
-### Dropdown menu (`components/ui/dropdown-menu.tsx`)
-- A local Radix wrapper (shadcn's own `dropdown-menu` isn't installed — this project uses the `radix-ui`
-  umbrella package directly and re-skins it to match). `rounded-md border border-border bg-popover`, no
-  shadow, `DotsThreeVerticalIcon` kebab trigger. Used for per-row actions in tables (e.g. admin Orders'
-  "View details / Copy order ID" menu) in place of a bare text link once a row has more than one action.
-
-### Avatar (`components/avatar.tsx`)
-- **Initials-only, always** — `bg-brand text-brand-ink`, a circle sized by the `className` prop. There is
-  no photo upload anywhere in this system, so a stock/placeholder photo would misrepresent a real person;
-  don't add one without building real photo upload first.
-
-### Tabs (`components/ui/tabs.tsx`)
-- `variant="line"` — an underline-indicator tab style, not a boxed/pill tab style. Used on the PDP
-  (Description / Details / Pricing & delivery) where content sections are mutually exclusive.
+- Always `₦` + grouped digits: **₦4,850**, **₦1,250,000**. Show kobo only where the value is not whole (ledger, statements): **₦12,345.50**.
+- Unit follows price in caption style: **₦4,850** / bag.
+- Right-align money in tables; use tabular numerals everywhere money appears.
+- Savings: cyan-text figure + label. Before award: "Estimated saving ₦…" with the word *Estimated* visible. After award: "Verified saving ₦…" with a check icon.
+- Never show a negative saving; show "No saving on this line" instead.
 
 ---
 
-## 6. Icons
+## 5. Layout & grid
 
-**Phosphor Icons exclusively**, imported from `@phosphor-icons/react/ssr` (the server-renderable variant
-— always use the `Icon` suffix, e.g. `ReceiptIcon`, not the bare `Receipt`). Default weight (regular),
-sized via `size-4`/`size-4.5`/`size-5` Tailwind utilities matching the surrounding text size. No other
-icon set is used anywhere in the app.
-
----
-
-## 7. Layout patterns by portal
-
-### Buyer storefront (`app/(shop)/`)
-- **Floating pill header** (`components/site-header.tsx`): NOT a full-width bar. Outer wrapper is
-  `sticky top-4 px-4 sm:px-6`; inner bar is `rounded-full border border-border bg-surface/80
-  backdrop-blur-md` — a rounded, blurred, inset "pill" that floats over the page content beneath it, with
-  visible canvas gradient in the gutters around it. No shadow.
-  - Contains: logo, nav links, `HeaderSearch` (icon-first expandable search — see below), cart icon,
-    account `Avatar`.
-- **Search** (`components/header-search.tsx`): starts as a bare magnifying-glass icon; click expands it
-  into a bounded input inline in the header (not a full-width takeover), submits to `/catalog?q=...`.
-  Built this way specifically to avoid an earlier regression where a permanent search field broke the
-  header layout at 1024px — any change to this component must be checked at 1024px before shipping.
-- **Hero**: real photo + the brand gradient (§2) as a duotone overlay, not the flat/textured version some
-  reference designs use.
-- No sidebar on the buyer side at any viewport — navigation is entirely in the floating header, with a
-  slide-over `Sheet`-based mobile menu below the header's own breakpoint.
-
-### Seller & Admin portals (`app/seller/`, `app/admin/`)
-- **Fixed left sidebar** (`components/seller/seller-sidebar.tsx`, `components/admin/admin-sidebar.tsx`):
-  `hidden lg:flex`, `w-60`, `border-r border-border bg-surface`. Logo + product name at top, nav links
-  grouped under uppercase section labels (`text-[10.5px] font-bold tracking-wide text-muted-foreground
-  uppercase`, e.g. "Overview" / "Commerce" / "Account" — group by what the links are *for*, not one flat
-  list) with active-state highlight (`bg-brand/10 text-brand` on the current route, via `usePathname()`),
-  profile block + sign-out pinned to the bottom via `mt-auto`.
-- **Mobile**: sidebar is replaced below `lg` by a `h-16` topbar (logo + `MobileNav` hamburger triggering a
-  slide-over) — see `components/mobile-nav.tsx`'s `footer` prop for how sign-out surfaces in the mobile
-  menu without duplicating the desktop sidebar's markup.
-- **Top-right avatar bar** (admin only, added most recently): a slim `hidden lg:flex h-16 justify-end
-  border-b border-border bg-surface` row above the page content, admin name + `Avatar` at the far right,
-  persistent across every admin page. The mobile topbar carries the same `Avatar` at its right edge.
-- **Page template** (list pages: Orders, Materials, Catalogue reference): kicker → `h1` → one-line
-  description → optional KPI/quick-stats card row → filter bar (category/status pills + search, sortable
-  table headers where applicable) → `Table` in a bordered `rounded-lg` wrapper → pagination footer.
-- **Page template** (detail/edit pages): back-link → kicker → `h1` → grouped `border border-border
-  rounded-lg p-6` sections, each with an uppercase eyebrow label, form fields inside → right-aligned
-  Cancel/Save button row.
+- Max content width **1200px**, centred, 16px side padding (12px on phones).
+- **Product grid:** 2 columns on phones, 3 at ~600px, 4 at ~900px, 5–6 on desktop; 8–12px gaps on the gray ground.
+- **Breakpoints:** ≤ 900px is "phone" (tab bar appears, utility strip hides, search moves below the header); ≤ 1100px hides secondary header labels.
+- Test every screen at **360px** wide.
+- Workspaces (Seller Centre, Admin, Hub, Dispatch) use a navy sidebar on desktop that collapses to a sheet on phones; content sits on `background` with `card-alt` panels.
 
 ---
 
-## 8. Interaction & state conventions
+## 6. Storefront shell (Jumia-style)
 
-- **Loading**: real Next.js route-level `loading.tsx` skeletons that mirror the actual page's shape
-  (KPI-card placeholders + table-row placeholders), not a generic spinner.
-- **Error**: real route-level `error.tsx` boundaries with a specific, honest message (this app's most
-  common real failure is a Postgres connection-pool exhaustion, so admin error copy says "usually a
-  transient database connection issue" rather than a generic "something went wrong") plus a `reset()`
-  retry button.
-- **Empty states**: an icon (Phosphor, `size-8 text-muted-foreground`) + one sentence, inside the same
-  bordered card treatment as a populated table would use — never a blank white area.
-- **Long text**: table cells that can overflow (buyer names, fulfillment-stage labels) get an explicit
-  `max-w-*` + `truncate`, with the full value in a `title` attribute — not a fixed-width clip with no
-  fallback.
-- **Destructive actions**: a confirm `Dialog` stating exactly what will happen and any real caveat (e.g.
-  "this has no effect on the live buyer catalog — these are separate records"), never a bare browser
-  `confirm()`.
-- **Placeholder/incomplete data**: flagged explicitly and visibly (a `WarningIcon` + soft-warning-colored
-  banner), never silently hidden or dressed up to look complete. Example: materials bulk-imported without
-  a real researched price show an unmistakable ₦1 placeholder plus a "needs price review" banner — not a
-  plausible-looking invented price.
+From top to bottom:
+
+1. **Utility strip** (desktop only, 40px, `#F1F1F2`, 13px): left — "Sell on BuildersPool" in orange-text with icon; right — Help, account links.
+2. **Header** (sticky, white, 68px, 1px `hairline` bottom shadow): mark + wordmark · full-width **pill search** (`#F1F1F2` fill, search icon left, 44px input, 17px text, orange **Search** pill button on the right; focus = 2px inset cyan ring) · Account · Help · Cart icon with an orange count bubble (18px, 11px bold white).
+3. **Category strip** (white, 50px, horizontally scrollable, no visible scrollbar): icon + category name, 15px; hover/active turns orange-text.
+4. **Main**.
+5. **Phone tab bar** (≤ 900px, fixed bottom, white, 5 equal tabs: Home · Categories · Pool & Save · Cart · Account; 11px labels; active tab orange-text bold; respects safe-area inset).
+6. **Footer**: navy background, white/pale text, contact details (info@builderspool.net, +234 805 420 7559, Ushafa Fulfilment Centre, Mon–Sat 8am–6pm), CAC RC 9317391.
 
 ---
 
-## 9. What NOT to do
+## 7. Components
 
-- Don't add a shadow to a static element. Ever. Borders only.
-- Don't introduce a second typeface (display serif, monospace-for-numbers, etc.) without an explicit
-  decision — both have been tried and reverted this project.
-- Don't use `--color-brand-warm` (the amber) as a routine UI color — it's a hero/headline accent, not a
-  warning color (that's `--color-warning`) or a secondary brand color.
-- Don't invent a fifth status tone — every status fits success/warning/danger/info/neutral.
-- Don't show a stock or placeholder photo for a person — use the initials `Avatar`.
-- Don't build a table without a real empty state, and don't paginate/filter/sort a table without the
-  filter state living in the URL (search params), so it's shareable and survives a refresh.
+### Buttons
+
+| Variant | Look | Use |
+| --- | --- | --- |
+| **CTA** | `cta` fill, white bold text, 6–8px radius (pill in search) | Add to cart, Buy now, Checkout, Pay, Search |
+| **Primary** | navy fill, white text, soft 1px shadow that grows on hover | Main action in Seller Centre / Admin / forms |
+| **Pool** | `pale-blue` fill, `cyan-text` bold label | Join pool, View pool |
+| **Outline** | white, 12% navy hairline | Secondary action beside a primary |
+| **Secondary** | 6% navy tint, no border | Tertiary actions, filters |
+| **Ghost** | transparent until hover | Icon actions, toolbars |
+| **Destructive** | `error` fill, white | Cancel order, reject, delete — always with confirmation |
+| **Link** | navy text, underline on hover | Inline navigation |
+
+Sizes: **sm 32px · md 36px · lg 44px**. On phones, any button a buyer taps to spend money or join a pool is **lg (44px)** and usually full width. One CTA per view region. Disabled = 45% opacity, no shadow.
+
+### Product card
+
+White, 6px radius, 8px padding, no border; hover adds `card-hover` shadow (desktop only).
+- Square thumbnail on `#F1F1F2`, 4px radius, image `object-fit: cover`, placeholder icon if missing.
+- **Pool & Save tag** top-left: cyan fill, navy 11px bold text.
+- Media chips bottom-left (video / audio available): navy 85% pill, white 11px.
+- Name (14px, 2-line clamp) · price (18px bold) + unit (12px) · "N sellers" in cyan-text · delivery note in gray if the buyer's zone isn't served.
+- Optional **Join pool** strip (40px, pale-blue, cyan-text bold).
+
+### Product page
+
+Gallery with zoom + video/audio (poster, tap to load) · title, brand, specs table from attributes · **offers list** — every seller's price ranked by landed price for the buyer's zone, best offer highlighted with a pale-blue row and "Best offer" label · quantity stepper respecting minimum order · CTA "Add to cart" (orange) and Pool panel (pale-blue box with pool status, closing time, estimated saving, "Join pool").
+
+### Pool & Save panel
+
+Pale-blue background, 8px radius, cyan 1px left rule or border. Contents: cycle status (Pooling → Bidding → Evaluating → Awarded), countdown to 17:00 close (Africa/Lagos), reference price, *Estimated* saving range, fallback choice. Buyers never see bids or supplier names before award.
+
+### Badges & status
+
+Pill shape, 14px medium (12px in dense tables), soft-tint background + coloured text + 1px tinted border. Always include the word.
+
+| State family | Colour |
+| --- | --- |
+| Live, Paid, Delivered, Approved, Accepted | success |
+| Pending QC, Under review, Awaiting dispatch, Expiring soon | warning |
+| Rejected, Failed, Disputed, Cancelled, Suspended | error |
+| Pooling, Bidding, Evaluating, Info | pale-blue / cyan-text |
+| Draft, Inactive | outline (gray) |
+
+**TEST tag:** amber (`warning` fill, white 11px bold uppercase "TEST"), shown on every simulated payment, receipt and ledger line. Must be visible without scrolling on payment screens.
+
+### Forms
+
+Use the kit components (Input, Select, Textarea, Checkbox, RadioGroup, Switch, DateField, FileDropzone) — never raw HTML inputs. Inputs are 36px (44px on phones for buyer flows), 6px radius, `border` hairline, cyan focus ring. Labels above fields, 14px medium; help text 12px muted; errors in `error` text below the field with an icon. Naira inputs show a fixed "₦" prefix.
+
+### Tables (Seller Centre, Admin)
+
+White card, hairline row rules, no zebra striping, 14px text, sticky header row in `muted`. Money right-aligned in mono tabular figures. On phones, tables become stacked cards with label–value pairs.
+
+### Feedback
+
+Toasts bottom-centre on phones, top-right on desktop; success/error/info variants with icon + text. Skeletons (muted shimmer) for loading lists; spinners only inside buttons. Empty states: icon, one sentence, one action.
+
+### Media
+
+Max 8 photos + 1 video + optional audio per listing. Thumbnails lazy-load; video/audio show a poster and a "Tap to play" control; nothing autoplays or preloads on cellular.
+
+---
+
+## 8. Workspaces
+
+| Workspace | Primary colour | Notes |
+| --- | --- | --- |
+| Storefront & buyer account | Orange CTA, cyan for pools | Jumia layout above |
+| Seller Centre | Navy primary | Navy sidebar; overview cards (sales, open orders, pending QC, low stock, open RFQs); bids are confidential — never show competitor data |
+| Admin | Navy primary | Dense tables, audit-friendly; destructive actions need a reason field |
+| Fulfilment Hub / Dispatch | Navy primary | Large 44px+ actions, scan/photo proof steps, readable on a phone in a yard |
+
+---
+
+## 9. Iconography & imagery
+
+- Line icons (Lucide style), 1.5–2px stroke, 16px in buttons, 20–24px in navigation. Category icons from the shared category-icon map.
+- Product photos on plain light backgrounds, no watermarks or phone numbers (QC rule).
+- Marketing imagery: real Nigerian sites, materials and the Ushafa fulfilment centre; avoid stock photos of foreign construction scenes.
+
+---
+
+## 10. Accessibility checklist
+
+- Text contrast ≥ 4.5:1 (check every new colour pair, especially anything on cyan or orange).
+- Touch targets ≥ 44 × 44px; spacing between adjacent targets ≥ 8px.
+- Visible focus on every control; keyboard-reachable dialogs and menus.
+- Status never by colour alone; icons have text labels or `aria-label`.
+- Forms announce errors; images have alt text (product name + key spec).
+- Respect `prefers-reduced-motion`.
+
+---
+
+## 11. Voice & copy
+
+Plain English with the terms builders use: *bags, tonnes, trips, lengths, pieces, site, yard*. Short, direct, friendly. Use "Pool & Save" and "Buy Direct" consistently. Never promise a saving before award. Times in Lagos time ("Pool closes 5:00 pm today").
+
+---
+
+## 12. Do / Don't summary
+
+**Do:** gray ground with white cards · orange only for spending · cyan only for pooling and savings · navy for structure · ₦ with tabular numerals · 44px targets · TEST tags on simulated payments.
+
+**Don't:** white text on cyan or logo orange · orange Pool buttons · dark mode · autoplay media · heavy shadows or bubbly radii above 10px (except pills) · construction-themed decoration.

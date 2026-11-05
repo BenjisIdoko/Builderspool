@@ -13,55 +13,55 @@ export async function SiteFooter() {
   const centers = await getFulfillmentCenters();
 
   return (
-    <footer className="mt-14 border-t border-border bg-surface">
+    <footer className="mt-14 bg-ink text-white">
       <div className="mx-auto grid max-w-section grid-cols-2 gap-x-5 gap-y-7 px-6 py-10 sm:gap-8 lg:grid-cols-[1.4fr_1fr_1fr_1fr]">
         <div className="col-span-2 lg:col-span-1">
           <div className="mb-2 flex items-center gap-2">
             <LogoMark className="size-5" />
-            <span className="text-[15px] font-extrabold text-ink">Builders Pool</span>
+            <span className="font-display text-[15px] font-extrabold tracking-[-0.02em]">BUILDERS<span className="text-orange">POOL</span></span>
           </div>
-          <p className="max-w-xs text-[12.5px] leading-relaxed text-muted-foreground">
+          <p className="max-w-xs text-[12.5px] leading-relaxed text-white/70">
             Escrow-protected construction materials trading, at a fixed catalogue price.
           </p>
         </div>
         <div>
-          <div className="mb-2.5 text-[11.5px] font-bold tracking-[0.04em] text-muted-foreground uppercase">
+          <div className="mb-2.5 text-[11.5px] font-bold tracking-[0.04em] text-white/60 uppercase">
             Regional depots
           </div>
           <div className="flex flex-col gap-1.5 text-[13px]">
             {centers.map((c) => (
-              <span key={c.name} className="text-slate">
+              <span key={c.name} className="text-white/85">
                 {c.name} — {c.region}
               </span>
             ))}
           </div>
         </div>
         <div>
-          <div className="mb-2.5 text-[11.5px] font-bold tracking-[0.04em] text-muted-foreground uppercase">
+          <div className="mb-2.5 text-[11.5px] font-bold tracking-[0.04em] text-white/60 uppercase">
             Account
           </div>
           <div className="flex flex-col gap-1.5 text-[13px]">
-            <Link href="/login" className="text-slate hover:text-ink">
+            <Link href="/login" className="text-white/85 hover:text-white">
               Log in
             </Link>
-            <Link href="/signup" className="text-slate hover:text-ink">
+            <Link href="/signup" className="text-white/85 hover:text-white">
               Create an account
             </Link>
-            <Link href="/catalog" className="text-slate hover:text-ink">
+            <Link href="/catalog" className="text-white/85 hover:text-white">
               Browse the catalog
             </Link>
           </div>
         </div>
         <div>
-          <div className="mb-2.5 text-[11.5px] font-bold tracking-[0.04em] text-muted-foreground uppercase">
+          <div className="mb-2.5 text-[11.5px] font-bold tracking-[0.04em] text-white/60 uppercase">
             Procurement desk
           </div>
-          <a href="tel:+2348133941775" className="text-[13px] text-slate hover:text-ink">
+          <a href="tel:+2348133941775" className="text-[13px] text-white/85 hover:text-white">
             +234 813 394 1775
           </a>
         </div>
       </div>
-      <div className="border-t border-border px-6 py-5 text-center text-xs text-muted-foreground">
+      <div className="border-t border-white/15 px-6 py-5 text-center text-xs text-white/60">
         © {new Date().getFullYear()} Builders Pool. Construction materials, sourced and delivered.
       </div>
     </footer>

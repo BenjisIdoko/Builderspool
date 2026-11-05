@@ -172,7 +172,7 @@ export default async function AdminDashboardPage() {
 
       <div className="mb-14 grid grid-cols-1 items-start gap-5 lg:grid-cols-[1fr_320px]">
         <div className="flex flex-col gap-4">
-          <div className="rounded-2xl border border-border bg-surface p-5">
+          <div className="rounded-xl border border-border bg-surface p-5">
             <h2 className="mb-3.5 text-[11.5px] font-bold tracking-wide text-muted-foreground uppercase">
               GMV trend (last {weeklyGmv.length} weeks)
             </h2>
@@ -193,7 +193,7 @@ export default async function AdminDashboardPage() {
             </div>
           </div>
 
-          <div className="overflow-hidden rounded-2xl border border-border bg-surface">
+          <div className="overflow-hidden rounded-xl border border-border bg-surface">
             <div className="flex items-center justify-between px-5 py-4">
               <h2 className="text-[11.5px] font-bold tracking-wide text-muted-foreground uppercase">
                 Latest requisitions
@@ -234,7 +234,7 @@ export default async function AdminDashboardPage() {
         </div>
 
         <div className="flex flex-col gap-4">
-          <div className="rounded-2xl border border-border bg-surface p-[18px]">
+          <div className="rounded-xl border border-border bg-surface p-[18px]">
             <h2 className="mb-3.5 text-[11.5px] font-bold tracking-wide text-muted-foreground uppercase">
               Needs attention
             </h2>
@@ -261,7 +261,7 @@ export default async function AdminDashboardPage() {
             )}
           </div>
 
-          <div className="rounded-2xl border border-border bg-surface p-[18px]">
+          <div className="rounded-xl border border-border bg-surface p-[18px]">
             <h2 className="mb-3.5 text-[11.5px] font-bold tracking-wide text-muted-foreground uppercase">
               Top merchants (MTD)
             </h2>

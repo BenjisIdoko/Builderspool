@@ -101,7 +101,7 @@ export default async function CatalogPage({
   const activeFilterCount = (category ? 1 : 0) + (sourcingScope ? 1 : 0);
 
   return (
-    <div className="mx-auto w-full max-w-section px-6 pt-28 pb-10">
+    <div className="mx-auto w-full max-w-section px-6 pt-6 pb-10">
       <div className="mb-3 flex flex-wrap items-start justify-between gap-3">
         <div>
           <div className="mb-1 text-xs font-semibold text-slate">Catalogue</div>
@@ -119,7 +119,7 @@ export default async function CatalogPage({
       <p className="mb-8 text-sm text-slate">Fixed catalogue price, {total} materials.</p>
 
       <div className="grid grid-cols-1 gap-7 lg:grid-cols-[240px_1fr]">
-        <aside className="hidden flex-col gap-8 rounded-2xl border border-border bg-surface p-5 shadow-[0_1px_2px_rgba(16,24,40,0.04)] lg:sticky lg:top-6 lg:flex lg:self-start">
+        <aside className="hidden flex-col gap-8 rounded-xl border border-border bg-surface p-5 shadow-[0_1px_2px_rgba(16,24,40,0.04)] lg:sticky lg:top-6 lg:flex lg:self-start">
           {filterGroups}
         </aside>
 
@@ -167,7 +167,7 @@ export default async function CatalogPage({
                 <Reveal key={material.id} className="h-full" delay={Math.min(index % 3, 2) * 0.05}>
                 <Link
                   href={`/catalog/${material.id}`}
-                  className="flex h-full flex-col overflow-hidden rounded-[14px] border border-border bg-surface shadow-[0_1px_2px_rgba(16,24,40,0.04)] transition-[transform,box-shadow] duration-150 hover:-translate-y-1 hover:shadow-[0_16px_32px_rgba(16,24,40,0.12)]"
+                  className="flex h-full flex-col overflow-hidden rounded-xl border border-border bg-surface shadow-[0_1px_2px_rgba(16,24,40,0.04)] transition-[transform,box-shadow] duration-150 hover:-translate-y-1 hover:shadow-[0_16px_32px_rgba(16,24,40,0.12)]"
                 >
                   <div className="relative">
                     <MaterialImage

@@ -10,7 +10,7 @@ export const metadata = { title: 'Page not found' };
 // buyer is one tap from the catalogue instead of stranded.
 export default function ShopNotFound() {
   return (
-    <div className="mx-auto flex w-full max-w-md flex-1 flex-col items-center justify-center px-6 pt-28 pb-24">
+    <div className="mx-auto flex w-full max-w-md flex-1 flex-col items-center justify-center px-6 pt-12 pb-24">
       <EmptyState
         illustration={NotFoundIllustration}
         as="h1"

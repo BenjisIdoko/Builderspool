@@ -45,6 +45,7 @@ export function AddToCartButton({ material }: { material: BuyerMaterial }) {
 
       <Button
         type="button"
+        variant="cta"
         className="flex-1 gap-1.5"
         onClick={() => {
           addItem(

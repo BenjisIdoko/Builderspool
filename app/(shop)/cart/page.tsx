@@ -17,7 +17,7 @@ export default function CartPage() {
 
   if (lines.length === 0) {
     return (
-      <div className="mx-auto flex w-full max-w-3xl flex-1 flex-col items-center justify-center px-6 pt-28 pb-24">
+      <div className="mx-auto flex w-full max-w-3xl flex-1 flex-col items-center justify-center px-6 pt-12 pb-24">
         <EmptyState
           illustration={EmptyCartIllustration}
           as="h1"
@@ -35,7 +35,7 @@ export default function CartPage() {
   const itemCount = lines.reduce((sum, l) => sum + l.quantity, 0);
 
   return (
-    <div className="mx-auto w-full max-w-section px-6 pt-28 pb-24 lg:pb-10">
+    <div className="mx-auto w-full max-w-section px-6 pt-6 pb-24 lg:pb-10">
       <CheckoutSteps current={0} />
       <h1 className="mb-6 text-2xl font-bold tracking-tight text-ink">
         Cart <span className="font-normal text-muted-foreground">({itemCount} {itemCount === 1 ? 'item' : 'items'})</span>
@@ -142,7 +142,7 @@ export default function CartPage() {
           <div className="text-xs text-muted-foreground">Subtotal</div>
           <div className="text-base font-extrabold tabular-nums text-ink">{formatNaira(subtotal)}</div>
         </div>
-        <Button asChild className="h-12 flex-1 rounded-full text-[14.5px] font-bold">
+        <Button asChild variant="cta" size="lg" className="flex-1">
           <Link href="/checkout">Checkout</Link>
         </Button>
       </div>

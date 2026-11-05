@@ -173,14 +173,14 @@ export default async function SellerDashboardPage() {
             </Link>
           </div>
           {allocations.length === 0 ? (
-            <div className="rounded-2xl border border-border bg-surface px-6 py-14 text-center shadow-[0_1px_2px_rgba(16,24,40,0.04),0_8px_24px_rgba(16,24,40,0.05)]">
+            <div className="rounded-xl border border-border bg-surface px-6 py-14 text-center shadow-[0_1px_2px_rgba(16,24,40,0.04),0_8px_24px_rgba(16,24,40,0.05)]">
               <p className="text-sm text-muted-foreground">Nothing awarded to you yet.</p>
             </div>
           ) : (
             <>
             <div className="flex flex-col gap-2 md:hidden">
               {allocations.slice(0, 6).map((a) => (
-                <div key={a.id} className="rounded-[14px] border border-border bg-surface px-3.5 py-3">
+                <div key={a.id} className="rounded-xl border border-border bg-surface px-3.5 py-3">
                   <div className="mb-1 flex items-center justify-between gap-2">
                     <span className="text-[12.5px] font-bold text-ink">#{a.id.slice(-6).toUpperCase()}</span>
                     <Badge variant="outline" className={pillClass(payoutStatusTone(a.payoutStatus))}>
@@ -196,7 +196,7 @@ export default async function SellerDashboardPage() {
                 </div>
               ))}
             </div>
-            <div className="hidden overflow-hidden rounded-2xl border border-border bg-surface shadow-[0_1px_2px_rgba(16,24,40,0.04),0_8px_24px_rgba(16,24,40,0.05)] md:block">
+            <div className="hidden overflow-hidden rounded-xl border border-border bg-surface shadow-[0_1px_2px_rgba(16,24,40,0.04),0_8px_24px_rgba(16,24,40,0.05)] md:block">
               <Table>
                 <TableHeader>
                   <TableRow>
@@ -235,7 +235,7 @@ export default async function SellerDashboardPage() {
           )}
         </div>
 
-        <div className="rounded-2xl border border-border bg-surface p-4.5 shadow-[0_1px_2px_rgba(16,24,40,0.04)]">
+        <div className="rounded-xl border border-border bg-surface p-4.5 shadow-[0_1px_2px_rgba(16,24,40,0.04)]">
           <div className="mb-3 text-xs font-bold tracking-wide text-slate uppercase">Quick actions</div>
           <div className="flex flex-col">
             {QUICK_ACTIONS.map((action, i) => (

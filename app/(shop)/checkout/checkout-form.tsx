@@ -224,7 +224,7 @@ export function CheckoutForm({
         )}
       </div>
 
-      <div className="h-fit rounded-2xl border border-border bg-surface p-6 shadow-[0_1px_2px_rgba(16,24,40,0.04),0_16px_40px_rgba(16,24,40,0.08)] lg:sticky lg:top-24">
+      <div className="h-fit rounded-xl border border-border bg-surface p-6 shadow-[0_1px_2px_rgba(16,24,40,0.04),0_16px_40px_rgba(16,24,40,0.08)] lg:sticky lg:top-24">
         <div className="mb-5 rounded-lg bg-gradient-to-br from-brand via-brand-deep to-brand-warm p-4 text-white">
           <div className="flex items-center gap-2 text-xs font-medium text-white/80">
             {fulfillmentMethod === 'DELIVERY' ? (
