@@ -43,7 +43,7 @@ export function SellerDirectoryRow({ entry }: { entry: SellerDirectoryEntry }) {
       <TableCell className="py-3 text-slate">
         {entry.location ?? (entry.regionsServed.length > 0 ? entry.regionsServed.join(', ') : '—')}
       </TableCell>
-      <TableCell className="py-3 text-right font-semibold text-ink">{formatNaira(entry.gmvMtd)}</TableCell>
+      <TableCell className="py-3 text-right font-mono font-medium tabular-nums text-ink">{formatNaira(entry.gmvMtd)}</TableCell>
       <TableCell className="py-3">
         <Badge variant="outline" className={pillClass(kycStatusTone(entry.kycStatus))}>
           {KYC_LABEL[entry.kycStatus] ?? entry.kycStatus}
@@ -61,7 +61,7 @@ export function SellerDirectoryRow({ entry }: { entry: SellerDirectoryEntry }) {
         <button
           type="button"
           onClick={() => setExpanded((v) => !v)}
-          className="h-7 rounded-full border border-border-strong bg-surface px-3 text-xs font-bold text-ink hover:bg-well"
+          className="h-7 rounded-md border border-border-strong bg-surface px-3 text-xs font-bold text-ink hover:bg-well"
         >
           {expanded ? 'Hide' : 'View'}
         </button>

@@ -160,7 +160,7 @@ export default async function AdminUsersPage({
                       variant="outline"
                       className={
                         ROLE_TONE[u.role] === 'info'
-                          ? 'bg-info-soft text-info border-transparent'
+                          ? 'bg-pale-blue text-cyan-text border-cyan/30'
                           : ROLE_TONE[u.role] === 'success'
                             ? 'bg-success-soft text-success border-transparent'
                             : 'border-border text-slate'

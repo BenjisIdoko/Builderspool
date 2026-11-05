@@ -68,7 +68,7 @@ export function PayoutTable({ payouts }: { payouts: PayoutRow[] }) {
               </div>
               <div className="flex items-center justify-between gap-3 text-[12.5px] text-slate">
                 <span className="min-w-0 truncate">{p.materialName}</span>
-                <span className="font-extrabold tabular-nums text-ink">{formatNaira(p.amount)}</span>
+                <span className="font-mono font-medium tabular-nums text-ink">{formatNaira(p.amount)}</span>
               </div>
               {p.reference && <div className="mt-1 truncate text-[11px] text-muted-foreground">Ref {p.reference}</div>}
             </div>

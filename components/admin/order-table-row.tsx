@@ -82,7 +82,7 @@ export function OrderTableRow({
         <button
           type="button"
           onClick={() => setExpanded((v) => !v)}
-          className="h-7 rounded-full border border-border-strong bg-surface px-3 text-xs font-bold text-ink hover:bg-well"
+          className="h-7 rounded-md border border-border-strong bg-surface px-3 text-xs font-bold text-ink hover:bg-well"
         >
           {expanded ? 'Hide' : 'View'}
         </button>

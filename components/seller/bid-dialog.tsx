@@ -35,7 +35,7 @@ export function BidDialog({
       </DialogTrigger>
       <DialogContent className="max-h-[90vh] overflow-y-auto sm:max-w-md">
         <DialogHeader>
-          <Badge variant="outline" className="w-fit bg-info-soft text-info border-transparent">
+          <Badge variant="outline" className="w-fit bg-pale-blue text-cyan-text border-cyan/30">
             Blind auction submission
           </Badge>
           <DialogTitle className="text-lg">{cycle.material.name}</DialogTitle>

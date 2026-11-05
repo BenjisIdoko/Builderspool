@@ -9,10 +9,10 @@ import type { EscrowStatus } from './queries/escrow';
 export type PillTone = 'success' | 'warning' | 'info' | 'danger' | 'neutral';
 
 const TONE_CLASS: Record<PillTone, string> = {
-  success: 'bg-success-soft text-success border-transparent',
-  warning: 'bg-warning-soft text-warning border-transparent',
-  info: 'bg-info-soft text-info border-transparent',
-  danger: 'bg-danger-soft text-danger border-transparent',
+  success: 'bg-success-soft text-success border-success/25',
+  warning: 'bg-warning-soft text-warning border-warning/25',
+  info: 'bg-pale-blue text-cyan-text border-cyan/30',
+  danger: 'bg-danger-soft text-danger border-danger/25',
   neutral: 'bg-transparent text-slate border-border',
 };
 

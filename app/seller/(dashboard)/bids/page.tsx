@@ -60,7 +60,7 @@ export default async function SellerBidsPage() {
                   </div>
                 </div>
 
-                <div className="font-bold tabular-nums text-ink">{formatNaira(bid.unitPrice)}</div>
+                <div className="font-mono font-medium tabular-nums text-ink">{formatNaira(bid.unitPrice)}</div>
 
                 {bid.status === 'SUBMITTED' && (
                   <form action={withdrawBid}>

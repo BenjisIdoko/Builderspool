@@ -34,7 +34,7 @@ export function KpiCard({
 
   if (compact) {
     return (
-      <div className="overflow-hidden rounded-xl border border-border bg-surface p-4 shadow-[0_1px_2px_rgba(16,24,40,0.04),0_8px_20px_rgba(16,24,40,0.05)]">
+      <div className="overflow-hidden rounded-xl border border-border bg-surface p-4 shadow-[0_1px_2px_rgba(11,31,58,0.06)]">
         <div className="mb-2 text-[11.5px] font-bold tracking-[0.04em] text-muted-foreground uppercase">{label}</div>
         <div className={`truncate text-xl font-extrabold ${TONE_TEXT_CLASS[tone]}`}>{value}</div>
       </div>
@@ -42,7 +42,7 @@ export function KpiCard({
   }
 
   return (
-    <div className="overflow-hidden rounded-xl border border-border bg-surface p-[18px] shadow-[0_1px_2px_rgba(16,24,40,0.04),0_8px_24px_rgba(16,24,40,0.05)]">
+    <div className="overflow-hidden rounded-xl border border-border bg-surface p-[18px] shadow-[0_1px_2px_rgba(11,31,58,0.06)]">
       <div className="mb-3 flex items-start justify-between gap-2">
         <div className="line-clamp-2 text-xs font-bold tracking-[0.04em] text-muted-foreground uppercase">{label}</div>
         <span className={`flex size-7 shrink-0 items-center justify-center rounded-lg ${pillClass(tone)}`}>

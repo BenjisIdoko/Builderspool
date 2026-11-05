@@ -111,7 +111,7 @@ export default async function AdminCycleDetailPage({ params }: { params: Promise
                 <TableRow key={bid.id}>
                   <TableCell className="text-ink">{bid.rank ?? '—'}</TableCell>
                   <TableCell className="text-ink">{bid.sellerName}</TableCell>
-                  <TableCell className="font-bold text-ink">{formatNaira(bid.unitPrice)}</TableCell>
+                  <TableCell className="font-mono font-medium tabular-nums text-ink">{formatNaira(bid.unitPrice)}</TableCell>
                   <TableCell className="text-ink">
                     {bid.quantityOffered} {cycle.material.unit}
                   </TableCell>

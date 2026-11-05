@@ -27,7 +27,7 @@ const TYPE_ICON: Record<NotificationType, React.ComponentType<{ className?: stri
 };
 
 const TYPE_TONE: Record<NotificationType, string> = {
-  CYCLE_OPENED: 'bg-info-soft text-info',
+  CYCLE_OPENED: 'bg-pale-blue text-cyan-text',
   CYCLE_CLOSING_SOON: 'bg-warning-soft text-warning',
   BID_WON: 'bg-success-soft text-success',
   BID_LOST: 'bg-danger-soft text-danger',
