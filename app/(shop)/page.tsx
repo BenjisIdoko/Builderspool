@@ -6,13 +6,13 @@ import {
   KeyIcon,
   LockKeyIcon,
   ScalesIcon,
-  StorefrontIcon,
-  TagIcon,
+    TagIcon,
   TruckIcon,
-  UsersThreeIcon,
 } from '@phosphor-icons/react/ssr';
 import { getMaterials, getCategories } from '@/lib/queries/materials';
+import { PoolModule } from '@/components/pool-module';
 import { PoolSaveSteps } from '@/components/pool-save-steps';
+import { Button } from '@/components/ui/button';
 import { ProductRail } from '@/components/product-rail';
 import { getCategoryIcon } from '@/lib/categoryIcons';
 
@@ -26,11 +26,9 @@ const DELIVERY_ZONES = [
 ];
 
 const HERO_TILES = [
-  { href: '#how', icon: UsersThreeIcon, title: 'Pool & Save', sub: 'Join before 12:00', tone: 'bg-pale-blue', iconTone: 'text-cyan-text' },
   { href: '/catalog', icon: TagIcon, title: 'Buy Direct', sub: 'Compare sellers, buy now', tone: 'bg-surface', iconTone: 'text-orange-text' },
   { href: '#delivery', icon: TruckIcon, title: 'Free collection', sub: 'At Ushafa, ₦0 delivery', tone: 'bg-surface', iconTone: 'text-cyan-strong' },
   { href: '#safe', icon: CertificateIcon, title: 'Verified suppliers', sub: 'Paid only after delivery', tone: 'bg-surface', iconTone: 'text-cyan-strong' },
-  { href: '/seller/signup', icon: StorefrontIcon, title: 'Sell on BuildersPool', sub: 'Reach Abuja’s builders', tone: 'bg-surface', iconTone: 'text-orange-text' },
 ];
 
 const TRUST = [
@@ -42,8 +40,14 @@ const TRUST = [
 
 export default async function Home() {
   const [{ materials }, categories] = await Promise.all([getMaterials(), getCategories()]);
-  const poolPicks = materials.slice(0, 12);
-  const bestDirect = [...materials].sort((a, b) => a.catalogPrice - b.catalogPrice).slice(0, 12);
+  // Home-page rails only feature products that have a real photo.
+  const withPhoto = materials.filter((m) => m.imageUrl);
+  const poolPicks = withPhoto.slice(0, 12);
+  const pickedIds = new Set(poolPicks.map((m) => m.id));
+  const lowestPrices = withPhoto
+    .filter((m) => !pickedIds.has(m.id))
+    .sort((a, b) => a.catalogPrice - b.catalogPrice)
+    .slice(0, 12);
 
   return (
     <div className="flex flex-1 flex-col">
@@ -66,37 +70,47 @@ export default async function Home() {
                 <h1 className="text-[clamp(30px,5vw,52px)] leading-[1.1] font-extrabold tracking-[-0.02em] text-white">
                   Build Smarter.
                   <br />
-                  <span className="text-orange">Save More.</span>
+                  <span className="text-cyan">Save More.</span>
                 </h1>
                 <p className="mt-4 max-w-md text-sm leading-[1.55] text-white/85 min-[760px]:text-[16.5px] min-[760px]:leading-relaxed">
                   Join today’s pool with other builders. Verified suppliers compete for the combined order.
                 </p>
-                <div className="mt-5 inline-flex items-center gap-3 rounded-md bg-white/12 px-4 py-3 backdrop-blur-sm">
-                  <span className="font-mono text-4xl leading-none font-medium text-white">50%</span>
-                  <span className="text-[11.5px] leading-tight font-bold tracking-[0.06em] text-white/85 uppercase">
+                <div className="mt-5 inline-flex items-center gap-3 rounded-md bg-pale-blue px-4 py-3">
+                  <span className="font-mono text-4xl leading-none font-medium text-cyan-text">50%</span>
+                  <span className="text-[11.5px] leading-tight font-bold tracking-[0.06em] text-ink uppercase">
                     Of verified
                     <br />
                     savings back to you
                   </span>
                 </div>
-                <p className="mt-4 text-[13px] text-white/80">
-                  Pool closes 12:00 daily ·{' '}
-                  <Link href="#how" className="font-bold text-white underline underline-offset-2">
-                    How it works
+                <p className="mt-2 text-[13px] text-white/80">
+                  <Link href="#how" className="underline underline-offset-2 hover:text-white">
+                    How the saving is calculated
                   </Link>
                 </p>
+                <div className="mt-5 flex flex-wrap gap-3">
+                  <Button asChild variant="cta" size="lg" className="px-6">
+                    <Link href="#pool">Join today’s pool</Link>
+                  </Button>
+                  <Button
+                    asChild
+                    variant="outline"
+                    size="lg"
+                    className="border-white/40 bg-transparent px-6 text-white hover:bg-white/10 hover:text-white"
+                  >
+                    <Link href="#how">How it works</Link>
+                  </Button>
+                </div>
               </div>
             </div>
           </div>
 
-          <div className="grid grid-cols-2 gap-2 lg:grid-cols-1 lg:grid-rows-5">
-            {HERO_TILES.map(({ href, icon: Icon, title, sub, tone, iconTone }, i) => (
+          <div className="grid grid-cols-1 gap-2 sm:grid-cols-3 lg:grid-rows-3 lg:grid-cols-1">
+            {HERO_TILES.map(({ href, icon: Icon, title, sub, tone, iconTone }) => (
               <Link
                 key={title}
                 href={href}
-                className={`flex items-center gap-3 rounded-md ${tone} px-4 py-3 transition-shadow hover:shadow-card-hover ${
-                  i === HERO_TILES.length - 1 ? 'col-span-2 lg:col-span-1' : ''
-                }`}
+                className={`flex items-center gap-3 rounded-md ${tone} px-4 py-3 transition-shadow hover:shadow-card-hover`}
               >
                 <Icon className={`size-7 shrink-0 ${iconTone}`} />
                 <span className="min-w-0">
@@ -109,19 +123,27 @@ export default async function Home() {
         </div>
       </section>
 
+      <PoolModule />
+
+      <Reveal>
+        <section id="how" className="mx-auto w-full max-w-section scroll-mt-40 px-3 pt-3 sm:px-0">
+          <PoolSaveSteps />
+        </section>
+      </Reveal>
+
       <div className="mx-auto flex w-full max-w-section flex-col gap-3 px-3 pt-3 sm:px-0">
         <ProductRail
-          title="Today’s Pool & Save"
-          subtitle="Pool closes 12:00 · Bids close 16:00 · Winners 17:00"
+          title="Join today’s pool"
+          subtitle="Pick a product, quantity and site. Change or withdraw until 12:00."
           href="/catalog"
           materials={poolPicks}
         />
 
         <ProductRail
-          title="Best Buy Direct prices in AMAC – Lugbe / Airport Road corridor"
-          subtitle="Deliver to AMAC – Lugbe / Airport Road corridor"
+          title="Lowest prices"
+          subtitle="Lowest catalogue prices first"
           href="/catalog"
-          materials={bestDirect}
+          materials={lowestPrices}
         />
 
         <div className="grid gap-3 sm:grid-cols-2">
@@ -179,12 +201,6 @@ export default async function Home() {
           </ul>
         </section>
       </div>
-
-      <Reveal>
-        <section id="how" className="mx-auto w-full max-w-section scroll-mt-40 px-3 pt-3 sm:px-0">
-          <PoolSaveSteps />
-        </section>
-      </Reveal>
 
       <Reveal>
         <section id="safe" className="mx-auto w-full max-w-section scroll-mt-40 px-3 pt-3 sm:px-0">

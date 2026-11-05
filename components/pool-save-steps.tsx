@@ -25,7 +25,7 @@ export function PoolSaveSteps() {
       <ol className="grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
         {STEPS.map((step, i) => (
           <li key={step.title} className="flex flex-col gap-2 rounded-md bg-surface p-4">
-            <span className="flex size-8 items-center justify-center rounded-full bg-cyan font-mono text-sm font-medium text-white">
+            <span className="flex size-8 items-center justify-center rounded-full bg-cyan-text font-mono text-sm font-medium text-white">
               {i + 1}
             </span>
             <span className="text-[15px] font-bold text-ink">{step.title}</span>
