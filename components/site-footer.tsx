@@ -7,8 +7,7 @@ import { LogoMark } from './logo';
 // reference's fictional Ikeja/Idu/Port Harcourt. The reference's
 // "Assurance" column ("Buyer protection", "Quality testing") is dropped —
 // no such formal programs exist — replaced with real account navigation.
-// "Procurement desk" uses the same real, user-confirmed phone number the
-// page's own "Get in touch" section already shows.
+// "Procurement desk" uses the contact details from DESIGN.md (section 6).
 export async function SiteFooter() {
   const centers = await getFulfillmentCenters();
 
@@ -56,13 +55,20 @@ export async function SiteFooter() {
           <div className="mb-2.5 text-[11.5px] font-bold tracking-[0.04em] text-white/60 uppercase">
             Procurement desk
           </div>
-          <a href="tel:+2348133941775" className="text-[13px] text-white/85 hover:text-white">
-            +234 813 394 1775
-          </a>
+          <div className="flex flex-col gap-1.5 text-[13px]">
+            <a href="tel:+2348054207559" className="text-white/85 hover:text-white">
+              +234 805 420 7559
+            </a>
+            <a href="mailto:info@builderspool.net" className="text-white/85 hover:text-white">
+              info@builderspool.net
+            </a>
+            <span className="text-white/85">Ushafa Fulfilment Centre</span>
+            <span className="text-white/60">Mon–Sat, 8am–6pm</span>
+          </div>
         </div>
       </div>
       <div className="border-t border-white/15 px-6 py-5 text-center text-xs text-white/60">
-        © {new Date().getFullYear()} Builders Pool. Construction materials, sourced and delivered.
+        © {new Date().getFullYear()} Builders&apos; Pool Technologies Ltd (CAC RC 9317391). Construction materials, sourced and delivered.
       </div>
     </footer>
   );
