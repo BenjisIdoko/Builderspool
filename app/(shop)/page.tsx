@@ -3,150 +3,158 @@ import Image from 'next/image';
 import Link from 'next/link';
 import {
   CertificateIcon,
+  KeyIcon,
   LockKeyIcon,
-  ArrowUpRightIcon,
-  PhoneIcon,
-  MapPinIcon,
-  EnvelopeSimpleIcon,
+  ScalesIcon,
   StorefrontIcon,
   TagIcon,
   TruckIcon,
   UsersThreeIcon,
 } from '@phosphor-icons/react/ssr';
-import { getMaterials, getCategories, getFulfillmentCenters } from '@/lib/queries/materials';
-import { getCurrentBuyer } from '@/lib/buyer/auth';
-import { HeroLiveCard } from '@/components/hero-live-card';
-import { PhilosophySteps } from '@/components/philosophy-steps';
-import { FaqAccordion } from '@/components/faq-accordion';
-import { Button } from '@/components/ui/button';
+import { getMaterials, getCategories } from '@/lib/queries/materials';
+import { PoolSaveSteps } from '@/components/pool-save-steps';
 import { ProductRail } from '@/components/product-rail';
 import { getCategoryIcon } from '@/lib/categoryIcons';
 
-// Real, existing Nigerian building-material manufacturers — the Fable
-// reference's own list, kept verbatim per explicit direction to adopt the
-// handoff exactly. Only Dangote and BUA currently have real products in
-// this app's seeded catalog; the rest are named here as real companies
-// buyers recognize, same as any "materials you can find here" marketing
-// strip, not as a claim of an exclusive partnership or verified account.
-const PARTNER_LOGOS = [
-  'Dangote Cement',
-  'BUA Cement',
-  'Nigerite',
-  'Unicem',
-  'First Aluminium',
-  'Meyer',
-  'Dulux',
-  'Whitchtech',
-  'Louis Valentino',
+// Home page copy is taken from the Floot site (builderspool.floot.app).
+const DELIVERY_ZONES = [
+  'AMAC – Lugbe / Airport Road corridor',
+  'AMAC – Nyanya / Karu / Jikwoyi corridor',
+  'AMAC – Lokogoma / Wumba / Kabusa corridor',
+  'Bwari Area Council',
+  'Gwagwalada Area Council',
+];
+
+const HERO_TILES = [
+  { href: '#how', icon: UsersThreeIcon, title: 'Pool & Save', sub: 'Join before 12:00', tone: 'bg-pale-blue', iconTone: 'text-cyan-text' },
+  { href: '/catalog', icon: TagIcon, title: 'Buy Direct', sub: 'Compare sellers, buy now', tone: 'bg-surface', iconTone: 'text-orange-text' },
+  { href: '#delivery', icon: TruckIcon, title: 'Free collection', sub: 'At Ushafa, ₦0 delivery', tone: 'bg-surface', iconTone: 'text-cyan-strong' },
+  { href: '#safe', icon: CertificateIcon, title: 'Verified suppliers', sub: 'Paid only after delivery', tone: 'bg-surface', iconTone: 'text-cyan-strong' },
+  { href: '/seller/signup', icon: StorefrontIcon, title: 'Sell on BuildersPool', sub: 'Reach Abuja’s builders', tone: 'bg-surface', iconTone: 'text-orange-text' },
+];
+
+const TRUST = [
+  { icon: CertificateIcon, title: 'Verified suppliers', sub: 'CAC, ID and address checked' },
+  { icon: LockKeyIcon, title: 'Secure payment', sub: 'Sellers paid after delivery' },
+  { icon: KeyIcon, title: 'Delivery code', sub: 'Share it only when goods arrive' },
+  { icon: ScalesIcon, title: 'Fair disputes', sub: 'Report within 3 days' },
 ];
 
 export default async function Home() {
-  const [{ materials }, categories, buyer, centers] = await Promise.all([
-    getMaterials(),
-    getCategories(),
-    getCurrentBuyer(),
-    getFulfillmentCenters(),
-  ]);
-  const featured = materials.slice(0, 10);
-  // The three biggest categories each get their own rail.
-  const railCategories = [...categories].sort((a, b) => b.count - a.count).slice(0, 3);
+  const [{ materials }, categories] = await Promise.all([getMaterials(), getCategories()]);
+  const poolPicks = materials.slice(0, 12);
+  const bestDirect = [...materials].sort((a, b) => a.catalogPrice - b.catalogPrice).slice(0, 12);
 
   return (
     <div className="flex flex-1 flex-col">
       <section className="mx-auto w-full max-w-section px-3 pt-3 sm:px-0 sm:pt-4">
         <div className="grid gap-3 lg:grid-cols-[1fr_280px]">
-        <div className="relative min-h-[340px] overflow-hidden rounded-md bg-ink lg:min-h-[400px]">
-          <Image
-            src="/hero.png"
-            alt=""
-            fill
-            sizes="100vw"
-            className="object-cover"
-            style={{ objectPosition: 'center 25%' }}
-            priority
-          />
-          <div className="absolute inset-0 bg-[linear-gradient(100deg,rgba(21,24,28,0.92)_0%,rgba(21,24,28,0.68)_35%,rgba(21,24,28,0.3)_58%,rgba(21,24,28,0.05)_78%,rgba(21,24,28,0)_100%)] max-[759px]:bg-[linear-gradient(180deg,rgba(21,24,28,0.75)_0%,rgba(21,24,28,0.6)_45%,rgba(21,24,28,0.35)_100%)]" />
-          <div className="absolute inset-0 bg-[linear-gradient(180deg,rgba(21,24,28,0)_50%,rgba(21,24,28,0.4)_100%)] max-[759px]:bg-[linear-gradient(180deg,rgba(21,24,28,0.15)_0%,rgba(21,24,28,0.65)_65%,rgba(21,24,28,0.85)_100%)]" />
+          <div className="relative min-h-[340px] overflow-hidden rounded-md bg-ink lg:min-h-[400px]">
+            <Image
+              src="/hero.png"
+              alt=""
+              fill
+              sizes="100vw"
+              className="object-cover"
+              style={{ objectPosition: 'center 25%' }}
+              priority
+            />
+            <div className="absolute inset-0 bg-[linear-gradient(100deg,rgba(21,24,28,0.92)_0%,rgba(21,24,28,0.68)_35%,rgba(21,24,28,0.3)_58%,rgba(21,24,28,0.05)_78%,rgba(21,24,28,0)_100%)] max-[759px]:bg-[linear-gradient(180deg,rgba(21,24,28,0.75)_0%,rgba(21,24,28,0.6)_45%,rgba(21,24,28,0.35)_100%)]" />
 
-          <div className="relative z-[2] flex min-h-[340px] flex-col justify-center px-5 py-8 min-[760px]:px-8 lg:min-h-[400px]">
-            <div className="max-w-2xl">
-              <div className="mb-5 flex flex-wrap items-center gap-2.5 text-[13px] text-white/85">
-                <span className="flex items-center gap-1.5 font-semibold">
-                  <CertificateIcon weight="fill" className="size-4" />
-                  SON &amp; NIS certified
-                </span>
-                <span className="h-3.5 w-px bg-white/30" />
-                <span className="flex items-center gap-1.5 font-semibold">
-                  <LockKeyIcon weight="fill" className="size-4" />
-                  Secure payments
-                </span>
-              </div>
-              <h1 className="text-[clamp(26px,4.5vw,44px)] leading-[1.15] font-bold tracking-[-0.02em] text-white">
-                Construction materials,
-                <br />
-                <span className="text-orange">delivered at a fair price.</span>
-              </h1>
-              <p className="mt-4.5 max-w-md text-sm leading-[1.55] text-white/82 min-[760px]:text-[16.5px] min-[760px]:leading-relaxed">
-                Cement, blocks, rebar, roofing and fittings — one fixed price, no back-and-forth. Pick up
-                at a fulfillment center or get it delivered to site.
-              </p>
-              <div className="mt-[22px] flex flex-wrap gap-3 min-[760px]:mt-7">
-                <Button asChild variant="cta" size="lg" className="px-6">
-                  <Link href="/catalog">Start Procuring</Link>
-                </Button>
-                <Button
-                  asChild
-                  variant="outline"
-                  size="lg"
-                  className="border-white/40 bg-transparent px-6 text-white hover:bg-white/10 hover:text-white"
-                >
-                  <Link href="#how-it-works">See How It Works</Link>
-                </Button>
+            <div className="relative z-[2] flex min-h-[340px] flex-col justify-center px-5 py-8 min-[760px]:px-8 lg:min-h-[400px]">
+              <div className="max-w-2xl">
+                <h1 className="text-[clamp(30px,5vw,52px)] leading-[1.1] font-extrabold tracking-[-0.02em] text-white">
+                  Build Smarter.
+                  <br />
+                  <span className="text-orange">Save More.</span>
+                </h1>
+                <p className="mt-4 max-w-md text-sm leading-[1.55] text-white/85 min-[760px]:text-[16.5px] min-[760px]:leading-relaxed">
+                  Join today’s pool with other builders. Verified suppliers compete for the combined order.
+                </p>
+                <div className="mt-5 inline-flex items-center gap-3 rounded-md bg-white/12 px-4 py-3 backdrop-blur-sm">
+                  <span className="font-mono text-4xl leading-none font-medium text-white">50%</span>
+                  <span className="text-[11.5px] leading-tight font-bold tracking-[0.06em] text-white/85 uppercase">
+                    Of verified
+                    <br />
+                    savings back to you
+                  </span>
+                </div>
+                <p className="mt-4 text-[13px] text-white/80">
+                  Pool closes 12:00 daily ·{' '}
+                  <Link href="#how" className="font-bold text-white underline underline-offset-2">
+                    How it works
+                  </Link>
+                </p>
               </div>
             </div>
           </div>
 
-          <HeroLiveCard />
-        </div>
-
-          <div className="grid grid-cols-2 gap-3 lg:grid-cols-1">
-            <a
-              href="#how-it-works"
-              className="flex flex-col justify-center gap-1.5 rounded-md bg-pale-blue p-4 transition-shadow hover:shadow-card-hover"
-            >
-              <UsersThreeIcon className="size-7 text-cyan-text" />
-              <div className="text-sm font-bold text-ink">How Pool &amp; Save works</div>
-              <div className="text-[13px] text-slate">Orders are pooled daily and sellers compete to supply them.</div>
-            </a>
-            <Link
-              href="/seller/signup"
-              className="flex flex-col justify-center gap-1.5 rounded-md bg-surface p-4 transition-shadow hover:shadow-card-hover"
-            >
-              <StorefrontIcon className="size-7 text-orange-text" />
-              <div className="text-sm font-bold text-ink">Sell on BuildersPool</div>
-              <div className="text-[13px] text-slate">Register your business and supply the daily pool.</div>
-            </Link>
+          <div className="grid grid-cols-2 gap-2 lg:grid-cols-1 lg:grid-rows-5">
+            {HERO_TILES.map(({ href, icon: Icon, title, sub, tone, iconTone }, i) => (
+              <Link
+                key={title}
+                href={href}
+                className={`flex items-center gap-3 rounded-md ${tone} px-4 py-3 transition-shadow hover:shadow-card-hover ${
+                  i === HERO_TILES.length - 1 ? 'col-span-2 lg:col-span-1' : ''
+                }`}
+              >
+                <Icon className={`size-7 shrink-0 ${iconTone}`} />
+                <span className="min-w-0">
+                  <span className="block text-sm font-bold text-ink">{title}</span>
+                  <span className="block text-[13px] text-slate">{sub}</span>
+                </span>
+              </Link>
+            ))}
           </div>
         </div>
       </section>
 
-      <section aria-label="Why buy here" className="mx-auto w-full max-w-section px-3 pt-3 sm:px-0">
-        <ul className="grid grid-cols-2 gap-x-3 gap-y-1 rounded-md bg-surface px-4 py-2 lg:grid-cols-4">
-          {[
-            { icon: TagIcon, label: 'Fixed catalogue price' },
-            { icon: LockKeyIcon, label: 'Secure payments' },
-            { icon: TruckIcon, label: 'Delivery or depot pickup' },
-            { icon: CertificateIcon, label: 'SON & NIS certified' },
-          ].map(({ icon: Icon, label }) => (
-            <li key={label} className="flex min-h-11 items-center gap-2.5 text-sm font-medium text-text-storefront">
-              <Icon weight="fill" className="size-5 shrink-0 text-cyan-strong" />
-              {label}
-            </li>
-          ))}
-        </ul>
-      </section>
-
       <div className="mx-auto flex w-full max-w-section flex-col gap-3 px-3 pt-3 sm:px-0">
+        <ProductRail
+          title="Today’s Pool & Save"
+          subtitle="Pool closes 12:00 · Bids close 16:00 · Winners 17:00"
+          href="/catalog"
+          materials={poolPicks}
+        />
+
+        <ProductRail
+          title="Best Buy Direct prices in AMAC – Lugbe / Airport Road corridor"
+          subtitle="Deliver to AMAC – Lugbe / Airport Road corridor"
+          href="/catalog"
+          materials={bestDirect}
+        />
+
+        <div className="grid gap-3 sm:grid-cols-2">
+          <Link
+            href="#delivery"
+            className="flex flex-col justify-center gap-1 rounded-md bg-ink p-6 text-white transition-shadow hover:shadow-card-hover"
+          >
+            <span className="text-[11.5px] font-bold tracking-[0.06em] text-white/60 uppercase">
+              Ushafa Fulfilment Centre
+            </span>
+            <span className="font-display text-2xl leading-tight font-extrabold">
+              Collect free.
+              <br />
+              ₦0 delivery.
+            </span>
+            <span className="mt-1 text-[13px] text-white/75">Mon–Sat, 8am–6pm · Bwari Area Council</span>
+          </Link>
+          <Link
+            href="/seller/signup"
+            className="flex flex-col justify-center gap-1 rounded-md bg-pale-blue p-6 text-ink transition-shadow hover:shadow-card-hover"
+          >
+            <span className="text-[11.5px] font-bold tracking-[0.06em] text-cyan-text uppercase">For suppliers</span>
+            <span className="font-display text-2xl leading-tight font-extrabold">
+              Sell to Abuja’s
+              <br />
+              builders.
+            </span>
+            <span className="mt-2 inline-flex min-h-11 w-fit items-center rounded-md bg-cta px-5 text-sm font-medium text-white">
+              Become a supplier
+            </span>
+          </Link>
+        </div>
+
         <section className="rounded-md bg-surface">
           <div className="border-b border-hairline px-4 py-3">
             <h2 className="text-lg text-text-storefront">Shop by category</h2>
@@ -164,141 +172,43 @@ export default async function Home() {
                       <Icon className="size-7" strokeWidth={1.5} />
                     </span>
                     <span className="text-sm leading-snug font-medium text-text-storefront">{cat.name}</span>
-                    <span className="text-xs text-muted-foreground">
-                      {cat.count} {cat.count === 1 ? 'product' : 'products'}
-                    </span>
                   </Link>
                 </li>
               );
             })}
           </ul>
         </section>
-
-        <ProductRail title="Top picks" href="/catalog" materials={featured} />
-
-        {railCategories.map((cat) => (
-          <ProductRail
-            key={cat.name}
-            title={cat.name}
-            href={`/catalog?category=${encodeURIComponent(cat.name)}`}
-            materials={materials.filter((m) => m.category === cat.name).slice(0, 10)}
-          />
-        ))}
-
-        <section className="rounded-md bg-surface px-4 pt-5 pb-6">
-          <div className="mb-4 text-center text-[11.5px] font-bold tracking-[0.06em] text-muted-foreground uppercase">
-            Trusted by suppliers and contractors nationwide
-          </div>
-          <div className="flex flex-wrap items-center justify-center gap-x-6 gap-y-3">
-            {PARTNER_LOGOS.map((label) => (
-              <div key={label} className="text-[12.5px] font-bold text-muted-foreground uppercase min-[760px]:text-sm">
-                {label}
-              </div>
-            ))}
-          </div>
-        </section>
       </div>
 
       <Reveal>
-      <section id="how-it-works" className="px-3 pt-3 sm:px-0">
-        <div className="mx-auto max-w-section">
-          <PhilosophySteps />
-        </div>
-      </section>
+        <section id="how" className="mx-auto w-full max-w-section scroll-mt-40 px-3 pt-3 sm:px-0">
+          <PoolSaveSteps />
+        </section>
       </Reveal>
 
       <Reveal>
-      <section className="mx-auto w-full max-w-section px-6 pt-16">
-        <h2 className="mb-5 text-[22px] font-bold tracking-[-0.025em] text-ink">Frequently asked questions</h2>
-        <FaqAccordion />
-      </section>
+        <section id="safe" className="mx-auto w-full max-w-section scroll-mt-40 px-3 pt-3 sm:px-0">
+          <ul className="grid grid-cols-1 gap-x-3 gap-y-1 rounded-md bg-surface px-4 py-3 sm:grid-cols-2 lg:grid-cols-4">
+            {TRUST.map(({ icon: Icon, title, sub }) => (
+              <li key={title} className="flex min-h-11 items-start gap-2.5 py-1.5">
+                <Icon weight="fill" className="mt-0.5 size-5 shrink-0 text-cyan-strong" />
+                <span>
+                  <span className="block text-sm font-bold text-text-storefront">{title}</span>
+                  <span className="block text-[13px] text-slate">{sub}</span>
+                </span>
+              </li>
+            ))}
+          </ul>
+        </section>
       </Reveal>
 
-      {/* CTA banner — visual treatment (dark photo card, fading to solid
-          ink) adopted from the reference; copy reuses this app's existing
-          honest account-creation pitch instead of the reference's
-          "guaranteed volume-discounted haulage, dedicated site marshal,
-          deferred invoice terms with a verified contractor account" —
-          none of that exists here. Always shown, matching the reference
-          (not gated on login state — buyer is still used for the header's
-          own account/avatar treatment). */}
       <Reveal>
-      <section className="mx-auto w-full max-w-section px-6 pt-16">
-        <div className="relative min-h-[280px] overflow-hidden rounded-xl bg-ink">
-          <Image
-            src="/materials/rebar.jpg"
-            alt=""
-            fill
-            sizes="(max-width: 1024px) 100vw, 1152px"
-            className="object-cover"
-          />
-          <div className="absolute inset-0 bg-[linear-gradient(90deg,#15181c_0%,#15181c_30%,rgba(21,24,28,0.8)_45%,rgba(21,24,28,0.2)_62%,rgba(21,24,28,0)_76%)]" />
-          <div className="relative z-[2] flex min-h-[280px] max-w-md flex-col justify-center gap-3.5 p-9 sm:p-11">
-            <div className="text-xs font-bold tracking-[0.04em] text-white/50 uppercase">Get started</div>
-            <h2 className="text-[26px] leading-[1.15] font-extrabold tracking-[-0.02em] text-white sm:text-[32px]">
-              Ready to order at a fixed price?
-            </h2>
-            <p className="text-[14.5px] leading-relaxed text-white/75">
-              {buyer
-                ? 'Browse the catalog and check out at a fixed price, every time.'
-                : 'Create a free account to check out, track orders, and set price alerts.'}
-            </p>
-            <div className="mt-1 flex flex-wrap gap-3">
-              <Button asChild variant="cta" size="lg" className="px-6">
-                <Link href={buyer ? '/catalog' : '/signup'}>{buyer ? 'Browse the catalog' : 'Join Builders Pool'}</Link>
-              </Button>
-              {!buyer && (
-                <Button
-                  asChild
-                  variant="outline"
-                  size="lg"
-                  className="gap-2 border-white/40 bg-transparent px-6 text-white hover:bg-white/10 hover:text-white"
-                >
-                  <Link href="/catalog">
-                    Browse the catalog
-                    <ArrowUpRightIcon className="size-4" />
-                  </Link>
-                </Button>
-              )}
-            </div>
-          </div>
-        </div>
-      </section>
-      </Reveal>
-
-      {/* Get in touch — contact details from DESIGN.md (section 6), same as
-          the footer. Depot
-          addresses use real fulfillment center data instead of the
-          reference's fictional cities. */}
-      <Reveal>
-      <section className="mx-auto w-full max-w-section px-6 pt-16 pb-16">
-        <h2 className="mb-5 text-[22px] font-bold tracking-[-0.025em] text-ink">Get in touch</h2>
-        <div className="grid grid-cols-1 gap-4 sm:grid-cols-3">
-          <a
-            href="tel:+2348054207559"
-            className="flex flex-col gap-2.5 rounded-lg bg-surface p-5.5 text-ink no-underline transition-shadow hover:shadow-card-hover"
-          >
-            <PhoneIcon className="size-5.5 text-cyan-strong" />
-            <div className="text-sm font-bold">Procurement desk</div>
-            <div className="text-[13px] text-slate">+234 805 420 7559</div>
-          </a>
-          <a
-            href="mailto:info@builderspool.net"
-            className="flex flex-col gap-2.5 rounded-lg bg-surface p-5.5 text-ink no-underline transition-shadow hover:shadow-card-hover"
-          >
-            <EnvelopeSimpleIcon className="size-5.5 text-cyan-strong" />
-            <div className="text-sm font-bold">Email us</div>
-            <div className="text-[13px] text-slate">info@builderspool.net</div>
-          </a>
-          <div className="flex flex-col gap-2.5 rounded-lg bg-surface p-5.5">
-            <MapPinIcon className="size-5.5 text-cyan-strong" />
-            <div className="text-sm font-bold text-ink">Visit a depot</div>
-            <div className="text-[13px] text-slate">
-              {centers.map((c) => c.region).join(' · ')}
-            </div>
-          </div>
-        </div>
-      </section>
+        <section id="delivery" className="mx-auto w-full max-w-section scroll-mt-40 px-3 pt-3 pb-4 sm:px-0">
+          <p className="rounded-md bg-surface px-4 py-3 text-[13.5px] leading-relaxed text-slate">
+            Delivery: one flat fee per seller, shown before you pay, across {DELIVERY_ZONES.join(', ')}. Or collect free
+            at the Ushafa Fulfilment Centre, Monday to Saturday, 8am – 6pm.
+          </p>
+        </section>
       </Reveal>
     </div>
   );

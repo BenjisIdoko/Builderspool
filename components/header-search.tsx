@@ -102,7 +102,7 @@ export function HeaderSearch() {
             setDismissed(false);
           }}
           onKeyDown={handleKeyDown}
-          placeholder="Search cement, rebar, blocks…"
+          placeholder="Search cement, rebar, blocks, roofing…"
           aria-label="Search materials"
           role="combobox"
           aria-expanded={showDropdown}

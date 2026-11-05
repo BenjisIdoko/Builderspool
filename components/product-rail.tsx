@@ -6,10 +6,12 @@ import { MaterialCard } from './material-card';
 // scrolling row of product cards (scroll-snapped, no visible scrollbar).
 export function ProductRail({
   title,
+  subtitle,
   href,
   materials,
 }: {
   title: string;
+  subtitle?: string;
   href: string;
   materials: BuyerMaterial[];
 }) {
@@ -18,9 +20,12 @@ export function ProductRail({
   return (
     <section className="rounded-md bg-surface">
       <div className="flex items-center justify-between gap-3 border-b border-hairline px-4 py-3">
-        <h2 className="text-lg text-text-storefront">{title}</h2>
-        <Link href={href} className="inline-flex min-h-11 items-center text-sm font-bold text-orange-text hover:underline">
-          See all
+        <div className="min-w-0">
+          <h2 className="text-lg text-text-storefront">{title}</h2>
+          {subtitle && <p className="text-[13px] text-slate">{subtitle}</p>}
+        </div>
+        <Link href={href} className="inline-flex min-h-11 shrink-0 items-center text-sm font-bold text-orange-text hover:underline">
+          SEE ALL
         </Link>
       </div>
       <ul className="flex snap-x gap-2 overflow-x-auto p-2 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">

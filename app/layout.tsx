@@ -23,8 +23,12 @@ const plexMono = IBM_Plex_Mono({
 
 export const metadata: Metadata = {
   metadataBase: new URL(process.env.NEXT_PUBLIC_SITE_URL ?? 'https://builderspool.vercel.app'),
-  title: { default: 'Builders Pool', template: '%s · Builders Pool' },
-  description: 'Construction materials, sourced and delivered.',
+  title: {
+    default: 'BuildersPool — Building materials in Abuja: buy direct or pool and save',
+    template: '%s · Builders Pool',
+  },
+  description:
+    'Buy cement, steel, blocks and more from verified Abuja suppliers. Buy Direct at listed prices, or Pool & Save with other builders and share the savings.',
   applicationName: 'Builders Pool',
   openGraph: { siteName: 'Builders Pool', type: 'website' },
   icons: { apple: '/icons/apple-touch-icon.png' },
