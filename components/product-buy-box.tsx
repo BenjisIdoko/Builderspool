@@ -53,8 +53,8 @@ export function ProductBuyBox({ material }: { material: BuyerMaterial }) {
 
   return (
     <>
-      <div className="hidden rounded-xl border border-border bg-surface p-6 shadow-[0_1px_2px_rgba(16,24,40,0.04),0_16px_40px_rgba(16,24,40,0.08)] lg:sticky lg:top-24 lg:block lg:self-start">
-        <div className="mb-5 text-2xl font-bold text-ink">
+      <div className="hidden rounded-md bg-surface p-5 lg:sticky lg:top-44 lg:block lg:self-start">
+        <div className="mb-5 text-2xl font-bold tabular-nums text-text-storefront">
           {formatNaira(material.catalogPrice)}{" "}
           <span className="font-sans text-sm font-medium text-muted-foreground">
             / {material.unit}
@@ -105,6 +105,7 @@ export function ProductBuyBox({ material }: { material: BuyerMaterial }) {
 
         <Button
           type="button"
+          variant="cta"
           className="mb-3 w-full gap-2"
           size="lg"
           onClick={handleAdd}
@@ -123,18 +124,20 @@ export function ProductBuyBox({ material }: { material: BuyerMaterial }) {
           is hidden on this page) plus a bottom sheet for quantity, per the
           BuyerMobileApp handoff. Pricing is a single fixed catalogue price,
           so there's no tier picker. */}
-      <div className="fixed inset-x-0 bottom-0 z-40 flex items-center gap-3 border-t border-border bg-surface/95 px-4 pt-3 pb-[calc(12px+env(safe-area-inset-bottom))] backdrop-blur-[10px] lg:hidden">
+      <div className="fixed inset-x-0 bottom-0 z-40 flex items-center gap-3 border-t border-hairline bg-surface px-4 pt-3 pb-[calc(12px+env(safe-area-inset-bottom))] lg:hidden">
         <button
           type="button"
           onClick={() => setSheetOpen(true)}
-          className="flex h-12 shrink-0 items-center gap-2 rounded-full border border-border-strong px-4 text-sm font-bold text-ink"
+          className="flex h-11 shrink-0 items-center gap-2 rounded-md border border-border-strong px-4 text-sm font-bold text-ink"
         >
           Qty {quantity}
           <CaretDownIcon className="size-3.5 text-muted-foreground" />
         </button>
         <Button
           type="button"
-          className="h-12 flex-1 gap-2 rounded-full text-[14.5px] font-bold"
+          variant="cta"
+          size="lg"
+          className="flex-1 gap-2"
           onClick={handleAdd}
         >
           <PlusIcon className="size-4" />
@@ -148,7 +151,7 @@ export function ProductBuyBox({ material }: { material: BuyerMaterial }) {
         <SheetContent
           side="bottom"
           showCloseButton={false}
-          className="rounded-t-[22px] px-5 pt-5 pb-[calc(20px+env(safe-area-inset-bottom))] lg:hidden"
+          className="rounded-t-xl px-5 pt-5 pb-[calc(20px+env(safe-area-inset-bottom))] lg:hidden"
         >
           <SheetTitle className="text-lg font-bold text-ink">
             {material.name}
@@ -160,7 +163,7 @@ export function ProductBuyBox({ material }: { material: BuyerMaterial }) {
             <span className="text-sm font-bold text-slate">
               Quantity ({material.unit})
             </span>
-            <div className="flex items-center overflow-hidden rounded-xl border border-border-strong">
+            <div className="flex items-center overflow-hidden rounded-md border border-border-strong">
               <button
                 type="button"
                 onClick={decrement}
@@ -193,7 +196,8 @@ export function ProductBuyBox({ material }: { material: BuyerMaterial }) {
           </div>
           <Button
             type="button"
-            className="h-12 w-full rounded-full text-[14.5px] font-bold"
+            size="lg"
+            className="w-full"
             onClick={() => setSheetOpen(false)}
           >
             Done

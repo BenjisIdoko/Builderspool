@@ -26,6 +26,9 @@ export default async function CheckoutPage() {
       <CheckoutForm
         defaultContactName={buyer.businessName ?? buyer.name}
         defaultContactPhone={buyer.phone ?? ''}
+        // True only when the configured Paystack key is a test key, so the
+        // TEST tag can never appear on (or be missing from) a live payment.
+        testMode={process.env.PAYSTACK_SECRET_KEY?.startsWith('sk_test_') ?? false}
       />
     </div>
   );

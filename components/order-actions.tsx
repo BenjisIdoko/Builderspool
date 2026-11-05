@@ -32,7 +32,7 @@ export function OrderActions({ items }: { items: BuyerOrder['items'] }) {
 
   return (
     <div className="flex gap-2">
-      <Button type="button" onClick={handleReorder} className="gap-2">
+      <Button type="button" variant="cta" onClick={handleReorder} className="gap-2">
         <ArrowsClockwiseIcon className="size-4" />
         Reorder
       </Button>

@@ -190,7 +190,7 @@ export default async function AccountPage() {
               >
                 <div>
                   <div className="flex items-center gap-2">
-                    <span className="text-sm font-semibold text-ink" title={order.id}>
+                    <span className="font-mono text-sm font-medium text-ink" title={order.id}>
                       #{order.id.slice(-6).toUpperCase()}
                     </span>
                     <Badge variant="outline" className={pillClass(orderStatusTone(order.status))}>

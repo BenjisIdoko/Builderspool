@@ -102,7 +102,7 @@ export default async function OrderConfirmationPage({
             </div>
             <p className="mt-1 text-sm text-muted-foreground">
               Order{' '}
-              <span className="font-semibold text-ink" title={order.id}>
+              <span className="font-mono font-medium text-ink" title={order.id}>
                 #{order.id.slice(-6).toUpperCase()}
               </span>
               {order.status === 'PENDING_PAYMENT' && ' — payment is still outstanding.'}
@@ -116,7 +116,7 @@ export default async function OrderConfirmationPage({
         {order.status === 'PENDING_PAYMENT' ? (
           <form action={retryPaymentAction}>
             <input type="hidden" name="orderId" value={order.id} />
-            <Button type="submit" size="lg">
+            <Button type="submit" variant="cta" size="lg">
               Pay now — {formatNaira(subtotal + deliveryTotal)}
             </Button>
           </form>

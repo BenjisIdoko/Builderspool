@@ -69,7 +69,7 @@ export function ProductGallery({
       <button
         type="button"
         onClick={() => activeImage && setZoomOpen(true)}
-        className="group relative block w-full cursor-zoom-in overflow-hidden rounded-xl border border-border shadow-[0_1px_2px_rgba(16,24,40,0.04),0_12px_32px_rgba(16,24,40,0.06)]"
+        className="group relative block w-full cursor-zoom-in overflow-hidden rounded-md bg-surface"
         disabled={!activeImage}
         aria-label={!activeImage ? `${alt} — no photo yet` : undefined}
       >

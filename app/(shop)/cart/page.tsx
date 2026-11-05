@@ -128,7 +128,7 @@ export default function CartPage() {
           </div>
           <p className="mt-1 text-xs text-muted-foreground">Delivery calculated at checkout.</p>
 
-          <Button asChild size="lg" className="mt-5 w-full max-lg:hidden">
+          <Button asChild variant="cta" size="lg" className="mt-5 w-full max-lg:hidden">
             <Link href="/checkout">Continue to checkout</Link>
           </Button>
           </div>

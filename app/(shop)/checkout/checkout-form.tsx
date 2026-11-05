@@ -9,6 +9,7 @@ import { useCart } from '@/lib/cart/CartContext';
 import { formatNaira } from '@/lib/format';
 import { getDeliveryCost, type FulfillmentMethod } from '@/lib/checkout/deliveryCost';
 import { MaterialImage } from '@/components/material-image';
+import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
@@ -33,9 +34,11 @@ type SubmitState = { status: 'idle' } | { status: 'submitting' } | { status: 'er
 export function CheckoutForm({
   defaultContactName,
   defaultContactPhone,
+  testMode,
 }: {
   defaultContactName: string;
   defaultContactPhone: string;
+  testMode: boolean;
 }) {
   const router = useRouter();
   const { lines, subtotal, clear } = useCart();
@@ -224,8 +227,8 @@ export function CheckoutForm({
         )}
       </div>
 
-      <div className="h-fit rounded-xl border border-border bg-surface p-6 shadow-[0_1px_2px_rgba(16,24,40,0.04),0_16px_40px_rgba(16,24,40,0.08)] lg:sticky lg:top-24">
-        <div className="mb-5 rounded-lg bg-gradient-to-br from-brand via-brand-deep to-brand-warm p-4 text-white">
+      <div className="h-fit rounded-md bg-surface p-5 lg:sticky lg:top-44">
+        <div className="mb-5 rounded-md bg-ink p-4 text-white">
           <div className="flex items-center gap-2 text-xs font-medium text-white/80">
             {fulfillmentMethod === 'DELIVERY' ? (
               <TruckIcon className="size-4" />
@@ -271,7 +274,15 @@ export function CheckoutForm({
           })}
         </div>
 
-        <h2 className="mb-3 text-xs font-bold tracking-wide text-muted-foreground uppercase">Payment method</h2>
+        <div className="mb-3 flex items-center gap-2">
+          <h2 className="text-xs font-bold tracking-wide text-muted-foreground uppercase">Payment method</h2>
+          {testMode && <Badge variant="test">Test</Badge>}
+        </div>
+        {testMode && (
+          <p className="mb-3 rounded-md bg-warning-soft px-3 py-2 text-xs text-warning">
+            Test payment — no real money moves. Use Paystack&apos;s test card.
+          </p>
+        )}
         <div className="mb-5 flex flex-col gap-2">
           {PAYMENT_OPTIONS.map(({ method, label, icon: Icon }) => {
             const selected = paymentMethod === method;
@@ -319,7 +330,7 @@ export function CheckoutForm({
           </div>
         </div>
 
-        <Button type="submit" size="lg" className="mt-5 w-full" disabled={state.status === 'submitting'}>
+        <Button type="submit" variant="cta" size="lg" className="mt-5 w-full" disabled={state.status === 'submitting'}>
           {state.status === 'submitting' ? 'Processing…' : `Pay ${formatNaira(total)} securely`}
         </Button>
       </div>
