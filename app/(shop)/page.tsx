@@ -1,14 +1,26 @@
 import { Reveal } from '@/components/motion/reveal';
 import Image from 'next/image';
 import Link from 'next/link';
-import { CertificateIcon, LockKeyIcon, ArrowUpRightIcon, PhoneIcon, MapPinIcon, EnvelopeSimpleIcon } from '@phosphor-icons/react/ssr';
+import {
+  CertificateIcon,
+  LockKeyIcon,
+  ArrowUpRightIcon,
+  PhoneIcon,
+  MapPinIcon,
+  EnvelopeSimpleIcon,
+  StorefrontIcon,
+  TagIcon,
+  TruckIcon,
+  UsersThreeIcon,
+} from '@phosphor-icons/react/ssr';
 import { getMaterials, getCategories, getFulfillmentCenters } from '@/lib/queries/materials';
 import { getCurrentBuyer } from '@/lib/buyer/auth';
-import { MaterialCard } from '@/components/material-card';
 import { HeroLiveCard } from '@/components/hero-live-card';
 import { PhilosophySteps } from '@/components/philosophy-steps';
 import { FaqAccordion } from '@/components/faq-accordion';
 import { Button } from '@/components/ui/button';
+import { ProductRail } from '@/components/product-rail';
+import { getCategoryIcon } from '@/lib/categoryIcons';
 
 // Real, existing Nigerian building-material manufacturers — the Fable
 // reference's own list, kept verbatim per explicit direction to adopt the
@@ -35,127 +47,162 @@ export default async function Home() {
     getCurrentBuyer(),
     getFulfillmentCenters(),
   ]);
-  const featured = materials.slice(0, 8);
-  const categoryLoop = [...categories, ...categories];
+  const featured = materials.slice(0, 10);
+  // The three biggest categories each get their own rail.
+  const railCategories = [...categories].sort((a, b) => b.count - a.count).slice(0, 3);
 
   return (
     <div className="flex flex-1 flex-col">
-      <section className="relative min-h-[460px] w-full overflow-hidden bg-ink lg:min-h-[520px]">
-        <Image
-          src="/hero.png"
-          alt=""
-          fill
-          sizes="100vw"
-          className="object-cover"
-          style={{ objectPosition: 'center 25%' }}
-          priority
-        />
-        <div className="absolute inset-0 bg-[linear-gradient(100deg,rgba(21,24,28,0.92)_0%,rgba(21,24,28,0.68)_35%,rgba(21,24,28,0.3)_58%,rgba(21,24,28,0.05)_78%,rgba(21,24,28,0)_100%)] max-[759px]:bg-[linear-gradient(180deg,rgba(21,24,28,0.75)_0%,rgba(21,24,28,0.6)_45%,rgba(21,24,28,0.35)_100%)]" />
-        <div className="absolute inset-0 bg-[linear-gradient(180deg,rgba(21,24,28,0)_50%,rgba(21,24,28,0.4)_100%)] max-[759px]:bg-[linear-gradient(180deg,rgba(21,24,28,0.15)_0%,rgba(21,24,28,0.65)_65%,rgba(21,24,28,0.85)_100%)]" />
+      <section className="mx-auto w-full max-w-section px-3 pt-3 sm:px-0 sm:pt-4">
+        <div className="grid gap-3 lg:grid-cols-[1fr_280px]">
+        <div className="relative min-h-[340px] overflow-hidden rounded-md bg-ink lg:min-h-[400px]">
+          <Image
+            src="/hero.png"
+            alt=""
+            fill
+            sizes="100vw"
+            className="object-cover"
+            style={{ objectPosition: 'center 25%' }}
+            priority
+          />
+          <div className="absolute inset-0 bg-[linear-gradient(100deg,rgba(21,24,28,0.92)_0%,rgba(21,24,28,0.68)_35%,rgba(21,24,28,0.3)_58%,rgba(21,24,28,0.05)_78%,rgba(21,24,28,0)_100%)] max-[759px]:bg-[linear-gradient(180deg,rgba(21,24,28,0.75)_0%,rgba(21,24,28,0.6)_45%,rgba(21,24,28,0.35)_100%)]" />
+          <div className="absolute inset-0 bg-[linear-gradient(180deg,rgba(21,24,28,0)_50%,rgba(21,24,28,0.4)_100%)] max-[759px]:bg-[linear-gradient(180deg,rgba(21,24,28,0.15)_0%,rgba(21,24,28,0.65)_65%,rgba(21,24,28,0.85)_100%)]" />
 
-        <div className="relative z-[2] mx-auto flex min-h-[460px] max-w-section flex-col justify-center px-5 py-10 min-[760px]:px-6 lg:min-h-[520px]">
-          <div className="max-w-2xl">
-            <div className="mb-5 flex flex-wrap items-center gap-2.5 text-[13px] text-white/85">
-              <span className="flex items-center gap-1.5 font-semibold">
-                <CertificateIcon weight="fill" className="size-4" />
-                SON &amp; NIS certified
-              </span>
-              <span className="h-3.5 w-px bg-white/30" />
-              <span className="flex items-center gap-1.5 font-semibold">
-                <LockKeyIcon weight="fill" className="size-4" />
-                Secure payments
-              </span>
-            </div>
-            <h1 className="text-[clamp(26px,4.5vw,44px)] leading-[1.15] font-bold tracking-[-0.02em] text-white">
-              Construction materials,
-              <br />
-              <span className="text-orange">delivered at a fair price.</span>
-            </h1>
-            <p className="mt-4.5 max-w-md text-sm leading-[1.55] text-white/82 min-[760px]:text-[16.5px] min-[760px]:leading-relaxed">
-              Cement, blocks, rebar, roofing and fittings — one fixed price, no back-and-forth. Pick up
-              at a fulfillment center or get it delivered to site.
-            </p>
-            <div className="mt-[22px] flex flex-wrap gap-3 min-[760px]:mt-7">
-              <Button asChild variant="cta" size="lg" className="px-6">
-                <Link href="/catalog">Start Procuring</Link>
-              </Button>
-              <Button
-                asChild
-                variant="outline"
-                size="lg"
-                className="border-white/40 bg-transparent px-6 text-white hover:bg-white/10 hover:text-white"
-              >
-                <Link href="#how-it-works">See How It Works</Link>
-              </Button>
+          <div className="relative z-[2] flex min-h-[340px] flex-col justify-center px-5 py-8 min-[760px]:px-8 lg:min-h-[400px]">
+            <div className="max-w-2xl">
+              <div className="mb-5 flex flex-wrap items-center gap-2.5 text-[13px] text-white/85">
+                <span className="flex items-center gap-1.5 font-semibold">
+                  <CertificateIcon weight="fill" className="size-4" />
+                  SON &amp; NIS certified
+                </span>
+                <span className="h-3.5 w-px bg-white/30" />
+                <span className="flex items-center gap-1.5 font-semibold">
+                  <LockKeyIcon weight="fill" className="size-4" />
+                  Secure payments
+                </span>
+              </div>
+              <h1 className="text-[clamp(26px,4.5vw,44px)] leading-[1.15] font-bold tracking-[-0.02em] text-white">
+                Construction materials,
+                <br />
+                <span className="text-orange">delivered at a fair price.</span>
+              </h1>
+              <p className="mt-4.5 max-w-md text-sm leading-[1.55] text-white/82 min-[760px]:text-[16.5px] min-[760px]:leading-relaxed">
+                Cement, blocks, rebar, roofing and fittings — one fixed price, no back-and-forth. Pick up
+                at a fulfillment center or get it delivered to site.
+              </p>
+              <div className="mt-[22px] flex flex-wrap gap-3 min-[760px]:mt-7">
+                <Button asChild variant="cta" size="lg" className="px-6">
+                  <Link href="/catalog">Start Procuring</Link>
+                </Button>
+                <Button
+                  asChild
+                  variant="outline"
+                  size="lg"
+                  className="border-white/40 bg-transparent px-6 text-white hover:bg-white/10 hover:text-white"
+                >
+                  <Link href="#how-it-works">See How It Works</Link>
+                </Button>
+              </div>
             </div>
           </div>
+
+          <HeroLiveCard />
         </div>
 
-        <HeroLiveCard />
-      </section>
-
-      <Reveal>
-      <section className="mx-auto w-full max-w-section px-6 pt-8">
-        <div className="mb-5 text-center text-[11.5px] font-bold tracking-[0.06em] text-muted-foreground uppercase">
-          Trusted by suppliers and contractors nationwide
-        </div>
-        <div className="flex flex-wrap items-center justify-center gap-3.5 min-[760px]:gap-6">
-          {PARTNER_LOGOS.map((label) => (
-            <div key={label} className="text-[12.5px] font-bold tracking-normal text-muted-foreground uppercase min-[760px]:text-base min-[760px]:tracking-[0.01em]">
-              {label}
-            </div>
-          ))}
-        </div>
-      </section>
-      </Reveal>
-
-      {/* Category marquee — infinite CSS scroll, real category names from
-          the live catalog, doubled so the loop point is invisible. */}
-      <Reveal>
-      <section className="px-6 pt-16">
-        <div className="mx-auto max-w-section overflow-hidden rounded-lg bg-ink py-6.5">
-          <div className="[mask-image:linear-gradient(90deg,transparent,#fff_4%,#fff_96%,transparent)] overflow-hidden">
-            <div
-              className="flex w-max items-center"
-              style={{ animation: 'bp-marquee 28s linear infinite' }}
+          <div className="grid grid-cols-2 gap-3 lg:grid-cols-1">
+            <a
+              href="#how-it-works"
+              className="flex flex-col justify-center gap-1.5 rounded-md bg-pale-blue p-4 transition-shadow hover:shadow-card-hover"
             >
-              {categoryLoop.map((cat, i) => (
-                <div key={`${cat.name}-${i}`} className="flex shrink-0 items-center gap-10 pr-10 whitespace-nowrap">
-                  <span className="size-3 shrink-0 rotate-45 rounded-[2px] bg-white/90" />
-                  <span className="text-2xl font-semibold tracking-[-0.01em] text-white">{cat.name}</span>
-                </div>
-              ))}
-            </div>
+              <UsersThreeIcon className="size-7 text-cyan-text" />
+              <div className="text-sm font-bold text-ink">How Pool &amp; Save works</div>
+              <div className="text-[13px] text-slate">Orders are pooled daily and sellers compete to supply them.</div>
+            </a>
+            <Link
+              href="/seller/signup"
+              className="flex flex-col justify-center gap-1.5 rounded-md bg-surface p-4 transition-shadow hover:shadow-card-hover"
+            >
+              <StorefrontIcon className="size-7 text-orange-text" />
+              <div className="text-sm font-bold text-ink">Sell on BuildersPool</div>
+              <div className="text-[13px] text-slate">Register your business and supply the daily pool.</div>
+            </Link>
           </div>
         </div>
       </section>
-      </Reveal>
+
+      <section aria-label="Why buy here" className="mx-auto w-full max-w-section px-3 pt-3 sm:px-0">
+        <ul className="grid grid-cols-2 gap-x-3 gap-y-1 rounded-md bg-surface px-4 py-2 lg:grid-cols-4">
+          {[
+            { icon: TagIcon, label: 'Fixed catalogue price' },
+            { icon: LockKeyIcon, label: 'Secure payments' },
+            { icon: TruckIcon, label: 'Delivery or depot pickup' },
+            { icon: CertificateIcon, label: 'SON & NIS certified' },
+          ].map(({ icon: Icon, label }) => (
+            <li key={label} className="flex min-h-11 items-center gap-2.5 text-sm font-medium text-text-storefront">
+              <Icon weight="fill" className="size-5 shrink-0 text-cyan-strong" />
+              {label}
+            </li>
+          ))}
+        </ul>
+      </section>
+
+      <div className="mx-auto flex w-full max-w-section flex-col gap-3 px-3 pt-3 sm:px-0">
+        <section className="rounded-md bg-surface">
+          <div className="border-b border-hairline px-4 py-3">
+            <h2 className="text-lg text-text-storefront">Shop by category</h2>
+          </div>
+          <ul className="grid grid-cols-2 gap-2 p-2 min-[600px]:grid-cols-3 min-[900px]:grid-cols-6">
+            {categories.map((cat) => {
+              const Icon = getCategoryIcon(cat.name);
+              return (
+                <li key={cat.name}>
+                  <Link
+                    href={`/catalog?category=${encodeURIComponent(cat.name)}`}
+                    className="flex min-h-[132px] flex-col items-center justify-center gap-2 rounded-md px-2 py-4 text-center transition-colors hover:bg-canvas"
+                  >
+                    <span className="flex size-14 items-center justify-center rounded-full bg-canvas text-ink">
+                      <Icon className="size-7" strokeWidth={1.5} />
+                    </span>
+                    <span className="text-sm leading-snug font-medium text-text-storefront">{cat.name}</span>
+                    <span className="text-xs text-muted-foreground">
+                      {cat.count} {cat.count === 1 ? 'product' : 'products'}
+                    </span>
+                  </Link>
+                </li>
+              );
+            })}
+          </ul>
+        </section>
+
+        <ProductRail title="Top picks" href="/catalog" materials={featured} />
+
+        {railCategories.map((cat) => (
+          <ProductRail
+            key={cat.name}
+            title={cat.name}
+            href={`/catalog?category=${encodeURIComponent(cat.name)}`}
+            materials={materials.filter((m) => m.category === cat.name).slice(0, 10)}
+          />
+        ))}
+
+        <section className="rounded-md bg-surface px-4 pt-5 pb-6">
+          <div className="mb-4 text-center text-[11.5px] font-bold tracking-[0.06em] text-muted-foreground uppercase">
+            Trusted by suppliers and contractors nationwide
+          </div>
+          <div className="flex flex-wrap items-center justify-center gap-x-6 gap-y-3">
+            {PARTNER_LOGOS.map((label) => (
+              <div key={label} className="text-[12.5px] font-bold text-muted-foreground uppercase min-[760px]:text-sm">
+                {label}
+              </div>
+            ))}
+          </div>
+        </section>
+      </div>
 
       <Reveal>
-      <section id="how-it-works" className="px-6 pt-16">
+      <section id="how-it-works" className="px-3 pt-3 sm:px-0">
         <div className="mx-auto max-w-section">
           <PhilosophySteps />
-        </div>
-      </section>
-      </Reveal>
-
-      <Reveal>
-      <section className="mx-auto w-full max-w-section px-6 pt-16">
-        <div className="mb-5 flex items-baseline justify-between">
-          <div>
-            <h2 className="text-[22px] font-bold tracking-[-0.025em] text-ink">Verified direct depot supply</h2>
-            <p className="mt-1 text-[13px] text-muted-foreground">
-              Fixed catalogue price, checked against real fulfillment center stock.
-            </p>
-          </div>
-          <Link href="/catalog" className="text-[13px] font-bold text-ink hover:text-orange-text">
-            View all →
-          </Link>
-        </div>
-        <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-4">
-          {featured.map((material) => (
-            <MaterialCard key={material.id} material={material} />
-          ))}
         </div>
       </section>
       </Reveal>

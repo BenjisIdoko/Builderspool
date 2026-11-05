@@ -8,7 +8,7 @@ import { Badge } from '@/components/ui/badge';
 
 export function MaterialCard({ material }: { material: BuyerMaterial }) {
   return (
-    <Card className="gap-2 rounded-md border-0 p-2 shadow-none transition-shadow duration-150 hover:shadow-card-hover">
+    <Card className="h-full gap-2 rounded-md border-0 p-2 shadow-none transition-shadow duration-150 hover:shadow-card-hover">
       <Link href={`/catalog/${material.id}`} className="relative block overflow-hidden rounded-sm bg-canvas">
         <MaterialImage
           imageUrl={material.imageUrl}
@@ -28,7 +28,7 @@ export function MaterialCard({ material }: { material: BuyerMaterial }) {
         {material.spec && <p className="line-clamp-2 text-sm text-slate">{material.spec}</p>}
       </CardContent>
 
-      <CardFooter className="flex-col items-stretch gap-3 p-0">
+      <CardFooter className="mt-auto flex-col items-stretch gap-3 border-0 bg-transparent p-0">
         <div>
           <span className="text-lg font-bold tabular-nums text-text-storefront">
             {formatNaira(material.catalogPrice)}

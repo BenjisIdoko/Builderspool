@@ -1,4 +1,4 @@
-import { PackageIcon } from '@phosphor-icons/react/ssr';
+import { PackageIcon, PaintBucketIcon } from '@phosphor-icons/react/ssr';
 import type { Icon } from '@phosphor-icons/react';
 import { CementIcon, BlocksIcon, RebarIcon, RoofingIcon, FittingsIcon } from '@/components/icons/material-icons';
 import type { ComponentType, SVGProps } from 'react';
@@ -11,6 +11,11 @@ const ICONS: Record<string, CategoryIcon> = {
   Rebar: RebarIcon,
   Roofing: RoofingIcon,
   Fittings: FittingsIcon,
+  'Blocks, Bricks & Masonry': BlocksIcon,
+  'Cement & Binders': CementIcon,
+  'Paints & Coatings': PaintBucketIcon,
+  'Reinforcement & Structural Steel': RebarIcon,
+  'Roofing Materials': RoofingIcon,
 };
 
 export function getCategoryIcon(category: string): CategoryIcon {
