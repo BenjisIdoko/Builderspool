@@ -266,8 +266,8 @@ export default async function Home() {
       </section>
       </Reveal>
 
-      {/* Get in touch — real, active contact details confirmed by the
-          user (not the reference's placeholder phone/email). Depot
+      {/* Get in touch — contact details from DESIGN.md (section 6), same as
+          the footer. Depot
           addresses use real fulfillment center data instead of the
           reference's fictional cities. */}
       <Reveal>
@@ -275,20 +275,20 @@ export default async function Home() {
         <h2 className="mb-5 text-[22px] font-bold tracking-[-0.025em] text-ink">Get in touch</h2>
         <div className="grid grid-cols-1 gap-4 sm:grid-cols-3">
           <a
-            href="tel:+2348133941775"
+            href="tel:+2348054207559"
             className="flex flex-col gap-2.5 rounded-lg bg-surface p-5.5 text-ink no-underline transition-shadow hover:shadow-card-hover"
           >
             <PhoneIcon className="size-5.5 text-cyan-strong" />
             <div className="text-sm font-bold">Procurement desk</div>
-            <div className="text-[13px] text-slate">+234 813 394 1775</div>
+            <div className="text-[13px] text-slate">+234 805 420 7559</div>
           </a>
           <a
-            href="mailto:info@builderspool.com.ng"
+            href="mailto:info@builderspool.net"
             className="flex flex-col gap-2.5 rounded-lg bg-surface p-5.5 text-ink no-underline transition-shadow hover:shadow-card-hover"
           >
             <EnvelopeSimpleIcon className="size-5.5 text-cyan-strong" />
             <div className="text-sm font-bold">Email us</div>
-            <div className="text-[13px] text-slate">info@builderspool.com.ng</div>
+            <div className="text-[13px] text-slate">info@builderspool.net</div>
           </a>
           <div className="flex flex-col gap-2.5 rounded-lg bg-surface p-5.5">
             <MapPinIcon className="size-5.5 text-cyan-strong" />
