@@ -22,7 +22,7 @@ export function VerifyEmailBanner() {
   }
 
   return (
-    <div className="mb-6 flex items-center justify-between gap-4 rounded-lg border border-warning/30 bg-warning-soft px-4 py-3 text-sm text-warning">
+    <div className="mb-6 flex items-center justify-between gap-4 rounded-lg border border-warning/30 bg-warning-soft px-4 py-3 text-sm text-warning-text">
       <div>
         {message ?? 'Verify your email to help keep your account secure.'}{' '}
         {!message && (
@@ -35,7 +35,7 @@ export function VerifyEmailBanner() {
         type="button"
         onClick={() => setDismissed(true)}
         aria-label="Dismiss"
-        className="shrink-0 text-warning/70 hover:text-warning"
+        className="shrink-0 text-warning-text/70 hover:text-warning-text"
       >
         <XIcon className="size-4" />
       </button>

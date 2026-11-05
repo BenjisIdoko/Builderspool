@@ -1,24 +1,23 @@
 import type { Metadata, Viewport } from 'next';
-import { IBM_Plex_Mono, Poppins, Roboto } from 'next/font/google';
+import { Geist_Mono, Plus_Jakarta_Sans } from 'next/font/google';
 import './globals.css';
 import { PwaRegister } from '@/components/pwa-register';
 
-const roboto = Roboto({
-  variable: '--font-roboto',
-  subsets: ['latin'],
-  weight: ['400', '500', '700', '900'],
+// One text face (DESIGN.md v3.0): Plus Jakarta Sans is a variable font, so all
+// weights come from one file per subset. The naira sign (U+20A6) lives in the
+// latin-ext subset, so both are loaded — the browser fetches latin-ext because
+// every page shows a price. Geist Mono is for figures only.
+const jakarta = Plus_Jakarta_Sans({
+  variable: '--font-jakarta',
+  subsets: ['latin', 'latin-ext'],
+  display: 'swap',
 });
 
-const poppins = Poppins({
-  variable: '--font-poppins',
-  subsets: ['latin'],
-  weight: ['600', '700', '800'],
-});
-
-const plexMono = IBM_Plex_Mono({
-  variable: '--font-plex-mono',
+const geistMono = Geist_Mono({
+  variable: '--font-geist-mono',
   subsets: ['latin'],
   weight: ['400', '500'],
+  display: 'swap',
 });
 
 export const metadata: Metadata = {
@@ -44,7 +43,7 @@ export const viewport: Viewport = {
 
 export default function RootLayout({ children }: LayoutProps<'/'>) {
   return (
-    <html lang="en" className={`${roboto.variable} ${poppins.variable} ${plexMono.variable} h-full antialiased`}>
+    <html lang="en" className={`${jakarta.variable} ${geistMono.variable} h-full antialiased`}>
       <body className="flex min-h-full flex-col bg-canvas text-ink">
         {/* Reveal (components/motion/reveal.tsx) server-renders content hidden
             until it scrolls into view; without JS that would never happen. */}

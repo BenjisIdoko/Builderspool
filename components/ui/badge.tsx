@@ -21,13 +21,13 @@ const badgeVariants = cva(
         // Status badges: soft tint + coloured text + a 1px tinted border.
         // Always give them a word; colour alone never carries the state.
         success: "border-success/25 bg-success-soft text-success",
-        warning: "border-warning/25 bg-warning-soft text-warning",
+        warning: "border-warning/25 bg-warning-soft text-warning-text",
         danger: "border-danger/25 bg-danger-soft text-danger",
         pool: "border-cyan/30 bg-pale-blue text-cyan-text",
         // Pool & Save tag on product cards: cyan fill with navy text.
         poolTag: "bg-cyan text-ink font-bold text-[11px]",
         // Simulated payments: impossible to mistake for real ones.
-        test: "bg-warning text-white font-bold text-[11px] uppercase tracking-wide",
+        test: "bg-warning-text text-white font-bold text-[11px] uppercase tracking-wide",
       },
     },
     defaultVariants: {

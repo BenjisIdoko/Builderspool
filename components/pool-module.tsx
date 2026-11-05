@@ -63,7 +63,7 @@ export function PoolModule() {
               : `${deadline.tomorrow ? 'Tomorrow’s pool closes' : `${STAGES[deadline.index].label} in`}`}
           </div>
           <div
-            className="font-mono text-4xl leading-tight font-medium text-ink tabular-nums sm:text-5xl"
+            className="font-mono text-figure-xl text-ink tabular-nums"
             aria-live="off"
           >
             {deadline === null ? '--:--:--' : `${pad(h)}:${pad(m)}:${pad(s)}`}
@@ -89,7 +89,7 @@ export function PoolModule() {
                 }`}
               >
                 <div
-                  className={`font-mono text-lg font-medium tabular-nums ${active ? 'text-white' : 'text-cyan-text'}`}
+                  className={`font-mono text-figure tabular-nums ${active ? 'text-white' : 'text-cyan-text'}`}
                 >
                   {pad(stage.hour)}:00
                 </div>

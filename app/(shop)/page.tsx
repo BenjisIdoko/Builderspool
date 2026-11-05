@@ -67,7 +67,7 @@ export default async function Home() {
 
             <div className="relative z-[2] flex min-h-[340px] flex-col justify-center px-5 py-8 min-[760px]:px-8 lg:min-h-[400px]">
               <div className="max-w-2xl">
-                <h1 className="text-[clamp(30px,5vw,52px)] leading-[1.1] font-extrabold tracking-[-0.02em] text-white">
+                <h1 className="text-display-xl text-white">
                   Build Smarter.
                   <br />
                   <span className="text-cyan">Save More.</span>
@@ -179,7 +179,7 @@ export default async function Home() {
 
         <section className="rounded-md bg-surface">
           <div className="border-b border-hairline px-4 py-3">
-            <h2 className="text-lg text-text-storefront">Shop by category</h2>
+            <h2 className="text-heading-md text-text-storefront">Shop by category</h2>
           </div>
           <ul className="grid grid-cols-2 gap-2 p-2 min-[600px]:grid-cols-3 min-[900px]:grid-cols-6">
             {categories.map((cat) => {

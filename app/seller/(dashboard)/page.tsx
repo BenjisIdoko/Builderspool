@@ -138,7 +138,7 @@ export default async function SellerDashboardPage() {
           href="/seller/kyc"
           className={`mb-8 flex items-center gap-2.5 rounded-lg border px-4 py-3 text-sm transition-colors ${
             profile!.kycStatus === 'PENDING'
-              ? 'border-warning/40 bg-warning-soft/60 text-warning hover:bg-warning-soft'
+              ? 'border-warning/40 bg-warning-soft/60 text-warning-text hover:bg-warning-soft'
               : 'border-danger/40 bg-danger-soft/60 text-danger hover:bg-danger-soft'
           }`}
         >

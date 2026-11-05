@@ -63,7 +63,7 @@ export default async function AdminMaterialEditPage({ params }: { params: Promis
       )}
 
       {material.needsPriceReview && (
-        <div className="mb-6 flex items-center gap-2 rounded-lg border border-warning bg-warning-soft px-4 py-2.5 text-sm text-warning">
+        <div className="mb-6 flex items-center gap-2 rounded-lg border border-warning bg-warning-soft px-4 py-2.5 text-sm text-warning-text">
           <WarningIcon className="size-4 shrink-0" />
           Imported from the catalogue reference library with no researched price — this is a ₦
           {material.catalogPrice} placeholder. Set a real price below to publish it properly.

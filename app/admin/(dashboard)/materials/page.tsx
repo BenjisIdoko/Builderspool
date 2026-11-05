@@ -103,7 +103,7 @@ export default async function AdminMaterialsPage({
         <Link
           href={urlFor({ review: !needsReview, category: '', page: 1 })}
           className={`mb-6 flex items-center gap-2 rounded-lg border px-4 py-2.5 text-sm transition-colors ${
-            needsReview ? 'border-warning bg-warning-soft text-warning' : 'border-warning/40 bg-warning-soft/50 text-warning hover:bg-warning-soft'
+            needsReview ? 'border-warning bg-warning-soft text-warning-text' : 'border-warning/40 bg-warning-soft/50 text-warning-text hover:bg-warning-soft'
           }`}
         >
           <WarningIcon className="size-4 shrink-0" />

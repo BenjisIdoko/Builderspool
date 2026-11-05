@@ -21,7 +21,7 @@ export function ProductRail({
     <section className="rounded-md bg-surface">
       <div className="flex items-center justify-between gap-3 border-b border-hairline px-4 py-3">
         <div className="min-w-0">
-          <h2 className="text-lg text-text-storefront">{title}</h2>
+          <h2 className="text-heading-md text-text-storefront">{title}</h2>
           {subtitle && <p className="text-[13px] text-slate">{subtitle}</p>}
         </div>
         <Link href={href} className="inline-flex min-h-11 shrink-0 items-center text-sm font-bold text-orange-text hover:underline">

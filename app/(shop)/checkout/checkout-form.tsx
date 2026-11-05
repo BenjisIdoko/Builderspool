@@ -279,7 +279,7 @@ export function CheckoutForm({
           {testMode && <Badge variant="test">Test</Badge>}
         </div>
         {testMode && (
-          <p className="mb-3 rounded-md bg-warning-soft px-3 py-2 text-xs text-warning">
+          <p className="mb-3 rounded-md bg-warning-soft px-3 py-2 text-xs text-warning-text">
             Test payment — no real money moves. Use Paystack&apos;s test card.
           </p>
         )}

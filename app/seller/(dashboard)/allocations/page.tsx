@@ -77,7 +77,7 @@ export default async function SellerAllocationsPage() {
                 <span className="mr-1 text-xs text-muted-foreground sm:hidden">Quantity:</span>
                 {allocation.quantityFilled} {allocation.bid.material.unit}
                 {allocation.status === 'PENDING' && allocation.acceptDeadlineAt && (
-                  <div className="mt-1 text-xs font-medium text-warning">
+                  <div className="mt-1 text-xs font-medium text-warning-text">
                     Accept by {formatLagosTime(allocation.acceptDeadlineAt)}
                   </div>
                 )}

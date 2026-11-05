@@ -3,7 +3,7 @@ import { pillClass, type PillTone } from '@/lib/statusColors';
 
 const TONE_TEXT_CLASS: Record<PillTone, string> = {
   success: 'text-success',
-  warning: 'text-warning',
+  warning: 'text-warning-text',
   danger: 'text-danger',
   info: 'text-ink',
   neutral: 'text-ink',

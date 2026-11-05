@@ -248,7 +248,7 @@ export default async function AdminDashboardPage() {
                     href={item.href}
                     className="flex items-center gap-2.5 rounded-lg p-2 hover:bg-well"
                   >
-                    <span className="flex size-[26px] shrink-0 items-center justify-center rounded-lg bg-warning-soft text-warning">
+                    <span className="flex size-[26px] shrink-0 items-center justify-center rounded-lg bg-warning-soft text-warning-text">
                       <item.icon className="size-3.5" />
                     </span>
                     <div className="min-w-0">

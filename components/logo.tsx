@@ -30,10 +30,10 @@ export function LogoMark({ className }: { className?: string }) {
   );
 }
 
-// BUILDERS in the logo's charcoal, POOL in logo orange, Poppins 800.
+// BUILDERS in the logo's charcoal, POOL in logo orange, Plus Jakarta Sans 800.
 export function Wordmark({ className = '' }: { className?: string }) {
   return (
-    <span className={`font-display font-extrabold tracking-[-0.02em] ${className}`}>
+    <span className={`font-display font-extrabold tracking-[-0.03em] ${className}`}>
       <span className="text-logo-gray">BUILDERS</span>
       <span className="text-orange">POOL</span>
     </span>

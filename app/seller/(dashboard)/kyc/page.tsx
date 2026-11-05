@@ -85,7 +85,7 @@ export default async function SellerKycPage() {
       {expiry && expiry.state !== 'ok' && (
         <p
           className={`mb-6 rounded-lg px-4 py-3 text-sm ${
-            expiry.state === 'expired' ? 'bg-danger/10 text-danger' : 'bg-warning-soft text-warning'
+            expiry.state === 'expired' ? 'bg-danger/10 text-danger' : 'bg-warning-soft text-warning-text'
           }`}
         >
           Your supporting document: {describeExpiry(expiry)}. Upload a current one and resubmit to avoid interruption.
@@ -93,7 +93,7 @@ export default async function SellerKycPage() {
       )}
 
       {termsOutdated && actor.isOwner && (
-        <form action={acceptCurrentTermsAction} className="mb-6 flex flex-wrap items-center justify-between gap-3 rounded-lg bg-warning-soft px-4 py-3 text-sm text-warning">
+        <form action={acceptCurrentTermsAction} className="mb-6 flex flex-wrap items-center justify-between gap-3 rounded-lg bg-warning-soft px-4 py-3 text-sm text-warning-text">
           <span>The seller terms have been updated to {termsVersion}. Please review and accept them.</span>
           <Button type="submit" size="sm">
             Accept terms {termsVersion}

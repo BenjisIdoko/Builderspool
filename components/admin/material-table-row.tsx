@@ -78,7 +78,7 @@ export function MaterialTableRow({
       <TableCell className="py-3 font-semibold text-ink">
         <div className="flex items-center gap-1.5">
           {priceFormatted}
-          {needsPriceReview && <WarningIcon className="size-3.5 text-warning" />}
+          {needsPriceReview && <WarningIcon className="size-3.5 text-warning-text" />}
         </div>
       </TableCell>
       <TableCell className="py-3">

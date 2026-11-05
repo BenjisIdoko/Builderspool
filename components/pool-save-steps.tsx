@@ -21,7 +21,7 @@ const STEPS = [
 export function PoolSaveSteps() {
   return (
     <div className="rounded-md bg-pale-blue p-4 sm:p-6">
-      <h2 className="mb-4 text-lg text-ink sm:text-xl">How Pool &amp; Save works</h2>
+      <h2 className="mb-4 text-heading-lg text-ink">How Pool &amp; Save works</h2>
       <ol className="grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
         {STEPS.map((step, i) => (
           <li key={step.title} className="flex flex-col gap-2 rounded-md bg-surface p-4">

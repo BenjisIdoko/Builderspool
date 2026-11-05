@@ -12,7 +12,7 @@ export function SiteFooter() {
         <div className="col-span-2 lg:col-span-1">
           <div className="mb-2 flex items-center gap-2">
             <LogoMark className="size-5" />
-            <span className="font-display text-[15px] font-extrabold tracking-[-0.02em]">
+            <span className="font-display text-[15px] font-extrabold tracking-[-0.03em]">
               BUILDERS<span className="text-orange">POOL</span>
             </span>
           </div>

@@ -94,7 +94,7 @@ export default async function AdminEscrowPage({
       </p>
 
       {!payoutsEnabled && (
-        <div className="mb-6 rounded-lg border border-warning/40 bg-warning-soft/60 px-4 py-3 text-sm text-warning">
+        <div className="mb-6 rounded-lg border border-warning/40 bg-warning-soft/60 px-4 py-3 text-sm text-warning-text">
           Seller payouts are switched off (Settings &rarr; Money) until Paystack is live and reviewed, so
           cleared payouts can&apos;t be disbursed yet. GRNs still record what each seller is owed on the ledger.
         </div>

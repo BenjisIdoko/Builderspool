@@ -153,7 +153,7 @@ export function SellerKycReview({
     profile.bankNameMatch === 'MATCH'
       ? 'bg-success-soft text-success'
       : profile.bankNameMatch === 'PARTIAL'
-        ? 'bg-warning-soft text-warning'
+        ? 'bg-warning-soft text-warning-text'
         : 'bg-danger/10 text-danger';
 
   return (
@@ -208,11 +208,11 @@ export function SellerKycReview({
 
           <div className="space-y-1 text-xs text-muted-foreground">
             {expiry && (
-              <p className={expiry.state === 'expired' ? 'text-danger' : expiry.state === 'soon' ? 'text-warning' : ''}>
+              <p className={expiry.state === 'expired' ? 'text-danger' : expiry.state === 'soon' ? 'text-warning-text' : ''}>
                 Supporting document: {describeExpiry(expiry)} ({profile.documentExpiresAt?.toLocaleDateString('en-NG', { dateStyle: 'medium' })}).
               </p>
             )}
-            <p className={termsAccepted?.version === currentTermsVersion ? '' : 'text-warning'}>
+            <p className={termsAccepted?.version === currentTermsVersion ? '' : 'text-warning-text'}>
               {termsAccepted
                 ? `Seller terms ${termsAccepted.version} accepted ${termsAccepted.at.toLocaleDateString('en-NG', { dateStyle: 'medium' })}${termsAccepted.version === currentTermsVersion ? '.' : ` — current version is ${currentTermsVersion}.`}`
                 : 'Seller terms not yet accepted.'}
@@ -246,7 +246,7 @@ export function SellerKycReview({
                 nameMatch === 'MATCH'
                   ? 'bg-success-soft text-success'
                   : nameMatch === 'PARTIAL'
-                    ? 'bg-warning-soft text-warning'
+                    ? 'bg-warning-soft text-warning-text'
                     : 'bg-danger/10 text-danger'
               }`}
             >
