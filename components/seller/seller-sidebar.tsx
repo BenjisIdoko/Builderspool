@@ -1,6 +1,7 @@
 'use client';
 
 import Link from 'next/link';
+import { LogoTile } from '@/components/logo';
 import { usePathname } from 'next/navigation';
 import {
   CaretUpDownIcon,
@@ -65,9 +66,7 @@ export function SellerSidebar({
     <aside className="hidden w-[264px] shrink-0 flex-col bg-ink text-white lg:flex">
       <Link href="/seller" className="flex items-center justify-between gap-2 border-b border-white/10 px-[18px] py-[22px] pb-4">
         <span className="flex items-center gap-2.5">
-          <span className="flex size-8 shrink-0 items-center justify-center rounded-md bg-white text-[13px] font-extrabold text-ink">
-            BP
-          </span>
+          <LogoTile className="size-9" />
           <span className="leading-tight">
             <span className="block font-display text-[14.5px] font-extrabold tracking-[-0.02em] text-white">BUILDERS<span className="text-orange">POOL</span></span>
             <span className="block text-[11px] font-semibold tracking-wide text-white/60">Seller portal</span>

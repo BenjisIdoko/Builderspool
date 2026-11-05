@@ -49,7 +49,7 @@ export async function SiteHeader() {
       <header className="mx-auto max-w-section">
         <div className="flex h-14 items-center gap-3 lg:h-[68px] lg:gap-6">
           <Link href="/" className="flex shrink-0 items-center gap-2" aria-label="BuildersPool home">
-            <LogoMark className="size-8 shrink-0 lg:size-10" />
+            <LogoMark className="size-9 shrink-0 lg:size-12" />
             <Wordmark className="text-[20px] leading-none lg:text-[26px]" />
           </Link>
 

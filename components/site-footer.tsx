@@ -1,5 +1,5 @@
 import Link from 'next/link';
-import { LogoMark } from './logo';
+import { LogoTile } from './logo';
 
 // Footer copy as on the Floot site: tagline, Buy / Sell / Contact columns,
 // and the company line. Contact details match DESIGN.md (section 6).
@@ -11,7 +11,7 @@ export function SiteFooter() {
       <div className="mx-auto grid max-w-section grid-cols-2 gap-x-5 gap-y-7 px-6 py-10 sm:gap-8 lg:grid-cols-[1.4fr_1fr_1fr_1fr]">
         <div className="col-span-2 lg:col-span-1">
           <div className="mb-2 flex items-center gap-2">
-            <LogoMark className="size-5" />
+            <LogoTile className="size-8" />
             <span className="font-display text-[15px] font-extrabold tracking-[-0.03em]">
               BUILDERS<span className="text-orange">POOL</span>
             </span>
