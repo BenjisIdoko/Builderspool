@@ -160,11 +160,11 @@ export function SidebarSearchTrigger() {
     <button
       type="button"
       onClick={open}
-      className="flex h-[34px] w-full items-center gap-2 rounded-[9px] border border-border bg-well px-2.5 text-left text-[12.5px] text-muted-foreground hover:bg-well/70"
+      className="flex h-[34px] w-full items-center gap-2 rounded-lg border border-white/15 bg-white/10 px-2.5 text-left text-[12.5px] text-white/70 hover:bg-white/15"
     >
       <MagnifyingGlassIcon className="size-3.5 shrink-0" />
       <span className="flex-1">Search</span>
-      <span className="shrink-0 rounded-[5px] border border-border-strong bg-surface px-1.5 py-0.5 text-[10.5px] text-muted-foreground">
+      <span className="shrink-0 rounded-sm border border-white/20 bg-white/10 px-1.5 py-0.5 text-[10.5px] text-white/70">
         ⌘K
       </span>
     </button>
