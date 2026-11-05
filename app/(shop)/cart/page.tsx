@@ -35,7 +35,7 @@ export default function CartPage() {
   const itemCount = lines.reduce((sum, l) => sum + l.quantity, 0);
 
   return (
-    <div className="mx-auto w-full max-w-section px-6 pt-6 pb-24 lg:pb-10">
+    <div className="mx-auto w-full max-w-section pt-6 pb-24 lg:pb-10">
       <CheckoutSteps current={0} />
       <h1 className="mb-6 text-2xl font-bold tracking-tight text-ink">
         Cart <span className="font-normal text-muted-foreground">({itemCount} {itemCount === 1 ? 'item' : 'items'})</span>

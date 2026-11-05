@@ -8,8 +8,8 @@ const WHATSAPP_HREF = 'https://wa.me/2348054207559';
 export function SiteFooter() {
   return (
     <footer className="mt-14 bg-ink text-white">
-      <div className="mx-auto grid max-w-section grid-cols-2 gap-x-5 gap-y-7 px-6 py-10 sm:gap-8 lg:grid-cols-[1.4fr_1fr_1fr_1fr]">
-        <div className="col-span-2 lg:col-span-1">
+      <div className="mx-auto grid-12 max-w-section gap-y-8 py-12">
+        <div className="col-span-12 lg:col-span-5">
           <div className="mb-2 flex items-center gap-2">
             <LogoTile className="size-8" />
             <span className="font-display text-[15px] font-extrabold tracking-[-0.03em]">
@@ -20,8 +20,8 @@ export function SiteFooter() {
             Collaborative procurement for construction materials, Abuja (FCT), Nigeria.
           </p>
         </div>
-        <div>
-          <div className="mb-2.5 text-[11.5px] font-bold tracking-[0.04em] text-white/60 uppercase">Buy</div>
+        <div className="col-span-6 md:col-span-4 lg:col-span-2">
+          <div className="mb-2.5 text-label text-white/60 uppercase">Buy</div>
           <div className="flex flex-col gap-1.5 text-[13px]">
             <Link href="/catalog" className="text-white/85 hover:text-white">
               Browse materials
@@ -34,8 +34,8 @@ export function SiteFooter() {
             </Link>
           </div>
         </div>
-        <div>
-          <div className="mb-2.5 text-[11.5px] font-bold tracking-[0.04em] text-white/60 uppercase">Sell</div>
+        <div className="col-span-6 md:col-span-4 lg:col-span-2">
+          <div className="mb-2.5 text-label text-white/60 uppercase">Sell</div>
           <div className="flex flex-col gap-1.5 text-[13px]">
             <Link href="/seller/signup" className="text-white/85 hover:text-white">
               Become a supplier
@@ -45,8 +45,8 @@ export function SiteFooter() {
             </Link>
           </div>
         </div>
-        <div>
-          <div className="mb-2.5 text-[11.5px] font-bold tracking-[0.04em] text-white/60 uppercase">
+        <div className="col-span-12 md:col-span-4 lg:col-span-3">
+          <div className="mb-2.5 text-label text-white/60 uppercase">
             Contact
           </div>
           <div className="flex flex-col gap-1.5 text-[13px]">

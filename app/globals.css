@@ -282,9 +282,65 @@
   }
 }
 
-/* Shared width for storefront section containers. */
+/* Layout system (DESIGN.md v3.0 section 5). The page margin and the content
+   container live here, so every block that uses max-w-section lines up with
+   the header and each other without padding of its own. */
+:root {
+  --page-margin: 1rem; /* 16px phone */
+  --gutter: 1rem;
+  --section-tight: 2rem; /* section rhythm: phone */
+  --section-default: 3rem;
+  --section-loose: 4.5rem;
+}
+@media (min-width: 768px) {
+  :root {
+    --page-margin: 2rem; /* 32px tablet */
+    --gutter: 1.5rem;
+  }
+}
+@media (min-width: 1024px) {
+  :root {
+    --page-margin: 3rem; /* 48px desktop */
+    --gutter: 2rem;
+    --section-tight: 3rem; /* section rhythm: desktop */
+    --section-default: 5rem;
+    --section-loose: 7.5rem;
+  }
+}
+html {
+  /* The sticky header (utility strip + header + category strip) must never
+     cover an anchor target or a focused control. */
+  scroll-padding-top: 10.5rem;
+}
+
 @utility max-w-section {
-  max-width: min(1366px, 100% - 2rem);
+  max-width: min(1280px, 100% - 2 * var(--page-margin));
+}
+@utility max-w-wide {
+  max-width: min(1440px, 100% - 2 * var(--page-margin));
+}
+@utility grid-12 {
+  display: grid;
+  grid-template-columns: repeat(12, minmax(0, 1fr));
+  column-gap: var(--gutter);
+}
+@utility pt-section-tight {
+  padding-top: var(--section-tight);
+}
+@utility pt-section {
+  padding-top: var(--section-default);
+}
+@utility pt-section-loose {
+  padding-top: var(--section-loose);
+}
+@utility pb-section-tight {
+  padding-bottom: var(--section-tight);
+}
+@utility pb-section {
+  padding-bottom: var(--section-default);
+}
+@utility pb-section-loose {
+  padding-bottom: var(--section-loose);
 }
 
 /* Empty-state illustration motion (components/empty-state/illustrations.tsx).

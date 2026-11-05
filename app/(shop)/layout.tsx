@@ -11,8 +11,16 @@ export default async function ShopLayout({ children }: { children: React.ReactNo
 
   return (
     <CartProvider buyerId={buyer?.id ?? null} initialLines={initialLines}>
+      <a
+        href="#main"
+        className="sr-only focus:not-sr-only focus:fixed focus:top-2 focus:left-2 focus:z-50 focus:rounded-md focus:bg-ink focus:px-4 focus:py-3 focus:text-white"
+      >
+        Skip to content
+      </a>
       <SiteHeader />
-      <main className="flex flex-1 flex-col">{children}</main>
+      <main id="main" className="flex flex-1 flex-col">
+        {children}
+      </main>
       <SiteFooter />
       <MobileTabBar />
     </CartProvider>

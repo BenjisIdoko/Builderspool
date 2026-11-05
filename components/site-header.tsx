@@ -47,7 +47,7 @@ export async function SiteHeader() {
       </div>
 
       <header className="mx-auto max-w-section">
-        <div className="flex h-14 items-center gap-3 lg:h-[68px] lg:gap-6">
+        <div className="flex h-14 items-center gap-3 lg:h-16 lg:gap-6">
           <Link href="/" className="flex shrink-0 items-center gap-2" aria-label="BuildersPool home">
             <LogoMark className="size-9 shrink-0 lg:size-12" />
             <Wordmark className="text-[20px] leading-none lg:text-[26px]" />
@@ -60,7 +60,7 @@ export async function SiteHeader() {
           <div className="ml-auto flex shrink-0 items-center gap-1 lg:ml-0 lg:gap-3">
             <Link
               href={buyer ? '/account' : '/login'}
-              className="hidden min-h-11 items-center gap-1.5 rounded-md px-2 text-[15px] font-medium text-text-storefront hover:text-orange-text lg:inline-flex"
+              className="hidden min-h-11 items-center gap-1.5 rounded-md px-2 text-[15px] font-medium text-text-storefront hover:text-orange-text md:inline-flex"
             >
               <UserIcon className="size-5" />
               {buyer ? 'Account' : 'Log in'}

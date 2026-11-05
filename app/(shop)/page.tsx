@@ -54,7 +54,7 @@ export default async function Home() {
           className="-z-20 object-cover object-[50%_40%]"
         />
         <div className="absolute inset-0 -z-10 bg-[linear-gradient(90deg,rgba(11,31,58,0.94)_0%,rgba(11,31,58,0.78)_40%,rgba(11,31,58,0.15)_75%,rgba(11,31,58,0)_100%)] max-md:bg-[linear-gradient(180deg,rgba(11,31,58,0.9)_0%,rgba(11,31,58,0.72)_100%)]" />
-        <div className="mx-auto flex min-h-[560px] w-full max-w-section flex-col justify-between px-4 pt-12 sm:px-0 lg:min-h-[620px] lg:pt-20">
+        <div className="mx-auto flex min-h-[560px] w-full max-w-section flex-col justify-between pt-12 lg:min-h-[620px] lg:pt-20">
           <div>
             <p className="text-label uppercase text-cyan">Pool &amp; Save · Abuja</p>
             <h1 className="mt-4 max-w-[12ch] text-display-xl text-white">
@@ -83,12 +83,12 @@ export default async function Home() {
       </section>
 
       <Reveal>
-        <section id="how" className="mx-auto w-full max-w-section scroll-mt-40 px-3 pt-3 sm:px-0">
+        <section id="how" className="mx-auto w-full max-w-section scroll-mt-40 pt-section">
           <PoolSaveSteps />
         </section>
       </Reveal>
 
-      <div className="mx-auto flex w-full max-w-section flex-col gap-3 px-3 pt-3 sm:px-0">
+      <div className="mx-auto flex w-full max-w-section flex-col gap-3 pt-section-tight">
         <div id="join" className="scroll-mt-40">
         <ProductRail
           title="Join today’s pool"
@@ -162,7 +162,7 @@ export default async function Home() {
       </div>
 
       <Reveal>
-        <section id="safe" className="mx-auto w-full max-w-section scroll-mt-40 px-3 pt-3 sm:px-0">
+        <section id="safe" className="mx-auto w-full max-w-section scroll-mt-40 pt-section">
           <ul className="grid grid-cols-1 gap-x-3 gap-y-1 rounded-md bg-surface px-4 py-3 sm:grid-cols-2 lg:grid-cols-4">
             {TRUST.map(({ icon: Icon, title, sub }) => (
               <li key={title} className="flex min-h-11 items-start gap-2.5 py-1.5">
@@ -178,7 +178,7 @@ export default async function Home() {
       </Reveal>
 
       <Reveal>
-        <section id="delivery" className="mx-auto w-full max-w-section scroll-mt-40 px-3 pt-3 pb-4 sm:px-0">
+        <section id="delivery" className="mx-auto w-full max-w-section scroll-mt-40 pt-section-tight pb-section-tight">
           <p className="rounded-md bg-surface px-4 py-3 text-[13.5px] leading-relaxed text-slate">
             Delivery: one flat fee per seller, shown before you pay, across {DELIVERY_ZONES.join(', ')}. Or collect free
             at the Ushafa Fulfilment Centre, Monday to Saturday, 8am – 6pm.

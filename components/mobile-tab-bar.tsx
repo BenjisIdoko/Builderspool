@@ -53,11 +53,11 @@ export function MobileTabBar() {
       {/* Reserves room so the fixed bar never covers the footer. */}
       <div
         aria-hidden
-        className="h-[calc(64px+env(safe-area-inset-bottom))] lg:hidden"
+        className="h-[calc(64px+env(safe-area-inset-bottom))] md:hidden"
       />
       <nav
         aria-label="Primary"
-        className="fixed inset-x-0 bottom-0 z-30 flex border-t border-hairline bg-surface px-1.5 pt-1.5 pb-[calc(4px+env(safe-area-inset-bottom))] lg:hidden"
+        className="fixed inset-x-0 bottom-0 z-30 flex border-t border-hairline bg-surface px-1.5 pt-1.5 pb-[calc(4px+env(safe-area-inset-bottom))] md:hidden"
       >
         {TABS.map(({ href, label, icon: Icon, match }) => {
           const active = match(pathname);
