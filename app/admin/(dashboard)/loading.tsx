@@ -3,7 +3,7 @@ import { KpiRowSkeleton, TableSkeleton } from '@/components/skeletons';
 
 export default function AdminDashboardLoading() {
   return (
-    <div className="mx-auto w-full max-w-7xl px-6 py-10">
+    <div className="mx-auto w-full max-w-7xl px-4 pt-6 pb-16 sm:px-8 sm:pt-8 sm:pb-20">
       <Skeleton className="mb-3 h-3 w-32" />
       <Skeleton className="mb-8 h-7 w-72" />
       <KpiRowSkeleton count={5} />
