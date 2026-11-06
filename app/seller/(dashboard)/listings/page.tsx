@@ -38,6 +38,7 @@ export default async function SellerListingsPage() {
     shelfLifeDays: l.shelfLifeDays == null ? '' : String(l.shelfLifeDays),
     status: l.status,
     reasons: l.qcReasons,
+    reviewNote: l.reviewNote,
     photos: l.photos.map((p) => ({ id: p.id, url: listingPhotoUrl(p.path), widthPx: p.widthPx, heightPx: p.heightPx })),
   });
 

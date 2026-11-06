@@ -16,6 +16,7 @@ export type ListingFormValues = {
   shelfLifeDays: string;
   status?: 'DRAFT' | 'PENDING_REVIEW' | 'ACTIVE' | 'PAUSED' | 'REJECTED';
   reasons: string[];
+  reviewNote?: string | null;
   photos: { id: string; url: string; widthPx: number; heightPx: number }[];
 };
 
@@ -89,6 +90,12 @@ export function ListingForm({
             ))}
           </select>
         </div>
+      )}
+
+      {values?.reviewNote && (
+        <p className="rounded-md bg-card-alt px-4 py-3 text-sm text-ink">
+          <span className="font-medium">Note from BuildersPool:</span> {values.reviewNote}
+        </p>
       )}
 
       {values && values.reasons.length > 0 && (
