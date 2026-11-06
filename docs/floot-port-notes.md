@@ -1,6 +1,6 @@
 # BuildersPool: port notes for the Floot build
 
-Written 5 Nov 2026. Updated 6 Nov 2026 (section 2.11, service areas; scenarios 13 to 15). Source: the Next.js repo (`BenjisIdoko/Builderspool`, Phases 1 and 2, commits `e33cf81` to `20987c3`) compared with `BuildersPool_Technical_Requirements.docx` v1.0, which describes the Floot app as built.
+Written 5 Nov 2026. Updated 6 Nov 2026 (section 1b, the founder's call transcript; section 2.11, service areas; scenarios 13 to 18). Source: the Next.js repo (`BenjisIdoko/Builderspool`, Phases 1 and 2, commits `e33cf81` to `20987c3`) compared with `BuildersPool_Technical_Requirements.docx` v1.0, which describes the Floot app as built.
 
 **Purpose.** Floot is now the product. The Next.js build solved some problems the Floot spec does not mention. This file lists them as rules and tests, so they can be checked in Floot (or pasted into it as prompts) without anyone reading the old code.
 
@@ -29,6 +29,43 @@ These are real differences between the two builds. The Transfer File (4 Nov) and
 | Savings split | 50/50 (setting) | 50/50 | Matches. |
 
 Recommendation: keep every row above as an admin setting in Floot (the spec says all live settings are editable at Admin > Settings), so changing a choice later needs no code.
+
+### 1b. The founder's own description of the bidding and pooling flow (voice call transcript)
+
+The founder explained the flow aloud and the recording was transcribed. This section turns it into rules and sets them against both builds. "Needs confirming" means the transcript is ambiguous or silent, so it is a question for the founder, not an assumption.
+
+| Topic | What the founder said | Next.js build | Floot spec | Status |
+|---|---|---|---|---|
+| Two ways to buy | **Buy Direct**: pick items, cart, checkout; the system adds item cost and transport; last-mile delivery, or pickup at the fulfilment centre. **Pool & Save**: the buyer is willing to wait while other Pool & Save buyers are aggregated. | Same two ideas, but one fixed catalogue price and no visible seller | Same as the founder, with a per-seller offers list | Settled |
+| What the buyer sees | On Buy Direct the buyer sees which seller's listing they are picking ("from Ushafa Builders Ltd"). Choosing Pool & Save means giving up the right to choose the supplier. | Never shows a seller to a buyer | Offers list per seller | Settled. **This build cannot express it** (one catalogue price per material). |
+| Aggregation | All Pool & Save lines go into one pool, then are split by category (plumbing, reinforcement, electrical, cement, and so on). | Per material per region | Per category per zone | Settled: category-level RFQs |
+| RFQ | Sent to every vendor registered for that category, as an Excel-style sheet **with pictures**: item, total quantity, reference price, and a bid price (and a minimum or maximum) to fill in. One submit per vendor. | Cycle per material; no sheet | Per spec, check for the sheet and pictures | Settled. Needs confirming: per-item or whole-sheet award (below). |
+| Reference price | The **lowest price of that material across sellers' listings on the platform**, recalculated as buyers join, **until the pool closes**. Bidders see it on the RFQ; sellers do not see it while listing. | Fixed catalogue price | Lowest Buy Direct price "in your area" at 12:00 | Settled in principle. Needs confirming: platform-wide or per zone, and that it freezes at pool close. |
+| Scoring | Best price, cost to deliver, quality (matches the specification), and past performance (right quantity, right quality, on time). New suppliers have no record at first. Highest percentage wins, then second, then third. | Six weights (30/20/20/15/10/5) | Four weights (60/20/15/5) | The criteria are settled; **the weights were not stated**. Needs confirming. |
+| If the winner doesn't accept | Re-award to the second, then the third, each within a time limit. After the third: the RFQ is **cancelled**. | Passes once, then final | Re-awarded to the next best, no stated limit | **New rule: a bounded cascade of three ranks.** |
+| If the RFQ is cancelled | The lines **revert to the sellers whose listings the buyers originally picked**, who fulfil them as an ordinary Buy Direct order. "We are not leaving you without products." | Refund, nothing is bought | Buyer authorises a fallback purchase in advance | **A third model.** Needs confirming: price, stock, and when the buyer pays. |
+| Timing | Pool closes at **3pm** (leaning; 12, 3 or 5 were considered); as one pool closes the next opens. RFQ goes out at once; accept windows of about an hour each (3 to 4, 4 to 5, 5 to 6); everything settled by **6pm**. | 17:00 close, 18:00 award, 19:00 accept, 19:50 final | 12:00 / 16:00 / 17:00 | Leaning 15:00. Needs confirming: when bids close (the transcript lets vendors bid and be awarded "immediately"). |
+| Delivery | Pool & Save arrives the next day or two (24, 48 or 72 hours), depending on volume, bulk and distance. Suppliers are allocated near the site, except national products. | Not modelled | Per-km last mile from the nearest centre | Settled |
+| Money | Buyer's money is in escrow. The seller is paid **only after delivery and the fulfilment centre's quality check** against the specification. | Same (GRN releases escrow) | Same | Settled |
+| Why sellers join | Bulk volume and liquidity: a pooled award can empty a warehouse, and the cash is already in escrow. | n/a | n/a | Context |
+| Seller uploads | Sellers set their own prices in their dashboard and are not shown the reference price while listing. Image and price quality need validating on upload. | Admin-edited catalogue | Seller listings with QC | Settled. Needs confirming: what the quality checks reject. |
+
+**What this changes**
+1. The founder's model is a **multi-seller marketplace with Pool & Save on top**. That is the Floot shape, not the Next.js shape. This repo stays a reference for the engine rules (ledger, stage safety, scoring reasons, escrow release), but its buyer-facing model (one catalogue price, no seller listings) is not what the founder described. Do not copy this repo's storefront rules into Floot.
+2. Three decisions in the table above are now answered: category-level RFQs, the three-rank cascade, and revert-to-original-seller instead of refund or pre-authorised purchase. Three are leaning: 15:00 pool close, reference price from the lowest listing, and the four criteria.
+3. The "fallback" is no longer the choice between a refund and an authorised purchase. It is a **revert to the originally picked seller's listing**. Floot's pre-ticked authorisation checkbox is then unnecessary, and the join form should say so.
+
+**Questions only the founder can answer**
+1. Is the award per line item or per category sheet? The transcript says "the most responsive bidder" for the category, but vendors bid per item.
+2. Does the reference price count the whole platform or only sellers who serve the buyer's zone? It must freeze at pool close.
+3. When do bids close, and how long is each accept window? The transcript gives about an hour per rank, ending at 18:00.
+4. When a pool is cancelled and lines revert to the picked seller: at the listing price when the buyer picked it, or today's? What if that seller no longer has stock? When does the buyer pay: at pool join, or on revert?
+5. What are the scoring weights for the four criteria, and what score does a new supplier with no history get?
+6. What does the quality check on seller uploads reject (image size, missing photo, price outside a band of the reference price)?
+
+**Prompt for Floot (cascade and revert).** Paste into Floot:
+
+> Implement this pool outcome. After the pool closes, send each category's RFQ to every vendor registered for that category, with item pictures, total quantity and the reference price (the lowest seller listing price for that material, frozen at pool close). Each vendor submits bid prices once. Score every bid on price, cost to deliver, quality against the specification and past performance. Award to the top-ranked bid; the vendor has a fixed time to accept. If they do not accept, award to rank two, then rank three, each with its own fixed time. If rank three does not accept, cancel the RFQ and revert each line to the seller whose listing the buyer originally picked, to be fulfilled as a normal Buy Direct order, and tell the buyer. Never loop beyond three ranks. Each step must be safe to run twice and must write an audit entry.
 
 ---
 
@@ -219,6 +256,9 @@ Last-mile delivery priced per km from the nearest centre, Hub and Dispatch scree
 13. **Address rules.** A delivery order with no locality is refused. A locality with no active zone: delivery is unavailable, pickup works, and the "want delivery here" request is stored once per phone and locality.
 14. **Zone move.** Move a locality to another zone mid-day: paid orders and open cycles are unchanged, tomorrow's order uses the new zone, and an audit entry exists.
 15. **Coverage and pooling.** A seller covering Zone A only cannot see or bid in Zone B. Two orders from different localities of the same zone join one cycle.
+16. **Three-rank cascade.** Rank one declines, rank two lets the time lapse, rank three declines: the RFQ is cancelled once, and every line reverts to the seller the buyer picked. Running the job twice changes nothing.
+17. **Reference price.** Add a cheaper listing while the pool is open: the reference price drops. After pool close it no longer changes. Bidders see it on the RFQ; sellers do not see it on their listing screens.
+18. **Pooled by category.** Orders for PPR pipes and cement in the same pool produce two RFQs, each sent only to vendors registered for that category, and each with item pictures.
 
 ## 5. Lessons from testing (apply to Floot too)
 
