@@ -1,19 +1,18 @@
 import Image from 'next/image';
-import { createElement } from 'react';
-import { getCategoryIcon } from '@/lib/categoryIcons';
+import { ImageSquareIcon } from '@phosphor-icons/react/ssr';
 
 // Some materials now have a real photo (see prisma/seed.ts, public/materials/)
 // sourced from the Stitch reference designs; the rest still fall back to a
-// clean category-coded placeholder instead of a broken image or stock photo.
+// neutral "Photo coming soon" tile instead of a broken image or stock photo.
 export function MaterialImage({
   imageUrl,
-  category,
   alt,
   className = '',
   sizes,
 }: {
   imageUrl: string | null;
-  category: string;
+  /** Kept for callers; the placeholder no longer varies by category. */
+  category?: string;
   alt: string;
   className?: string;
   sizes?: string;
@@ -32,11 +31,14 @@ export function MaterialImage({
     );
   }
 
+  // No photograph: a neutral tile, never an illustration or a stand-in image
+  // (DESIGN.md v3.0 section 8). The label shows only where there is room.
   return (
     <div
-      className={`flex items-center justify-center bg-[radial-gradient(circle_at_30%_20%,rgba(15,98,254,0.10),transparent_60%)] bg-well ${className}`}
+      className={`@container flex flex-col items-center justify-center gap-1.5 bg-well text-muted-foreground ${className}`}
     >
-      {createElement(getCategoryIcon(category), { className: 'size-10 text-brand/40', strokeWidth: 1.5 })}
+      <ImageSquareIcon className="size-7" weight="regular" aria-hidden />
+      <span className="hidden text-caption @min-[7.5rem]:block">Photo coming soon</span>
     </div>
   );
 }

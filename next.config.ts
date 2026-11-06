@@ -40,6 +40,8 @@ const nextConfig: NextConfig = {
   // the document itself is limited to 4MB in lib/storage/kycDocuments.ts to
   // stay under Vercel's 4.5MB request-body ceiling.
   experimental: { serverActions: { bodySizeLimit: "5mb" } },
+  // AVIF first, WebP fallback (DESIGN.md v3.0 section 8).
+  images: { formats: ["image/avif", "image/webp"] },
   async headers() {
     return [{ source: "/:path*", headers: securityHeaders }];
   },

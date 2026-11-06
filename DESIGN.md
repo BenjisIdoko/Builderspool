@@ -2,7 +2,7 @@
 name: BuildersPool
 version: 3.0
 updated: 2026-11-05
-status: live. Migration steps 1 (fonts, type scale, contrast fixes), 2 (layout shell), 3 (home), 4 (Aisle pages) and 5 (control rooms) and the motion half of 6 are applied; the imagery half of 6 waits on real photography (see section 13).
+status: live. Migration steps 1–5 and 6 (motion and imagery rules) are applied. What remains is photography itself: several product photos are below the minimum source size and two categories have no photo (see section 8).
 owner: Builders' Pool Technologies Ltd (RC 9317391)
 supersedes: DESIGN.md v2.0
 keeps: the v2.0 colour palette, one-colour-one-job rule, Pool & Save semantics, ₦ money rules, contact details
@@ -127,7 +127,7 @@ performance-budget:   # measured on a throttled mid-range Android (Slow 4G, 4× 
 
 # BuildersPool Design System — v3.0
 
-> **Status:** live. Steps 1 (fonts, type scale, contrast fixes), 2 (layout shell), 3 (home), 4 (Aisle pages) and 5 (control rooms) and the motion half of 6 of the migration are applied; imagery waits on real photography.
+> **Status:** live. Migration steps 1–6 are applied. What remains is photography itself: product photos below the minimum source size, and categories with no photo.
 
 ## 0. What this version is for
 
@@ -418,6 +418,7 @@ Rules: animate `transform` and `opacity` only; never `width`, `height`, `top`, `
 - **Shot list (priority order):** 1) Ushafa depot exterior and interior, wide; 2) cement pallets, close, label legible; 3) rebar bundle, strapped; 4) a delivery arriving at a site; 5) hands receiving goods and confirming a delivery code; 6) blocks stacked, raw; 7) roofing sheets; 8) tiles, in daylight.
 - **Aspect ratios:** hero 16:9 (desktop) and 4:5 (phone) as two crops; cards 1:1; category tiles 4:3; panels 3:2.
 - **Technical:** AVIF with WebP fallback, `srcset` at 480 / 768 / 1280 / 1920, explicit `width`/`height`, `loading="lazy"` except the hero (`fetchpriority="high"`), hero ≤ 160 KB, card ≤ 40 KB, LQIP or `surface` placeholder.
+- **Minimum source size:** 2× the largest size shown. Card photos at least 600px square, gallery images at least 1200px on the long edge, hero at least 1920px wide. Anything smaller is re-shot, not upscaled.
 - **Treatment:** natural colour, no filters. A navy scrim only behind text. Alt text: what is shown + the key spec.
 - **Icons:** one library (Phosphor, Regular, 1.5px optical stroke; Fill for the active state). 16px in buttons, 20px in lists, 24px in navigation. Icons never replace a label for a non-universal concept.
 
