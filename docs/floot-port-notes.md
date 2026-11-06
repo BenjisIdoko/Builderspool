@@ -71,7 +71,7 @@ The founder explained the flow aloud and the recording was transcribed. This sec
 
 ### 1c. Resolved rules: the founder's answers and the choices made for them
 
-The founder answered the questions in 1b on 6 Nov 2026. Rows marked **Founder** are their answers. Rows marked **Chosen** were proposed by me where the founder did not answer; they stand until the founder changes them. Rows marked **Assumed** follow from the founder's answers but were not said outright; please confirm. Every value is an admin setting, so none of this is permanent.
+The founder answered the questions in 1b on 6 Nov 2026. Rows marked **Founder** are their answers. Rows marked **Chosen** were proposed by me where the founder did not answer; they stand until the founder changes them. Rows marked **Founder approved** were proposed by me and accepted. Rows marked **Assumed** follow from the founder's answers but were not said outright; please confirm. Every value is an admin setting, so none of this is permanent.
 
 | # | Topic | Rule | Source |
 |---|---|---|---|
@@ -85,7 +85,7 @@ The founder answered the questions in 1b on 6 Nov 2026. Rows marked **Founder** 
 | 5 | Scoring | An **explainable score** on six criteria, weights configurable by an authorised administrator (see below). Starting weights are assumptions for the MVP, to be reviewed against real results. | Founder |
 | 5b | New supplier with no history | A neutral performance score of **50 out of 100** until 5 completed orders. | Chosen (carried over from the Next.js setting) |
 | 5c | Bid above the reference | **Ineligible.** The founder said a bulk bid that cannot beat the reference has no purpose. | Chosen (from the call, not repeated in the answers) |
-| 6 | Seller upload checks | See below. | Chosen |
+| 6 | Seller upload checks | See below. | **Founder approved** (6 Nov 2026) |
 
 **Scoring (Founder).** Lowest price matters, but price alone can reward unreliable supply, so the score weighs landed cost, performance, capacity and delivery.
 
@@ -101,12 +101,13 @@ The founder answered the questions in 1b on 6 Nov 2026. Rows marked **Founder** 
 
 Every award stores the points per criterion and a one-line reason for each, so a score can be explained to a supplier. **These weights are the same as the Next.js build's** (price 30, performance 20, capacity 20, delivery 15, geography 10, responsiveness 5). Floot's 60/20/15/5 does not match the founder's table and should be changed.
 
-**Quality check on seller uploads (Chosen).** Each listing is checked on save and gets one of three outcomes: *pass*, *needs review* (held out of the catalogue until ops approve) or *reject*, always with a reason code.
+**Quality check on seller uploads (approved by the founder, 6 Nov 2026).** Each listing is checked on save and gets one of three outcomes: *pass*, *needs review* (held out of the catalogue until ops approve) or *reject*, always with a reason code.
 - **Photos.** At least one. JPEG, PNG or WebP, up to 5 MB, at least 1000 px on the long edge. Reject watermarks, phone numbers and contact details in the image (visual check by ops), and a photo that is clearly a screenshot or a stock image.
 - **Required fields.** Name, category, unit (and pack size), specification, brand or grade, applicable standard, minimum order quantity, stock on hand, lead time, and the delivery zones served. Missing fields reject.
 - **Price.** A positive whole-naira price in the stated unit. If it is below 50% or above 150% of the median of other sellers' prices for the same material, or exactly ten times or one tenth of it, the listing goes to *needs review* (likely a typo), never straight to live.
 - **Shelf life.** For cement, paint, adhesives and similar, a production or expiry date is required. A product with under 30 days of life left is rejected. This addresses the founder's point about expired stock; the fulfilment-centre check at delivery remains the final gate.
 - **Duplicates.** A second listing with the same seller, name and unit goes to *needs review*.
+- **Review queue.** Only flagged listings wait for ops. A listing that passes every check goes live automatically; a price outside the band, a possible duplicate or a shelf-life edge case goes to *needs review* and is not live until ops approve it.
 - **Never shown to sellers while listing:** the reference price. They see their own price and platform guidance only.
 
 **What changes in the other sections of these notes**
