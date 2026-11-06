@@ -386,6 +386,8 @@ Pill, `caption`/`label`, soft-tint fill + coloured text + 1px tinted border + a 
 
 ### 6.13 Join-the-pool form (flows where joining is separate from buying)
 
+> **In this platform** an order joins the pool when it is paid, so the join form *is* the checkout delivery step: it carries the pool banner ("This order joins today's pool", the close time, the 50% saving rule, the refund rule), the grouped Site / Contact / Timing fields, a date control with an earliest date, and a pay button that stays disabled until the required fields are filled and names the first missing one. There is no fallback-purchase checkbox because this engine never buys from a supplier the buyer has not chosen; unfilled lines are refunded. The rules below describe the general pattern.
+
 - **Fields:** quantity (with its unit and the minimum), site address, nearest landmark (optional), site contact and phone (pre-filled from the account), needed-on-site date, offloading notes (optional). All fields use the standard 44px input with the `input-border` boundary and the same date control style — never a mix of bordered and borderless fields.
 - **Authorising spend is an explicit choice.** A checkbox that lets the platform buy from another seller if the pool fails starts **unticked**, states the maximum price, and says that nothing is bought if it is left unticked. A pre-ticked box that authorises spending money is not allowed.
 - **Say what happens next, once:** "No payment now. After the award at {time} you'll see the final price and pay to confirm. You can change or withdraw until {time}." Times come from configuration.

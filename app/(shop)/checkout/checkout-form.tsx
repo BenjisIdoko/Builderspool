@@ -29,15 +29,28 @@ const PAYMENT_OPTIONS: { method: PaymentMethod; label: string; icon: typeof Bank
 
 const REGIONS = ['ABUJA', 'LAGOS', 'KANO'];
 
+function formatYmd(ymd: string): string {
+  const [y, m, d] = ymd.split('-').map(Number);
+  return new Date(Date.UTC(y, m - 1, d)).toLocaleDateString('en-NG', { day: 'numeric', month: 'short', year: 'numeric', timeZone: 'UTC' });
+}
+
 type SubmitState = { status: 'idle' } | { status: 'submitting' } | { status: 'error'; message: string };
 
 export function CheckoutForm({
   defaultContactName,
   defaultContactPhone,
+  poolDay,
+  poolCloseTime,
+  earliestDate,
   testMode,
 }: {
   defaultContactName: string;
   defaultContactPhone: string;
+  /** Which pool an order placed now joins. */
+  poolDay: 'today' | 'tomorrow';
+  poolCloseTime: string;
+  /** YYYY-MM-DD, tomorrow in Lagos. */
+  earliestDate: string;
   testMode: boolean;
 }) {
   const router = useRouter();
@@ -48,9 +61,24 @@ export function CheckoutForm({
   const [deliveryAddress, setDeliveryAddress] = useState('');
   const [deliveryContactName, setDeliveryContactName] = useState(defaultContactName);
   const [deliveryContactPhone, setDeliveryContactPhone] = useState(defaultContactPhone);
+  const [landmark, setLandmark] = useState('');
+  const [neededBy, setNeededBy] = useState('');
   const [deliveryWindow, setDeliveryWindow] = useState('');
   const [deliveryNotes, setDeliveryNotes] = useState('');
   const [state, setState] = useState<SubmitState>({ status: 'idle' });
+
+  // The first required field still empty, named beside the pay button so a
+  // disabled button is never a mystery.
+  const missing =
+    fulfillmentMethod === 'DELIVERY'
+      ? !deliveryAddress.trim()
+        ? 'your site address'
+        : !deliveryContactName.trim()
+          ? 'a contact name'
+          : !deliveryContactPhone.trim()
+            ? 'a contact phone'
+            : null
+      : null;
 
   const deliveryCost = getDeliveryCost(region, fulfillmentMethod);
   const total = subtotal + deliveryCost;
@@ -81,7 +109,18 @@ export function CheckoutForm({
           paymentMethod,
           items: lines.map((l) => ({ materialId: l.materialId, quantity: l.quantity })),
           ...(fulfillmentMethod === 'DELIVERY'
-            ? { deliveryAddress, deliveryContactName, deliveryContactPhone, deliveryWindow, deliveryNotes }
+            ? {
+                deliveryAddress: landmark.trim() ? `${deliveryAddress.trim()} (Landmark: ${landmark.trim()})` : deliveryAddress,
+                deliveryContactName,
+                deliveryContactPhone,
+                deliveryWindow: [
+                  neededBy ? `Needed on site by ${formatYmd(neededBy)}` : '',
+                  deliveryWindow.trim(),
+                ]
+                  .filter(Boolean)
+                  .join(' · '),
+                deliveryNotes,
+              }
             : {}),
         }),
       });
@@ -110,7 +149,18 @@ export function CheckoutForm({
   return (
     <form onSubmit={handleSubmit} className="grid grid-cols-1 gap-8 lg:grid-cols-[1fr_380px]">
       <div className="flex flex-col">
-        <div className="mb-3.5 text-[13px] font-bold text-slate">01 · Region</div>
+        <section aria-label="Pool & Save" className="mb-8 rounded-card border-l-4 border-cyan bg-pale-blue p-4">
+          <p className="text-heading-sm text-ink">This order joins {poolDay}’s pool</p>
+          <p className="mt-1 text-body-sm text-ink">
+            You pay the catalogue price now. The pool {poolDay === 'today' ? 'closes' : 'for tomorrow closes'} at{' '}
+            <span className="font-mono text-figure">{poolCloseTime}</span>; then verified suppliers bid blind for the
+            whole pool. If the winning bid costs less than the catalogue price, you keep 50% of the saving in your
+            savings wallet once delivery is confirmed. If no supplier can fill part of your order, the unfilled amount
+            is refunded.
+          </p>
+        </section>
+
+        <div className="mb-3.5 text-label text-slate uppercase">01 · Region</div>
         <div className="mb-10 max-w-xs">
           <Label htmlFor="region" className="sr-only">
             Region
@@ -129,7 +179,7 @@ export function CheckoutForm({
           </Select>
         </div>
 
-        <div className="mb-3.5 text-[13px] font-bold text-slate">02 · Items ({lines.length})</div>
+        <div className="mb-3.5 text-label text-slate uppercase">02 · Items ({lines.length})</div>
         <div className="divide-y divide-border rounded-lg bg-surface">
           {lines.map((line) => (
             <div key={line.materialId} className="flex items-center gap-3 p-4">
@@ -151,71 +201,99 @@ export function CheckoutForm({
 
         {fulfillmentMethod === 'DELIVERY' && (
           <>
-            <div className="mt-10 mb-3.5 text-[13px] font-bold text-slate">03 · Delivery details</div>
-            <div className="flex flex-col gap-4 rounded-lg bg-surface p-4">
-              <div>
-                <Label htmlFor="deliveryAddress" className="mb-1.5 text-xs font-semibold text-slate">
-                  Site address
-                </Label>
-                <Textarea
-                  id="deliveryAddress"
-                  value={deliveryAddress}
-                  onChange={(e) => setDeliveryAddress(e.target.value)}
-                  placeholder="Street address, landmark, and any access notes a driver would need to find the site"
-                  required
-                  rows={2}
-                />
-              </div>
-              <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
+            <div className="mt-10 mb-3.5 text-label text-slate uppercase">03 · Delivery details</div>
+            <div className="flex flex-col gap-8 rounded-card bg-surface p-5">
+              <fieldset className="flex flex-col gap-4">
+                <legend className="mb-1 text-heading-sm text-ink">Site</legend>
                 <div>
-                  <Label htmlFor="deliveryContactName" className="mb-1.5 text-xs font-semibold text-slate">
-                    Contact name
+                  <Label htmlFor="deliveryAddress" className="mb-1.5 text-body-sm font-medium text-ink">
+                    Site address
                   </Label>
-                  <Input
-                    id="deliveryContactName"
-                    value={deliveryContactName}
-                    onChange={(e) => setDeliveryContactName(e.target.value)}
-                    placeholder="Who the driver should ask for"
+                  <Textarea
+                    id="deliveryAddress"
+                    value={deliveryAddress}
+                    onChange={(e) => setDeliveryAddress(e.target.value)}
+                    placeholder="Street address and any access notes a driver would need to find the site"
                     required
+                    rows={2}
                   />
                 </div>
                 <div>
-                  <Label htmlFor="deliveryContactPhone" className="mb-1.5 text-xs font-semibold text-slate">
-                    Contact phone
+                  <Label htmlFor="landmark" className="mb-1.5 text-body-sm font-medium text-ink">
+                    Nearest landmark <span className="font-normal text-muted-foreground">(optional)</span>
                   </Label>
-                  <Input
-                    id="deliveryContactPhone"
-                    type="tel"
-                    value={deliveryContactPhone}
-                    onChange={(e) => setDeliveryContactPhone(e.target.value)}
-                    placeholder="A number reachable on delivery day"
-                    required
+                  <Input id="landmark" value={landmark} onChange={(e) => setLandmark(e.target.value)} placeholder="e.g. Opposite the filling station" />
+                </div>
+              </fieldset>
+
+              <fieldset className="flex flex-col gap-4">
+                <legend className="mb-1 text-heading-sm text-ink">Contact on site</legend>
+                <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
+                  <div>
+                    <Label htmlFor="deliveryContactName" className="mb-1.5 text-body-sm font-medium text-ink">
+                      Contact name
+                    </Label>
+                    <Input
+                      id="deliveryContactName"
+                      value={deliveryContactName}
+                      onChange={(e) => setDeliveryContactName(e.target.value)}
+                      placeholder="Who the driver should ask for"
+                      required
+                    />
+                  </div>
+                  <div>
+                    <Label htmlFor="deliveryContactPhone" className="mb-1.5 text-body-sm font-medium text-ink">
+                      Contact phone
+                    </Label>
+                    <Input
+                      id="deliveryContactPhone"
+                      type="tel"
+                      inputMode="tel"
+                      autoComplete="tel"
+                      value={deliveryContactPhone}
+                      onChange={(e) => setDeliveryContactPhone(e.target.value)}
+                      placeholder="A number reachable on delivery day"
+                      required
+                    />
+                  </div>
+                </div>
+              </fieldset>
+
+              <fieldset className="flex flex-col gap-4">
+                <legend className="mb-1 text-heading-sm text-ink">Timing and offloading</legend>
+                <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
+                  <div>
+                    <Label htmlFor="neededBy" className="mb-1.5 text-body-sm font-medium text-ink">
+                      Needed on site by <span className="font-normal text-muted-foreground">(optional)</span>
+                    </Label>
+                    <Input id="neededBy" type="date" min={earliestDate} value={neededBy} onChange={(e) => setNeededBy(e.target.value)} />
+                    <p className="mt-1 text-caption text-muted-foreground">Earliest: {formatYmd(earliestDate)}</p>
+                  </div>
+                  <div>
+                    <Label htmlFor="deliveryWindow" className="mb-1.5 text-body-sm font-medium text-ink">
+                      Preferred time of day <span className="font-normal text-muted-foreground">(optional)</span>
+                    </Label>
+                    <Input
+                      id="deliveryWindow"
+                      value={deliveryWindow}
+                      onChange={(e) => setDeliveryWindow(e.target.value)}
+                      placeholder="e.g. Weekday mornings, or any time"
+                    />
+                  </div>
+                </div>
+                <div>
+                  <Label htmlFor="deliveryNotes" className="mb-1.5 text-body-sm font-medium text-ink">
+                    Offloading notes <span className="font-normal text-muted-foreground">(optional)</span>
+                  </Label>
+                  <Textarea
+                    id="deliveryNotes"
+                    value={deliveryNotes}
+                    onChange={(e) => setDeliveryNotes(e.target.value)}
+                    placeholder="e.g. Manual offload only, no crane access, call on arrival"
+                    rows={2}
                   />
                 </div>
-              </div>
-              <div>
-                <Label htmlFor="deliveryWindow" className="mb-1.5 text-xs font-semibold text-slate">
-                  Preferred delivery window <span className="font-normal text-muted-foreground">(optional)</span>
-                </Label>
-                <Input
-                  id="deliveryWindow"
-                  value={deliveryWindow}
-                  onChange={(e) => setDeliveryWindow(e.target.value)}
-                  placeholder="e.g. Weekday mornings, or any time"
-                />
-              </div>
-              <div>
-                <Label htmlFor="deliveryNotes" className="mb-1.5 text-xs font-semibold text-slate">
-                  Offload notes <span className="font-normal text-muted-foreground">(optional)</span>
-                </Label>
-                <Textarea
-                  id="deliveryNotes"
-                  value={deliveryNotes}
-                  onChange={(e) => setDeliveryNotes(e.target.value)}
-                  placeholder="e.g. Manual offload only, no crane access, call on arrival"
-                  rows={2}
-                />
-              </div>
+              </fieldset>
             </div>
           </>
         )}
@@ -330,9 +408,20 @@ export function CheckoutForm({
           </div>
         </div>
 
-        <Button type="submit" variant="cta" size="lg" className="mt-5 w-full" disabled={state.status === 'submitting'}>
+        <Button
+          type="submit"
+          variant="cta"
+          size="lg"
+          className="mt-5 w-full"
+          disabled={state.status === 'submitting' || missing !== null}
+        >
           {state.status === 'submitting' ? 'Processing…' : `Pay ${formatNaira(total)} securely`}
         </Button>
+        {missing && (
+          <p className="mt-2 text-center text-caption text-slate" role="status">
+            Add {missing} to continue.
+          </p>
+        )}
       </div>
     </form>
   );
