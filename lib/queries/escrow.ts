@@ -27,7 +27,7 @@ export function getEscrowStatus(order: {
 }
 
 export const ESCROW_STATUS_LABEL: Record<EscrowStatus, string> = {
-  FUNDING_PENDING: 'Awaiting funding',
+  FUNDING_PENDING: 'Awaiting payment',
   FUNDS_LOCKED: 'Escrow locked',
   PARTIALLY_RELEASED: 'Partially released',
   RELEASED: 'Escrow released',

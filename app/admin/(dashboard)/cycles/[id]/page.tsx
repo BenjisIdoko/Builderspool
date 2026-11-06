@@ -2,7 +2,7 @@ import { notFound } from 'next/navigation';
 import Link from 'next/link';
 import { CaretLeftIcon } from '@phosphor-icons/react/ssr';
 import { getCycleDetail } from '@/lib/queries/adminBidding';
-import { formatNaira } from '@/lib/format';
+import { Money } from '@/components/money';
 import { getSetting } from '@/lib/settings';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
@@ -35,7 +35,7 @@ export default async function AdminCycleDetailPage({ params }: { params: Promise
   if (!cycle) notFound();
 
   return (
-    <div className="mx-auto w-full max-w-6xl px-6 py-10">
+    <div className="mx-auto w-full max-w-7xl px-4 pt-6 pb-16 sm:px-8 sm:pt-8 sm:pb-20">
       <Link href="/admin" className="mb-6 flex items-center gap-1 text-sm text-muted-foreground hover:text-ink">
         <CaretLeftIcon className="size-4" />
         All cycles
@@ -111,7 +111,7 @@ export default async function AdminCycleDetailPage({ params }: { params: Promise
                 <TableRow key={bid.id}>
                   <TableCell className="text-ink">{bid.rank ?? '—'}</TableCell>
                   <TableCell className="text-ink">{bid.sellerName}</TableCell>
-                  <TableCell className="font-mono font-medium tabular-nums text-ink">{formatNaira(bid.unitPrice)}</TableCell>
+                  <TableCell className="font-mono font-medium tabular-nums text-ink"><Money amount={bid.unitPrice} /></TableCell>
                   <TableCell className="text-ink">
                     {bid.quantityOffered} {cycle.material.unit}
                   </TableCell>

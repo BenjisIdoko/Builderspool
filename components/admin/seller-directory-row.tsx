@@ -5,7 +5,7 @@ import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { TableCell, TableRow } from '@/components/ui/table';
 import { pillClass, kycStatusTone } from '@/lib/statusColors';
-import { formatNaira } from '@/lib/format';
+import { Money } from '@/components/money';
 import { approveKycAction } from '@/app/admin/(dashboard)/users/actions';
 import type { SellerDirectoryEntry } from '@/lib/queries/adminSellers';
 
@@ -43,7 +43,7 @@ export function SellerDirectoryRow({ entry }: { entry: SellerDirectoryEntry }) {
       <TableCell className="py-3 text-slate">
         {entry.location ?? (entry.regionsServed.length > 0 ? entry.regionsServed.join(', ') : '—')}
       </TableCell>
-      <TableCell className="py-3 text-right font-mono font-medium tabular-nums text-ink">{formatNaira(entry.gmvMtd)}</TableCell>
+      <TableCell className="py-3 text-right font-mono font-medium tabular-nums text-ink"><Money amount={entry.gmvMtd} /></TableCell>
       <TableCell className="py-3">
         <Badge variant="outline" className={pillClass(kycStatusTone(entry.kycStatus))}>
           {KYC_LABEL[entry.kycStatus] ?? entry.kycStatus}

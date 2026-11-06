@@ -1,7 +1,7 @@
 import { ClockIcon, StackIcon, TruckIcon } from '@phosphor-icons/react/ssr';
 import { getSellerIdFromSession } from '@/lib/seller/session';
 import { getSellerBids } from '@/lib/queries/sellerPortal';
-import { formatNaira } from '@/lib/format';
+import { Money } from '@/components/money';
 import { bidStatusTone, pillClass } from '@/lib/statusColors';
 import { withdrawBid } from '../../actions';
 import { MaterialImage } from '@/components/material-image';
@@ -60,7 +60,7 @@ export default async function SellerBidsPage() {
                   </div>
                 </div>
 
-                <div className="font-mono font-medium tabular-nums text-ink">{formatNaira(bid.unitPrice)}</div>
+                <div className="font-mono font-medium tabular-nums text-ink"><Money amount={bid.unitPrice} /></div>
 
                 {bid.status === 'SUBMITTED' && (
                   <form action={withdrawBid}>

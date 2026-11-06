@@ -232,6 +232,7 @@ Fluid tokens interpolate between a 360px and a 1440px viewport. Use the token na
 - `₦` + grouped digits: **₦4,850**, **₦1,250,000**. Kobo only where the value is not whole (ledger, statements): **₦12,345.50**.
 - Unit follows in `caption`: **₦4,850** / bag. Money in tables is right-aligned in `figure`. Money in cards and rows is `price*`, tabular.
 - **The ₦ sits in Google's `latin-ext` subset (U+20A0–20AB), not `latin`.** Load both subsets for the sans face; the browser fetches `latin-ext` only because ₦ is on every page, so budget for it. **Verify before shipping** that Plus Jakarta Sans actually draws `₦` (U+20A6) with both crossbars intact. If it does not, add a `unicode-range: U+20A6` fallback face from the mono or system font. A missing or drawn-over naira sign is a trust bug.
+- **In monospace figures, set the ₦ in the text face.** In a monospace cell the sign's crossbars touch the first digit, so "₦0" can read as a struck-through zero. Use the `Money` component (`components/money.tsx`) for amounts inside `figure*` text and stat tiles; the digits stay mono. Words that follow a figure ("0 convoys") are also set in the text face.
 - Savings: `cyan-text` figure plus label. Before award: "Estimated saving ₦…" (the word *Estimated* visible). After award: "Verified saving ₦…" with a check icon. Never a negative saving — show "No saving on this line".
 
 ---

@@ -52,7 +52,7 @@ export default async function AdminAuditLogPage({
   }
 
   return (
-    <div className="mx-auto w-full max-w-6xl px-6 py-10">
+    <div className="mx-auto w-full max-w-7xl px-4 pt-6 pb-16 sm:px-8 sm:pt-8 sm:pb-20">
       <div className="mb-1 text-xs text-muted-foreground">Admin · system</div>
       <h1 className="mb-1 text-heading-lg text-ink">Audit log</h1>
       <p className="mb-8 text-sm text-muted-foreground">

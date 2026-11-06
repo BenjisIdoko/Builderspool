@@ -74,7 +74,7 @@ export default async function AdminVerificationPage({
   ];
 
   return (
-    <div className="mx-auto w-full max-w-6xl px-6 py-10">
+    <div className="mx-auto w-full max-w-7xl px-4 pt-6 pb-16 sm:px-8 sm:pt-8 sm:pb-20">
       <div className="mb-1 text-xs text-muted-foreground">Admin · ops desk</div>
       <h1 className="mb-1 text-heading-lg text-ink">Vendor verification</h1>
       <p className="mb-8 text-sm text-muted-foreground">

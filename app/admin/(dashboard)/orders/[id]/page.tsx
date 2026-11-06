@@ -20,6 +20,7 @@ import {
 import { getOrderById, getOrderTrackingStages } from '@/lib/queries/orders';
 import { getEscrowStatus, ESCROW_STATUS_LABEL } from '@/lib/queries/escrow';
 import { formatNaira } from '@/lib/format';
+import { Money } from '@/components/money';
 import { orderStatusTone, pillClass, payoutStatusTone, escrowStatusTone, dispatchStatusTone } from '@/lib/statusColors';
 import { Badge } from '@/components/ui/badge';
 import { Avatar } from '@/components/avatar';
@@ -389,22 +390,22 @@ export default async function AdminOrderDetailPage({ params }: { params: Promise
                   {item.quantity} {item.material.unit} × {formatNaira(item.priceLocked)}
                 </div>
               </div>
-              <div className="font-mono font-medium tabular-nums text-ink">{formatNaira(item.priceLocked * item.quantity)}</div>
+              <div className="font-mono font-medium tabular-nums text-ink"><Money amount={item.priceLocked * item.quantity} /></div>
             </div>
           ))}
         </div>
         <div className="flex flex-col gap-1.5 border-t border-border px-5 py-4 text-sm">
           <div className="flex justify-between text-slate">
             <span>Subtotal</span>
-            <span className="font-mono font-medium tabular-nums">{formatNaira(subtotal)}</span>
+            <span className="font-mono font-medium tabular-nums"><Money amount={subtotal} /></span>
           </div>
           <div className="flex justify-between text-slate">
             <span>Delivery</span>
-            <span className="font-mono font-medium tabular-nums">{deliveryTotal === 0 ? 'Free' : formatNaira(deliveryTotal)}</span>
+            <span className="font-mono font-medium tabular-nums">{deliveryTotal === 0 ? 'Free' : <Money amount={deliveryTotal} />}</span>
           </div>
           <div className="flex justify-between pt-1 text-base font-bold text-ink">
             <span>Total</span>
-            <span className="font-mono tabular-nums">{formatNaira(subtotal + deliveryTotal)}</span>
+            <span className="font-mono tabular-nums"><Money amount={subtotal + deliveryTotal} /></span>
           </div>
         </div>
       </div>

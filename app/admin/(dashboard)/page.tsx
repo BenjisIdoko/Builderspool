@@ -29,7 +29,7 @@ import { CyclesTable } from '@/components/admin/cycles-table';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 
 const ORDER_STATUS_LABEL: Record<string, string> = {
-  PENDING_PAYMENT: 'Pending payment',
+  PENDING_PAYMENT: 'Awaiting payment',
   PAID: 'Paid',
   CANCELLED: 'Cancelled',
 };
@@ -155,7 +155,7 @@ export default async function AdminDashboardPage() {
   const maxCycleStatusCount = Math.max(1, ...cycleStatusCounts.map((c) => c.count));
 
   return (
-    <div className="mx-auto w-full max-w-7xl px-8 pt-8 pb-20">
+    <div className="mx-auto w-full max-w-7xl px-4 pt-6 pb-16 sm:px-8 sm:pt-8 sm:pb-20">
       <div className="mb-1 text-xs text-muted-foreground">Admin · platform overview</div>
       <h1 className="mb-1.5 text-heading-lg text-ink">
         {greeting((new Date().getUTCHours() + 1) % 24)}, {(admin?.name ?? 'there').split(' ')[0]}

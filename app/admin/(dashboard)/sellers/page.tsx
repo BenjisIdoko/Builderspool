@@ -20,7 +20,7 @@ export default async function AdminSellersPage() {
   ];
 
   return (
-    <div className="mx-auto w-full max-w-7xl px-8 pt-8 pb-20">
+    <div className="mx-auto w-full max-w-7xl px-4 pt-6 pb-16 sm:px-8 sm:pt-8 sm:pb-20">
       <div className="mb-1 text-xs text-muted-foreground">Admin · merchant governance</div>
       <h1 className="mb-1 text-heading-lg text-ink">Seller directory & verification</h1>
       <p className="mb-8 text-sm text-muted-foreground">

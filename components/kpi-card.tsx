@@ -1,5 +1,6 @@
 import type { ComponentType } from 'react';
 import { pillClass, type PillTone } from '@/lib/statusColors';
+import { MoneyText } from '@/components/money';
 
 const TONE_TEXT_CLASS: Record<PillTone, string> = {
   success: 'text-success',
@@ -8,6 +9,22 @@ const TONE_TEXT_CLASS: Record<PillTone, string> = {
   info: 'text-ink',
   neutral: 'text-ink',
 };
+
+// A KPI value: the number is monospace (and a leading ₦ is set in the text
+// face, see MoneyText); any trailing words ("convoys") stay in the text face.
+function KpiValue({ value }: { value: string }) {
+  const match = value.match(/^(₦?[\d.,]+)(.*)$/);
+  if (!match) return <span className="font-sans text-heading-md">{value}</span>;
+  const [, figure, rest] = match;
+  return (
+    <>
+      <span className="font-mono">
+        <MoneyText text={figure} />
+      </span>
+      {rest && <span className="font-sans text-body font-medium text-slate">{rest}</span>}
+    </>
+  );
+}
 
 // Shared KPI-card shell, in the two real variants every .dc.html KPI strip
 // uses:
@@ -36,7 +53,9 @@ export function KpiCard({
     return (
       <div className="overflow-hidden rounded-card bg-card-alt p-4">
         <div className="mb-2 text-label text-muted-foreground uppercase">{label}</div>
-        <div className={`truncate font-mono text-figure-lg tabular-nums ${TONE_TEXT_CLASS[tone]}`}>{value}</div>
+        <div className={`truncate text-figure-lg tabular-nums ${TONE_TEXT_CLASS[tone]}`}>
+          <KpiValue value={value} />
+        </div>
       </div>
     );
   }
@@ -49,7 +68,9 @@ export function KpiCard({
           <Icon className="size-3.5" />
         </span>
       </div>
-      <div className="truncate font-mono text-figure-lg tabular-nums text-ink">{value}</div>
+      <div className="truncate text-figure-lg tabular-nums text-ink">
+        <KpiValue value={value} />
+      </div>
       <div className={`mt-1 text-caption font-semibold ${tone === 'success' ? 'text-success' : 'text-slate'}`}>{chip}</div>
     </div>
   );
