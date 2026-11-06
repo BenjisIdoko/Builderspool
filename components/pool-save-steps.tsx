@@ -1,4 +1,6 @@
-// "How Pool & Save works" — four numbered steps, copy as on the Floot site.
+// "How Pool & Save works" — four numbered steps in one row on a pale-blue
+// band, copy as on the Floot site. Typographic on purpose: the numerals carry
+// the rhythm until there is photography for each step.
 const STEPS = [
   {
     title: 'Join the pool',
@@ -20,16 +22,14 @@ const STEPS = [
 
 export function PoolSaveSteps() {
   return (
-    <div className="rounded-md bg-pale-blue p-4 sm:p-6">
-      <h2 className="mb-4 text-heading-lg text-ink">How Pool &amp; Save works</h2>
-      <ol className="grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
+    <div className="mx-auto w-full max-w-section py-section">
+      <h2 className="text-heading-lg text-ink">How Pool &amp; Save works</h2>
+      <ol className="mt-8 grid gap-x-8 gap-y-8 sm:grid-cols-2 lg:grid-cols-4">
         {STEPS.map((step, i) => (
-          <li key={step.title} className="flex flex-col gap-2 rounded-md bg-surface p-4">
-            <span className="flex size-8 items-center justify-center rounded-full bg-cyan-text font-mono text-sm font-medium text-white">
-              {i + 1}
-            </span>
-            <span className="text-[15px] font-bold text-ink">{step.title}</span>
-            <span className="text-[13px] leading-relaxed text-slate">{step.body}</span>
+          <li key={step.title} className="border-t-2 border-cyan-text pt-4">
+            <span className="font-mono text-figure-lg text-cyan-text">{String(i + 1).padStart(2, '0')}</span>
+            <h3 className="mt-3 text-heading-sm text-ink">{step.title}</h3>
+            <p className="mt-2 max-w-[34ch] text-body-sm text-slate">{step.body}</p>
           </li>
         ))}
       </ol>

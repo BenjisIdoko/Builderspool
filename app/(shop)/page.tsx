@@ -12,7 +12,6 @@ import { HeroPoolBar } from '@/components/hero-pool-bar';
 import { PoolSaveSteps } from '@/components/pool-save-steps';
 import { Button } from '@/components/ui/button';
 import { ProductRail } from '@/components/product-rail';
-import { getCategoryIcon } from '@/lib/categoryIcons';
 
 // Home page copy is taken from the Floot site (builderspool.floot.app).
 const DELIVERY_ZONES = [
@@ -36,6 +35,9 @@ export default async function Home() {
   // Home-page rails only feature products that have a real photo.
   const withPhoto = materials.filter((m) => m.imageUrl);
   const poolPicks = withPhoto.slice(0, 12);
+  // One real product photo per category for the category tiles.
+  const categoryPhoto = new Map<string, string>();
+  for (const m of withPhoto) if (m.imageUrl && !categoryPhoto.has(m.category)) categoryPhoto.set(m.category, m.imageUrl);
   const pickedIds = new Set(poolPicks.map((m) => m.id));
   const lowestPrices = withPhoto
     .filter((m) => !pickedIds.has(m.id))
@@ -83,19 +85,19 @@ export default async function Home() {
       </section>
 
       <Reveal>
-        <section id="how" className="mx-auto w-full max-w-section scroll-mt-40 pt-section">
+        <section id="how" className="scroll-mt-40 bg-pale-blue">
           <PoolSaveSteps />
         </section>
       </Reveal>
 
-      <div className="mx-auto flex w-full max-w-section flex-col gap-3 pt-section-tight">
+      <div className="mx-auto flex w-full max-w-section flex-col gap-3 pt-section">
         <div id="join" className="scroll-mt-40">
-        <ProductRail
-          title="Join today’s pool"
-          subtitle="Pick a product, quantity and site. Change or withdraw until 12:00."
-          href="/catalog"
-          materials={poolPicks}
-        />
+          <ProductRail
+            title="Join today’s pool"
+            subtitle="Pick a product, quantity and site. Change or withdraw until 12:00."
+            href="/catalog"
+            materials={poolPicks}
+          />
         </div>
 
         <ProductRail
@@ -104,72 +106,17 @@ export default async function Home() {
           href="/catalog"
           materials={lowestPrices}
         />
-
-        <div className="grid gap-3 sm:grid-cols-2">
-          <Link
-            href="#delivery"
-            className="flex flex-col justify-center gap-1 rounded-md bg-ink p-6 text-white transition-shadow hover:shadow-card-hover"
-          >
-            <span className="text-[11.5px] font-bold tracking-[0.06em] text-white/60 uppercase">
-              Ushafa Fulfilment Centre
-            </span>
-            <span className="font-display text-2xl leading-tight font-extrabold">
-              Collect free.
-              <br />
-              ₦0 delivery.
-            </span>
-            <span className="mt-1 text-[13px] text-white/75">Mon–Sat, 8am–6pm · Bwari Area Council</span>
-          </Link>
-          <Link
-            href="/seller/signup"
-            className="flex flex-col justify-center gap-1 rounded-md bg-pale-blue p-6 text-ink transition-shadow hover:shadow-card-hover"
-          >
-            <span className="text-[11.5px] font-bold tracking-[0.06em] text-cyan-text uppercase">For suppliers</span>
-            <span className="font-display text-2xl leading-tight font-extrabold">
-              Sell to Abuja’s
-              <br />
-              builders.
-            </span>
-            <span className="mt-2 inline-flex min-h-11 w-fit items-center rounded-md bg-cta px-5 text-sm font-medium text-white">
-              Become a supplier
-            </span>
-          </Link>
-        </div>
-
-        <section className="rounded-md bg-surface">
-          <div className="border-b border-hairline px-4 py-3">
-            <h2 className="text-heading-md text-text-storefront">Shop by category</h2>
-          </div>
-          <ul className="grid grid-cols-2 gap-2 p-2 min-[600px]:grid-cols-3 min-[900px]:grid-cols-6">
-            {categories.map((cat) => {
-              const Icon = getCategoryIcon(cat.name);
-              return (
-                <li key={cat.name}>
-                  <Link
-                    href={`/catalog?category=${encodeURIComponent(cat.name)}`}
-                    className="flex min-h-[132px] flex-col items-center justify-center gap-2 rounded-md px-2 py-4 text-center transition-colors hover:bg-canvas"
-                  >
-                    <span className="flex size-14 items-center justify-center rounded-full bg-canvas text-ink">
-                      <Icon className="size-7" strokeWidth={1.5} />
-                    </span>
-                    <span className="text-sm leading-snug font-medium text-text-storefront">{cat.name}</span>
-                  </Link>
-                </li>
-              );
-            })}
-          </ul>
-        </section>
       </div>
 
       <Reveal>
         <section id="safe" className="mx-auto w-full max-w-section scroll-mt-40 pt-section">
-          <ul className="grid grid-cols-1 gap-x-3 gap-y-1 rounded-md bg-surface px-4 py-3 sm:grid-cols-2 lg:grid-cols-4">
+          <ul className="grid grid-cols-1 gap-x-8 gap-y-4 sm:grid-cols-2 lg:grid-cols-4">
             {TRUST.map(({ icon: Icon, title, sub }) => (
-              <li key={title} className="flex min-h-11 items-start gap-2.5 py-1.5">
+              <li key={title} className="flex items-start gap-3">
                 <Icon weight="fill" className="mt-0.5 size-5 shrink-0 text-cyan-strong" />
                 <span>
-                  <span className="block text-sm font-bold text-text-storefront">{title}</span>
-                  <span className="block text-[13px] text-slate">{sub}</span>
+                  <span className="block text-body-sm font-bold text-ink">{title}</span>
+                  <span className="block text-caption text-slate">{sub}</span>
                 </span>
               </li>
             ))}
@@ -178,11 +125,79 @@ export default async function Home() {
       </Reveal>
 
       <Reveal>
-        <section id="delivery" className="mx-auto w-full max-w-section scroll-mt-40 pt-section-tight pb-section-tight">
-          <p className="rounded-md bg-surface px-4 py-3 text-[13.5px] leading-relaxed text-slate">
+        <section id="delivery" className="mx-auto w-full max-w-section scroll-mt-40 pt-section">
+          <div className="grid-12 gap-y-3">
+            <Link
+              href="#delivery"
+              className="col-span-12 flex flex-col overflow-hidden rounded-panel bg-ink text-white lg:col-span-7 lg:min-h-[360px]"
+            >
+              <span className="relative block h-[200px] shrink-0 sm:h-[240px] lg:h-[250px]">
+                <Image
+                  src="/hero/ushafa.webp"
+                  alt="Ushafa Fulfilment Centre"
+                  fill
+                  sizes="(min-width: 1024px) 740px, 100vw"
+                  className="object-cover object-[50%_30%]"
+                />
+              </span>
+              <span className="flex flex-1 flex-col justify-end p-6 lg:p-8">
+                <span className="text-label uppercase text-cyan">Ushafa Fulfilment Centre</span>
+                <span className="mt-2 text-heading-xl">Collect free. ₦0 delivery.</span>
+                <span className="mt-2 text-body-sm text-on-navy-muted">Mon–Sat, 8am–6pm · Bwari Area Council</span>
+              </span>
+            </Link>
+            <Link
+              href="/seller/signup"
+              className="col-span-12 flex min-h-[260px] flex-col justify-end rounded-panel bg-pale-blue p-6 text-ink lg:col-span-5 lg:min-h-[360px] lg:p-8"
+            >
+              <span className="text-label uppercase text-cyan-text">For suppliers</span>
+              <span className="mt-2 text-display-lg">
+                Sell to Abuja’s
+                <br />
+                builders.
+              </span>
+              <span className="mt-5 inline-flex h-12 w-fit items-center rounded-md bg-cta px-7 text-base font-bold text-white">
+                Become a supplier
+              </span>
+            </Link>
+          </div>
+          <p className="mt-4 max-w-[72ch] text-caption text-slate">
             Delivery: one flat fee per seller, shown before you pay, across {DELIVERY_ZONES.join(', ')}. Or collect free
             at the Ushafa Fulfilment Centre, Monday to Saturday, 8am – 6pm.
           </p>
+        </section>
+      </Reveal>
+
+      <Reveal>
+        <section className="mx-auto w-full max-w-section pt-section pb-section-tight">
+          <h2 className="text-heading-lg text-ink">Shop by category</h2>
+          <ul className="mt-6 grid grid-cols-2 gap-3 sm:grid-cols-3 lg:grid-cols-6">
+            {categories.map((cat) => {
+              const photo = categoryPhoto.get(cat.name) ?? null;
+              return (
+                <li key={cat.name}>
+                  <Link
+                    href={`/catalog?category=${encodeURIComponent(cat.name)}`}
+                    className={`group relative block aspect-[4/3] overflow-hidden rounded-card ${photo ? 'bg-surface' : 'bg-navy-raised'}`}
+                  >
+                    {photo && (
+                      <Image
+                        src={photo}
+                        alt=""
+                        fill
+                        sizes="(min-width: 1024px) 200px, (min-width: 640px) 33vw, 50vw"
+                        className="object-cover transition-transform duration-300 group-hover:scale-105 motion-reduce:transition-none"
+                      />
+                    )}
+                    {photo && (
+                      <span className="absolute inset-0 bg-[linear-gradient(0deg,rgba(11,31,58,0.85)_0%,rgba(11,31,58,0)_65%)]" />
+                    )}
+                    <span className="absolute inset-x-3 bottom-3 text-body-sm font-bold text-white">{cat.name}</span>
+                  </Link>
+                </li>
+              );
+            })}
+          </ul>
         </section>
       </Reveal>
     </div>
