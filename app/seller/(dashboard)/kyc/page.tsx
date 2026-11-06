@@ -39,6 +39,10 @@ export default async function SellerKycPage() {
   ]);
   const termsVersion = String(settings['accounts.termsVersion']);
   const termsOutdated = !!acceptedTerms && acceptedTerms.version !== termsVersion;
+  // A seller an admin approved without a KYC submission (a legacy or seeded
+  // account) has no acceptance on record, so it never saw the banner below.
+  // Sellers still at NOT_SUBMITTED accept through the checkbox on the form.
+  const termsMissing = !acceptedTerms && profile.kycStatus !== 'NOT_SUBMITTED';
   const expiry = documentExpiryState(profile.documentExpiresAt, Number(settings['accounts.documentExpiryWarnDays']));
 
   return (
@@ -92,9 +96,13 @@ export default async function SellerKycPage() {
         </p>
       )}
 
-      {termsOutdated && actor.isOwner && (
+      {(termsOutdated || termsMissing) && actor.isOwner && (
         <form action={acceptCurrentTermsAction} className="mb-6 flex flex-wrap items-center justify-between gap-3 rounded-lg bg-warning-soft px-4 py-3 text-sm text-warning-text">
-          <span>The seller terms have been updated to {termsVersion}. Please review and accept them.</span>
+          <span>
+            {termsMissing
+              ? `You haven't accepted the seller terms (version ${termsVersion}) yet. Please review and accept them.`
+              : `The seller terms have been updated to ${termsVersion}. Please review and accept them.`}
+          </span>
           <Button type="submit" size="sm">
             Accept terms {termsVersion}
           </Button>
