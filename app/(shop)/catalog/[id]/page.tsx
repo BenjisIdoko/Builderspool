@@ -14,6 +14,8 @@ import { ProductDetailPanel } from '@/components/product-detail-panel';
 import { ProductBuyBox } from '@/components/product-buy-box';
 import { ProductPoolPanel } from '@/components/product-pool-panel';
 import { ProductOffers } from '@/components/product-offers';
+import { OfferSelectionProvider } from '@/components/offer-selection';
+import { SelectedPrice } from '@/components/selected-price';
 import { getOffers } from '@/lib/queries/offers';
 import { getPoolSnapshot } from '@/lib/queries/pool';
 import { MaterialCard } from '@/components/material-card';
@@ -61,6 +63,7 @@ export default async function MaterialPage({ params }: { params: Promise<{ id: s
         <span className="text-ink">{material.name}</span>
       </nav>
 
+      <OfferSelectionProvider offers={offers}>
       <div className="grid grid-cols-1 gap-x-10 gap-y-8 lg:grid-cols-[1fr_380px]">
         <div className="lg:col-start-1 lg:row-start-1">
           <ProductGallery images={material.images} category={material.category} alt={material.name} />
@@ -82,19 +85,20 @@ export default async function MaterialPage({ params }: { params: Promise<{ id: s
             <h1 className="text-ink">{material.name}</h1>
             <p className="mt-1 text-body-sm text-slate">Sold per {material.unit}</p>
             <p className="mt-3 text-price-lg tabular-nums text-ink lg:hidden">
-              {formatNaira(material.catalogPrice)}
+              <SelectedPrice catalogPrice={material.catalogPrice} />
               <span className="ml-1 font-sans text-body-sm font-medium text-muted-foreground">/ {material.unit}</span>
             </p>
           </header>
           <ProductBuyBox material={material} />
           <ProductPoolPanel pool={pool} unit={material.unit} />
-          <ProductOffers offers={offers} unit={material.unit} />
+          <ProductOffers unit={material.unit} />
         </div>
 
         <div className="lg:col-start-1 lg:row-start-2">
           <ProductDetailPanel material={material} priceHistory={priceHistory} fulfillmentCenters={fulfillmentCenters} />
         </div>
       </div>
+      </OfferSelectionProvider>
 
       {bundleItems.length > 0 && (
         <div className="mt-16 border-t border-border pt-10">

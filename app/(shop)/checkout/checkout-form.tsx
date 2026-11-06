@@ -6,6 +6,7 @@ import { useRouter } from 'next/navigation';
 import { BankIcon, CheckCircleIcon, CircleIcon, DeviceMobileIcon, MapPinIcon, TruckIcon, CreditCardIcon, LockKeyIcon } from '@phosphor-icons/react/ssr';
 import type { PaymentMethod } from '@prisma/client';
 import { useCart } from '@/lib/cart/CartContext';
+import { linePrice } from '@/lib/cart/types';
 import { formatNaira } from '@/lib/format';
 import { getDeliveryCost, type FulfillmentMethod } from '@/lib/checkout/deliveryCost';
 import { MaterialImage } from '@/components/material-image';
@@ -107,7 +108,7 @@ export function CheckoutForm({
           region,
           fulfillmentMethod,
           paymentMethod,
-          items: lines.map((l) => ({ materialId: l.materialId, quantity: l.quantity })),
+          items: lines.map((l) => ({ materialId: l.materialId, quantity: l.quantity, listingId: l.listingId ?? null })),
           ...(fulfillmentMethod === 'DELIVERY'
             ? {
                 deliveryAddress: landmark.trim() ? `${deliveryAddress.trim()} (Landmark: ${landmark.trim()})` : deliveryAddress,
@@ -194,7 +195,7 @@ export function CheckoutForm({
                 <div className="truncate text-sm font-semibold text-ink">{line.name}</div>
                 <div className="text-xs text-muted-foreground">Qty {line.quantity}</div>
               </div>
-              <span className="font-bold tabular-nums text-slate">{formatNaira(line.catalogPrice * line.quantity)}</span>
+              <span className="font-bold tabular-nums text-slate">{formatNaira(linePrice(line) * line.quantity)}</span>
             </div>
           ))}
         </div>

@@ -8,7 +8,7 @@ import {
   clearCartAction,
   mergeGuestCartAction,
 } from '@/app/(shop)/cart/actions';
-import type { CartLine } from './types';
+import { linePrice, type CartLine } from './types';
 
 export type { CartLine };
 
@@ -65,7 +65,7 @@ export function CartProvider({
         } catch {
           // ignore
         }
-        mergeGuestCartAction(guestLines.map((l) => ({ materialId: l.materialId, quantity: l.quantity })))
+        mergeGuestCartAction(guestLines.map((l) => ({ materialId: l.materialId, quantity: l.quantity, listingId: l.listingId ?? null })))
           .then((merged) => {
             if (merged) setLines(merged);
           })
@@ -101,15 +101,18 @@ export function CartProvider({
       setLines((prev) => {
         const existing = prev.find((l) => l.materialId === item.materialId);
         if (existing) {
+          // A new pick replaces the old one; adding without a pick keeps it.
           return prev.map((l) =>
-            l.materialId === item.materialId ? { ...l, quantity: l.quantity + quantity } : l
+            l.materialId === item.materialId
+              ? { ...l, ...(item.listingId ? { listingId: item.listingId, sellerName: item.sellerName, unitPrice: item.unitPrice } : {}), quantity: l.quantity + quantity }
+              : l
           );
         }
         return [...prev, { ...item, quantity }];
       });
       if (buyerId) {
         startTransition(() => {
-          addCartItemAction(item.materialId, quantity);
+          addCartItemAction(item.materialId, quantity, item.listingId ?? null);
         });
       }
     },
@@ -158,7 +161,7 @@ export function CartProvider({
 
   const value = useMemo<CartContextValue>(() => {
     const itemCount = lines.reduce((sum, l) => sum + l.quantity, 0);
-    const subtotal = lines.reduce((sum, l) => sum + l.quantity * l.catalogPrice, 0);
+    const subtotal = lines.reduce((sum, l) => sum + l.quantity * linePrice(l), 0);
     return { lines, itemCount, subtotal, addItem, updateQuantity, removeItem, clear };
   }, [lines, addItem, updateQuantity, removeItem, clear]);
 

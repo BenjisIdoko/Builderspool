@@ -3,6 +3,7 @@
 import Link from 'next/link';
 import { LockKeyIcon, TrashIcon } from '@phosphor-icons/react/ssr';
 import { useCart } from '@/lib/cart/CartContext';
+import { linePrice } from '@/lib/cart/types';
 import { formatNaira } from '@/lib/format';
 import { EmptyState } from '@/components/empty-state/empty-state';
 import { EmptyCartIllustration } from '@/components/empty-state/illustrations';
@@ -71,8 +72,9 @@ export default function CartPage() {
                   {line.name}
                 </Link>
                 <div className="text-sm text-muted-foreground">
-                  <span>{formatNaira(line.catalogPrice)}</span> / {line.unit}
+                  <span>{formatNaira(linePrice(line))}</span> / {line.unit}
                 </div>
+                {line.sellerName && <div className="text-caption text-slate">From {line.sellerName}</div>}
               </div>
 
               <QuantityStepper
@@ -83,7 +85,7 @@ export default function CartPage() {
               />
 
               <div className="w-28 text-right text-price-sm tabular-nums text-ink max-sm:order-2 max-sm:ml-auto max-sm:w-auto">
-                {formatNaira(line.catalogPrice * line.quantity)}
+                {formatNaira(linePrice(line) * line.quantity)}
               </div>
 
               <Button

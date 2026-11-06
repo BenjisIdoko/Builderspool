@@ -4,6 +4,7 @@ import { useState } from 'react';
 import Link from 'next/link';
 import { MinusIcon, PlusIcon, ShoppingCartIcon, XIcon } from '@phosphor-icons/react/ssr';
 import { useCart } from '@/lib/cart/CartContext';
+import { linePrice } from '@/lib/cart/types';
 import { formatNaira, formatBadgeCount } from '@/lib/format';
 import { EmptyState } from '@/components/empty-state/empty-state';
 import { EmptyCartIllustration } from '@/components/empty-state/illustrations';
@@ -87,8 +88,9 @@ export function CartSheet() {
                       </Link>
                     </SheetClose>
                     <div className="text-xs text-muted-foreground">
-                      <span>{formatNaira(line.catalogPrice)}</span> / {line.unit}
+                      <span>{formatNaira(linePrice(line))}</span> / {line.unit}
                     </div>
+                    {line.sellerName && <div className="text-caption text-slate">From {line.sellerName}</div>}
 
                     <div className="mt-2 flex items-center justify-between">
                       <div className="flex items-center rounded-md border border-border-strong">
@@ -121,7 +123,7 @@ export function CartSheet() {
                       </div>
 
                       <span className="text-sm font-bold tabular-nums text-ink">
-                        {formatNaira(line.catalogPrice * line.quantity)}
+                        {formatNaira(linePrice(line) * line.quantity)}
                       </span>
                     </div>
                   </div>

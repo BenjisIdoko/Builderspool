@@ -2,13 +2,16 @@ import { prisma } from '../prisma';
 import { OrderStatus, type PaymentMethod } from '@prisma/client';
 import { getDeliveryCost, type FulfillmentMethod } from './deliveryCost';
 import { findServingCenter } from './findServingCenter';
+import { getPickableListing } from '../queries/offers';
 
 export interface CheckoutInput {
   buyerId: string;
   region: string;
   fulfillmentMethod: FulfillmentMethod;
   paymentMethod: PaymentMethod;
-  items: { materialId: string; quantity: number }[];
+  // listingId is the seller offer the buyer picked; the price is always read
+  // from that listing here, never from the client.
+  items: { materialId: string; quantity: number; listingId?: string | null }[];
   // Required by validation below when fulfillmentMethod is DELIVERY; ignored
   // (and never persisted) for PICKUP, so a pickup order never carries stray
   // delivery-looking data.
@@ -69,6 +72,23 @@ export async function createOrder(input: CheckoutInput) {
     throw new Error(`${unavailable.name} is no longer available. Remove it from your cart to continue.`);
   }
 
+  // A picked offer must still be live and have enough stock; its price (not the
+  // catalogue price) is what gets locked. A line with no pick keeps the
+  // catalogue price, as before sellers could list.
+  const picks = new Map<string, { id: string; price: number }>();
+  for (const item of input.items) {
+    if (!item.listingId) continue;
+    const material = materialById.get(item.materialId);
+    const listing = await getPickableListing(item.listingId, item.materialId);
+    if (!listing) {
+      throw new Error(`The seller offer for ${material?.name ?? 'an item'} is no longer available. Remove it from your cart and pick again.`);
+    }
+    if (listing.stockQty < item.quantity) {
+      throw new Error(`Only ${listing.stockQty.toLocaleString('en-NG')} of ${material?.name ?? 'this item'} are available from that seller. Lower the quantity to continue.`);
+    }
+    picks.set(item.materialId, { id: listing.id, price: Number(listing.price) });
+  }
+
   // Every order routes through a fulfillment center regardless of method —
   // delivery just adds a final hop from center to site (pickup ends there).
   const center = await findServingCenter(input.region);
@@ -108,12 +128,14 @@ export async function createOrder(input: CheckoutInput) {
       const material = materialById.get(item.materialId);
       if (!material) throw new Error(`Unknown material ${item.materialId}.`);
 
+      const pick = picks.get(material.id);
       await tx.orderItem.create({
         data: {
           orderId: order.id,
           materialId: material.id,
           quantity: item.quantity,
-          priceLocked: material.catalogPrice,
+          priceLocked: pick ? pick.price : material.catalogPrice,
+          listingId: pick?.id ?? null,
           deliveryCost,
           fulfilmentCenterId: center.id,
         },

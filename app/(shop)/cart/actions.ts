@@ -3,21 +3,25 @@
 import { prisma } from '@/lib/prisma';
 import { getCurrentBuyer } from '@/lib/buyer/auth';
 import { getCartLinesForBuyer } from '@/lib/cart/store';
+import { getPickableListing } from '@/lib/queries/offers';
 
 // All of these are fire-and-forget from the client (lib/cart/CartContext.tsx
 // updates local state optimistically) — a signed-out caller or an invalid
 // materialId (e.g. a stale id from a localStorage cart surviving a reseed)
 // just no-ops rather than surfacing an error the UI has no way to show.
 
-export async function addCartItemAction(materialId: string, quantity: number) {
+export async function addCartItemAction(materialId: string, quantity: number, listingId: string | null = null) {
   const buyer = await getCurrentBuyer();
   if (!buyer || quantity <= 0) return;
 
   try {
+    // The pick is only kept if the listing is genuinely pickable for this
+    // material right now; the client's word alone is never trusted.
+    const pick = listingId ? await getPickableListing(listingId, materialId) : null;
     await prisma.cartItem.upsert({
       where: { buyerId_materialId: { buyerId: buyer.id, materialId } },
-      create: { buyerId: buyer.id, materialId, quantity },
-      update: { quantity: { increment: quantity } },
+      create: { buyerId: buyer.id, materialId, quantity, listingId: pick?.id ?? null },
+      update: { quantity: { increment: quantity }, ...(pick ? { listingId: pick.id } : {}) },
     });
   } catch {
     // Unknown material — nothing to add.
@@ -60,17 +64,18 @@ export async function clearCartAction() {
 // guest cart logs in — folds those lines into their real account cart
 // (adding to any quantity already there) rather than silently dropping
 // what they'd already picked out.
-export async function mergeGuestCartAction(guestLines: { materialId: string; quantity: number }[]) {
+export async function mergeGuestCartAction(guestLines: { materialId: string; quantity: number; listingId?: string | null }[]) {
   const buyer = await getCurrentBuyer();
   if (!buyer || guestLines.length === 0) return null;
 
   for (const line of guestLines) {
     if (line.quantity <= 0) continue;
     try {
+      const pick = line.listingId ? await getPickableListing(line.listingId, line.materialId) : null;
       await prisma.cartItem.upsert({
         where: { buyerId_materialId: { buyerId: buyer.id, materialId: line.materialId } },
-        create: { buyerId: buyer.id, materialId: line.materialId, quantity: line.quantity },
-        update: { quantity: { increment: line.quantity } },
+        create: { buyerId: buyer.id, materialId: line.materialId, quantity: line.quantity, listingId: pick?.id ?? null },
+        update: { quantity: { increment: line.quantity }, ...(pick ? { listingId: pick.id } : {}) },
       });
     } catch {
       // Unknown material (e.g. stale id) — skip it.

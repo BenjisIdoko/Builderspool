@@ -7,6 +7,7 @@ import {
   PlusIcon,
 } from "@phosphor-icons/react/ssr";
 import { useCart } from "@/lib/cart/CartContext";
+import { useOfferSelection } from "@/components/offer-selection";
 import { formatNaira } from "@/lib/format";
 import type { BuyerMaterial } from "@/lib/queries/materials";
 import { Button } from "@/components/ui/button";
@@ -24,6 +25,9 @@ import {
 // rail, not everything crammed into one column.
 export function ProductBuyBox({ material }: { material: BuyerMaterial }) {
   const { addItem } = useCart();
+  const { selected } = useOfferSelection();
+  // The picked seller offer sets the price; with no live offers it is the catalogue price.
+  const price = selected?.price ?? material.catalogPrice;
   const [quantity, setQuantity] = useState(1);
   const [added, setAdded] = useState(false);
   const [sheetOpen, setSheetOpen] = useState(false);
@@ -37,6 +41,9 @@ export function ProductBuyBox({ material }: { material: BuyerMaterial }) {
         category: material.category,
         catalogPrice: material.catalogPrice,
         imageUrl: material.imageUrl,
+        listingId: selected?.id ?? null,
+        sellerName: selected?.seller ?? null,
+        unitPrice: price,
       },
       quantity,
     );
@@ -48,7 +55,7 @@ export function ProductBuyBox({ material }: { material: BuyerMaterial }) {
     <>
       <div className="hidden rounded-card bg-surface p-5 lg:block">
         <div className="mb-5 text-price-lg tabular-nums text-text-storefront">
-          {formatNaira(material.catalogPrice)}{" "}
+          {formatNaira(price)}{" "}
           <span className="font-sans text-body-sm font-medium text-muted-foreground">
             / {material.unit}
           </span>
@@ -65,7 +72,7 @@ export function ProductBuyBox({ material }: { material: BuyerMaterial }) {
           <div className="flex justify-between text-slate">
             <span>Subtotal</span>
             <span className="font-bold tabular-nums text-ink">
-              {formatNaira(material.catalogPrice * quantity)}
+              {formatNaira(price * quantity)}
             </span>
           </div>
           <p className="text-xs text-muted-foreground">
@@ -113,7 +120,7 @@ export function ProductBuyBox({ material }: { material: BuyerMaterial }) {
           <PlusIcon className="size-4" />
           {added
             ? "Added"
-            : `Add to cart · ${formatNaira(material.catalogPrice * quantity)}`}
+            : `Add to cart · ${formatNaira(price * quantity)}`}
         </Button>
       </div>
 
@@ -127,7 +134,7 @@ export function ProductBuyBox({ material }: { material: BuyerMaterial }) {
             {material.name}
           </SheetTitle>
           <SheetDescription>
-            {formatNaira(material.catalogPrice)} / {material.unit}
+            {formatNaira(price)} / {material.unit}
           </SheetDescription>
           <div className="flex items-center justify-between gap-3">
             <span className="text-heading-sm text-ink">
@@ -138,7 +145,7 @@ export function ProductBuyBox({ material }: { material: BuyerMaterial }) {
           <div className="flex justify-between border-t border-border pt-4 text-sm text-slate">
             <span>Subtotal</span>
             <span className="font-bold tabular-nums text-ink">
-              {formatNaira(material.catalogPrice * quantity)}
+              {formatNaira(price * quantity)}
             </span>
           </div>
           <Button

@@ -489,11 +489,15 @@ model CartItem {
   buyerId    String
   materialId String
   quantity   Int
+  // The seller offer the buyer picked for this line; null = no pick (the
+  // catalogue price applies, as before).
+  listingId  String?
   createdAt  DateTime @default(now())
   updatedAt  DateTime @updatedAt
 
-  buyer    User     @relation(fields: [buyerId], references: [id])
-  material Material @relation(fields: [materialId], references: [id])
+  buyer    User           @relation(fields: [buyerId], references: [id])
+  material Material       @relation(fields: [materialId], references: [id])
+  listing  SellerListing? @relation(fields: [listingId], references: [id])
 
   @@unique([buyerId, materialId])
 }
@@ -543,9 +547,14 @@ model OrderItem {
   // converted into a purchase the buyer didn't authorise; the unfilled value
   // is recorded as a refund due on the ledger.
   unfilledQuantity   Int      @default(0)
+  // The seller offer the buyer picked, and so the seller a cancelled pool
+  // reverts to; priceLocked is that offer's price. Null on older orders and
+  // on lines bought before any seller had a live listing.
+  listingId          String?
   createdAt          DateTime @default(now())
 
   order             Order              @relation(fields: [orderId], references: [id])
+  listing           SellerListing?     @relation(fields: [listingId], references: [id])
   material          Material           @relation(fields: [materialId], references: [id])
   fulfillmentCenter FulfillmentCenter? @relation(fields: [fulfilmentCenterId], references: [id])
   bidCycle          BidCycle?          @relation(fields: [bidCycleId], references: [id])
@@ -942,9 +951,11 @@ model SellerListing {
   createdAt     DateTime         @default(now())
   updatedAt     DateTime         @updatedAt
 
-  seller   User           @relation(fields: [sellerId], references: [id])
-  material Material       @relation(fields: [materialId], references: [id])
-  photos   ListingPhoto[]
+  seller     User           @relation(fields: [sellerId], references: [id])
+  material   Material       @relation(fields: [materialId], references: [id])
+  photos     ListingPhoto[]
+  cartItems  CartItem[]
+  orderItems OrderItem[]
 
   @@unique([sellerId, materialId])
   @@index([materialId, status])
