@@ -20,6 +20,7 @@ const ADMIN_LABELS: [string, string][] = [
 ];
 
 const SELLER_LABELS: [string, string][] = [
+  ['/seller/listings', 'My listings'],
   ['/seller/bids', 'My bids'],
   ['/seller/orders', 'Orders'],
   ['/seller/allocations', 'Allocations'],

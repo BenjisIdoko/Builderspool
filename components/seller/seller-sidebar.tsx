@@ -11,6 +11,7 @@ import {
   IdentificationCardIcon,
   ReceiptIcon,
   StackIcon,
+  TagIcon,
   TruckIcon,
   UsersThreeIcon,
   WalletIcon,
@@ -37,6 +38,7 @@ const LINK_GROUPS = [
   {
     label: 'Commerce',
     links: [
+      { href: '/seller/listings', label: 'My listings', icon: TagIcon },
       { href: '/seller/bids', label: 'My bids', icon: StackIcon },
       { href: '/seller/orders', label: 'Orders', icon: ReceiptIcon },
       { href: '/seller/allocations', label: 'Allocations', icon: TruckIcon },
