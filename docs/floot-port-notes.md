@@ -249,12 +249,13 @@ A locality belongs to exactly one LGA and to at most one active zone. A zone may
 - **History is never rewritten.** Moving a locality to another zone changes nothing for paid orders or open cycles; it applies from the next cycle date.
 - **Audit.** Every create, rename, move or disable of an LGA, locality, zone or mapping writes an audit entry (who, when, before, after).
 
-**Decisions to settle.**
-1. Pool grain: zone (recommended) or LGA. Locality is not recommended.
-2. Whether Nasarawa border towns are in scope (see Karu above).
-3. Who maintains the lists: an admin screen (recommended) or database changes only.
-4. The delivery fee table per zone: owned by the business.
-5. Seller coverage at zone level (recommended) or locality level.
+**Decisions (chosen on the founder's behalf, 6 Nov 2026; the founder approves by accepting this note).**
+1. **Pool grain: the delivery zone.** One RFQ sheet per category per zone. Not per LGA (zones can cross LGAs) and not per locality (too few bidders). This matches the call: suppliers are allocated near the site.
+2. **Nasarawa border towns (Karu, Mararaba): not in the first list.** The first list contains FCT localities only. The model carries a **state** field above the LGA from day one, so Nasarawa localities can be added later without remodelling. Floot's existing zone name "Nyanya / Karu / Jikwoyi corridor" stays; ops confirm which of its localities are inside the FCT.
+3. **Who maintains the lists: an admin screen.** No code or database change should be needed to add a locality or move it to another zone.
+4. **Delivery fees: per zone, entered by the business in admin, never by engineering.** A zone with no fee set cannot offer delivery (pickup only) until a fee is entered. This note sets no fee values.
+5. **Seller coverage: by zone.** A seller flagged **national supply** covers every zone (the call's "except national products"). Coverage is edited by the seller, approved by ops.
+6. **Locality-level detail stays on the order** (address, landmark) for the driver; it never decides pooling or pricing.
 
 **Check.** In Floot admin, can you see LGA, locality and zone as three linked lists? Move a locality to another zone: does tomorrow's pool change while today's and every paid order stay as they were?
 
