@@ -9,6 +9,8 @@ import {
 } from '@phosphor-icons/react/ssr';
 import { getMaterials, getCategories } from '@/lib/queries/materials';
 import { HeroPoolBar } from '@/components/hero-pool-bar';
+import { getCycleTimes } from '@/lib/bidding/cycleTimes';
+import { buildPoolStages } from '@/lib/pool-stages';
 import { PoolSaveSteps } from '@/components/pool-save-steps';
 import { Button } from '@/components/ui/button';
 import { ProductRail } from '@/components/product-rail';
@@ -31,7 +33,8 @@ const TRUST = [
 ];
 
 export default async function Home() {
-  const [{ materials }, categories] = await Promise.all([getMaterials(), getCategories()]);
+  const [{ materials }, categories, times] = await Promise.all([getMaterials(), getCategories(), getCycleTimes()]);
+  const stages = buildPoolStages(times);
   // Home-page rails only feature products that have a real photo.
   const withPhoto = materials.filter((m) => m.imageUrl);
   const poolPicks = withPhoto.slice(0, 12);
@@ -80,19 +83,19 @@ export default async function Home() {
               </Link>
             </div>
           </div>
-          <HeroPoolBar />
+          <HeroPoolBar stages={stages} />
         </div>
       </section>
 
       <section id="how" className="scroll-mt-40 bg-pale-blue">
-        <PoolSaveSteps />
+        <PoolSaveSteps times={times} />
       </section>
 
       <div className="mx-auto flex w-full max-w-section flex-col gap-3 pt-section">
         <div id="join" className="scroll-mt-40">
           <ProductRail
             title="Join today’s pool"
-            subtitle="Pick a product, quantity and site. Change or withdraw until 12:00."
+            subtitle={`Order before ${times.poolCloseTime} to join today’s pool.`}
             href="/catalog"
             materials={poolPicks}
           />

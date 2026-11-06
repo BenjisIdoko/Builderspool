@@ -1,18 +1,14 @@
 'use client';
 
 import { useEffect, useState } from 'react';
+import type { PoolStage } from './pool-stages';
 
-// The daily Pool & Save cycle, driven by the real clock in Nigeria (WAT,
-// UTC+1, no daylight saving). Stage times are the ones published on the
-// storefront: pool closes 12:00, bids close 16:00, winners 17:00. There is no
-// participation data to show yet, so this only reports time and stage.
+// Live countdown to the next stage of the daily Pool & Save cycle, in Nigerian
+// time (WAT, UTC+1, no daylight saving). The stages come from the live
+// timeline in Admin > Settings (see lib/pool-stages.ts), never from constants
+// here. There is no participation data in this hook: only time and stage.
 const WAT_OFFSET_MS = 60 * 60 * 1000;
-
-export const POOL_STAGES = [
-  { hour: 12, label: 'Pool closes', detail: 'Join, change or withdraw until then.' },
-  { hour: 16, label: 'Bids close', detail: 'Verified suppliers bid blind.' },
-  { hour: 17, label: 'Winners announced', detail: 'Best bid wins. No winner, no charge.' },
-] as const;
+const DAY_SECONDS = 24 * 3600;
 
 export type PoolClock = {
   /** Index of the stage the countdown is heading to. */
@@ -24,14 +20,19 @@ export type PoolClock = {
   seconds: number;
 };
 
-function nextDeadline(now: number): PoolClock {
+function secondsOfDay(time: string): number {
+  const [h, m] = time.split(':').map(Number);
+  return h * 3600 + m * 60;
+}
+
+function nextDeadline(now: number, stages: PoolStage[]): PoolClock {
   const wat = new Date(now + WAT_OFFSET_MS);
   const secondsToday = wat.getUTCHours() * 3600 + wat.getUTCMinutes() * 60 + wat.getUTCSeconds();
-  const index = POOL_STAGES.findIndex((s) => secondsToday < s.hour * 3600);
+  const index = stages.findIndex((s) => secondsToday < secondsOfDay(s.time));
   const tomorrow = index === -1;
   const total = tomorrow
-    ? 24 * 3600 - secondsToday + POOL_STAGES[0].hour * 3600
-    : POOL_STAGES[index].hour * 3600 - secondsToday;
+    ? DAY_SECONDS - secondsToday + secondsOfDay(stages[0].time)
+    : secondsOfDay(stages[index].time) - secondsToday;
   return {
     index: tomorrow ? 0 : index,
     tomorrow,
@@ -42,11 +43,11 @@ function nextDeadline(now: number): PoolClock {
 }
 
 /**
- * Live countdown to the next pool deadline. Returns null until the component
- * has mounted (the clock only exists in the browser), so server and first
- * client render match and layout never shifts.
+ * Live countdown to the next stage. Returns null until the component has
+ * mounted (the clock only exists in the browser), so server and first client
+ * render match and layout never shifts.
  */
-export function usePoolClock(): PoolClock | null {
+export function usePoolClock(stages: PoolStage[]): PoolClock | null {
   const [now, setNow] = useState<number | null>(null);
 
   useEffect(() => {
@@ -56,7 +57,7 @@ export function usePoolClock(): PoolClock | null {
     return () => clearInterval(timer);
   }, []);
 
-  return now === null ? null : nextDeadline(now);
+  return now === null ? null : nextDeadline(now, stages);
 }
 
 export const pad2 = (n: number) => String(n).padStart(2, '0');
