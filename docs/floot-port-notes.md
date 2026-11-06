@@ -71,20 +71,20 @@ The founder explained the flow aloud and the recording was transcribed. This sec
 
 ### 1c. Resolved rules: the founder's answers and the choices made for them
 
-The founder answered the questions in 1b on 6 Nov 2026. Rows marked **Founder** are their answers. Rows marked **Chosen** were proposed by me where the founder did not answer; they stand until the founder changes them. Rows marked **Founder approved** were proposed by me and accepted. Rows marked **Assumed** follow from the founder's answers but were not said outright; please confirm. Every value is an admin setting, so none of this is permanent.
+The founder answered the questions in 1b on 6 Nov 2026. Rows marked **Founder** are their answers. Rows marked **Chosen** were proposed by me where the founder did not answer; they stand until the founder changes them. Rows marked **Founder approved** were proposed by me and accepted. Rows marked **Founder confirmed** were proposed or assumed by me and then confirmed. Every value is an admin setting, so none of this is permanent.
 
 | # | Topic | Rule | Source |
 |---|---|---|---|
 | 1 | Award | **By category.** One vendor wins the whole category sheet. A vendor must bid every line of the sheet to be eligible, and the cascade runs on the sheet. (The earlier "line mode" idea is dropped.) | Founder |
 | 2 | Reference price | The **lowest listing price among sellers who serve the buyer's zone**. It **freezes at pool close, before bidding begins**, so every bidder sees one fixed number. | Founder |
 | 3 | Timeline | **Bids close at 15:00.** Each accept window is **one hour**: rank 1 15:00 to 16:00, rank 2 16:00 to 17:00, rank 3 17:00 to 18:00. **Final result at 18:00.** The system must refuse settings where bids-close plus three windows does not equal the final time. | Founder |
-| 3b | Pool close | Not stated. Because the reference price freezes *before* bidding and bids close at 15:00, the pool must close earlier. **12:00** fits (a three-hour bidding window) and is also Floot's current pool close. | **Assumed: confirm** |
+| 3b | Pool close | Not stated. Because the reference price freezes *before* bidding and bids close at 15:00, the pool must close earlier. **12:00** fits (a three-hour bidding window) and is also Floot's current pool close. | **Founder confirmed** (6 Nov 2026) |
 | 4 | Revert price | The line reverts at **the price the buyer picked**. | Founder |
-| 4b | Picked seller cannot supply (out of stock, suspended) | That line is **refunded**; nothing is substituted without the buyer's consent. | Chosen |
+| 4b | Picked seller cannot supply (out of stock, suspended) | That line is **refunded**; nothing is substituted without the buyer's consent. | **Founder confirmed** |
 | 4c | Payment | **The buyer pays for the goods at checkout**, into escrow. Floot's "No payment now" wording must go. | Founder |
 | 5 | Scoring | An **explainable score** on six criteria, weights configurable by an authorised administrator (see below). Starting weights are assumptions for the MVP, to be reviewed against real results. | Founder |
-| 5b | New supplier with no history | A neutral performance score of **50 out of 100** until 5 completed orders. | Chosen (carried over from the Next.js setting) |
-| 5c | Bid above the reference | **Ineligible.** The founder said a bulk bid that cannot beat the reference has no purpose. | Chosen (from the call, not repeated in the answers) |
+| 5b | New supplier with no history | A neutral performance score of **50 out of 100** until 5 completed orders. | **Founder confirmed** |
+| 5c | Bid above the reference | **Ineligible.** The founder said a bulk bid that cannot beat the reference has no purpose. | **Founder confirmed** (the whole sheet is ineligible) |
 | 6 | Seller upload checks | See below. | **Founder approved** (6 Nov 2026) |
 
 **Scoring (Founder).** Lowest price matters, but price alone can reward unreliable supply, so the score weighs landed cost, performance, capacity and delivery.
