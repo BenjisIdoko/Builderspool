@@ -1,6 +1,6 @@
 # BuildersPool: port notes for the Floot build
 
-Written 5 Nov 2026. Updated 6 Nov 2026 (sections 1b and 1c, the founder's call transcript and the resolved rules; section 2.11, service areas; scenarios 13 to 24). Source: the Next.js repo (`BenjisIdoko/Builderspool`, Phases 1 and 2, commits `e33cf81` to `20987c3`) compared with `BuildersPool_Technical_Requirements.docx` v1.0, which describes the Floot app as built.
+Written 5 Nov 2026. Updated 6 Nov 2026 (sections 1b and 1c, the founder's call transcript and the resolved rules; section 2.11, service areas; scenarios 13 to 26). Source: the Next.js repo (`BenjisIdoko/Builderspool`, Phases 1 and 2, commits `e33cf81` to `20987c3`) compared with `BuildersPool_Technical_Requirements.docx` v1.0, which describes the Floot app as built.
 
 **Purpose.** Floot is now the product. The Next.js build solved some problems the Floot spec does not mention. This file lists them as rules and tests, so they can be checked in Floot (or pasted into it as prompts) without anyone reading the old code.
 
@@ -28,6 +28,8 @@ These are real differences between the two builds. The Transfer File (4 Nov) and
 | Buy Direct commission | 3% (setting) | 3% | Matches. |
 | Savings split | 50/50 (setting) | 50/50 | Matches. |
 
+**Resolved on 6 Nov 2026 (details in 1c).** Scoring: the founder's table, which matches the Next.js build (30/20/20/15/10/5), not Floot's 60/20/15/5. Times: bids close 15:00, one-hour accept windows, final result 18:00 (pool close assumed 12:00). Split awards: the award is by category sheet, one vendor per sheet, so no splitting within a sheet. Cascade: three ranks, then revert to the picked seller at the picked price (refund only if that seller cannot supply). No buyer fallback authorisation is needed.
+
 Recommendation: keep every row above as an admin setting in Floot (the spec says all live settings are editable at Admin > Settings), so changing a choice later needs no code.
 
 ### 1b. The founder's own description of the bidding and pooling flow (voice call transcript)
@@ -39,12 +41,12 @@ The founder explained the flow aloud and the recording was transcribed. This sec
 | Two ways to buy | **Buy Direct**: pick items, cart, checkout; the system adds item cost and transport; last-mile delivery, or pickup at the fulfilment centre. **Pool & Save**: the buyer is willing to wait while other Pool & Save buyers are aggregated. | Same two ideas, but one fixed catalogue price and no visible seller | Same as the founder, with a per-seller offers list | Settled |
 | What the buyer sees | On Buy Direct the buyer sees which seller's listing they are picking ("from Ushafa Builders Ltd"). Choosing Pool & Save means giving up the right to choose the supplier. | Never shows a seller to a buyer | Offers list per seller | Settled. **This build cannot express it** (one catalogue price per material). |
 | Aggregation | All Pool & Save lines go into one pool, then are split by category (plumbing, reinforcement, electrical, cement, and so on). | Per material per region | Per category per zone | Settled: category-level RFQs |
-| RFQ | Sent to every vendor registered for that category, as an Excel-style sheet **with pictures**: item, total quantity, reference price, and a bid price (and a minimum or maximum) to fill in. One submit per vendor. | Cycle per material; no sheet | Per spec, check for the sheet and pictures | Settled. Needs confirming: per-item or whole-sheet award (below). |
-| Reference price | The **lowest price of that material across sellers' listings on the platform**, recalculated as buyers join, **until the pool closes**. Bidders see it on the RFQ; sellers do not see it while listing. | Fixed catalogue price | Lowest Buy Direct price "in your area" at 12:00 | Settled in principle. Needs confirming: platform-wide or per zone, and that it freezes at pool close. |
-| Scoring | Best price, cost to deliver, quality (matches the specification), and past performance (right quantity, right quality, on time). New suppliers have no record at first. Highest percentage wins, then second, then third. | Six weights (30/20/20/15/10/5) | Four weights (60/20/15/5) | The criteria are settled; **the weights were not stated**. Needs confirming. |
+| RFQ | Sent to every vendor registered for that category, as an Excel-style sheet **with pictures**: item, total quantity, reference price, and a bid price (and a minimum or maximum) to fill in. One submit per vendor. | Cycle per material; no sheet | Per spec, check for the sheet and pictures | Settled. **Award is by category sheet** (1c). |
+| Reference price | The **lowest price of that material across sellers' listings on the platform**, recalculated as buyers join, **until the pool closes**. Bidders see it on the RFQ; sellers do not see it while listing. | Fixed catalogue price | Lowest Buy Direct price "in your area" at 12:00 | **Settled in 1c:** buyer's zone, frozen at pool close before bidding. |
+| Scoring | Best price, cost to deliver, quality (matches the specification), and past performance (right quantity, right quality, on time). New suppliers have no record at first. Highest percentage wins, then second, then third. | Six weights (30/20/20/15/10/5) | Four weights (60/20/15/5) | **Settled in 1c:** six criteria 30/20/20/15/10/5 (the founder's table). |
 | If the winner doesn't accept | Re-award to the second, then the third, each within a time limit. After the third: the RFQ is **cancelled**. | Passes once, then final | Re-awarded to the next best, no stated limit | **New rule: a bounded cascade of three ranks.** |
 | If the RFQ is cancelled | The lines **revert to the sellers whose listings the buyers originally picked**, who fulfil them as an ordinary Buy Direct order. "We are not leaving you without products." | Refund, nothing is bought | Buyer authorises a fallback purchase in advance | **A third model.** Needs confirming: price, stock, and when the buyer pays. |
-| Timing | Pool closes at **3pm** (leaning; 12, 3 or 5 were considered); as one pool closes the next opens. RFQ goes out at once; accept windows of about an hour each (3 to 4, 4 to 5, 5 to 6); everything settled by **6pm**. | 17:00 close, 18:00 award, 19:00 accept, 19:50 final | 12:00 / 16:00 / 17:00 | Leaning 15:00. Needs confirming: when bids close (the transcript lets vendors bid and be awarded "immediately"). |
+| Timing | Pool closes at **3pm** (leaning; 12, 3 or 5 were considered); as one pool closes the next opens. RFQ goes out at once; accept windows of about an hour each (3 to 4, 4 to 5, 5 to 6); everything settled by **6pm**. | 17:00 close, 18:00 award, 19:00 accept, 19:50 final | 12:00 / 16:00 / 17:00 | **Settled in 1c:** bids close 15:00, one-hour windows, final 18:00; pool close assumed 12:00. |
 | Delivery | Pool & Save arrives the next day or two (24, 48 or 72 hours), depending on volume, bulk and distance. Suppliers are allocated near the site, except national products. | Not modelled | Per-km last mile from the nearest centre | Settled |
 | Money | Buyer's money is in escrow. The seller is paid **only after delivery and the fulfilment centre's quality check** against the specification. | Same (GRN releases escrow) | Same | Settled |
 | Why sellers join | Bulk volume and liquidity: a pooled award can empty a warehouse, and the cash is already in escrow. | n/a | n/a | Context |
@@ -55,7 +57,7 @@ The founder explained the flow aloud and the recording was transcribed. This sec
 2. Three decisions in the table above are now answered: category-level RFQs, the three-rank cascade, and revert-to-original-seller instead of refund or pre-authorised purchase. Three are leaning: 15:00 pool close, reference price from the lowest listing, and the four criteria.
 3. The "fallback" is no longer the choice between a refund and an authorised purchase. It is a **revert to the originally picked seller's listing**. Floot's pre-ticked authorisation checkbox is then unnecessary, and the join form should say so.
 
-**Questions only the founder can answer**
+**Questions that were open (answered on 6 Nov 2026; see 1c)**
 1. Is the award per line item or per category sheet? The transcript says "the most responsive bidder" for the category, but vendors bid per item.
 2. Does the reference price count the whole platform or only sellers who serve the buyer's zone? It must freeze at pool close.
 3. When do bids close, and how long is each accept window? The transcript gives about an hour per rank, ending at 18:00.
@@ -69,18 +71,35 @@ The founder explained the flow aloud and the recording was transcribed. This sec
 
 ### 1c. Resolved rules: the founder's answers and the choices made for them
 
-These are the answers to the six questions in 1b. Rows marked **Founder** are the founder's own words. Rows marked **Chosen** were delegated ("you choose", "suggest for me") and are proposals for the founder to approve. Rows marked **Reading** are my interpretation of a short answer; correct them if wrong. Every value is an admin setting, so none of this is permanent.
+The founder answered the questions in 1b on 6 Nov 2026. Rows marked **Founder** are their answers. Rows marked **Chosen** were proposed by me where the founder did not answer; they stand until the founder changes them. Rows marked **Assumed** follow from the founder's answers but were not said outright; please confirm. Every value is an admin setting, so none of this is permanent.
 
-| # | Question | Resolution | Source |
+| # | Topic | Rule | Source |
 |---|---|---|---|
-| 1 | Award per line or per sheet? | **Both, as a setting per category.** *Line mode* (default): each line goes to the highest-scoring bid on that line, and a vendor may bid on some lines only. *Sheet mode*: a vendor must bid every line; the highest total score wins the whole sheet and the cascade runs on the sheet. | Founder ("both for now"); default Chosen |
-| 2 | Reference price scope | The **lowest listing price among sellers who can serve the buyer's delivery zone**, i.e. what the buyer could actually have bought at. Recalculated while the pool is open and **frozen at pool close**. | Reading of "the buyer's platform"; freeze from the earlier call |
-| 3 | When does it all end? | **Final result at 18:00.** Timeline that fits (all values are settings): pool closes **15:00**, bids close **15:45**, accept windows of **45 minutes** for rank 1 (15:45 to 16:30), rank 2 (16:30 to 17:15), rank 3 (17:15 to 18:00). The system must reject any settings where bids close plus three windows does not equal the final time. | 18:00 Founder; split of the day Chosen |
-| 4 | Revert price | **The price the buyer picked** (the listing price when they added it). | Founder |
-| 4b | Revert when the picked seller cannot supply (out of stock, suspended) | The line is **refunded**; nothing is substituted without the buyer's consent. | Chosen |
-| 4c | When does the buyer pay? | **At checkout, into escrow**, for Pool & Save as for Buy Direct, because the founder said the money is already in escrow when the pool is awarded. If the RFQ is cancelled, the same escrow carries over to the picked seller. | Founder's call plus Chosen. **This conflicts with Floot's "No payment now. Pay after the award" text; that text should change.** |
-| 5 | Scoring | Four criteria, **weights 40 / 15 / 20 / 25**: unit price 40, delivery cost 15, quality (match to the specification) 20, past performance 25. A new supplier with fewer than 5 completed orders gets a neutral performance score of **50 out of 100**. A bid **above the reference price is ineligible** (the founder's point: a bulk bid that cannot beat the reference has no purpose). | Chosen; "must beat reference" inferred from the call |
+| 1 | Award | **By category.** One vendor wins the whole category sheet. A vendor must bid every line of the sheet to be eligible, and the cascade runs on the sheet. (The earlier "line mode" idea is dropped.) | Founder |
+| 2 | Reference price | The **lowest listing price among sellers who serve the buyer's zone**. It **freezes at pool close, before bidding begins**, so every bidder sees one fixed number. | Founder |
+| 3 | Timeline | **Bids close at 15:00.** Each accept window is **one hour**: rank 1 15:00 to 16:00, rank 2 16:00 to 17:00, rank 3 17:00 to 18:00. **Final result at 18:00.** The system must refuse settings where bids-close plus three windows does not equal the final time. | Founder |
+| 3b | Pool close | Not stated. Because the reference price freezes *before* bidding and bids close at 15:00, the pool must close earlier. **12:00** fits (a three-hour bidding window) and is also Floot's current pool close. | **Assumed: confirm** |
+| 4 | Revert price | The line reverts at **the price the buyer picked**. | Founder |
+| 4b | Picked seller cannot supply (out of stock, suspended) | That line is **refunded**; nothing is substituted without the buyer's consent. | Chosen |
+| 4c | Payment | **The buyer pays for the goods at checkout**, into escrow. Floot's "No payment now" wording must go. | Founder |
+| 5 | Scoring | An **explainable score** on six criteria, weights configurable by an authorised administrator (see below). Starting weights are assumptions for the MVP, to be reviewed against real results. | Founder |
+| 5b | New supplier with no history | A neutral performance score of **50 out of 100** until 5 completed orders. | Chosen (carried over from the Next.js setting) |
+| 5c | Bid above the reference | **Ineligible.** The founder said a bulk bid that cannot beat the reference has no purpose. | Chosen (from the call, not repeated in the answers) |
 | 6 | Seller upload checks | See below. | Chosen |
+
+**Scoring (Founder).** Lowest price matters, but price alone can reward unreliable supply, so the score weighs landed cost, performance, capacity and delivery.
+
+| Criterion | Starting weight | How to interpret it |
+|---|---|---|
+| Competitive landed price | 30% | Compare material and delivery costs like for like. |
+| Historical supplier performance | 20% | Verified delivery completion, on-time performance, cancellations and quality disputes. |
+| Quantity and fulfilment capacity | 20% | Available stock, capacity and ability to fulfil the awarded quantity. |
+| Delivery speed and SLA compliance | 15% | Promised delivery against the buyer's required window. |
+| Geographic suitability | 10% | Feasible supply routes and location-related constraints. |
+| Bid responsiveness and completeness | 5% | Complete, valid and timely responses to the RFQ. |
+| **Total** | **100%** | Weights are editable by an authorised administrator and must sum to 100. |
+
+Every award stores the points per criterion and a one-line reason for each, so a score can be explained to a supplier. **These weights are the same as the Next.js build's** (price 30, performance 20, capacity 20, delivery 15, geography 10, responsiveness 5). Floot's 60/20/15/5 does not match the founder's table and should be changed.
 
 **Quality check on seller uploads (Chosen).** Each listing is checked on save and gets one of three outcomes: *pass*, *needs review* (held out of the catalogue until ops approve) or *reject*, always with a reason code.
 - **Photos.** At least one. JPEG, PNG or WebP, up to 5 MB, at least 1000 px on the long edge. Reject watermarks, phone numbers and contact details in the image (visual check by ops), and a photo that is clearly a screenshot or a stock image.
@@ -91,12 +110,13 @@ These are the answers to the six questions in 1b. Rows marked **Founder** are th
 - **Never shown to sellers while listing:** the reference price. They see their own price and platform guidance only.
 
 **What changes in the other sections of these notes**
-- Section 1 table: cascade is now three ranks, then revert; fallback is revert to the picked seller at the picked price (refund only if that seller cannot supply); times follow 1c (pool 15:00, final 18:00).
+- Section 1 table: scoring is the founder's six-criterion table (matches this repo, not Floot). The cascade is three ranks, then revert to the picked seller at the picked price (refund only if that seller cannot supply). Times are bids 15:00, one-hour windows, final 18:00, with pool close assumed at 12:00.
 - Section 2.4 (fallback) and the Floot join form: no fallback-purchase checkbox is needed, and the "no payment now" line must go.
+- Quality against the specification is no longer a scored criterion. It is enforced at delivery, by the fulfilment centre's check, and feeds the performance score through quality disputes.
 
 **Single prompt for Floot (replaces the cascade prompt in 1b).** Paste into Floot:
 
-> Set up the Pool & Save cycle with these admin-editable settings and rules. Times (Lagos): pool closes 15:00, bids close 15:45, accept windows of 45 minutes, final result 18:00; reject settings where bids-close plus three windows does not equal the final time. At pool close, freeze each line's reference price as the lowest listing price among sellers serving that buyer's delivery zone. Group lines by category and send each category an RFQ to every approved vendor registered for it, with item pictures, total quantity and the reference price. A bid above the reference price is ineligible. Score eligible bids on unit price (40), delivery cost (15), quality against the specification (20) and past performance (25); a supplier with fewer than 5 completed orders gets a neutral performance score of 50. Award mode is a per-category setting: "line" (each line to its best-scoring bid) or "sheet" (the vendor bidding every line with the best total wins the sheet); default line. The winner has one accept window; if they do not accept, award to rank two with their own window, then rank three. If rank three does not accept, cancel and revert each line to the seller whose listing the buyer picked, at the price the buyer picked, as an ordinary Buy Direct order; if that seller cannot supply, refund that line. Buyers pay into escrow at checkout; remove any "no payment now" wording. Sellers are paid only after delivery and the fulfilment centre's quality check. Every step must be safe to run twice and write an audit entry. Validate seller listings on save: at least one photo (1000 px long edge, up to 5 MB, JPEG/PNG/WebP), all required fields, a price within 50% to 150% of the median of other listings for that material (otherwise "needs review"), a production or expiry date for perishables with at least 30 days left, and duplicate detection; return pass, needs review or reject with reason codes.
+> Set up the Pool & Save cycle with these admin-editable settings and rules. Times (Lagos): pool closes 12:00, bids close 15:00, three accept windows of one hour each, final result 18:00; reject settings where bids-close plus three windows does not equal the final time. At pool close, before bidding begins, freeze each line's reference price as the lowest listing price among sellers serving that buyer's delivery zone. Group lines by category and send each category's RFQ sheet to every approved vendor registered for that category, with item pictures, total quantity and the frozen reference price. A vendor must bid every line of the sheet; a bid above the reference price on any line is ineligible. Score eligible sheets on six criteria with administrator-editable weights that sum to 100, starting at: competitive landed price 30, historical supplier performance 20, quantity and fulfilment capacity 20, delivery speed and SLA compliance 15, geographic suitability 10, bid responsiveness and completeness 5. Store the points and a one-line reason per criterion for every score. A supplier with fewer than 5 completed orders gets a neutral performance score of 50. Award the whole category sheet to the top-ranked vendor, who has one hour to accept; if they do not, award to rank two with its own hour, then rank three. If rank three does not accept, cancel and revert each line to the seller whose listing the buyer picked, at the price the buyer picked, as an ordinary Buy Direct order; if that seller cannot supply, refund that line. Buyers pay for the goods at checkout, into escrow; remove any "no payment now" wording. Sellers are paid only after delivery and the fulfilment centre's quality check. Every step must be safe to run twice and write an audit entry. Validate seller listings on save: at least one photo (1000 px long edge, up to 5 MB, JPEG/PNG/WebP), all required fields, a price within 50% to 150% of the median of other listings for that material (otherwise "needs review"), a production or expiry date for perishables with at least 30 days left, and duplicate detection; return pass, needs review or reject with reason codes.
 
 ---
 
@@ -306,11 +326,13 @@ Last-mile delivery priced per km from the nearest centre, Hub and Dispatch scree
 17. **Reference price.** Add a cheaper listing while the pool is open: the reference price drops. After pool close it no longer changes. Bidders see it on the RFQ; sellers do not see it on their listing screens.
 18. **Pooled by category.** Orders for PPR pipes and cement in the same pool produce two RFQs, each sent only to vendors registered for that category, and each with item pictures.
 19. **Beat the reference.** A bid above the frozen reference price is excluded with a reason code; a bid at or below it is scored.
-20. **Timeline guard.** Saving settings where bids close plus three accept windows does not equal the final time is refused with a clear message.
+20. **Timeline guard.** Saving settings where bids close (15:00) plus three one-hour accept windows does not equal the final time (18:00) is refused with a clear message.
 21. **Revert.** After rank three declines, each line goes to the picked seller at the price the buyer picked. If that seller is out of stock or suspended, only that line is refunded.
 22. **Upload checks.** A listing with no photo is rejected; a price ten times the median goes to "needs review"; cement with 20 days of life left is rejected; an identical second listing from the same seller goes to "needs review".
 23. **No fee, no delivery.** A zone with no delivery fee set offers pickup only; entering a fee enables delivery from the next page load, and no paid order changes.
 24. **National supply.** A seller flagged national supply appears in every zone's coverage count and can bid in any zone's RFQ; an unflagged seller covers only the zones they declared and ops approved.
+25. **Sheet award.** A vendor who bids only some lines of a category sheet is ineligible; the best-scoring complete sheet wins all of it, and a lost sheet cascades as one unit.
+26. **Explainable score.** Open any award: it shows points and a one-line reason for each of the six criteria, and changing a weight in admin changes only future awards.
 
 ## 5. Lessons from testing (apply to Floot too)
 
