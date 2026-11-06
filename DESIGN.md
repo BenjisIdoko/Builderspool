@@ -394,6 +394,14 @@ Pill, `caption`/`label`, soft-tint fill + coloured text + 1px tinted border + a 
 - **Layout:** group related fields (site, contact, timing), keep the primary action ("Join the pool") and the secondary one (Cancel, a link) on one row, and open the form as a sheet or step rather than inline inside the panel.
 - **Disabled state:** the submit button is disabled only until required fields are valid, and the first missing field is named in text beside it.
 
+### 6.14 Delivery-area selector
+
+- **"Deliver to"** appears in the header or on the product page and shows the buyer's locality (a city, town or district), with its Area Council (LGA) as secondary text. It opens a searchable list grouped by LGA; typing filters by locality and by LGA.
+- **Never a free-text region.** Delivery addresses pick an LGA and a locality, then take a street and an optional landmark.
+- **Availability is stated, not implied.** A locality with no active delivery zone shows "Delivery not available here yet", offers pickup with the fulfilment centre's address and hours, and a one-field "Tell us you want delivery here" request. The delivery fee is shown before payment, per seller.
+- **Counts, never names.** "N sellers deliver here" is allowed; seller identities are not shown before award.
+- **Pickup** always shows the centre's locality and LGA, opening hours and the free-collection line.
+
 ---
 
 ## 7. Motion

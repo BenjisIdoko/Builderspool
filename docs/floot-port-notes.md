@@ -1,6 +1,6 @@
 # BuildersPool: port notes for the Floot build
 
-Written 5 Nov 2026. Source: the Next.js repo (`BenjisIdoko/Builderspool`, Phases 1 and 2, commits `e33cf81` to `20987c3`) compared with `BuildersPool_Technical_Requirements.docx` v1.0, which describes the Floot app as built.
+Written 5 Nov 2026. Updated 6 Nov 2026 (section 2.11, service areas; scenarios 13 to 15). Source: the Next.js repo (`BenjisIdoko/Builderspool`, Phases 1 and 2, commits `e33cf81` to `20987c3`) compared with `BuildersPool_Technical_Requirements.docx` v1.0, which describes the Floot app as built.
 
 **Purpose.** Floot is now the product. The Next.js build solved some problems the Floot spec does not mention. This file lists them as rules and tests, so they can be checked in Floot (or pasted into it as prompts) without anyone reading the old code.
 
@@ -151,11 +151,54 @@ Six roles in the Floot spec match the Next.js build's: buyer, seller (owner and 
 - Seller staff act on the owner's account (bids, orders, allocations) but are blocked from KYC, bank details, terms and the team page.
 - A disabled account cannot sign in anywhere and its sessions are revoked.
 
+### 2.11 Service areas: Local Government Area, then city or district, then delivery zone
+
+**Decision (6 Nov 2026, founder).** Fulfilment regions narrow from whole states to Local Government Areas (LGAs) and cities. The first list covers the FCT (Abuja) only. The Floot spec lists "placeholder delivery zones" as an open gap; this replaces them.
+
+**Rule.** Three levels, each with one parent:
+
+| Level | Examples | Used for |
+|---|---|---|
+| Area Council (LGA) | AMAC, Bwari, Gwagwalada, Kuje, Kwali, Abaji | Reporting, address validation, ops filters, where a seller is based |
+| Locality (city, town or district) | Garki, Maitama, Lugbe, Ushafa, Kubwa | The buyer's address and "Deliver to" choice, nearest fulfilment centre |
+| Delivery zone (admin-defined group of localities) | "AMAC – Lugbe / Airport Road corridor" | **The pool key** (one cycle per material per zone per day), the delivery fee, seller coverage, the supplier cap |
+
+A locality belongs to exactly one LGA and to at most one active zone. A zone may cross LGA lines (Floot's "Nyanya / Karu / Jikwoyi corridor" does). Pools are formed at **zone** level, never at locality level: many tiny pools would leave one or two sellers per pool, and blind competition needs the supplier cap (default 5) to be reachable.
+
+**Starting data (ops to confirm before use).**
+- Six Area Councils: AMAC, Bwari, Gwagwalada, Kuje, Kwali, Abaji.
+- Five zones already in Floot: AMAC – Lugbe / Airport Road; AMAC – Nyanya / Karu / Jikwoyi; AMAC – Lokogoma / Wumba / Kabusa; Bwari Area Council; Gwagwalada Area Council.
+- Localities to seed, grouped by LGA: AMAC (Garki, Wuse, Maitama, Asokoro, Jabi, Utako, Gwarinpa, Lugbe, Nyanya, Jikwoyi, Lokogoma, Kabusa, Wumba, Apo); Bwari (Bwari town, Ushafa, Kubwa, Dutse); Gwagwalada (Gwagwalada town); Kuje, Kwali and Abaji (their council towns). Kuje, Kwali and Abaji have no zone yet, so delivery there shows as "not available yet".
+- **Open: Karu.** Karu is a Nasarawa State LGA, but Floot's corridor name includes it. Decide whether border towns in Nasarawa (Karu, Mararaba) are in scope. If yes, the model needs a state level above the LGA.
+
+**Behaviour.**
+- **Buyer address.** Delivery needs an LGA and a locality (searchable lists, grouped by LGA), a free-text street, and an optional landmark. Pickup is unaffected. The choice is remembered on the account.
+- **No zone, no delivery.** A locality with no active zone cannot be delivered to: show pickup and a "Tell us you want delivery here" capture (phone plus locality, one per pair).
+- **Product page.** "Deliver to" shows the buyer's locality. "N sellers deliver here" counts sellers covering that zone; never names them.
+- **Sellers.** Coverage is declared per zone (multi-select). The geography filter at award means "covers the order's zone". Suspending coverage for a zone removes that seller from its cycles from the next cycle date.
+- **Fulfilment centres.** Each has a locality, an LGA, an address, opening hours and the zones it serves. Pickup shows the centre's details (Ushafa: Bwari Area Council, Mon to Sat, 8am to 6pm).
+- **Delivery fee.** Set per zone in admin by the business, not by engineering. One flat fee per seller, shown before payment.
+- **History is never rewritten.** Moving a locality to another zone changes nothing for paid orders or open cycles; it applies from the next cycle date.
+- **Audit.** Every create, rename, move or disable of an LGA, locality, zone or mapping writes an audit entry (who, when, before, after).
+
+**Decisions to settle.**
+1. Pool grain: zone (recommended) or LGA. Locality is not recommended.
+2. Whether Nasarawa border towns are in scope (see Karu above).
+3. Who maintains the lists: an admin screen (recommended) or database changes only.
+4. The delivery fee table per zone: owned by the business.
+5. Seller coverage at zone level (recommended) or locality level.
+
+**Check.** In Floot admin, can you see LGA, locality and zone as three linked lists? Move a locality to another zone: does tomorrow's pool change while today's and every paid order stay as they were?
+
+**Prompt.** Paste into Floot:
+
+> Replace the placeholder delivery zones with a three-level service-area model for the FCT (Abuja). Level 1: Area Council (LGA), seeded with AMAC, Bwari, Gwagwalada, Kuje, Kwali, Abaji. Level 2: locality (city, town or district), each belonging to exactly one LGA; seed the localities I give you. Level 3: delivery zone, an admin-defined group of localities (a zone may span LGAs); a locality is in at most one active zone. Use the zone as the key for pool cycles (one cycle per material per zone per day), the delivery fee, seller coverage and the supplier cap. Buyer delivery addresses must pick an LGA and a locality from searchable lists, plus a street and an optional landmark; pickup is unaffected. A locality with no active zone cannot be delivered to: offer pickup and a "tell us you want delivery here" request (phone plus locality, deduplicated). Sellers declare coverage per zone. Each fulfilment centre records its locality, LGA, address, hours and the zones it serves. Add an admin screen to manage LGAs, localities, zones, mappings and per-zone delivery fees. Moving a locality to another zone must not change paid orders or open cycles; it applies from the next cycle date. Audit-log every change with who, when, before and after. Do not rename or delete existing zone rows that orders or cycles reference; deactivate them instead.
+
 ---
 
 ## 3. Floot has these; the Next.js build does not (do not port back)
 
-Last-mile delivery priced per km from the nearest centre, Hub and Dispatch screens, 4-digit proof-of-delivery codes (lock after 5 wrong tries), bulk upload from Excel templates, in-app notification bell for every event, a 30-minute housekeeping job, one order per seller with a 24-hour accept window, 30-minute stock hold during checkout, sitemap and share previews, 32 automated test files. The Floot spec's own open gaps (placeholder delivery zones, no partial refunds, search index needed past about 5,000 listings, no live truck tracking, independent security review before real money) stand.
+Last-mile delivery priced per km from the nearest centre, Hub and Dispatch screens, 4-digit proof-of-delivery codes (lock after 5 wrong tries), bulk upload from Excel templates, in-app notification bell for every event, a 30-minute housekeeping job, one order per seller with a 24-hour accept window, 30-minute stock hold during checkout, sitemap and share previews, 32 automated test files. The Floot spec's own open gaps (placeholder delivery zones, which section 2.11 now replaces; no partial refunds, search index needed past about 5,000 listings, no live truck tracking, independent security review before real money) stand.
 
 ---
 
@@ -173,6 +216,9 @@ Last-mile delivery priced per km from the nearest centre, Hub and Dispatch scree
 10. **Switches.** With withdrawals and payouts off, the server refuses both calls and the buttons are hidden.
 11. **Security.** Forged cookie rejected, spoofed buyer id ignored, negative or duplicate quantities rejected, wrong cron secret rejected, sixth failed sign-in locked.
 12. **Money check.** The trial balance still sums to zero after all of the above, and every captured payment reconciles to its ledger posting.
+13. **Address rules.** A delivery order with no locality is refused. A locality with no active zone: delivery is unavailable, pickup works, and the "want delivery here" request is stored once per phone and locality.
+14. **Zone move.** Move a locality to another zone mid-day: paid orders and open cycles are unchanged, tomorrow's order uses the new zone, and an audit entry exists.
+15. **Coverage and pooling.** A seller covering Zone A only cannot see or bid in Zone B. Two orders from different localities of the same zone join one cycle.
 
 ## 5. Lessons from testing (apply to Floot too)
 
