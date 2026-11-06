@@ -4,14 +4,13 @@ import { useState } from "react";
 import {
   CaretDownIcon,
   LockKeyIcon,
-  MinusIcon,
   PlusIcon,
 } from "@phosphor-icons/react/ssr";
 import { useCart } from "@/lib/cart/CartContext";
 import { formatNaira } from "@/lib/format";
 import type { BuyerMaterial } from "@/lib/queries/materials";
 import { Button } from "@/components/ui/button";
-import { QuantityInput } from "@/components/quantity-input";
+import { QuantityStepper } from "@/components/quantity-stepper";
 import {
   Sheet,
   SheetContent,
@@ -29,12 +28,6 @@ export function ProductBuyBox({ material }: { material: BuyerMaterial }) {
   const [added, setAdded] = useState(false);
   const [sheetOpen, setSheetOpen] = useState(false);
 
-  function decrement() {
-    setQuantity((q) => Math.max(1, q - 1));
-  }
-  function increment() {
-    setQuantity((q) => q + 1);
-  }
   function handleAdd() {
     addItem(
       {
@@ -53,10 +46,10 @@ export function ProductBuyBox({ material }: { material: BuyerMaterial }) {
 
   return (
     <>
-      <div className="hidden rounded-md bg-surface p-5 lg:sticky lg:top-44 lg:block lg:self-start">
-        <div className="mb-5 text-2xl font-bold tabular-nums text-text-storefront">
+      <div className="hidden rounded-card bg-surface p-5 lg:sticky lg:top-44 lg:block lg:self-start">
+        <div className="mb-5 text-price-lg tabular-nums text-text-storefront">
           {formatNaira(material.catalogPrice)}{" "}
-          <span className="font-sans text-sm font-medium text-muted-foreground">
+          <span className="font-sans text-body-sm font-medium text-muted-foreground">
             / {material.unit}
           </span>
         </div>
@@ -65,30 +58,7 @@ export function ProductBuyBox({ material }: { material: BuyerMaterial }) {
           <span className="text-[13px] font-bold text-slate">
             Quantity ({material.unit})
           </span>
-          <div className="flex items-center overflow-hidden rounded-lg border border-border-strong">
-            <button
-              type="button"
-              onClick={decrement}
-              aria-label={`Decrease quantity of ${material.name}`}
-              className="flex size-[30px] items-center justify-center bg-well text-ink transition-colors hover:bg-border-strong/40"
-            >
-              <MinusIcon className="size-3.5" />
-            </button>
-            <QuantityInput
-              value={quantity}
-              onChange={setQuantity}
-              label={material.name}
-              className="w-11 text-sm font-bold text-ink"
-            />
-            <button
-              type="button"
-              onClick={increment}
-              aria-label={`Increase quantity of ${material.name}`}
-              className="flex size-[30px] items-center justify-center bg-well text-ink transition-colors hover:bg-border-strong/40"
-            >
-              <PlusIcon className="size-3.5" />
-            </button>
-          </div>
+          <QuantityStepper value={quantity} onChange={setQuantity} label={material.name} />
         </div>
 
         <div className="mb-5 flex flex-col gap-1.5 border-t border-border pt-4 text-sm">
@@ -128,7 +98,7 @@ export function ProductBuyBox({ material }: { material: BuyerMaterial }) {
         <button
           type="button"
           onClick={() => setSheetOpen(true)}
-          className="flex h-11 shrink-0 items-center gap-2 rounded-md border border-border-strong px-4 text-sm font-bold text-ink"
+          className="flex h-13 shrink-0 items-center gap-2 rounded-md border border-input px-4 text-body-sm font-bold text-ink"
         >
           Qty {quantity}
           <CaretDownIcon className="size-3.5 text-muted-foreground" />
@@ -151,42 +121,19 @@ export function ProductBuyBox({ material }: { material: BuyerMaterial }) {
         <SheetContent
           side="bottom"
           showCloseButton={false}
-          className="rounded-t-xl px-5 pt-5 pb-[calc(20px+env(safe-area-inset-bottom))] lg:hidden"
+          className="rounded-t-panel px-5 pt-5 pb-[calc(20px+env(safe-area-inset-bottom))] lg:hidden"
         >
-          <SheetTitle className="text-lg font-bold text-ink">
+          <SheetTitle className="text-heading-md text-ink">
             {material.name}
           </SheetTitle>
           <SheetDescription>
             {formatNaira(material.catalogPrice)} / {material.unit}
           </SheetDescription>
           <div className="flex items-center justify-between gap-3">
-            <span className="text-sm font-bold text-slate">
+            <span className="text-heading-sm text-ink">
               Quantity ({material.unit})
             </span>
-            <div className="flex items-center overflow-hidden rounded-md border border-border-strong">
-              <button
-                type="button"
-                onClick={decrement}
-                aria-label={`Decrease quantity of ${material.name}`}
-                className="flex size-11 items-center justify-center bg-well text-ink"
-              >
-                <MinusIcon className="size-4" />
-              </button>
-              <QuantityInput
-                value={quantity}
-                onChange={setQuantity}
-                label={material.name}
-                className="w-14 text-base font-bold text-ink"
-              />
-              <button
-                type="button"
-                onClick={increment}
-                aria-label={`Increase quantity of ${material.name}`}
-                className="flex size-11 items-center justify-center bg-well text-ink"
-              >
-                <PlusIcon className="size-4" />
-              </button>
-            </div>
+            <QuantityStepper value={quantity} onChange={setQuantity} label={material.name} />
           </div>
           <div className="flex justify-between border-t border-border pt-4 text-sm text-slate">
             <span>Subtotal</span>

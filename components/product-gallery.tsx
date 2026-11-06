@@ -41,7 +41,7 @@ export function ProductGallery({
         <div
           ref={trackRef}
           onScroll={handleScroll}
-          className="flex snap-x snap-mandatory overflow-x-auto rounded-xl border border-border [scrollbar-width:none] [&::-webkit-scrollbar]:hidden"
+          className="flex snap-x snap-mandatory overflow-x-auto rounded-card border border-border [scrollbar-width:none] [&::-webkit-scrollbar]:hidden"
         >
           {slides.map((img, i) => (
             <button

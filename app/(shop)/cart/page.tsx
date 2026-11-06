@@ -1,14 +1,14 @@
 'use client';
 
 import Link from 'next/link';
-import { LockKeyIcon, MinusIcon, PlusIcon, TrashIcon } from '@phosphor-icons/react/ssr';
+import { LockKeyIcon, TrashIcon } from '@phosphor-icons/react/ssr';
 import { useCart } from '@/lib/cart/CartContext';
 import { formatNaira } from '@/lib/format';
 import { EmptyState } from '@/components/empty-state/empty-state';
 import { EmptyCartIllustration } from '@/components/empty-state/illustrations';
 import { Button } from '@/components/ui/button';
 import { MaterialImage } from '@/components/material-image';
-import { QuantityInput } from '@/components/quantity-input';
+import { QuantityStepper } from '@/components/quantity-stepper';
 import { CheckoutSteps } from '@/components/checkout-steps';
 import { SwipeToDelete } from '@/components/swipe-to-delete';
 
@@ -37,7 +37,7 @@ export default function CartPage() {
   return (
     <div className="mx-auto w-full max-w-section pt-6 pb-24 lg:pb-10">
       <CheckoutSteps current={0} />
-      <h1 className="mb-6 text-2xl font-bold tracking-tight text-ink">
+      <h1 className="mb-6 text-ink">
         Cart <span className="font-normal text-muted-foreground">({itemCount} {itemCount === 1 ? 'item' : 'items'})</span>
       </h1>
 
@@ -51,10 +51,10 @@ export default function CartPage() {
 
       <div className="grid grid-cols-1 gap-8 lg:grid-cols-[1fr_340px]">
         <div>
-          <h2 className="mb-3 text-xs font-bold tracking-wide text-slate uppercase">
+          <h2 className="mb-3 text-label text-slate uppercase">
             Materials · {lines.length} line {lines.length === 1 ? 'item' : 'items'}
           </h2>
-          <div className="divide-y divide-border rounded-lg border border-border bg-surface">
+          <div className="divide-y divide-border rounded-lg bg-surface">
           {lines.map((line) => (
             <SwipeToDelete key={line.materialId} onDelete={() => removeItem(line.materialId)} label={`Remove ${line.name}`}>
             <div className="flex flex-wrap items-center gap-x-4 gap-y-3 p-4 sm:flex-nowrap">
@@ -75,32 +75,14 @@ export default function CartPage() {
                 </div>
               </div>
 
-              <div className="flex items-center overflow-hidden rounded-lg border border-border-strong max-sm:order-2 max-sm:ml-20">
-                <button
-                  type="button"
-                  className="flex size-[26px] items-center justify-center max-sm:size-9 bg-well text-ink transition-colors hover:bg-border-strong/40"
-                  onClick={() => updateQuantity(line.materialId, line.quantity - 1)}
-                  aria-label={`Decrease quantity of ${line.name}`}
-                >
-                  <MinusIcon className="size-3" />
-                </button>
-                <QuantityInput
-                  value={line.quantity}
-                  onChange={(next) => updateQuantity(line.materialId, next)}
-                  label={line.name}
-                  className="w-9 text-sm font-bold text-ink"
-                />
-                <button
-                  type="button"
-                  className="flex size-[26px] items-center justify-center max-sm:size-9 bg-well text-ink transition-colors hover:bg-border-strong/40"
-                  onClick={() => updateQuantity(line.materialId, line.quantity + 1)}
-                  aria-label={`Increase quantity of ${line.name}`}
-                >
-                  <PlusIcon className="size-3" />
-                </button>
-              </div>
+              <QuantityStepper
+                value={line.quantity}
+                onChange={(next) => updateQuantity(line.materialId, next)}
+                label={line.name}
+                className="max-sm:order-2 max-sm:ml-20"
+              />
 
-              <div className="w-24 text-right font-bold tabular-nums text-ink max-sm:order-2 max-sm:ml-auto max-sm:w-auto">
+              <div className="w-28 text-right text-price-sm tabular-nums text-ink max-sm:order-2 max-sm:ml-auto max-sm:w-auto">
                 {formatNaira(line.catalogPrice * line.quantity)}
               </div>
 
@@ -120,11 +102,11 @@ export default function CartPage() {
         </div>
 
         <div className="h-fit">
-          <h2 className="mb-3 text-xs font-bold tracking-wide text-slate uppercase">Order summary</h2>
-          <div className="rounded-lg border border-border bg-surface p-5 lg:sticky lg:top-24">
+          <h2 className="mb-3 text-label text-slate uppercase">Order summary</h2>
+          <div className="rounded-lg bg-surface p-5 lg:sticky lg:top-24">
           <div className="flex items-center justify-between text-sm">
             <span className="text-slate">Subtotal</span>
-            <span className="font-bold tabular-nums text-ink">{formatNaira(subtotal)}</span>
+            <span className="text-price-sm tabular-nums text-ink">{formatNaira(subtotal)}</span>
           </div>
           <p className="mt-1 text-xs text-muted-foreground">Delivery calculated at checkout.</p>
 
@@ -140,7 +122,7 @@ export default function CartPage() {
       <div className="fixed inset-x-0 bottom-[calc(61px+env(safe-area-inset-bottom))] z-30 flex items-center gap-3 border-t border-border bg-surface/95 px-4 py-3 backdrop-blur-[10px] lg:hidden">
         <div className="min-w-0">
           <div className="text-xs text-muted-foreground">Subtotal</div>
-          <div className="text-base font-extrabold tabular-nums text-ink">{formatNaira(subtotal)}</div>
+          <div className="text-price-sm tabular-nums text-ink">{formatNaira(subtotal)}</div>
         </div>
         <Button asChild variant="cta" size="lg" className="flex-1">
           <Link href="/checkout">Checkout</Link>

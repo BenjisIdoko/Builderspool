@@ -1,12 +1,10 @@
 import { Button } from '@/components/ui/button';
 import { EmptyState } from '@/components/empty-state/empty-state';
 import { NoResultsIllustration } from '@/components/empty-state/illustrations';
-import { Reveal } from '@/components/motion/reveal';
 import Link from 'next/link';
 import { TruckIcon } from '@phosphor-icons/react/ssr';
 import { getMaterials, getCategories, getFulfillmentCenters, MATERIAL_SORT_VALUES, type MaterialSort } from '@/lib/queries/materials';
-import { formatNaira } from '@/lib/format';
-import { MaterialImage } from '@/components/material-image';
+import { MaterialCard } from '@/components/material-card';
 import { CatalogSortSelect } from '@/components/catalog-sort-select';
 import { CatalogFilterSheet } from '@/components/catalog-filter-sheet';
 
@@ -55,7 +53,7 @@ export default async function CatalogPage({
   const filterGroups = (
     <>
           <div>
-            <h2 className="mb-3 text-xs font-bold tracking-wide text-slate uppercase">Category</h2>
+            <h2 className="mb-3 text-label text-slate uppercase">Category</h2>
             <div className="flex flex-col gap-2.5">
               <Link
                 href={urlFor({ category: '', page: 1 })}
@@ -81,7 +79,7 @@ export default async function CatalogPage({
           </div>
 
           <div>
-            <h2 className="mb-3 text-xs font-bold tracking-wide text-slate uppercase">Sourcing</h2>
+            <h2 className="mb-3 text-label text-slate uppercase">Sourcing</h2>
             <div className="flex flex-col gap-2.5">
               {SCOPE_OPTIONS.map((opt) => (
                 <Link
@@ -104,22 +102,22 @@ export default async function CatalogPage({
     <div className="mx-auto w-full max-w-section pt-6 pb-10">
       <div className="mb-3 flex flex-wrap items-start justify-between gap-3">
         <div>
-          <div className="mb-1 text-xs font-semibold text-slate">Catalogue</div>
-          <h1 className="text-2xl font-bold tracking-tight text-ink sm:text-[28px]">
+          <div className="mb-1 text-label text-slate uppercase">Catalogue</div>
+          <h1 className="text-ink">
             {q ? `Results for "${q}"` : category ? category : 'Building materials'}
           </h1>
         </div>
         {regions.length > 0 && (
-          <span className="flex shrink-0 items-center gap-1.5 rounded-full bg-success-soft px-3 py-1.5 text-xs font-semibold text-success">
+          <span className="flex shrink-0 items-center gap-1.5 rounded-full bg-success-soft px-3 py-1.5 text-caption font-semibold text-success">
             <TruckIcon className="size-3.5" />
             Delivery available — {regions.map((r) => r.charAt(0) + r.slice(1).toLowerCase()).join(', ')}
           </span>
         )}
       </div>
-      <p className="mb-8 text-sm text-slate">Fixed catalogue price, {total} materials.</p>
+      <p className="mb-8 text-body-sm text-slate">Fixed catalogue price, {total} materials.</p>
 
       <div className="grid grid-cols-1 gap-7 lg:grid-cols-[240px_1fr]">
-        <aside className="hidden flex-col gap-8 rounded-xl border border-border bg-surface p-5 shadow-[0_1px_2px_rgba(16,24,40,0.04)] lg:sticky lg:top-6 lg:flex lg:self-start">
+        <aside className="hidden flex-col gap-8 rounded-card bg-surface p-5 lg:sticky lg:top-44 lg:flex lg:self-start">
           {filterGroups}
         </aside>
 
@@ -130,8 +128,8 @@ export default async function CatalogPage({
               <Link
                 key={c.label}
                 href={urlFor({ category: c.name, page: 1 })}
-                className={`shrink-0 rounded-full border px-3.5 py-2 text-[13px] font-semibold whitespace-nowrap ${
-                  (category ?? '') === c.name ? 'border-brand bg-brand text-brand-ink' : 'border-border bg-surface text-ink'
+                className={`inline-flex min-h-11 shrink-0 items-center rounded-full border px-4 text-body-sm font-medium whitespace-nowrap ${
+                  (category ?? '') === c.name ? 'border-brand bg-brand text-brand-ink' : 'border-input bg-surface text-ink'
                 }`}
               >
                 {c.label}
@@ -139,7 +137,7 @@ export default async function CatalogPage({
             ))}
           </div>
           <div className="mb-5 flex flex-wrap items-center justify-between gap-3 border-b border-border pb-4">
-            <span className="text-[11.5px] font-bold tracking-wide text-muted-foreground uppercase">
+            <span className="text-label text-muted-foreground uppercase">
               {total} {total === 1 ? 'result' : 'results'}
             </span>
             <div className="flex items-center gap-2">
@@ -149,7 +147,7 @@ export default async function CatalogPage({
           </div>
 
           {materials.length === 0 ? (
-            <div className="rounded-lg border border-border bg-surface">
+            <div className="rounded-lg bg-surface">
               <EmptyState
                 illustration={NoResultsIllustration}
                 variant="inline"
@@ -162,33 +160,9 @@ export default async function CatalogPage({
               </EmptyState>
             </div>
           ) : (
-            <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 xl:grid-cols-3">
-              {materials.map((material, index) => (
-                <Reveal key={material.id} className="h-full" delay={Math.min(index % 3, 2) * 0.05}>
-                <Link
-                  href={`/catalog/${material.id}`}
-                  className="flex h-full flex-col overflow-hidden rounded-xl border border-border bg-surface shadow-[0_1px_2px_rgba(16,24,40,0.04)] transition-[transform,box-shadow] duration-150 hover:-translate-y-1 hover:shadow-[0_16px_32px_rgba(16,24,40,0.12)]"
-                >
-                  <div className="relative">
-                    <MaterialImage
-                      imageUrl={material.imageUrl}
-                      category={material.category}
-                      alt={material.name}
-                      className="aspect-[5/4] w-full"
-                    />
-                    <span className="absolute top-2.5 left-2.5 rounded-full bg-white/92 px-2.5 py-1 text-[10.5px] font-semibold text-slate">
-                      {material.sourcingScope === 'NATIONAL' ? 'National supply' : 'Regional'}
-                    </span>
-                  </div>
-                  <div className="flex flex-col gap-1 px-4 py-3.5">
-                    <div className="text-sm leading-snug font-bold text-ink">{material.name}</div>
-                    <div className="mt-0.5 text-[15px] font-extrabold text-ink">
-                      {formatNaira(material.catalogPrice)}
-                      <span className="ml-1 text-xs font-semibold text-muted-foreground">/ {material.unit}</span>
-                    </div>
-                  </div>
-                </Link>
-                </Reveal>
+            <div className="grid grid-cols-2 gap-3 min-[600px]:grid-cols-3 xl:grid-cols-4">
+              {materials.map((material) => (
+                <MaterialCard key={material.id} material={material} showScope />
               ))}
             </div>
           )}
@@ -199,7 +173,7 @@ export default async function CatalogPage({
                 <Link
                   href={urlFor({ page: page - 1 })}
                   aria-label="Previous page"
-                  className="flex size-8 items-center justify-center rounded-lg border border-border bg-surface text-ink hover:bg-well"
+                  className="flex size-8 items-center justify-center rounded-lg bg-surface text-ink hover:bg-well"
                 >
                   ‹
                 </Link>
@@ -212,10 +186,10 @@ export default async function CatalogPage({
                     <Link
                       href={urlFor({ page: p })}
                       aria-current={p === page ? 'page' : undefined}
-                      className={`flex size-8 items-center justify-center rounded-lg border text-sm font-bold ${
+                      className={`flex size-11 items-center justify-center rounded-md border text-body-sm font-bold ${
                         p === page
                           ? 'border-brand bg-brand text-brand-ink'
-                          : 'border-border bg-surface text-ink hover:bg-well'
+                          : 'border-input bg-surface text-ink hover:bg-well'
                       }`}
                     >
                       {p}
@@ -226,7 +200,7 @@ export default async function CatalogPage({
                 <Link
                   href={urlFor({ page: page + 1 })}
                   aria-label="Next page"
-                  className="flex size-8 items-center justify-center rounded-lg border border-border bg-surface text-ink hover:bg-well"
+                  className="flex size-8 items-center justify-center rounded-lg bg-surface text-ink hover:bg-well"
                 >
                   ›
                 </Link>

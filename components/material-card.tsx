@@ -6,7 +6,7 @@ import { MaterialImage } from './material-image';
 import { Card, CardContent, CardFooter } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 
-export function MaterialCard({ material }: { material: BuyerMaterial }) {
+export function MaterialCard({ material, showScope = false }: { material: BuyerMaterial; showScope?: boolean }) {
   return (
     <Card className="h-full gap-2 rounded-md border-0 p-2 shadow-none transition-shadow duration-150 hover:shadow-card-hover">
       <Link href={`/catalog/${material.id}`} className="relative block overflow-hidden rounded-sm bg-canvas">
@@ -35,6 +35,11 @@ export function MaterialCard({ material }: { material: BuyerMaterial }) {
           </span>
           <span className="ml-1 text-xs text-muted-foreground">/ {material.unit}</span>
         </div>
+        {showScope && (
+          <p className="-mt-2 text-caption text-muted-foreground">
+            {material.sourcingScope === 'NATIONAL' ? 'National supply' : 'Regional'}
+          </p>
+        )}
         <AddToCartButton material={material} />
       </CardFooter>
     </Card>

@@ -47,7 +47,7 @@ export default async function AccountPage() {
       {!buyer.emailVerifiedAt && <VerifyEmailBanner />}
       <div className="mb-8 flex items-start justify-between gap-4">
         <div>
-          <h1 className="mb-1 text-2xl font-bold tracking-tight text-ink">Welcome back, {buyer.name}</h1>
+          <h1 className="mb-1 text-ink">Welcome back, {buyer.name}</h1>
           <p className="text-sm text-slate">
             {activeOrders} active {activeOrders === 1 ? 'order' : 'orders'}
           </p>
@@ -59,9 +59,9 @@ export default async function AccountPage() {
         </form>
       </div>
 
-      <div className="mb-8 overflow-hidden rounded-lg border border-border bg-surface">
+      <div className="mb-8 overflow-hidden rounded-lg bg-surface">
         <div className="border-b border-border px-5 py-4">
-          <h2 className="flex items-center gap-1.5 text-sm font-bold text-slate">
+          <h2 className="flex items-center gap-1.5 text-heading-sm text-ink">
             <WalletIcon className="size-4" />
             Savings credit
           </h2>
@@ -131,8 +131,8 @@ export default async function AccountPage() {
         )}
       </div>
 
-      <div className="mb-8 rounded-lg border border-border bg-surface p-5">
-        <h2 className="mb-4 text-sm font-bold text-slate">Profile</h2>
+      <div className="mb-8 rounded-lg bg-surface p-5">
+        <h2 className="mb-4 text-heading-sm text-ink">Profile</h2>
         <form action={updateBuyerProfile} className="grid grid-cols-1 gap-4 sm:grid-cols-2">
           <div className="flex flex-col gap-1.5 sm:col-span-2">
             <Label htmlFor="email">Email</Label>
@@ -165,9 +165,9 @@ export default async function AccountPage() {
         </form>
       </div>
 
-      <div className="overflow-hidden rounded-lg border border-border bg-surface">
+      <div className="overflow-hidden rounded-lg bg-surface">
         <div className="border-b border-border px-5 py-4">
-          <h2 className="text-sm font-bold text-slate">Order history</h2>
+          <h2 className="text-heading-sm text-ink">Order history</h2>
         </div>
         {orders.length === 0 ? (
           <EmptyState
@@ -209,9 +209,9 @@ export default async function AccountPage() {
         )}
       </div>
 
-      <div className="mt-8 overflow-hidden rounded-lg border border-border bg-surface">
+      <div className="mt-8 overflow-hidden rounded-lg bg-surface">
         <div className="border-b border-border px-5 py-4">
-          <h2 className="flex items-center gap-1.5 text-sm font-bold text-slate">
+          <h2 className="flex items-center gap-1.5 text-heading-sm text-ink">
             <BellIcon className="size-4" />
             Price alerts
           </h2>

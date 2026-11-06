@@ -67,7 +67,7 @@ export default async function MaterialPage({ params }: { params: Promise<{ id: s
 
       {bundleItems.length > 0 && (
         <div className="mt-16 border-t border-border pt-10">
-          <h2 className="mb-6 text-lg font-bold tracking-tight text-ink">{bundleTitle}</h2>
+          <h2 className="mb-6 text-ink">{bundleTitle}</h2>
           <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-4">
             {bundleItems.map((item) => (
               <MaterialCard key={item.id} material={item} />

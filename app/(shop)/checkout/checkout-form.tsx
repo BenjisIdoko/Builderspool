@@ -57,7 +57,7 @@ export function CheckoutForm({
 
   if (lines.length === 0) {
     return (
-      <div className="rounded-lg border border-border bg-surface p-8 text-center text-sm text-slate">
+      <div className="rounded-lg bg-surface p-8 text-center text-sm text-slate">
         Your cart is empty.{' '}
         <Link href="/catalog" className="text-brand hover:underline">
           Browse the catalog
@@ -130,7 +130,7 @@ export function CheckoutForm({
         </div>
 
         <div className="mb-3.5 text-[13px] font-bold text-slate">02 · Items ({lines.length})</div>
-        <div className="divide-y divide-border rounded-lg border border-border bg-surface">
+        <div className="divide-y divide-border rounded-lg bg-surface">
           {lines.map((line) => (
             <div key={line.materialId} className="flex items-center gap-3 p-4">
               <MaterialImage
@@ -152,7 +152,7 @@ export function CheckoutForm({
         {fulfillmentMethod === 'DELIVERY' && (
           <>
             <div className="mt-10 mb-3.5 text-[13px] font-bold text-slate">03 · Delivery details</div>
-            <div className="flex flex-col gap-4 rounded-lg border border-border bg-surface p-4">
+            <div className="flex flex-col gap-4 rounded-lg bg-surface p-4">
               <div>
                 <Label htmlFor="deliveryAddress" className="mb-1.5 text-xs font-semibold text-slate">
                   Site address
@@ -246,7 +246,7 @@ export function CheckoutForm({
           {lines.length} {lines.length === 1 ? 'item' : 'items'}
         </div>
 
-        <h2 className="mb-3 text-xs font-bold tracking-wide text-muted-foreground uppercase">Shipping method</h2>
+        <h2 className="mb-3 text-label text-muted-foreground uppercase">Shipping method</h2>
         <div className="mb-5 flex flex-col gap-2">
           {FULFILLMENT_OPTIONS.map(({ method, label }) => {
             const cost = getDeliveryCost(region, method);
@@ -257,7 +257,7 @@ export function CheckoutForm({
                 type="button"
                 onClick={() => setFulfillmentMethod(method)}
                 className={`flex items-center justify-between gap-3 rounded-lg border p-3 text-left text-sm transition-colors ${
-                  selected ? 'border-brand bg-info-soft' : 'border-border hover:border-border-strong'
+                  selected ? 'border-brand bg-info-soft' : 'border-input hover:border-brand'
                 }`}
               >
                 <span className="flex items-center gap-2.5">
@@ -275,7 +275,7 @@ export function CheckoutForm({
         </div>
 
         <div className="mb-3 flex items-center gap-2">
-          <h2 className="text-xs font-bold tracking-wide text-muted-foreground uppercase">Payment method</h2>
+          <h2 className="text-label text-muted-foreground uppercase">Payment method</h2>
           {testMode && <Badge variant="test">Test</Badge>}
         </div>
         {testMode && (
@@ -292,7 +292,7 @@ export function CheckoutForm({
                 type="button"
                 onClick={() => setPaymentMethod(method)}
                 className={`flex items-center gap-2.5 rounded-lg border p-3 text-left text-sm transition-colors ${
-                  selected ? 'border-brand bg-info-soft' : 'border-border hover:border-border-strong'
+                  selected ? 'border-brand bg-info-soft' : 'border-input hover:border-brand'
                 }`}
               >
                 {selected ? (

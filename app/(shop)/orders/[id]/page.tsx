@@ -84,14 +84,14 @@ export default async function OrderConfirmationPage({
 
   return (
     <div className="mx-auto w-full max-w-3xl px-6 pt-6 pb-12">
-      <div className="mb-8 flex flex-wrap items-start justify-between gap-4 rounded-lg border border-border bg-surface p-6">
+      <div className="mb-8 flex flex-wrap items-start justify-between gap-4 rounded-lg bg-surface p-6">
         <div className="flex items-start gap-4">
           <span className="flex size-10 shrink-0 items-center justify-center rounded-md bg-success/10 text-success">
             <CheckCircleIcon className="size-5" />
           </span>
           <div>
             <div className="flex items-center gap-2">
-              <h1 className="text-xl font-bold text-ink">Order confirmed</h1>
+              <h1 className="text-heading-lg text-ink">Order confirmed</h1>
               <Badge variant="outline" className={pillClass(orderStatusTone(order.status))}>
                 {STATUS_LABEL[order.status] ?? order.status}
               </Badge>
@@ -127,7 +127,7 @@ export default async function OrderConfirmationPage({
 
       <div className="mb-8 grid grid-cols-1 gap-4 sm:grid-cols-2">
         {center && (
-          <div className="rounded-lg border border-border bg-surface p-5">
+          <div className="rounded-lg bg-surface p-5">
             <div className="mb-1.5 text-[11px] font-semibold text-muted-foreground uppercase">From</div>
             <div className="flex items-start gap-2">
               {isPickup ? (
@@ -142,7 +142,7 @@ export default async function OrderConfirmationPage({
             </div>
           </div>
         )}
-        <div className="rounded-lg border border-border bg-surface p-5">
+        <div className="rounded-lg bg-surface p-5">
           <div className="mb-1.5 text-[11px] font-semibold text-muted-foreground uppercase">
             {isPickup ? 'Pickup for' : 'Ship to'}
           </div>
@@ -158,7 +158,7 @@ export default async function OrderConfirmationPage({
         </div>
       </div>
 
-      <div className="mb-8 rounded-lg border border-border bg-surface p-5">
+      <div className="mb-8 rounded-lg bg-surface p-5">
         <div className="mb-3 text-[11px] font-semibold text-muted-foreground uppercase">Contact</div>
         <div className="flex flex-wrap gap-x-8 gap-y-2 text-sm">
           <span className="flex items-center gap-1.5 text-ink">
@@ -206,8 +206,8 @@ export default async function OrderConfirmationPage({
         )}
       </div>
 
-      <div className="mb-8 rounded-lg border border-border bg-surface p-6">
-        <h2 className="mb-6 text-sm font-bold text-slate">Order tracking</h2>
+      <div className="mb-8 rounded-lg bg-surface p-6">
+        <h2 className="mb-6 text-heading-sm text-ink">Order tracking</h2>
         <div className="relative">
           <div className="absolute top-4 bottom-4 left-[13px] w-px bg-border" />
           <div className="flex flex-col gap-6">
@@ -251,10 +251,10 @@ export default async function OrderConfirmationPage({
       </div>
 
       {dispatchItems.length > 0 && (
-        <div className="mb-8 rounded-lg border border-border bg-surface p-6">
+        <div className="mb-8 rounded-lg bg-surface p-6">
           <div className="mb-1 flex items-center gap-2">
             <TruckIcon className="size-4.5 text-slate" />
-            <h2 className="text-sm font-bold text-slate">Delivery tracking</h2>
+            <h2 className="text-heading-sm text-ink">Delivery tracking</h2>
           </div>
           <p className="mb-5 text-xs text-muted-foreground">
             No live GPS yet — status reflects what our fulfillment team last logged.
@@ -279,9 +279,9 @@ export default async function OrderConfirmationPage({
         </div>
       )}
 
-      <div className="rounded-lg border border-border bg-surface">
+      <div className="rounded-lg bg-surface">
         <div className="border-b border-border px-5 py-4">
-          <h2 className="text-sm font-bold text-slate">
+          <h2 className="text-heading-sm text-ink">
             Items ({order.items.length})
           </h2>
         </div>
