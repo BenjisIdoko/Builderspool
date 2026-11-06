@@ -1,6 +1,6 @@
 # BuildersPool: port notes for the Floot build
 
-Written 5 Nov 2026. Updated 6 Nov 2026 (section 1b, the founder's call transcript; section 2.11, service areas; scenarios 13 to 18). Source: the Next.js repo (`BenjisIdoko/Builderspool`, Phases 1 and 2, commits `e33cf81` to `20987c3`) compared with `BuildersPool_Technical_Requirements.docx` v1.0, which describes the Floot app as built.
+Written 5 Nov 2026. Updated 6 Nov 2026 (sections 1b and 1c, the founder's call transcript and the resolved rules; section 2.11, service areas; scenarios 13 to 22). Source: the Next.js repo (`BenjisIdoko/Builderspool`, Phases 1 and 2, commits `e33cf81` to `20987c3`) compared with `BuildersPool_Technical_Requirements.docx` v1.0, which describes the Floot app as built.
 
 **Purpose.** Floot is now the product. The Next.js build solved some problems the Floot spec does not mention. This file lists them as rules and tests, so they can be checked in Floot (or pasted into it as prompts) without anyone reading the old code.
 
@@ -66,6 +66,37 @@ The founder explained the flow aloud and the recording was transcribed. This sec
 **Prompt for Floot (cascade and revert).** Paste into Floot:
 
 > Implement this pool outcome. After the pool closes, send each category's RFQ to every vendor registered for that category, with item pictures, total quantity and the reference price (the lowest seller listing price for that material, frozen at pool close). Each vendor submits bid prices once. Score every bid on price, cost to deliver, quality against the specification and past performance. Award to the top-ranked bid; the vendor has a fixed time to accept. If they do not accept, award to rank two, then rank three, each with its own fixed time. If rank three does not accept, cancel the RFQ and revert each line to the seller whose listing the buyer originally picked, to be fulfilled as a normal Buy Direct order, and tell the buyer. Never loop beyond three ranks. Each step must be safe to run twice and must write an audit entry.
+
+### 1c. Resolved rules: the founder's answers and the choices made for them
+
+These are the answers to the six questions in 1b. Rows marked **Founder** are the founder's own words. Rows marked **Chosen** were delegated ("you choose", "suggest for me") and are proposals for the founder to approve. Rows marked **Reading** are my interpretation of a short answer; correct them if wrong. Every value is an admin setting, so none of this is permanent.
+
+| # | Question | Resolution | Source |
+|---|---|---|---|
+| 1 | Award per line or per sheet? | **Both, as a setting per category.** *Line mode* (default): each line goes to the highest-scoring bid on that line, and a vendor may bid on some lines only. *Sheet mode*: a vendor must bid every line; the highest total score wins the whole sheet and the cascade runs on the sheet. | Founder ("both for now"); default Chosen |
+| 2 | Reference price scope | The **lowest listing price among sellers who can serve the buyer's delivery zone**, i.e. what the buyer could actually have bought at. Recalculated while the pool is open and **frozen at pool close**. | Reading of "the buyer's platform"; freeze from the earlier call |
+| 3 | When does it all end? | **Final result at 18:00.** Timeline that fits (all values are settings): pool closes **15:00**, bids close **15:45**, accept windows of **45 minutes** for rank 1 (15:45 to 16:30), rank 2 (16:30 to 17:15), rank 3 (17:15 to 18:00). The system must reject any settings where bids close plus three windows does not equal the final time. | 18:00 Founder; split of the day Chosen |
+| 4 | Revert price | **The price the buyer picked** (the listing price when they added it). | Founder |
+| 4b | Revert when the picked seller cannot supply (out of stock, suspended) | The line is **refunded**; nothing is substituted without the buyer's consent. | Chosen |
+| 4c | When does the buyer pay? | **At checkout, into escrow**, for Pool & Save as for Buy Direct, because the founder said the money is already in escrow when the pool is awarded. If the RFQ is cancelled, the same escrow carries over to the picked seller. | Founder's call plus Chosen. **This conflicts with Floot's "No payment now. Pay after the award" text; that text should change.** |
+| 5 | Scoring | Four criteria, **weights 40 / 15 / 20 / 25**: unit price 40, delivery cost 15, quality (match to the specification) 20, past performance 25. A new supplier with fewer than 5 completed orders gets a neutral performance score of **50 out of 100**. A bid **above the reference price is ineligible** (the founder's point: a bulk bid that cannot beat the reference has no purpose). | Chosen; "must beat reference" inferred from the call |
+| 6 | Seller upload checks | See below. | Chosen |
+
+**Quality check on seller uploads (Chosen).** Each listing is checked on save and gets one of three outcomes: *pass*, *needs review* (held out of the catalogue until ops approve) or *reject*, always with a reason code.
+- **Photos.** At least one. JPEG, PNG or WebP, up to 5 MB, at least 1000 px on the long edge. Reject watermarks, phone numbers and contact details in the image (visual check by ops), and a photo that is clearly a screenshot or a stock image.
+- **Required fields.** Name, category, unit (and pack size), specification, brand or grade, applicable standard, minimum order quantity, stock on hand, lead time, and the delivery zones served. Missing fields reject.
+- **Price.** A positive whole-naira price in the stated unit. If it is below 50% or above 150% of the median of other sellers' prices for the same material, or exactly ten times or one tenth of it, the listing goes to *needs review* (likely a typo), never straight to live.
+- **Shelf life.** For cement, paint, adhesives and similar, a production or expiry date is required. A product with under 30 days of life left is rejected. This addresses the founder's point about expired stock; the fulfilment-centre check at delivery remains the final gate.
+- **Duplicates.** A second listing with the same seller, name and unit goes to *needs review*.
+- **Never shown to sellers while listing:** the reference price. They see their own price and platform guidance only.
+
+**What changes in the other sections of these notes**
+- Section 1 table: cascade is now three ranks, then revert; fallback is revert to the picked seller at the picked price (refund only if that seller cannot supply); times follow 1c (pool 15:00, final 18:00).
+- Section 2.4 (fallback) and the Floot join form: no fallback-purchase checkbox is needed, and the "no payment now" line must go.
+
+**Single prompt for Floot (replaces the cascade prompt in 1b).** Paste into Floot:
+
+> Set up the Pool & Save cycle with these admin-editable settings and rules. Times (Lagos): pool closes 15:00, bids close 15:45, accept windows of 45 minutes, final result 18:00; reject settings where bids-close plus three windows does not equal the final time. At pool close, freeze each line's reference price as the lowest listing price among sellers serving that buyer's delivery zone. Group lines by category and send each category an RFQ to every approved vendor registered for it, with item pictures, total quantity and the reference price. A bid above the reference price is ineligible. Score eligible bids on unit price (40), delivery cost (15), quality against the specification (20) and past performance (25); a supplier with fewer than 5 completed orders gets a neutral performance score of 50. Award mode is a per-category setting: "line" (each line to its best-scoring bid) or "sheet" (the vendor bidding every line with the best total wins the sheet); default line. The winner has one accept window; if they do not accept, award to rank two with their own window, then rank three. If rank three does not accept, cancel and revert each line to the seller whose listing the buyer picked, at the price the buyer picked, as an ordinary Buy Direct order; if that seller cannot supply, refund that line. Buyers pay into escrow at checkout; remove any "no payment now" wording. Sellers are paid only after delivery and the fulfilment centre's quality check. Every step must be safe to run twice and write an audit entry. Validate seller listings on save: at least one photo (1000 px long edge, up to 5 MB, JPEG/PNG/WebP), all required fields, a price within 50% to 150% of the median of other listings for that material (otherwise "needs review"), a production or expiry date for perishables with at least 30 days left, and duplicate detection; return pass, needs review or reject with reason codes.
 
 ---
 
@@ -259,6 +290,10 @@ Last-mile delivery priced per km from the nearest centre, Hub and Dispatch scree
 16. **Three-rank cascade.** Rank one declines, rank two lets the time lapse, rank three declines: the RFQ is cancelled once, and every line reverts to the seller the buyer picked. Running the job twice changes nothing.
 17. **Reference price.** Add a cheaper listing while the pool is open: the reference price drops. After pool close it no longer changes. Bidders see it on the RFQ; sellers do not see it on their listing screens.
 18. **Pooled by category.** Orders for PPR pipes and cement in the same pool produce two RFQs, each sent only to vendors registered for that category, and each with item pictures.
+19. **Beat the reference.** A bid above the frozen reference price is excluded with a reason code; a bid at or below it is scored.
+20. **Timeline guard.** Saving settings where bids close plus three accept windows does not equal the final time is refused with a clear message.
+21. **Revert.** After rank three declines, each line goes to the picked seller at the price the buyer picked. If that seller is out of stock or suspended, only that line is refunded.
+22. **Upload checks.** A listing with no photo is rejected; a price ten times the median goes to "needs review"; cement with 20 days of life left is rejected; an identical second listing from the same seller goes to "needs review".
 
 ## 5. Lessons from testing (apply to Floot too)
 
