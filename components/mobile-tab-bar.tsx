@@ -8,6 +8,7 @@ import {
   ShoppingCartIcon,
   UserIcon,
 } from "@phosphor-icons/react";
+import { formatBadgeCount } from "@/lib/format";
 import { useCart } from "@/lib/cart/CartContext";
 
 const TABS = [
@@ -75,7 +76,7 @@ export function MobileTabBar() {
               {label}
               {label === "Cart" && itemCount > 0 && (
                 <span className="absolute top-0.5 left-1/2 ml-2.5 flex h-[15px] min-w-[15px] items-center justify-center rounded-full bg-cta px-[3px] text-[10px] font-bold text-white">
-                  {itemCount}
+                  {formatBadgeCount(itemCount)}
                 </span>
               )}
             </Link>

@@ -86,19 +86,25 @@ export default async function OrderConfirmationPage({
     <div className="mx-auto w-full max-w-3xl px-6 pt-6 pb-12">
       <div className="mb-8 flex flex-wrap items-start justify-between gap-4 rounded-lg bg-surface p-6">
         <div className="flex items-start gap-4">
-          <span className="flex size-10 shrink-0 items-center justify-center rounded-md bg-success/10 text-success">
-            <CheckCircleIcon className="size-5" />
+          <span
+            className={`flex size-10 shrink-0 items-center justify-center rounded-md ${
+              order.status === 'PENDING_PAYMENT' ? 'bg-warning-soft text-warning-text' : 'bg-success/10 text-success'
+            }`}
+          >
+            {order.status === 'PENDING_PAYMENT' ? <ClockIcon className="size-5" /> : <CheckCircleIcon className="size-5" />}
           </span>
           <div>
             <div className="flex items-center gap-2">
-              <h1 className="text-heading-lg text-ink">Order confirmed</h1>
+              <h1 className="text-heading-lg text-ink">{order.status === 'PENDING_PAYMENT' ? 'Order placed' : 'Order confirmed'}</h1>
               <Badge variant="outline" className={pillClass(orderStatusTone(order.status))}>
                 {STATUS_LABEL[order.status] ?? order.status}
               </Badge>
-              <Badge variant="outline" className={pillClass(escrowStatusTone(escrowStatus))}>
-                <LockKeyIcon className="size-3" />
-                {ESCROW_STATUS_LABEL[escrowStatus]}
-              </Badge>
+              {order.status !== 'PENDING_PAYMENT' && (
+                <Badge variant="outline" className={pillClass(escrowStatusTone(escrowStatus))}>
+                  <LockKeyIcon className="size-3" />
+                  {ESCROW_STATUS_LABEL[escrowStatus]}
+                </Badge>
+              )}
             </div>
             <p className="mt-1 text-sm text-muted-foreground">
               Order{' '}

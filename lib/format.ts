@@ -4,6 +4,11 @@ const nairaFormatter = new Intl.NumberFormat('en-NG', {
   maximumFractionDigits: 0,
 });
 
+/** A count for a small badge: exact up to 99, then "99+" so it never crowds its icon. */
+export function formatBadgeCount(count: number) {
+  return count > 99 ? '99+' : String(count);
+}
+
 export function formatNaira(amount: number) {
   return nairaFormatter.format(amount);
 }

@@ -4,7 +4,7 @@ import { useState } from 'react';
 import Link from 'next/link';
 import { MinusIcon, PlusIcon, ShoppingCartIcon, XIcon } from '@phosphor-icons/react/ssr';
 import { useCart } from '@/lib/cart/CartContext';
-import { formatNaira } from '@/lib/format';
+import { formatNaira, formatBadgeCount } from '@/lib/format';
 import { EmptyState } from '@/components/empty-state/empty-state';
 import { EmptyCartIllustration } from '@/components/empty-state/illustrations';
 import { Button } from '@/components/ui/button';
@@ -36,7 +36,7 @@ export function CartSheet() {
           <ShoppingCartIcon className="size-6" />
           {itemCount > 0 && (
             <span className="absolute top-0.5 right-0.5 flex h-[18px] min-w-[18px] items-center justify-center rounded-full bg-cta px-1 text-[11px] font-bold text-white">
-              {itemCount}
+              {formatBadgeCount(itemCount)}
             </span>
           )}
         </Button>
