@@ -1,36 +1,79 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# Builders Pool — Next.js reference implementation
 
-## Getting Started
+> **Status (2026-11-06): reference implementation, feature-frozen.**
+> The product direction is the Floot build at <https://builderspool.floot.app>. This repository
+> is no longer where new product features are built. It stays alive for three reasons only.
 
-First, run the development server:
+## What this repo is for
+
+1. **Source of truth for the proven engine rules.** The cycle stage machine (compare-and-swap
+   stages), eligibility and scoring with reason codes, the award lifecycle (accept, decline,
+   one-pass cascade, refund due), the append-only integer-kobo ledger, the money switches, and
+   the auth and audit rules were built and tested here. When Floot and this code disagree, the
+   decisions table in [`docs/floot-port-notes.md`](docs/floot-port-notes.md) says which wins
+   and why. Port from here; do not re-invent.
+2. **A comparison and QA surface.** <https://builderspool.vercel.app> stays deployed so Floot's
+   behaviour can be checked against a working implementation, using the twelve acceptance
+   scenarios in the port notes.
+3. **The design system's reference build.** [`DESIGN.md`](DESIGN.md) (v3.0) was applied here end
+   to end, so it shows what the spec looks like in code.
+
+## What this repo is not for
+
+- New features, new pages, or new business rules. Those go into Floot.
+- Real customers or real money. Paystack runs in **test mode**, the money switches default to
+  **off**, and no live payment keys should be added here.
+- A second source of product copy. The storefront text here follows the engine's real flow
+  (catalogue price now, blind bids, 50% of any verified saving to the savings wallet), which
+  differs from Floot's in places. Do not copy it back to Floot without checking the port notes.
+
+## What changes are still accepted
+
+- Security fixes and data-integrity fixes.
+- Bug fixes that make the reference behave the way its own spec says.
+- Updates to the port notes or `DESIGN.md` when Floot's decisions change them.
+
+## When this repo is retired
+
+Archive it (read-only, with this README pointing to Floot) once Floot passes the twelve
+acceptance scenarios in `docs/floot-port-notes.md` and the founder confirms the decisions
+table is settled. Until then, keep it deployed and frozen.
+
+## Stack
+
+Next.js 16 (App Router), React 19, Prisma, Supabase Postgres, Tailwind CSS v4 with shadcn/ui,
+deployed on Vercel. Read `node_modules/next/dist/docs/` before changing framework behaviour:
+this Next.js version has breaking changes.
+
+## Running it locally
 
 ```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
+npm install            # also runs prisma generate
+npm run dev            # http://localhost:3000 (or the next free port)
+npm run lint
+npm run build
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+`DATABASE_URL` in `.env` points at the shared Supabase database. Local development and the
+Vercel deployment use the same data, so treat local writes as production writes.
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+Create or reset an admin account (you will be prompted for the password; it is never echoed or
+stored in the repo):
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+```bash
+npm run create-admin -- <email> "<Display name>"            # new admin
+npm run create-admin -- <email> "<Display name>" --reset-password
+```
 
-## Learn More
+## Where things are
 
-To learn more about Next.js, take a look at the following resources:
-
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
-
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
-
-## Deploy on Vercel
-
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
-
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+| Path | What lives there |
+| --- | --- |
+| `app/(shop)` | Storefront: home, catalogue, product, cart, checkout, orders, account |
+| `app/seller`, `app/admin` | Seller Centre and Ops admin (the control rooms) |
+| `lib/bidding` | Cycle schedule, join, tick, scoring, award, fallback, refund |
+| `lib/ledger.ts` | Append-only money ledger (idempotent by `entryKey`) |
+| `lib/settings` | Admin-editable settings (cycle times, scoring weights, money switches) |
+| `docs/floot-port-notes.md` | Decisions, rules to port, acceptance scenarios, testing lessons |
+| `DESIGN.md` | Design system v3.0 |
+| `BUILDERSPOOL_PROJECT_BRIEF.md` | Original project brief |
