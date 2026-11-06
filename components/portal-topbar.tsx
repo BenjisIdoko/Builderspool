@@ -10,6 +10,7 @@ const ADMIN_LABELS: [string, string][] = [
   ['/admin/materials', 'Materials & pricing oversight'],
   ['/admin/catalogue-reference', 'Master reference catalogue'],
   ['/admin/listings', 'Listing review'],
+  ['/admin/direct', 'Buy Direct orders'],
   ['/admin/areas', 'Service areas'],
   ['/admin/haulage', 'Haulage & dispatch'],
   ['/admin/escrow', 'Escrow settlement'],

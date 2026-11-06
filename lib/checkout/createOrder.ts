@@ -1,5 +1,5 @@
 import { prisma } from '../prisma';
-import { OrderStatus, type PaymentMethod } from '@prisma/client';
+import { OrderStatus, PurchaseMode, type PaymentMethod } from '@prisma/client';
 import { getDeliveryCost, type FulfillmentMethod } from './deliveryCost';
 import { findServingCenter } from './findServingCenter';
 import { getPickableListing } from '../queries/offers';
@@ -9,6 +9,8 @@ export interface CheckoutInput {
   region: string;
   fulfillmentMethod: FulfillmentMethod;
   paymentMethod: PaymentMethod;
+  // How the whole cart is bought. DIRECT needs a picked seller on every line.
+  mode?: 'POOL' | 'DIRECT';
   // listingId is the seller offer the buyer picked; the price is always read
   // from that listing here, never from the client.
   items: { materialId: string; quantity: number; listingId?: string | null }[];
@@ -89,6 +91,15 @@ export async function createOrder(input: CheckoutInput) {
     picks.set(item.materialId, { id: listing.id, price: Number(listing.price) });
   }
 
+  const mode = input.mode === 'DIRECT' ? PurchaseMode.DIRECT : PurchaseMode.POOL;
+  if (mode === PurchaseMode.DIRECT) {
+    const unpicked = input.items.find((item) => !picks.has(item.materialId));
+    if (unpicked) {
+      const name = materialById.get(unpicked.materialId)?.name ?? 'an item';
+      throw new Error(`Buy Direct needs a seller for every item. Pick a seller for ${name}, or choose Pool & Save.`);
+    }
+  }
+
   // Every order routes through a fulfillment center regardless of method —
   // delivery just adds a final hop from center to site (pickup ends there).
   const center = await findServingCenter(input.region);
@@ -136,6 +147,7 @@ export async function createOrder(input: CheckoutInput) {
           quantity: item.quantity,
           priceLocked: pick ? pick.price : material.catalogPrice,
           listingId: pick?.id ?? null,
+          mode,
           deliveryCost,
           fulfilmentCenterId: center.id,
         },

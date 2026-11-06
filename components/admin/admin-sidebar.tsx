@@ -39,6 +39,7 @@ const LINK_GROUPS = [
       { href: '/admin/materials', label: 'Materials', icon: PackageIcon },
       { href: '/admin/catalogue-reference', label: 'Catalogue reference', icon: BooksIcon },
       { href: '/admin/listings', label: 'Listing review', icon: ListChecksIcon },
+      { href: '/admin/direct', label: 'Buy Direct orders', icon: ReceiptIcon },
       { href: '/admin/areas', label: 'Service areas', icon: MapPinIcon },
       { href: '/admin/haulage', label: 'Haulage & dispatch', icon: TruckIcon },
       { href: '/admin/escrow', label: 'Escrow settlement', icon: LockKeyIcon },

@@ -66,6 +66,10 @@ export function CheckoutForm({
   const [neededBy, setNeededBy] = useState('');
   const [deliveryWindow, setDeliveryWindow] = useState('');
   const [deliveryNotes, setDeliveryNotes] = useState('');
+  // How the whole cart is bought. Buy Direct needs a picked seller on every line.
+  const [mode, setMode] = useState<'POOL' | 'DIRECT'>('POOL');
+  const canBuyDirect = lines.length > 0 && lines.every((l) => l.listingId);
+  const effectiveMode = mode === 'DIRECT' && canBuyDirect ? 'DIRECT' : 'POOL';
   const [state, setState] = useState<SubmitState>({ status: 'idle' });
 
   // The first required field still empty, named beside the pay button so a
@@ -108,6 +112,7 @@ export function CheckoutForm({
           region,
           fulfillmentMethod,
           paymentMethod,
+          mode: effectiveMode,
           items: lines.map((l) => ({ materialId: l.materialId, quantity: l.quantity, listingId: l.listingId ?? null })),
           ...(fulfillmentMethod === 'DELIVERY'
             ? {
@@ -323,6 +328,40 @@ export function CheckoutForm({
 
         <div className="mb-5 text-xl font-bold text-ink">
           {lines.length} {lines.length === 1 ? 'item' : 'items'}
+        </div>
+
+        <h2 className="mb-3 text-label text-muted-foreground uppercase">How to buy</h2>
+        <div className="mb-5 flex flex-col gap-2">
+          {(
+            [
+              { value: 'DIRECT', label: 'Buy Direct', body: 'From the seller you picked. They accept your order and send it to our fulfilment centre, where it is checked before it reaches you.', disabled: !canBuyDirect },
+              { value: 'POOL', label: 'Pool & Save', body: 'Your order joins today’s pool and suppliers bid for it. You keep half of any saving, and you do not choose the supplier.', disabled: false },
+            ] as const
+          ).map((opt) => {
+            const selected = effectiveMode === opt.value;
+            return (
+              <button
+                key={opt.value}
+                type="button"
+                disabled={opt.disabled}
+                onClick={() => setMode(opt.value)}
+                className={`flex items-start gap-2.5 rounded-lg border p-3 text-left text-sm transition-colors disabled:cursor-not-allowed disabled:opacity-60 ${
+                  selected ? 'border-brand bg-info-soft' : 'border-input hover:border-brand'
+                }`}
+              >
+                {selected ? (
+                  <CheckCircleIcon weight="fill" className="mt-0.5 size-4.5 shrink-0 text-brand" />
+                ) : (
+                  <CircleIcon className="mt-0.5 size-4.5 shrink-0 text-muted-foreground" />
+                )}
+                <span>
+                  <span className="block font-semibold text-ink">{opt.label}</span>
+                  <span className="block text-xs text-slate">{opt.body}</span>
+                  {opt.disabled && <span className="mt-1 block text-xs text-warning-text">Pick a seller for every item to use Buy Direct.</span>}
+                </span>
+              </button>
+            );
+          })}
         </div>
 
         <h2 className="mb-3 text-label text-muted-foreground uppercase">Shipping method</h2>

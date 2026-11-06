@@ -1,6 +1,7 @@
 import { prisma } from '../prisma';
-import { AllocationStatus, CycleStatus } from '@prisma/client';
+import { AllocationStatus, CycleStatus, DirectStatus } from '@prisma/client';
 import { notifyCycleOpened } from '../notifications';
+import { expireOverdueDirect } from '../direct';
 import { awardCycle } from './award';
 import { expireOverdueAllocations, finalizeCycleFallback, type FallbackReport } from './fallback';
 import type { CycleCloseReport } from './types';
@@ -9,6 +10,7 @@ export interface TickReport {
   frozen: string[];
   awarded: CycleCloseReport[];
   expiredAwards: number;
+  expiredDirect: number;
   fallbacks: FallbackReport[];
 }
 
@@ -44,7 +46,7 @@ export async function closeAndAwardCycle(cycleId: string): Promise<CycleCloseRep
  * page-load nudge, admin button): each stage is a compare-and-swap.
  */
 export async function advanceCycles(now = new Date()): Promise<TickReport> {
-  const report: TickReport = { frozen: [], awarded: [], expiredAwards: 0, fallbacks: [] };
+  const report: TickReport = { frozen: [], awarded: [], expiredAwards: 0, expiredDirect: 0, fallbacks: [] };
 
   const toFreeze = await prisma.bidCycle.findMany({
     where: { status: CycleStatus.OPEN, poolClosesAt: { lte: now } },
@@ -66,6 +68,7 @@ export async function advanceCycles(now = new Date()): Promise<TickReport> {
   // mark whatever is still uncovered as unsuccessful for the buyer. Expiry
   // runs first so the fallback sees the final picture.
   report.expiredAwards = await expireOverdueAllocations(now);
+  report.expiredDirect = await expireOverdueDirect(now);
 
   const toFinalize = await prisma.bidCycle.findMany({
     where: { status: CycleStatus.AWARDED, fallbackProcessedAt: null, fallbackAt: { lte: now } },
@@ -101,5 +104,8 @@ export async function maybeAdvanceCycles(): Promise<void> {
   const overdueAwards = await prisma.allocation.count({
     where: { status: AllocationStatus.PENDING, acceptDeadlineAt: { lte: now } },
   });
-  if (due + overdueAwards > 0) await advanceCycles(now);
+  const overdueDirect = await prisma.directFulfilment.count({
+    where: { status: DirectStatus.AWAITING_ACCEPT, acceptDeadlineAt: { lte: now } },
+  });
+  if (due + overdueAwards + overdueDirect > 0) await advanceCycles(now);
 }

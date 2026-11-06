@@ -69,6 +69,24 @@ enum OrderStatus {
   CANCELLED
 }
 
+// How an order line is bought. POOL joins the daily pool and its bidding; DIRECT
+// goes straight to the seller whose listing the buyer picked.
+enum PurchaseMode {
+  POOL
+  DIRECT
+}
+
+// A Buy Direct line's life with the seller: they accept (or decline, or let the
+// window lapse), ship to the fulfilment centre, and are paid after the goods are
+// received and checked. Mirrors AllocationStatus for pooled lines.
+enum DirectStatus {
+  AWAITING_ACCEPT
+  ACCEPTED
+  FULFILLED
+  DECLINED
+  EXPIRED
+}
+
 enum PayoutStatus {
   PENDING_GRN // awarded, but the fulfillment center hasn't confirmed physical receipt yet
   PROCESSED // GRN issued — cleared for disbursement, not yet sent
@@ -181,6 +199,7 @@ model User {
   emailVerificationTokens EmailVerificationToken[]
   zoneCoverage            SellerZoneCoverage[]
   listings                SellerListing[]
+  directFulfilments       DirectFulfilment[]
 }
 
 // One row per requested reset — tokenHash is the only thing ever stored
@@ -535,23 +554,24 @@ model Order {
 // holds regardless of the eventual winning bid. Each item independently joins
 // a bid cycle and routes to a fulfillment center once payment is confirmed.
 model OrderItem {
-  id                 String   @id @default(cuid())
+  id                 String       @id @default(cuid())
   orderId            String
   materialId         String
   quantity           Int
-  priceLocked        Decimal  @db.Decimal(12, 2)
-  deliveryCost       Decimal  @default(0) @db.Decimal(12, 2)
+  priceLocked        Decimal      @db.Decimal(12, 2)
+  deliveryCost       Decimal      @default(0) @db.Decimal(12, 2)
   fulfilmentCenterId String?
   bidCycleId         String?
   // Units no winning supplier covered once the fallback time passed. Never
   // converted into a purchase the buyer didn't authorise; the unfilled value
   // is recorded as a refund due on the ledger.
-  unfilledQuantity   Int      @default(0)
+  unfilledQuantity   Int          @default(0)
   // The seller offer the buyer picked, and so the seller a cancelled pool
   // reverts to; priceLocked is that offer's price. Null on older orders and
   // on lines bought before any seller had a live listing.
   listingId          String?
-  createdAt          DateTime @default(now())
+  mode               PurchaseMode @default(POOL)
+  createdAt          DateTime     @default(now())
 
   order             Order              @relation(fields: [orderId], references: [id])
   listing           SellerListing?     @relation(fields: [listingId], references: [id])
@@ -560,6 +580,7 @@ model OrderItem {
   bidCycle          BidCycle?          @relation(fields: [bidCycleId], references: [id])
   allocations       Allocation[]
   dispatch          Dispatch?
+  direct            DirectFulfilment?
 }
 
 // One per material, per region (null = national), per day.
@@ -975,4 +996,35 @@ model ListingPhoto {
   listing SellerListing @relation(fields: [listingId], references: [id], onDelete: Cascade)
 
   @@index([listingId])
+}
+
+// One per Buy Direct order line, created when the order is paid. The price is
+// the picked listing's price locked at checkout; payout reuses PayoutStatus so
+// escrow, GRN and payout screens read the same lifecycle as pooled lines.
+model DirectFulfilment {
+  id               String       @id @default(cuid())
+  orderItemId      String       @unique
+  sellerId         String // the seller's User id
+  listingId        String?
+  quantity         Int
+  unitPrice        Decimal      @db.Decimal(12, 2)
+  status           DirectStatus @default(AWAITING_ACCEPT)
+  acceptDeadlineAt DateTime
+  acceptedAt       DateTime?
+  declinedAt       DateTime?
+  declineReason    String?
+  receivedAt       DateTime?
+  grnNumber        String?      @unique
+  payoutStatus     PayoutStatus @default(PENDING_GRN)
+  payoutReference  String?      @unique
+  paidAt           DateTime?
+  holdReason       String?
+  createdAt        DateTime     @default(now())
+  updatedAt        DateTime     @updatedAt
+
+  orderItem OrderItem @relation(fields: [orderItemId], references: [id])
+  seller    User      @relation(fields: [sellerId], references: [id])
+
+  @@index([sellerId, status])
+  @@index([status, acceptDeadlineAt])
 }

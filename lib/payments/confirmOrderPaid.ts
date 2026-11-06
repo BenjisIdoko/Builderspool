@@ -1,6 +1,7 @@
 import { prisma } from '../prisma';
-import { OrderStatus } from '@prisma/client';
+import { OrderStatus, PurchaseMode } from '@prisma/client';
 import { joinCycleForOrderItem } from '../bidding';
+import { startDirectFulfilment } from '../direct';
 
 /**
  * Marks an order PAID and joins each of its items to a bid cycle — the one
@@ -21,7 +22,9 @@ export async function confirmOrderPaid(orderId: string) {
 
   if (count > 0) {
     for (const item of order.items) {
-      await joinCycleForOrderItem(item.id);
+      // Buy Direct lines go to the seller the buyer picked; everything else pools.
+      if (item.mode === PurchaseMode.DIRECT) await startDirectFulfilment(item.id);
+      else await joinCycleForOrderItem(item.id);
     }
   }
 
