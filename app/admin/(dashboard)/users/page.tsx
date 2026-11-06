@@ -76,14 +76,14 @@ export default async function AdminUsersPage({
   return (
     <div className="mx-auto w-full max-w-6xl px-6 py-10">
       <div className="mb-1 text-xs text-muted-foreground">Admin · ops desk</div>
-      <h1 className="mb-1 text-2xl font-bold tracking-tight text-ink">Users</h1>
+      <h1 className="mb-1 text-heading-lg text-ink">Users</h1>
       <p className="mb-8 text-sm text-muted-foreground">
         Every real account on the platform — buyers, sellers, and admins.
       </p>
 
       <div className="mb-10 grid grid-cols-2 gap-4 sm:grid-cols-5">
         {ROLE_FILTERS.map((f) => (
-          <div key={f.label} className="rounded-lg border border-border bg-surface p-4">
+          <div key={f.label} className="rounded-lg bg-card-alt p-4">
             <div className="mb-1 text-[11px] text-muted-foreground">{f.label}</div>
             <div className="text-xl font-semibold text-ink">{counts[f.countKey]}</div>
           </div>
@@ -121,7 +121,7 @@ export default async function AdminUsersPage({
       </div>
 
       {users.length === 0 ? (
-        <div className="rounded-lg border border-border bg-surface">
+        <div className="rounded-lg bg-card-alt">
           <EmptyState
             illustration={q ? NoResultsIllustration : EmptyListIllustration}
             variant="inline"
@@ -130,7 +130,7 @@ export default async function AdminUsersPage({
           />
         </div>
       ) : (
-        <div className="overflow-hidden rounded-lg border border-border bg-surface">
+        <div className="overflow-hidden rounded-lg bg-card-alt">
           <Table>
             <TableHeader>
               <TableRow>

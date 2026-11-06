@@ -123,7 +123,7 @@ export default async function SellerDashboardPage() {
           Trust score {profile!.trustScore}
         </Badge>
       </div>
-      <h1 className="mb-1 text-xl font-bold tracking-tight text-ink sm:text-[26px]">
+      <h1 className="mb-1 text-heading-lg text-ink">
         {profile!.user.businessName ?? profile!.user.name}
       </h1>
       <p className="mb-6 text-sm text-muted-foreground">Serving {profile!.regionsServed.join(', ')}</p>
@@ -167,20 +167,20 @@ export default async function SellerDashboardPage() {
       <div className="mb-14 grid grid-cols-1 gap-5 lg:grid-cols-[1fr_280px] lg:items-start">
         <div>
           <div className="mb-3 flex items-baseline justify-between">
-            <h2 className="text-xs font-bold tracking-wide text-slate uppercase">Real-time order stream</h2>
+            <h2 className="text-label text-slate uppercase">Real-time order stream</h2>
             <Link href="/seller/allocations" className="text-sm font-semibold text-brand hover:underline">
               View all →
             </Link>
           </div>
           {allocations.length === 0 ? (
-            <div className="rounded-xl border border-border bg-surface px-6 py-14 text-center shadow-[0_1px_2px_rgba(11,31,58,0.06)]">
+            <div className="rounded-card bg-card-alt px-6 py-14 text-center">
               <p className="text-sm text-muted-foreground">Nothing awarded to you yet.</p>
             </div>
           ) : (
             <>
             <div className="flex flex-col gap-2 md:hidden">
               {allocations.slice(0, 6).map((a) => (
-                <div key={a.id} className="rounded-xl border border-border bg-surface px-3.5 py-3">
+                <div key={a.id} className="rounded-card bg-card-alt px-3.5 py-3">
                   <div className="mb-1 flex items-center justify-between gap-2">
                     <span className="text-[12.5px] font-bold text-ink">#{a.id.slice(-6).toUpperCase()}</span>
                     <Badge variant="outline" className={pillClass(payoutStatusTone(a.payoutStatus))}>
@@ -196,7 +196,7 @@ export default async function SellerDashboardPage() {
                 </div>
               ))}
             </div>
-            <div className="hidden overflow-hidden rounded-xl border border-border bg-surface shadow-[0_1px_2px_rgba(11,31,58,0.06)] md:block">
+            <div className="hidden overflow-hidden rounded-card bg-card-alt md:block">
               <Table>
                 <TableHeader>
                   <TableRow>
@@ -235,7 +235,7 @@ export default async function SellerDashboardPage() {
           )}
         </div>
 
-        <div className="rounded-xl border border-border bg-surface p-4.5 shadow-[0_1px_2px_rgba(11,31,58,0.06)]">
+        <div className="rounded-card bg-card-alt p-4.5">
           <div className="mb-3 text-xs font-bold tracking-wide text-slate uppercase">Quick actions</div>
           <div className="flex flex-col">
             {QUICK_ACTIONS.map((action, i) => (
@@ -254,14 +254,14 @@ export default async function SellerDashboardPage() {
         </div>
       </div>
 
-      <h2 className="mb-1 text-xl font-bold tracking-tight text-ink">Open demand pools</h2>
+      <h2 className="mb-1 text-heading-md text-ink">Open demand pools</h2>
       <p className="mb-6 text-sm text-muted-foreground">
         Blind bidding — you&apos;ll never see other sellers&apos; bids or buyer identities, only the
         aggregated demand.
       </p>
 
       {cycles.length === 0 ? (
-        <div className="rounded-lg border border-border bg-surface">
+        <div className="rounded-lg bg-card-alt">
           <EmptyState
             illustration={EmptyListIllustration}
             variant="inline"

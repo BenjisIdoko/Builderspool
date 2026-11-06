@@ -89,7 +89,7 @@ export function SellerOrderTable({ orders }: { orders: SellerOrderRow[] }) {
       </div>
 
       {filtered.length === 0 ? (
-        <div className="rounded-xl border border-border bg-surface">
+        <div className="rounded-card bg-card-alt">
           <EmptyState illustration={NoResultsIllustration} variant="inline" as="p" title="No requisitions match this filter" description="Try a different status." />
         </div>
       ) : (
@@ -99,7 +99,7 @@ export function SellerOrderTable({ orders }: { orders: SellerOrderRow[] }) {
             <SellerOrderCard key={o.id} order={o} amount={formatNaira(o.amount)} />
           ))}
         </div>
-        <div className="hidden overflow-hidden rounded-xl border border-border bg-surface md:block">
+        <div className="hidden overflow-hidden rounded-card bg-card-alt md:block">
           <Table>
             <TableHeader>
               <TableRow>

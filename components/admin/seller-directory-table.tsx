@@ -85,11 +85,11 @@ export function SellerDirectoryTable({ sellers }: { sellers: SellerDirectoryEntr
       </div>
 
       {filtered.length === 0 ? (
-        <div className="rounded-xl border border-border bg-surface">
+        <div className="rounded-card bg-card-alt">
           <EmptyState illustration={NoResultsIllustration} variant="inline" as="p" title="No sellers match this filter" />
         </div>
       ) : (
-        <div className="overflow-hidden rounded-xl border border-border bg-surface">
+        <div className="overflow-hidden rounded-card bg-card-alt">
           <Table>
             <TableHeader>
               <TableRow>

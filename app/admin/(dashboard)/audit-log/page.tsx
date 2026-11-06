@@ -54,7 +54,7 @@ export default async function AdminAuditLogPage({
   return (
     <div className="mx-auto w-full max-w-6xl px-6 py-10">
       <div className="mb-1 text-xs text-muted-foreground">Admin · system</div>
-      <h1 className="mb-1 text-2xl font-bold tracking-tight text-ink">Audit log</h1>
+      <h1 className="mb-1 text-heading-lg text-ink">Audit log</h1>
       <p className="mb-8 text-sm text-muted-foreground">
         Who changed what — approvals, awards, payouts, settings and catalogue edits. Entries are never edited or deleted.
       </p>
@@ -86,7 +86,7 @@ export default async function AdminAuditLogPage({
       </div>
 
       {entries.length === 0 ? (
-        <div className="rounded-lg border border-border bg-surface">
+        <div className="rounded-lg bg-card-alt">
           <EmptyState
             illustration={q || type ? NoResultsIllustration : EmptyListIllustration}
             variant="inline"
@@ -96,7 +96,7 @@ export default async function AdminAuditLogPage({
           />
         </div>
       ) : (
-        <div className="overflow-hidden rounded-lg border border-border bg-surface">
+        <div className="overflow-hidden rounded-lg bg-card-alt">
           <Table>
             <TableHeader>
               <TableRow>

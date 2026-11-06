@@ -23,7 +23,7 @@ export function CyclesTable({ cycles }: { cycles: AdminCycleSummary[] }) {
     <div>
       <div className="mb-4 flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
         <div>
-          <h2 className="text-xl font-bold tracking-tight text-ink">Bid cycles</h2>
+          <h2 className="text-heading-md text-ink">Bid cycles</h2>
           <p className="text-sm text-muted-foreground">
             Every demand cycle the bidding engine has created or resolved — one per material, per
             region (national if none), per day.
@@ -41,16 +41,16 @@ export function CyclesTable({ cycles }: { cycles: AdminCycleSummary[] }) {
       </div>
 
       {cycles.length === 0 ? (
-        <p className="rounded-lg border border-border bg-surface p-6 text-sm text-muted-foreground">
+        <p className="rounded-lg bg-card-alt p-6 text-sm text-muted-foreground">
           No bid cycles yet — one is created the first time a paid order item joins a demand pool
           (see lib/bidding/joinCycle.ts).
         </p>
       ) : filtered.length === 0 ? (
-        <p className="rounded-lg border border-border bg-surface p-6 text-sm text-muted-foreground">
+        <p className="rounded-lg bg-card-alt p-6 text-sm text-muted-foreground">
           No bid cycles match &quot;{query}&quot;.
         </p>
       ) : (
-        <div className="overflow-hidden rounded-lg border border-border bg-surface">
+        <div className="overflow-hidden rounded-lg bg-card-alt">
           <Table>
             <TableHeader>
               <TableRow>

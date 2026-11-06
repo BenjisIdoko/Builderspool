@@ -39,9 +39,9 @@ export function SettingsForm({
   return (
     <form onSubmit={save} className="space-y-6">
       {groups.map((group) => (
-        <section key={group.id} className="rounded-lg border border-border bg-surface">
+        <section key={group.id} className="rounded-lg bg-card-alt">
           <div className="border-b border-border px-5 py-4">
-            <h2 className="text-sm font-bold text-slate">{group.title}</h2>
+            <h2 className="text-heading-sm text-ink">{group.title}</h2>
             <p className="mt-0.5 text-xs text-muted-foreground">{group.description}</p>
           </div>
           <div className="grid grid-cols-1 gap-x-6 gap-y-4 p-5 sm:grid-cols-2">

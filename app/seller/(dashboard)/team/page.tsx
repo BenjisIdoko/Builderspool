@@ -23,15 +23,15 @@ export default async function SellerTeamPage() {
   return (
     <div className="mx-auto w-full max-w-3xl px-6 py-10">
       <div className="mb-1 text-xs text-muted-foreground">Seller portal</div>
-      <h1 className="mb-1 text-2xl font-bold tracking-tight text-ink">Team</h1>
+      <h1 className="mb-1 text-heading-lg text-ink">Team</h1>
       <p className="mb-6 text-sm text-muted-foreground">
         Staff can view cycles, place bids and track orders for your business. Only you can change KYC details, bank
         details, terms and this team.
       </p>
 
-      <div className="mb-6 overflow-hidden rounded-lg border border-border bg-surface">
+      <div className="mb-6 overflow-hidden rounded-lg bg-card-alt">
         <div className="border-b border-border px-5 py-4">
-          <h2 className="text-sm font-bold text-slate">Staff ({staff.length})</h2>
+          <h2 className="text-heading-sm text-ink">Staff ({staff.length})</h2>
         </div>
         {staff.length === 0 ? (
           <EmptyState

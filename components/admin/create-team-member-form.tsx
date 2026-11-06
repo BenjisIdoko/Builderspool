@@ -32,8 +32,8 @@ export function CreateTeamMemberForm() {
   }
 
   return (
-    <form ref={formRef} onSubmit={submit} className="space-y-4 rounded-lg border border-border bg-surface p-5">
-      <h2 className="text-sm font-bold text-slate">Add a team member</h2>
+    <form ref={formRef} onSubmit={submit} className="space-y-4 rounded-lg bg-card-alt p-5">
+      <h2 className="text-heading-sm text-ink">Add a team member</h2>
       <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
         <div>
           <Label htmlFor="member-role" className="mb-1.5 text-xs text-muted-foreground">

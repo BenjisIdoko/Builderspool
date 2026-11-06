@@ -149,7 +149,7 @@ export default async function AdminOrdersPage({
       <div className="mb-6 flex flex-wrap items-start justify-between gap-4">
         <div>
           <div className="mb-1 text-xs text-muted-foreground">Admin · logistics &amp; settlement</div>
-          <h1 className="mb-1 text-[26px] font-bold tracking-tight text-ink">Marketplace orders &amp; escrow custody</h1>
+          <h1 className="mb-1 text-heading-lg text-ink">Marketplace orders &amp; escrow custody</h1>
           <p className="text-sm text-muted-foreground">
             Tracking of requisitions, escrow holds, and hub receipt confirmations across every seller.
           </p>
@@ -176,7 +176,7 @@ export default async function AdminOrdersPage({
         ))}
       </div>
 
-      <h2 className="mb-3 text-xs font-bold tracking-wide text-slate uppercase">
+      <h2 className="mb-3 text-label text-slate uppercase">
         All orders · {total} matching
       </h2>
       <div className="mb-4 flex flex-wrap items-center justify-between gap-4">
@@ -214,7 +214,7 @@ export default async function AdminOrdersPage({
       </div>
 
       {orders.length === 0 ? (
-        <div className="rounded-lg border border-border bg-surface">
+        <div className="rounded-lg bg-card-alt">
           <EmptyState
             illustration={q || validStatus ? NoResultsIllustration : EmptyListIllustration}
             variant="inline"
@@ -229,7 +229,7 @@ export default async function AdminOrdersPage({
           />
         </div>
       ) : (
-        <div className="overflow-hidden rounded-lg border border-border bg-surface">
+        <div className="overflow-hidden rounded-lg bg-card-alt">
           <Table>
             <TableHeader>
               <TableRow>

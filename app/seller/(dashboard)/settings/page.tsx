@@ -42,12 +42,12 @@ export default async function SellerSettingsPage() {
   return (
     <div className="mx-auto w-full max-w-[900px] px-5 pt-6 pb-20 sm:px-8 sm:pt-8">
       <div className="mb-1 text-xs text-muted-foreground">Merchant · account</div>
-      <h1 className="mb-1 text-[26px] font-bold tracking-tight text-ink">Settings</h1>
+      <h1 className="mb-1 text-heading-lg text-ink">Settings</h1>
       <p className="mb-6 text-sm text-muted-foreground">Business profile and verification status.</p>
 
       <div className="flex flex-col gap-4">
-        <div className="rounded-xl border border-border bg-surface p-6">
-          <h2 className="mb-4 text-[11.5px] font-bold tracking-wide text-muted-foreground uppercase">
+        <div className="rounded-card bg-card-alt p-6">
+          <h2 className="mb-4 text-label text-muted-foreground uppercase">
             Business profile
           </h2>
           <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
@@ -60,8 +60,8 @@ export default async function SellerSettingsPage() {
           </div>
         </div>
 
-        <div className="rounded-xl border border-border bg-surface p-6">
-          <h2 className="mb-4 text-[11.5px] font-bold tracking-wide text-muted-foreground uppercase">
+        <div className="rounded-card bg-card-alt p-6">
+          <h2 className="mb-4 text-label text-muted-foreground uppercase">
             Verification documents
           </h2>
           <div className="flex items-center justify-between border-b border-border py-2.5">
@@ -83,8 +83,8 @@ export default async function SellerSettingsPage() {
           </p>
         </div>
 
-        <div className="rounded-xl border border-border bg-surface p-6">
-          <h2 className="mb-2 text-[11.5px] font-bold tracking-wide text-muted-foreground uppercase">
+        <div className="rounded-card bg-card-alt p-6">
+          <h2 className="mb-2 text-label text-muted-foreground uppercase">
             Notification preferences
           </h2>
           <p className="text-sm text-muted-foreground">

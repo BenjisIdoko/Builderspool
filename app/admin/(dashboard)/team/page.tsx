@@ -26,15 +26,15 @@ export default async function AdminTeamPage() {
   return (
     <div className="mx-auto w-full max-w-4xl px-6 py-10">
       <div className="mb-1 text-xs text-muted-foreground">Admin · accounts</div>
-      <h1 className="mb-1 text-2xl font-bold tracking-tight text-ink">Operations team</h1>
+      <h1 className="mb-1 text-heading-lg text-ink">Operations team</h1>
       <p className="mb-8 text-sm text-muted-foreground">
         Internal staff for catalogue QC, hub fulfilment and last-mile delivery. Their sign-in and workspaces arrive with
         those phases; accounts created now are ready for them. Seller staff are managed by each seller owner.
       </p>
 
-      <div className="mb-6 overflow-hidden rounded-lg border border-border bg-surface">
+      <div className="mb-6 overflow-hidden rounded-lg bg-card-alt">
         <div className="border-b border-border px-5 py-4">
-          <h2 className="text-sm font-bold text-slate">Team ({members.length})</h2>
+          <h2 className="text-heading-sm text-ink">Team ({members.length})</h2>
         </div>
         {members.length === 0 ? (
           <EmptyState

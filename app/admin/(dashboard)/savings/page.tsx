@@ -75,7 +75,7 @@ export default async function AdminSavingsPage({
   return (
     <div className="mx-auto w-full max-w-6xl px-6 py-10">
       <div className="mb-1 text-xs text-muted-foreground">Admin · ops desk</div>
-      <h1 className="mb-1 text-2xl font-bold tracking-tight text-ink">Savings settlement</h1>
+      <h1 className="mb-1 text-heading-lg text-ink">Savings settlement</h1>
       <p className="mb-8 text-sm text-muted-foreground">
         Every buyer&apos;s real savings-wallet entry — half of the gap between what they paid and what a
         material actually cost to procure, credited once a GRN confirms real fulfillment.
@@ -111,12 +111,12 @@ export default async function AdminSavingsPage({
       </div>
 
       {rows.length === 0 ? (
-        <div className="flex flex-col items-center gap-3 rounded-lg border border-border bg-surface px-6 py-16 text-center">
+        <div className="flex flex-col items-center gap-3 rounded-lg bg-card-alt px-6 py-16 text-center">
           <WalletIcon className="size-8 text-muted-foreground" />
           <p className="text-sm text-muted-foreground">Nothing in this queue right now.</p>
         </div>
       ) : (
-        <div className="overflow-hidden rounded-lg border border-border bg-surface">
+        <div className="overflow-hidden rounded-lg bg-card-alt">
           <Table>
             <TableHeader>
               <TableRow>

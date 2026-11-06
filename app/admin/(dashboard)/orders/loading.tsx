@@ -24,7 +24,7 @@ export default function OrdersLoading() {
         <Skeleton className="h-8 w-64" />
       </div>
 
-      <div className="overflow-hidden rounded-lg border border-border bg-surface">
+      <div className="overflow-hidden rounded-lg bg-card-alt">
         <div className="flex gap-4 border-b border-border p-3">
           {[0, 1, 2, 3, 4, 5, 6].map((i) => (
             <Skeleton key={i} className="h-3 flex-1" />

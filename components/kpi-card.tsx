@@ -34,23 +34,23 @@ export function KpiCard({
 
   if (compact) {
     return (
-      <div className="overflow-hidden rounded-xl border border-border bg-surface p-4 shadow-[0_1px_2px_rgba(11,31,58,0.06)]">
-        <div className="mb-2 text-[11.5px] font-bold tracking-[0.04em] text-muted-foreground uppercase">{label}</div>
-        <div className={`truncate text-xl font-extrabold ${TONE_TEXT_CLASS[tone]}`}>{value}</div>
+      <div className="overflow-hidden rounded-card bg-card-alt p-4">
+        <div className="mb-2 text-label text-muted-foreground uppercase">{label}</div>
+        <div className={`truncate font-mono text-figure-lg tabular-nums ${TONE_TEXT_CLASS[tone]}`}>{value}</div>
       </div>
     );
   }
 
   return (
-    <div className="overflow-hidden rounded-xl border border-border bg-surface p-[18px] shadow-[0_1px_2px_rgba(11,31,58,0.06)]">
+    <div className="overflow-hidden rounded-card bg-card-alt p-[18px]">
       <div className="mb-3 flex items-start justify-between gap-2">
-        <div className="line-clamp-2 text-xs font-bold tracking-[0.04em] text-muted-foreground uppercase">{label}</div>
+        <div className="line-clamp-2 text-label text-muted-foreground uppercase">{label}</div>
         <span className={`flex size-7 shrink-0 items-center justify-center rounded-lg ${pillClass(tone)}`}>
           <Icon className="size-3.5" />
         </span>
       </div>
-      <div className="truncate text-2xl font-extrabold text-ink">{value}</div>
-      <div className={`mt-1 text-xs font-semibold ${tone === 'success' ? 'text-success' : 'text-slate'}`}>{chip}</div>
+      <div className="truncate font-mono text-figure-lg tabular-nums text-ink">{value}</div>
+      <div className={`mt-1 text-caption font-semibold ${tone === 'success' ? 'text-success' : 'text-slate'}`}>{chip}</div>
     </div>
   );
 }

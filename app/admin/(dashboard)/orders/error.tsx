@@ -20,7 +20,7 @@ export default function OrdersError({ error, reset }: { error: Error & { digest?
         <WarningCircleIcon className="size-6" />
       </span>
       <div>
-        <h1 className="mb-1 text-lg font-bold text-ink">Couldn&apos;t load orders</h1>
+        <h1 className="mb-1 text-heading-lg text-ink">Couldn&apos;t load orders</h1>
         <p className="max-w-sm text-sm text-muted-foreground">
           This is usually a transient database connection issue. Try again in a moment.
         </p>

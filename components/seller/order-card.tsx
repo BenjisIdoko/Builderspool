@@ -18,7 +18,7 @@ export function SellerOrderCard({ order, amount }: { order: SellerOrderRow; amou
       <button
         type="button"
         onClick={() => setOpen(true)}
-        className="w-full rounded-xl border border-border bg-surface p-3.5 text-left"
+        className="w-full rounded-card bg-card-alt p-3.5 text-left"
       >
         <div className="mb-1 flex items-center justify-between gap-2">
           <span className="text-[13.5px] font-bold text-ink">{order.shortId}</span>

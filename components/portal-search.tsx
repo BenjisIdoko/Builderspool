@@ -81,7 +81,7 @@ export function SearchProvider({ portal, children }: { portal: 'admin' | 'seller
           onClick={close}
         >
           <div
-            className="w-full max-w-lg overflow-hidden rounded-xl border border-border bg-surface shadow-[0_16px_40px_rgba(16,24,40,0.18)]"
+            className="w-full max-w-lg overflow-hidden rounded-card bg-card-alt shadow-[0_16px_40px_rgba(16,24,40,0.18)]"
             onClick={(e) => e.stopPropagation()}
           >
             <div className="flex items-center gap-2.5 border-b border-border px-4 py-3.5">

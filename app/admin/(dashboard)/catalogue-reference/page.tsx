@@ -34,7 +34,7 @@ export default async function CatalogueReferencePage({
   return (
     <div className="mx-auto w-full max-w-[1180px] px-8 pt-8 pb-20">
       <div className="mb-1 text-xs text-muted-foreground">Admin · ops desk</div>
-      <h1 className="mb-1 text-[26px] font-bold tracking-tight text-ink">Catalogue reference library</h1>
+      <h1 className="mb-1 text-heading-lg text-ink">Catalogue reference library</h1>
       <p className="mb-8 text-sm text-muted-foreground">
         Researched specs, standards, and common brands across the wider Nigerian construction-materials
         market. Reference only, not the live buyer catalog: most of these have no fixed price, since real
@@ -50,7 +50,7 @@ export default async function CatalogueReferencePage({
       <CatalogueFilterBar categories={categories} category={category} q={q} />
 
       {products.length === 0 ? (
-        <div className="rounded-xl border border-border bg-surface">
+        <div className="rounded-card bg-card-alt">
           <EmptyState
             illustration={q ? NoResultsIllustration : EmptyListIllustration}
             variant="inline"
@@ -59,7 +59,7 @@ export default async function CatalogueReferencePage({
           />
         </div>
       ) : (
-        <div className="overflow-hidden rounded-xl border border-border bg-surface">
+        <div className="overflow-hidden rounded-card bg-card-alt">
           <Table>
             <TableHeader>
               <TableRow>

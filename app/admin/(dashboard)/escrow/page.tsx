@@ -87,7 +87,7 @@ export default async function AdminEscrowPage({
   return (
     <div className="mx-auto w-full max-w-6xl px-6 py-10">
       <div className="mb-1 text-xs text-muted-foreground">Admin · ops desk</div>
-      <h1 className="mb-1 text-2xl font-bold tracking-tight text-ink">Escrow settlement</h1>
+      <h1 className="mb-1 text-heading-lg text-ink">Escrow settlement</h1>
       <p className="mb-8 text-sm text-muted-foreground">
         Every seller allocation&apos;s real escrow position in one queue, instead of clicking into each
         demand cycle separately. Funds move from locked to released only on a real fulfillment center GRN.
@@ -130,12 +130,12 @@ export default async function AdminEscrowPage({
       </div>
 
       {rows.length === 0 ? (
-        <div className="flex flex-col items-center gap-3 rounded-lg border border-border bg-surface px-6 py-16 text-center">
+        <div className="flex flex-col items-center gap-3 rounded-lg bg-card-alt px-6 py-16 text-center">
           <LockKeyIcon className="size-8 text-muted-foreground" />
           <p className="text-sm text-muted-foreground">Nothing in this queue right now.</p>
         </div>
       ) : (
-        <div className="overflow-hidden rounded-lg border border-border bg-surface">
+        <div className="overflow-hidden rounded-lg bg-card-alt">
           <Table>
             <TableHeader>
               <TableRow>

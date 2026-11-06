@@ -44,13 +44,13 @@ export default async function SellerKycPage() {
   return (
     <div className="mx-auto w-full max-w-2xl px-6 py-10">
       <div className="mb-1 text-xs text-muted-foreground">Seller portal</div>
-      <h1 className="mb-1 text-2xl font-bold tracking-tight text-ink">KYC verification</h1>
+      <h1 className="mb-1 text-heading-lg text-ink">KYC verification</h1>
       <p className="mb-6 text-sm text-muted-foreground">
         Required before payouts can be disbursed to your account. Where available, attach a supporting
         document (a CAC certificate or your ID) as a PDF, JPEG or PNG up to 4 MB.
       </p>
 
-      <div className="mb-6 flex items-center gap-2.5 rounded-lg border border-border bg-surface p-4">
+      <div className="mb-6 flex items-center gap-2.5 rounded-lg bg-card-alt p-4">
         <Badge variant="outline" className={pillClass(kycStatusTone(profile.kycStatus))}>
           {KYC_LABEL[profile.kycStatus]}
         </Badge>
@@ -102,7 +102,7 @@ export default async function SellerKycPage() {
       )}
 
       {editable ? (
-        <form action={submitKyc} className="space-y-4 rounded-lg border border-border bg-surface p-6">
+        <form action={submitKyc} className="space-y-4 rounded-lg bg-card-alt p-6">
           <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
             <div>
               <Label htmlFor="businessRegNumber" className="mb-1.5 text-xs text-muted-foreground">
@@ -262,7 +262,7 @@ export default async function SellerKycPage() {
           </div>
         </form>
       ) : (
-        <div className="space-y-3 rounded-lg border border-border bg-surface p-6 text-sm">
+        <div className="space-y-3 rounded-lg bg-card-alt p-6 text-sm">
           <div className="grid grid-cols-2 gap-4">
             <div>
               <div className="text-xs text-muted-foreground">Business registration number</div>

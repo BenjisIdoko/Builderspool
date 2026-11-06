@@ -75,7 +75,7 @@ export default async function AdminHaulagePage({
   return (
     <div className="mx-auto w-full max-w-6xl px-6 py-10">
       <div className="mb-1 text-xs text-muted-foreground">Admin · ops desk</div>
-      <h1 className="mb-1 text-2xl font-bold tracking-tight text-ink">Haulage &amp; dispatch</h1>
+      <h1 className="mb-1 text-heading-lg text-ink">Haulage &amp; dispatch</h1>
       <p className="mb-8 text-sm text-muted-foreground">
         Real dispatch assignment and status across every delivery order — no live GPS, so location is
         exactly what ops last physically confirmed.
@@ -111,11 +111,11 @@ export default async function AdminHaulagePage({
       </div>
 
       {dispatches.length === 0 ? (
-        <div className="rounded-lg border border-border bg-surface">
+        <div className="rounded-lg bg-card-alt">
           <EmptyState illustration={NoResultsIllustration} variant="inline" as="p" title="No dispatches match this filter" />
         </div>
       ) : (
-        <div className="overflow-hidden rounded-lg border border-border bg-surface">
+        <div className="overflow-hidden rounded-lg bg-card-alt">
           <Table>
             <TableHeader>
               <TableRow>

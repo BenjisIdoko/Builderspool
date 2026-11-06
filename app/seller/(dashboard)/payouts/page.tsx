@@ -29,7 +29,7 @@ export default async function SellerPayoutsPage() {
   return (
     <div className="mx-auto w-full max-w-[1180px] px-5 pt-6 pb-20 sm:px-8 sm:pt-8">
       <div className="mb-1 text-xs text-muted-foreground">Merchant · settlements</div>
-      <h1 className="mb-1 text-[26px] font-bold tracking-tight text-ink">Payouts</h1>
+      <h1 className="mb-1 text-heading-lg text-ink">Payouts</h1>
       <p className="mb-6 text-sm text-muted-foreground">
         Escrow releases to you — real allocation data, the same figures admin sees on the Escrow
         settlement desk. Payouts are disbursed by ops once a fulfillment center confirms receipt (GRN);
@@ -43,19 +43,19 @@ export default async function SellerPayoutsPage() {
           earnings" (all-time payoutStatus=PAID total), just relabeled to match;
           no fabricated quarter-over-quarter trend added under it. */}
       <div className="mb-8 grid grid-cols-1 gap-3.5 sm:grid-cols-3">
-        <div className="rounded-xl border border-border bg-surface p-5">
+        <div className="rounded-card bg-card-alt p-5">
           <div className="mb-1.5 text-xs font-bold tracking-wide text-muted-foreground uppercase">On hold</div>
           <div className="text-2xl font-extrabold text-danger">{formatNaira(onHoldTotal)}</div>
           <div className="mt-1 text-xs text-muted-foreground">{onHold.length} flagged by ops</div>
         </div>
-        <div className="rounded-xl border border-border bg-surface p-5">
+        <div className="rounded-card bg-card-alt p-5">
           <div className="mb-1.5 text-xs font-bold tracking-wide text-muted-foreground uppercase">
             Pending escrow release
           </div>
           <div className="text-2xl font-extrabold text-brand">{formatNaira(pendingTotal)}</div>
           <div className="mt-1 text-xs text-muted-foreground">{pending.length} awaiting GRN / processing</div>
         </div>
-        <div className="rounded-xl border border-border bg-surface p-5">
+        <div className="rounded-card bg-card-alt p-5">
           <div className="mb-1.5 text-xs font-bold tracking-wide text-muted-foreground uppercase">Lifetime earnings</div>
           <div className="text-2xl font-extrabold text-ink">{formatNaira(paidTotal)}</div>
           <div className="mt-1 text-xs text-muted-foreground">{paid.length} settled</div>

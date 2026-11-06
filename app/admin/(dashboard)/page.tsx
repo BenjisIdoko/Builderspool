@@ -157,7 +157,7 @@ export default async function AdminDashboardPage() {
   return (
     <div className="mx-auto w-full max-w-7xl px-8 pt-8 pb-20">
       <div className="mb-1 text-xs text-muted-foreground">Admin · platform overview</div>
-      <h1 className="mb-1.5 text-[26px] font-bold tracking-tight text-ink">
+      <h1 className="mb-1.5 text-heading-lg text-ink">
         {greeting((new Date().getUTCHours() + 1) % 24)}, {(admin?.name ?? 'there').split(' ')[0]}
       </h1>
       <p className="mb-6 text-sm text-muted-foreground">
@@ -172,8 +172,8 @@ export default async function AdminDashboardPage() {
 
       <div className="mb-14 grid grid-cols-1 items-start gap-5 lg:grid-cols-[1fr_320px]">
         <div className="flex flex-col gap-4">
-          <div className="rounded-xl border border-border bg-surface p-5">
-            <h2 className="mb-3.5 text-[11.5px] font-bold tracking-wide text-muted-foreground uppercase">
+          <div className="rounded-card bg-card-alt p-5">
+            <h2 className="mb-3.5 text-label text-muted-foreground uppercase">
               GMV trend (last {weeklyGmv.length} weeks)
             </h2>
             <div className="flex h-36 items-end gap-2.5">
@@ -193,9 +193,9 @@ export default async function AdminDashboardPage() {
             </div>
           </div>
 
-          <div className="overflow-hidden rounded-xl border border-border bg-surface">
+          <div className="overflow-hidden rounded-card bg-card-alt">
             <div className="flex items-center justify-between px-5 py-4">
-              <h2 className="text-[11.5px] font-bold tracking-wide text-muted-foreground uppercase">
+              <h2 className="text-label text-muted-foreground uppercase">
                 Latest requisitions
               </h2>
               <Link href="/admin/orders" className="text-[13px] font-bold text-brand hover:underline">
@@ -234,8 +234,8 @@ export default async function AdminDashboardPage() {
         </div>
 
         <div className="flex flex-col gap-4">
-          <div className="rounded-xl border border-border bg-surface p-[18px]">
-            <h2 className="mb-3.5 text-[11.5px] font-bold tracking-wide text-muted-foreground uppercase">
+          <div className="rounded-card bg-card-alt p-[18px]">
+            <h2 className="mb-3.5 text-label text-muted-foreground uppercase">
               Needs attention
             </h2>
             {attentionItems.length === 0 ? (
@@ -261,8 +261,8 @@ export default async function AdminDashboardPage() {
             )}
           </div>
 
-          <div className="rounded-xl border border-border bg-surface p-[18px]">
-            <h2 className="mb-3.5 text-[11.5px] font-bold tracking-wide text-muted-foreground uppercase">
+          <div className="rounded-card bg-card-alt p-[18px]">
+            <h2 className="mb-3.5 text-label text-muted-foreground uppercase">
               Top merchants (MTD)
             </h2>
             {topSellers.length === 0 ? (
@@ -287,7 +287,7 @@ export default async function AdminDashboardPage() {
       </div>
 
       <div className="mb-4 border-t border-border pt-10">
-        <h2 className="text-sm font-bold text-slate">More detail</h2>
+        <h2 className="text-heading-sm text-ink">More detail</h2>
         <p className="text-xs text-muted-foreground">
           Platform-specific views with no equivalent in the top summary above.
         </p>
@@ -296,10 +296,10 @@ export default async function AdminDashboardPage() {
       <div className="mb-14">
         <div className="mb-1 flex items-center gap-2">
           <ChartPieSliceIcon className="size-4.5 text-slate" />
-          <h2 className="text-[13px] font-bold text-slate">Bid cycles by status</h2>
+          <h2 className="text-heading-sm text-ink">Bid cycles by status</h2>
         </div>
         <p className="mb-5 text-xs text-muted-foreground">Every cycle ever created, {cycles.length} total.</p>
-        <div className="max-w-md rounded-lg border border-border bg-surface p-6">
+        <div className="max-w-md rounded-lg bg-card-alt p-6">
           <div className="flex flex-col gap-4">
             {cycleStatusCounts.map(({ status, count }) => (
               <div key={status}>
@@ -330,17 +330,17 @@ export default async function AdminDashboardPage() {
       <div className="mb-14">
         <div className="mb-4 flex items-center gap-2">
           <GavelIcon className="size-4.5 text-slate" />
-          <h2 className="text-xl font-bold tracking-tight text-ink">Open bids</h2>
+          <h2 className="text-heading-md text-ink">Open bids</h2>
         </div>
         <p className="mb-4 text-sm text-muted-foreground">
           Demand pools still accepting seller bids, soonest cutoff first — {openCycles.length} open right now.
         </p>
         {openCycles.length === 0 ? (
-          <p className="rounded-lg border border-border bg-surface p-6 text-sm text-muted-foreground">
+          <p className="rounded-lg bg-card-alt p-6 text-sm text-muted-foreground">
             No cycles are currently open for bidding.
           </p>
         ) : (
-          <div className="overflow-hidden rounded-lg border border-border bg-surface">
+          <div className="overflow-hidden rounded-lg bg-card-alt">
             <Table>
               <TableHeader>
                 <TableRow>

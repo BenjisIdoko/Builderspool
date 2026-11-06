@@ -9,7 +9,7 @@ export default function AdminUsersLoading() {
       <Skeleton className="mb-8 h-4 w-72" />
       <div className="mb-10 grid grid-cols-2 gap-4 sm:grid-cols-4">
         {Array.from({ length: 4 }).map((_, i) => (
-          <div key={i} className="rounded-lg border border-border bg-surface p-4">
+          <div key={i} className="rounded-lg bg-card-alt p-4">
             <Skeleton className="mb-1 h-3 w-16" />
             <Skeleton className="h-5 w-10" />
           </div>

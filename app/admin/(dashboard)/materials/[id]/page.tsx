@@ -28,7 +28,7 @@ export default async function AdminMaterialEditPage({ params }: { params: Promis
       <div className="mb-3 flex flex-wrap items-start justify-between gap-3">
         <div>
           <div className="mb-1 text-xs text-muted-foreground">{material.category}</div>
-          <h1 className="text-2xl font-bold tracking-tight text-ink">{material.name}</h1>
+          <h1 className="text-heading-lg text-ink">{material.name}</h1>
         </div>
         <form action={setMaterialRetiredAction}>
           <input type="hidden" name="id" value={material.id} />
@@ -73,8 +73,8 @@ export default async function AdminMaterialEditPage({ params }: { params: Promis
       <form action={updateMaterialAction} className="space-y-8">
         <input type="hidden" name="id" value={material.id} />
 
-        <div className="rounded-lg border border-border bg-surface p-6">
-          <h2 className="mb-4 text-xs font-bold tracking-wide text-slate uppercase">Pricing &amp; availability</h2>
+        <div className="rounded-lg bg-card-alt p-6">
+          <h2 className="mb-4 text-label text-slate uppercase">Pricing &amp; availability</h2>
           <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
             <div>
               <Label htmlFor="catalogPrice" className="mb-1.5 text-xs text-muted-foreground">
@@ -107,8 +107,8 @@ export default async function AdminMaterialEditPage({ params }: { params: Promis
           </div>
         </div>
 
-        <div className="rounded-lg border border-border bg-surface p-6">
-          <h2 className="mb-4 text-xs font-bold tracking-wide text-slate uppercase">Specification</h2>
+        <div className="rounded-lg bg-card-alt p-6">
+          <h2 className="mb-4 text-label text-slate uppercase">Specification</h2>
           <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
             <div>
               <Label htmlFor="grade" className="mb-1.5 text-xs text-muted-foreground">
@@ -143,8 +143,8 @@ export default async function AdminMaterialEditPage({ params }: { params: Promis
           </div>
         </div>
 
-        <div className="rounded-lg border border-border bg-surface p-6">
-          <h2 className="mb-4 text-xs font-bold tracking-wide text-slate uppercase">Image</h2>
+        <div className="rounded-lg bg-card-alt p-6">
+          <h2 className="mb-4 text-label text-slate uppercase">Image</h2>
           <Label htmlFor="imageUrl" className="mb-1.5 text-xs text-muted-foreground">
             Image URL
           </Label>

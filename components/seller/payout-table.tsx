@@ -34,9 +34,9 @@ export function PayoutTable({ payouts }: { payouts: PayoutRow[] }) {
   const filtered = payouts.filter((p) => statusFilter[p.status] !== false);
 
   return (
-    <div className="overflow-hidden rounded-lg border border-border bg-surface">
+    <div className="overflow-hidden rounded-lg bg-card-alt">
       <div className="flex items-center justify-between gap-3 border-b border-border px-5 py-4">
-        <h2 className="text-[11.5px] font-bold tracking-wide text-muted-foreground uppercase">Payout history</h2>
+        <h2 className="text-label text-muted-foreground uppercase">Payout history</h2>
         <FilterDropdown>
           <FilterDropdownLabel>Status</FilterDropdownLabel>
           <div className="flex flex-col gap-1">
@@ -59,7 +59,7 @@ export function PayoutTable({ payouts }: { payouts: PayoutRow[] }) {
         <>
         <div className="flex flex-col gap-2.5 p-4 md:hidden">
           {filtered.map((p) => (
-            <div key={p.id} className="rounded-xl border border-border bg-surface p-3.5">
+            <div key={p.id} className="rounded-card bg-card-alt p-3.5">
               <div className="mb-1 flex items-center justify-between gap-2">
                 <span className="text-[13px] font-bold text-ink">{p.date ?? 'Not yet paid'}</span>
                 <Badge variant="outline" className={pillClass(payoutStatusTone(p.status))}>

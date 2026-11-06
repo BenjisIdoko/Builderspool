@@ -14,18 +14,18 @@ export default async function SellerBidsPage() {
 
   return (
     <div className="mx-auto w-full max-w-5xl px-6 py-12">
-      <h1 className="mb-1 text-xl font-bold tracking-tight text-ink">My bids</h1>
+      <h1 className="mb-1 text-heading-lg text-ink">My bids</h1>
       <p className="mb-6 text-sm text-muted-foreground">
         Every bid you&apos;ve submitted, across every cycle — withdraw one while it&apos;s still open.
       </p>
 
       {bids.length === 0 ? (
-        <div className="rounded-lg border border-border bg-surface px-6 py-16 text-center">
+        <div className="rounded-lg bg-card-alt px-6 py-16 text-center">
           <StackIcon className="mx-auto mb-3 size-8 text-muted-foreground" />
           <p className="text-sm text-muted-foreground">You haven&apos;t submitted any bids yet.</p>
         </div>
       ) : (
-        <div className="overflow-hidden rounded-lg border border-border bg-surface">
+        <div className="overflow-hidden rounded-lg bg-card-alt">
           <div className="divide-y divide-border">
             {bids.map((bid) => (
               <div key={bid.id} className="flex flex-wrap items-center gap-4 px-5 py-4">

@@ -26,7 +26,7 @@ export default async function SellerAllocationsPage() {
 
   return (
     <div className="mx-auto w-full max-w-5xl px-6 py-12">
-      <h1 className="mb-1 text-xl font-bold tracking-tight text-ink">Allocations</h1>
+      <h1 className="mb-1 text-heading-lg text-ink">Allocations</h1>
       <p className="mb-6 text-sm text-muted-foreground">
         Materials awarded to you. Accept an award before its deadline or it passes to the next supplier.
         Once accepted, drop off at the fulfillment center listed — it confirms receipt (GRN), which is what
@@ -34,7 +34,7 @@ export default async function SellerAllocationsPage() {
       </p>
 
       {allocations.length === 0 ? (
-        <div className="rounded-lg border border-border bg-surface px-6 py-16 text-center">
+        <div className="rounded-lg bg-card-alt px-6 py-16 text-center">
           <StackIcon className="mx-auto mb-3 size-8 text-muted-foreground" />
           <p className="text-sm text-muted-foreground">Nothing awarded to you yet.</p>
         </div>

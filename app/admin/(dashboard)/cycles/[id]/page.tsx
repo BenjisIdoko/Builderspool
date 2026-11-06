@@ -41,10 +41,10 @@ export default async function AdminCycleDetailPage({ params }: { params: Promise
         All cycles
       </Link>
 
-      <div className="mb-8 flex flex-wrap items-start justify-between gap-4 rounded-lg border border-border bg-surface p-6">
+      <div className="mb-8 flex flex-wrap items-start justify-between gap-4 rounded-lg bg-card-alt p-6">
         <div>
           <div className="flex items-center gap-2">
-            <h1 className="text-xl font-bold text-ink">{cycle.material.name}</h1>
+            <h1 className="text-heading-lg text-ink">{cycle.material.name}</h1>
             <Badge variant="outline" className={pillClass(cycleStatusTone(cycle.status))}>
               {cycle.status.toLowerCase()}
             </Badge>
@@ -87,9 +87,9 @@ export default async function AdminCycleDetailPage({ params }: { params: Promise
         )}
       </div>
 
-      <div className="mb-8 overflow-hidden rounded-lg border border-border bg-surface">
+      <div className="mb-8 overflow-hidden rounded-lg bg-card-alt">
         <div className="border-b border-border px-5 py-3">
-          <h2 className="text-sm font-bold text-slate">Bids ({cycle.bids.length})</h2>
+          <h2 className="text-heading-sm text-ink">Bids ({cycle.bids.length})</h2>
         </div>
         {cycle.bids.length === 0 ? (
           <p className="p-5 text-sm text-muted-foreground">No bids submitted yet.</p>
@@ -134,9 +134,9 @@ export default async function AdminCycleDetailPage({ params }: { params: Promise
         )}
       </div>
 
-      <div className="overflow-hidden rounded-lg border border-border bg-surface">
+      <div className="overflow-hidden rounded-lg bg-card-alt">
         <div className="border-b border-border px-5 py-3">
-          <h2 className="text-sm font-bold text-slate">Allocations</h2>
+          <h2 className="text-heading-sm text-ink">Allocations</h2>
         </div>
         {cycle.bids.every((bid) => bid.allocations.length === 0) ? (
           <p className="p-5 text-sm text-muted-foreground">

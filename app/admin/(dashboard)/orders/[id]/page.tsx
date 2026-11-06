@@ -120,7 +120,7 @@ export default async function AdminOrderDetailPage({ params }: { params: Promise
       <div className="mb-6 flex flex-wrap items-center justify-between gap-4">
         <div>
           <div className="flex items-center gap-2">
-            <h1 className="text-[26px] font-bold tracking-tight text-ink">{order.id}</h1>
+            <h1 className="text-heading-lg text-ink">{order.id}</h1>
             <Badge variant="outline" className={pillClass(orderStatusTone(order.status))}>
               {STATUS_LABEL[order.status] ?? order.status}
             </Badge>
@@ -137,7 +137,7 @@ export default async function AdminOrderDetailPage({ params }: { params: Promise
         </div>
       </div>
 
-      <div className="mb-8 rounded-xl border border-border bg-surface p-5">
+      <div className="mb-8 rounded-card bg-card-alt p-5">
         <div className="mb-1 text-[11px] font-bold tracking-wide text-muted-foreground uppercase">Buyer</div>
         <div className="flex flex-wrap items-center justify-between gap-4">
           <div className="flex items-center gap-3">
@@ -180,7 +180,7 @@ export default async function AdminOrderDetailPage({ params }: { params: Promise
       </div>
 
       {order.deliveryAddress && (
-        <div className="mb-8 rounded-xl border border-border bg-surface p-5">
+        <div className="mb-8 rounded-card bg-card-alt p-5">
           <div className="mb-1 flex items-center gap-1.5 text-[11px] font-bold tracking-wide text-muted-foreground uppercase">
             <MapPinIcon className="size-3.5" />
             Delivery destination
@@ -214,8 +214,8 @@ export default async function AdminOrderDetailPage({ params }: { params: Promise
         </div>
       )}
 
-      <div className="mb-8 rounded-xl border border-border bg-surface p-6">
-        <h2 className="mb-6 text-[11.5px] font-bold tracking-wide text-muted-foreground uppercase">Fulfillment tracking</h2>
+      <div className="mb-8 rounded-card bg-card-alt p-6">
+        <h2 className="mb-6 text-label text-muted-foreground uppercase">Fulfillment tracking</h2>
         <div className="relative">
           <div className="absolute top-4 bottom-4 left-[13px] w-px bg-border" />
           <div className="flex flex-col gap-6">
@@ -255,10 +255,10 @@ export default async function AdminOrderDetailPage({ params }: { params: Promise
         </div>
       </div>
 
-      <div className="mb-8 rounded-xl border border-border bg-surface p-6">
+      <div className="mb-8 rounded-card bg-card-alt p-6">
         <div className="mb-1 flex items-center gap-2">
           <LockKeyIcon className="size-4.5 text-slate" />
-          <h2 className="text-[11.5px] font-bold tracking-wide text-muted-foreground uppercase">Escrow ledger</h2>
+          <h2 className="text-label text-muted-foreground uppercase">Escrow ledger</h2>
         </div>
         <p className="mb-5 text-xs text-muted-foreground">
           Buyer funds are held once payment confirms and released per allocation only after that
@@ -292,10 +292,10 @@ export default async function AdminOrderDetailPage({ params }: { params: Promise
       </div>
 
       {dispatchItems.length > 0 && (
-        <div className="mb-8 rounded-xl border border-border bg-surface p-6">
+        <div className="mb-8 rounded-card bg-card-alt p-6">
           <div className="mb-1 flex items-center gap-2">
             <TruckIcon className="size-4.5 text-slate" />
-            <h2 className="text-[11.5px] font-bold tracking-wide text-muted-foreground uppercase">Haulage</h2>
+            <h2 className="text-label text-muted-foreground uppercase">Haulage</h2>
           </div>
           <p className="mb-5 text-xs text-muted-foreground">
             Real dispatch assignment and status — no live GPS, so location is what ops last logged
@@ -331,10 +331,10 @@ export default async function AdminOrderDetailPage({ params }: { params: Promise
         </div>
       )}
 
-      <div className="mb-8 rounded-xl border border-border bg-surface p-6">
+      <div className="mb-8 rounded-card bg-card-alt p-6">
         <div className="mb-5 flex items-center gap-2">
           <ClockCounterClockwiseIcon className="size-4.5 text-slate" />
-          <h2 className="text-[11.5px] font-bold tracking-wide text-muted-foreground uppercase">Audit trail</h2>
+          <h2 className="text-label text-muted-foreground uppercase">Audit trail</h2>
         </div>
         <div className="relative">
           <div className="absolute top-1.5 bottom-1.5 left-[3px] w-px bg-border" />
@@ -356,7 +356,7 @@ export default async function AdminOrderDetailPage({ params }: { params: Promise
       </div>
 
       {order.items[0]?.fulfillmentCenter && (
-        <div className="mb-8 flex items-start gap-3 rounded-xl border border-border bg-surface p-5">
+        <div className="mb-8 flex items-start gap-3 rounded-card bg-card-alt p-5">
           {order.items[0].deliveryCost > 0 ? (
             <TruckIcon className="mt-0.5 size-4 shrink-0 text-brand" />
           ) : (
@@ -369,9 +369,9 @@ export default async function AdminOrderDetailPage({ params }: { params: Promise
         </div>
       )}
 
-      <div className="rounded-xl border border-border bg-surface">
+      <div className="rounded-card bg-card-alt">
         <div className="border-b border-border px-5 py-4">
-          <h2 className="text-[11.5px] font-bold tracking-wide text-muted-foreground uppercase">Items ({order.items.length})</h2>
+          <h2 className="text-label text-muted-foreground uppercase">Items ({order.items.length})</h2>
         </div>
         <div className="divide-y divide-border">
           {order.items.map((item) => (

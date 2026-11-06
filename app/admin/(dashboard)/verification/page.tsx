@@ -76,7 +76,7 @@ export default async function AdminVerificationPage({
   return (
     <div className="mx-auto w-full max-w-6xl px-6 py-10">
       <div className="mb-1 text-xs text-muted-foreground">Admin · ops desk</div>
-      <h1 className="mb-1 text-2xl font-bold tracking-tight text-ink">Vendor verification</h1>
+      <h1 className="mb-1 text-heading-lg text-ink">Vendor verification</h1>
       <p className="mb-8 text-sm text-muted-foreground">
         Every seller&apos;s real KYC submission, reviewed here instead of buried in the general user
         directory — sellers still awaiting review are listed first.
@@ -112,11 +112,11 @@ export default async function AdminVerificationPage({
       </div>
 
       {sellers.length === 0 ? (
-        <div className="rounded-lg border border-border bg-surface">
+        <div className="rounded-lg bg-card-alt">
           <EmptyState illustration={NoResultsIllustration} variant="inline" as="p" title="No sellers match this filter" />
         </div>
       ) : (
-        <div className="overflow-hidden rounded-lg border border-border bg-surface">
+        <div className="overflow-hidden rounded-lg bg-card-alt">
           <Table>
             <TableHeader>
               <TableRow>
