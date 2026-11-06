@@ -25,7 +25,8 @@ export default async function SellerAllocationsPage() {
   const allocations = await getSellerAllocations(sellerId);
 
   return (
-    <div className="mx-auto w-full max-w-5xl px-6 py-12">
+    <div className="mx-auto w-full max-w-7xl px-4 pt-6 pb-16 sm:px-8 sm:pt-8 sm:pb-20">
+      <div className="mb-1 text-xs text-muted-foreground">Merchant · awards</div>
       <h1 className="mb-1 text-heading-lg text-ink">Allocations</h1>
       <p className="mb-6 text-sm text-muted-foreground">
         Materials awarded to you. Accept an award before its deadline or it passes to the next supplier.

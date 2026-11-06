@@ -3,7 +3,7 @@ import { TableSkeleton } from '@/components/skeletons';
 
 export default function SellerOrdersLoading() {
   return (
-    <div className="mx-auto w-full max-w-7xl px-6 py-12">
+    <div className="mx-auto w-full max-w-7xl px-4 pt-6 pb-16 sm:px-8 sm:pt-8 sm:pb-20">
       <Skeleton className="mb-1 h-3 w-28" />
       <Skeleton className="mb-2 h-6 w-56" />
       <Skeleton className="mb-6 h-4 w-96 max-w-full" />

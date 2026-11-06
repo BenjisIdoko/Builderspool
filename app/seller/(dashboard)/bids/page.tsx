@@ -13,7 +13,8 @@ export default async function SellerBidsPage() {
   const bids = await getSellerBids(sellerId);
 
   return (
-    <div className="mx-auto w-full max-w-5xl px-6 py-12">
+    <div className="mx-auto w-full max-w-7xl px-4 pt-6 pb-16 sm:px-8 sm:pt-8 sm:pb-20 [&>*]:max-w-5xl">
+      <div className="mb-1 text-xs text-muted-foreground">Merchant · bidding</div>
       <h1 className="mb-1 text-heading-lg text-ink">My bids</h1>
       <p className="mb-6 text-sm text-muted-foreground">
         Every bid you&apos;ve submitted, across every cycle — withdraw one while it&apos;s still open.

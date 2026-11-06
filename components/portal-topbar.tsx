@@ -25,6 +25,7 @@ const SELLER_LABELS: [string, string][] = [
   ['/seller/payouts', 'Payouts'],
   ['/seller/kyc', 'KYC verification'],
   ['/seller/settings', 'Settings'],
+  ['/seller/team', 'Team'],
   ['/seller', 'Merchant dashboard'],
 ];
 

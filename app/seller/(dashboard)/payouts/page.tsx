@@ -1,6 +1,6 @@
 import { getSellerIdFromSession } from '@/lib/seller/session';
 import { getSellerAllocations } from '@/lib/queries/sellerPortal';
-import { formatNaira } from '@/lib/format';
+import { Money } from '@/components/money';
 import { PayoutTable, type PayoutRow } from '@/components/seller/payout-table';
 
 export default async function SellerPayoutsPage() {
@@ -27,7 +27,7 @@ export default async function SellerPayoutsPage() {
   }));
 
   return (
-    <div className="mx-auto w-full max-w-[1180px] px-5 pt-6 pb-20 sm:px-8 sm:pt-8">
+    <div className="mx-auto w-full max-w-7xl px-4 pt-6 pb-16 sm:px-8 sm:pt-8 sm:pb-20">
       <div className="mb-1 text-xs text-muted-foreground">Merchant · settlements</div>
       <h1 className="mb-1 text-heading-lg text-ink">Payouts</h1>
       <p className="mb-6 text-sm text-muted-foreground">
@@ -44,20 +44,26 @@ export default async function SellerPayoutsPage() {
           no fabricated quarter-over-quarter trend added under it. */}
       <div className="mb-8 grid grid-cols-1 gap-3.5 sm:grid-cols-3">
         <div className="rounded-card bg-card-alt p-5">
-          <div className="mb-1.5 text-xs font-bold tracking-wide text-muted-foreground uppercase">On hold</div>
-          <div className="text-2xl font-extrabold text-danger">{formatNaira(onHoldTotal)}</div>
+          <div className="mb-1.5 text-label text-muted-foreground uppercase">On hold</div>
+          <div className={`font-mono text-figure-lg tabular-nums ${onHoldTotal > 0 ? 'text-danger' : 'text-ink'}`}>
+            <Money amount={onHoldTotal} />
+          </div>
           <div className="mt-1 text-xs text-muted-foreground">{onHold.length} flagged by ops</div>
         </div>
         <div className="rounded-card bg-card-alt p-5">
-          <div className="mb-1.5 text-xs font-bold tracking-wide text-muted-foreground uppercase">
+          <div className="mb-1.5 text-label text-muted-foreground uppercase">
             Pending escrow release
           </div>
-          <div className="text-2xl font-extrabold text-brand">{formatNaira(pendingTotal)}</div>
+          <div className="font-mono text-figure-lg tabular-nums text-ink">
+            <Money amount={pendingTotal} />
+          </div>
           <div className="mt-1 text-xs text-muted-foreground">{pending.length} awaiting GRN / processing</div>
         </div>
         <div className="rounded-card bg-card-alt p-5">
-          <div className="mb-1.5 text-xs font-bold tracking-wide text-muted-foreground uppercase">Lifetime earnings</div>
-          <div className="text-2xl font-extrabold text-ink">{formatNaira(paidTotal)}</div>
+          <div className="mb-1.5 text-label text-muted-foreground uppercase">Lifetime earnings</div>
+          <div className="font-mono text-figure-lg tabular-nums text-ink">
+            <Money amount={paidTotal} />
+          </div>
           <div className="mt-1 text-xs text-muted-foreground">{paid.length} settled</div>
         </div>
       </div>

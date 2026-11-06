@@ -42,8 +42,8 @@ export default async function SellerKycPage() {
   const expiry = documentExpiryState(profile.documentExpiresAt, Number(settings['accounts.documentExpiryWarnDays']));
 
   return (
-    <div className="mx-auto w-full max-w-2xl px-6 py-10">
-      <div className="mb-1 text-xs text-muted-foreground">Seller portal</div>
+    <div className="mx-auto w-full max-w-7xl px-4 pt-6 pb-16 sm:px-8 sm:pt-8 sm:pb-20 [&>*]:max-w-2xl">
+      <div className="mb-1 text-xs text-muted-foreground">Merchant · verification</div>
       <h1 className="mb-1 text-heading-lg text-ink">KYC verification</h1>
       <p className="mb-6 text-sm text-muted-foreground">
         Required before payouts can be disbursed to your account. Where available, attach a supporting

@@ -38,7 +38,7 @@ export const SETTING_DEFINITIONS: SettingDefinition[] = [
   { key: 'cycle.poolCloseTime', label: 'Pool closes (demand frozen, RFQs issued)', group: 'cycle', type: 'time', default: '17:00' },
   { key: 'cycle.bidCloseTime', label: 'Blind bidding closes (scoring and award run then)', group: 'cycle', type: 'time', default: '18:00' },
   { key: 'cycle.acceptDeadlineTime', label: 'Unaccepted awards pass to next-ranked bid', group: 'cycle', type: 'time', default: '19:00' },
-  { key: 'cycle.fallbackTime', label: 'Buyer-authorised fallback, or line marked unsuccessful', group: 'cycle', type: 'time', default: '19:50' },
+  { key: 'cycle.fallbackTime', label: 'Final result (unfilled lines marked unsuccessful and refunded)', group: 'cycle', type: 'time', default: '19:50' },
 
   { key: 'scoring.priceWeight', label: 'Landed price (unit + delivery)', group: 'scoring', type: 'int', default: 30, min: 0, max: 100 },
   { key: 'scoring.performanceWeight', label: 'Historical performance', group: 'scoring', type: 'int', default: 20, min: 0, max: 100 },

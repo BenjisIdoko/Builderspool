@@ -40,7 +40,7 @@ export default async function SellerSettingsPage() {
   const primaryCategory = [...categoryCounts.entries()].sort((a, b) => b[1] - a[1])[0]?.[0] ?? 'No bids submitted yet';
 
   return (
-    <div className="mx-auto w-full max-w-[900px] px-5 pt-6 pb-20 sm:px-8 sm:pt-8">
+    <div className="mx-auto w-full max-w-7xl px-4 pt-6 pb-16 sm:px-8 sm:pt-8 sm:pb-20 [&>*]:max-w-[900px]">
       <div className="mb-1 text-xs text-muted-foreground">Merchant · account</div>
       <h1 className="mb-1 text-heading-lg text-ink">Settings</h1>
       <p className="mb-6 text-sm text-muted-foreground">Business profile and verification status.</p>
@@ -88,9 +88,8 @@ export default async function SellerSettingsPage() {
             Notification preferences
           </h2>
           <p className="text-sm text-muted-foreground">
-            Not available yet — this app doesn&apos;t have per-account notification preferences today.
-            In-app alerts (new demand pools, bid results) already work; email/SMS opt-in is planned but
-            not built.
+            Notification preferences aren&apos;t available yet. You still get in-app alerts for new demand
+            pools and bid results; email and SMS alerts are planned.
           </p>
         </div>
       </div>

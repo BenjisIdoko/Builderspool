@@ -21,8 +21,8 @@ export default async function SellerTeamPage() {
   });
 
   return (
-    <div className="mx-auto w-full max-w-3xl px-6 py-10">
-      <div className="mb-1 text-xs text-muted-foreground">Seller portal</div>
+    <div className="mx-auto w-full max-w-7xl px-4 pt-6 pb-16 sm:px-8 sm:pt-8 sm:pb-20 [&>*]:max-w-3xl">
+      <div className="mb-1 text-xs text-muted-foreground">Merchant · team</div>
       <h1 className="mb-1 text-heading-lg text-ink">Team</h1>
       <p className="mb-6 text-sm text-muted-foreground">
         Staff can view cycles, place bids and track orders for your business. Only you can change KYC details, bank

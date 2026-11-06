@@ -3,7 +3,7 @@ import { KpiRowSkeleton, TableSkeleton, CardGridSkeleton } from '@/components/sk
 
 export default function SellerDashboardLoading() {
   return (
-    <div className="mx-auto w-full max-w-6xl px-6 py-12">
+    <div className="mx-auto w-full max-w-7xl px-4 pt-6 pb-16 sm:px-8 sm:pt-8 sm:pb-20">
       <Skeleton className="mb-2.5 h-6 w-40 rounded-full" />
       <Skeleton className="mb-1 h-7 w-64" />
       <Skeleton className="mb-7 h-4 w-48" />

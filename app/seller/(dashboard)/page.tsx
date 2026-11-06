@@ -89,7 +89,7 @@ export default async function SellerDashboardPage() {
   ];
 
   return (
-    <div className="mx-auto w-full max-w-6xl px-5 pt-6 pb-20 sm:px-8 sm:pt-8">
+    <div className="mx-auto w-full max-w-7xl px-4 pt-6 pb-16 sm:px-8 sm:pt-8 sm:pb-20">
       <div className="mb-2.5 flex flex-wrap items-center gap-2">
         {profile!.kycStatus === 'APPROVED' ? (
           <Badge variant="outline" className={pillClass('success')}>
