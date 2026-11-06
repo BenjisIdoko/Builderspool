@@ -13,6 +13,8 @@ import { ProductGallery } from '@/components/product-gallery';
 import { ProductDetailPanel } from '@/components/product-detail-panel';
 import { ProductBuyBox } from '@/components/product-buy-box';
 import { ProductPoolPanel } from '@/components/product-pool-panel';
+import { ProductOffers } from '@/components/product-offers';
+import { getOffers } from '@/lib/queries/offers';
 import { getPoolSnapshot } from '@/lib/queries/pool';
 import { MaterialCard } from '@/components/material-card';
 import { formatNaira } from '@/lib/format';
@@ -34,12 +36,13 @@ export default async function MaterialPage({ params }: { params: Promise<{ id: s
   const material = await getMaterialById(id);
   if (!material) notFound();
 
-  const [priceHistory, fulfillmentCenters, related, boughtTogether, pool] = await Promise.all([
+  const [priceHistory, fulfillmentCenters, related, boughtTogether, pool, offers] = await Promise.all([
     getPriceHistory(id),
     getFulfillmentCenters(),
     getRelatedMaterials(id, material.category),
     getFrequentlyBoughtTogether(id),
     getPoolSnapshot(id),
+    getOffers(id),
   ]);
   const bundleItems = boughtTogether.length > 0 ? boughtTogether : related;
   const bundleTitle = boughtTogether.length > 0 ? 'Frequently procured together' : `More from ${material.category}`;
@@ -85,6 +88,7 @@ export default async function MaterialPage({ params }: { params: Promise<{ id: s
           </header>
           <ProductBuyBox material={material} />
           <ProductPoolPanel pool={pool} unit={material.unit} />
+          <ProductOffers offers={offers} unit={material.unit} />
         </div>
 
         <div className="lg:col-start-1 lg:row-start-2">
