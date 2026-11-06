@@ -1,3 +1,4 @@
+import { ViewTransition } from 'react';
 import { CartProvider } from '@/lib/cart/CartContext';
 import { getCurrentBuyer } from '@/lib/buyer/auth';
 import { getCartLinesForBuyer } from '@/lib/cart/store';
@@ -19,7 +20,7 @@ export default async function ShopLayout({ children }: { children: React.ReactNo
       </a>
       <SiteHeader />
       <main id="main" className="flex flex-1 flex-col">
-        {children}
+        <ViewTransition default="page-fade">{children}</ViewTransition>
       </main>
       <SiteFooter />
       <MobileTabBar />

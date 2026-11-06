@@ -160,6 +160,9 @@
   --radius-lg: var(--radius-lg);
   --radius-xl: var(--radius-xl);
   --radius-card: var(--radius-card);
+  --ease-standard: var(--ease-standard);
+  --ease-emphasised: var(--ease-emphasised);
+  --ease-exit: var(--ease-exit);
   --radius-panel: var(--radius-panel);
 
   --shadow-card-hover: var(--shadow-card-hover);
@@ -290,6 +293,14 @@
 :root {
   --page-margin: 1rem; /* 16px phone */
   --gutter: 1rem;
+  /* Motion tokens (DESIGN.md v3.0 section 7). transform and opacity only. */
+  --duration-instant: 80ms;
+  --duration-fast: 160ms;
+  --duration-base: 240ms;
+  --duration-slow: 400ms;
+  --ease-standard: cubic-bezier(0.2, 0, 0, 1);
+  --ease-emphasised: cubic-bezier(0.16, 1, 0.3, 1);
+  --ease-exit: cubic-bezier(0.4, 0, 1, 1);
   --section-tight: 2rem; /* section rhythm: phone */
   --section-default: 3rem;
   --section-loose: 4.5rem;
@@ -345,41 +356,56 @@ html {
   padding-bottom: var(--section-loose);
 }
 
-/* Empty-state illustration motion (components/empty-state/illustrations.tsx).
-   transform-box makes each group rotate/translate about its own center. */
+/* Empty-state illustrations are static: nothing on the platform loops except
+   a spinner or a loading skeleton (DESIGN.md v3.0 section 7). The classes stay
+   so the SVG components need no edits; transform-box keeps each group
+   addressable should an illustration ever need a one-off entrance. */
 .bp-float,
 .bp-sway,
 .bp-bob {
   transform-box: fill-box;
   transform-origin: center;
 }
-.bp-float {
-  animation: bp-float 3.4s ease-in-out infinite;
+
+/* Hero entrance: headline, then support line, then the action, 60ms apart.
+   CSS-only so the text is in the first paint; the delay comes from --rise-delay. */
+@keyframes bp-rise {
+  from {
+    opacity: 0;
+    transform: translateY(16px);
+  }
+  to {
+    opacity: 1;
+    transform: none;
+  }
 }
-.bp-sway {
-  animation: bp-sway 4.2s ease-in-out infinite;
+.bp-rise {
+  animation: bp-rise var(--duration-slow) var(--ease-emphasised) both;
+  animation-delay: var(--rise-delay, 0ms);
 }
-.bp-bob {
-  animation: bp-bob 2.6s ease-in-out infinite;
+
+/* Route changes cross-fade (React <ViewTransition default="page-fade"> in the
+   shop layout). Browsers without View Transitions simply navigate. */
+::view-transition-old(.page-fade),
+::view-transition-new(.page-fade) {
+  animation-duration: var(--duration-fast);
+  animation-timing-function: var(--ease-standard);
 }
-.bp-dash {
-  animation: bp-dash 14s linear infinite;
-}
-@keyframes bp-dash {
-  to { stroke-dashoffset: -90; }
-}
-@keyframes bp-float {
-  0%, 100% { transform: translateY(0); opacity: 0.55; }
-  50% { transform: translateY(-5px); opacity: 1; }
-}
-@keyframes bp-sway {
-  0%, 100% { transform: rotate(-1.6deg); }
-  50% { transform: rotate(1.6deg); }
-}
-@keyframes bp-bob {
-  0%, 100% { transform: translateY(0); }
-  50% { transform: translateY(-4px); }
-}
+
+/* Reduced motion: everything is instant. Reveals render static (see
+   components/motion/reveal.tsx); this catches the rest. */
 @media (prefers-reduced-motion: reduce) {
-  .bp-float, .bp-sway, .bp-bob, .bp-dash { animation: none; }
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+  ::view-transition-group(*),
+  ::view-transition-old(*),
+  ::view-transition-new(*) {
+    animation: none !important;
+  }
 }

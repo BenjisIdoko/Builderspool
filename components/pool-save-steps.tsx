@@ -1,3 +1,5 @@
+import { REVEAL_STAGGER, Reveal } from '@/components/motion/reveal';
+
 // "How Pool & Save works" — four numbered steps in one row on a pale-blue
 // band, copy as on the Floot site. Typographic on purpose: the numerals carry
 // the rhythm until there is photography for each step.
@@ -26,10 +28,12 @@ export function PoolSaveSteps() {
       <h2 className="text-heading-lg text-ink">How Pool &amp; Save works</h2>
       <ol className="mt-8 grid gap-x-8 gap-y-8 sm:grid-cols-2 lg:grid-cols-4">
         {STEPS.map((step, i) => (
-          <li key={step.title} className="border-t-2 border-cyan-text pt-4">
-            <span className="font-mono text-figure-lg text-cyan-text">{String(i + 1).padStart(2, '0')}</span>
-            <h3 className="mt-3 text-heading-sm text-ink">{step.title}</h3>
-            <p className="mt-2 max-w-[34ch] text-body-sm text-slate">{step.body}</p>
+          <li key={step.title}>
+            <Reveal delay={i * REVEAL_STAGGER} className="h-full border-t-2 border-cyan-text pt-4">
+              <span className="font-mono text-figure-lg text-cyan-text">{String(i + 1).padStart(2, '0')}</span>
+              <h3 className="mt-3 text-heading-sm text-ink">{step.title}</h3>
+              <p className="mt-2 max-w-[34ch] text-body-sm text-slate">{step.body}</p>
+            </Reveal>
           </li>
         ))}
       </ol>

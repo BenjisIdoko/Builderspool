@@ -2,7 +2,7 @@
 name: BuildersPool
 version: 3.0
 updated: 2026-11-05
-status: live. Migration steps 1 (fonts, type scale, contrast fixes), 2 (layout shell), 3 (home), 4 (Aisle pages) and 5 (control rooms) are applied; step 6 (motion and imagery) is pending (see section 13).
+status: live. Migration steps 1 (fonts, type scale, contrast fixes), 2 (layout shell), 3 (home), 4 (Aisle pages) and 5 (control rooms) and the motion half of 6 are applied; the imagery half of 6 waits on real photography (see section 13).
 owner: Builders' Pool Technologies Ltd (RC 9317391)
 supersedes: DESIGN.md v2.0
 keeps: the v2.0 colour palette, one-colour-one-job rule, Pool & Save semantics, ₦ money rules, contact details
@@ -127,7 +127,7 @@ performance-budget:   # measured on a throttled mid-range Android (Slow 4G, 4× 
 
 # BuildersPool Design System — v3.0
 
-> **Status:** live. Steps 1 (fonts, type scale, contrast fixes), 2 (layout shell), 3 (home), 4 (Aisle pages) and 5 (control rooms) of the migration are applied; motion and imagery follow.
+> **Status:** live. Steps 1 (fonts, type scale, contrast fixes), 2 (layout shell), 3 (home), 4 (Aisle pages) and 5 (control rooms) and the motion half of 6 of the migration are applied; imagery waits on real photography.
 
 ## 0. What this version is for
 

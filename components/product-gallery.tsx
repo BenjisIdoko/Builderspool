@@ -59,7 +59,7 @@ export function ProductGallery({
         {slides.length > 1 && (
           <div className="mt-3 flex justify-center gap-1.5" aria-hidden>
             {slides.map((_, i) => (
-              <span key={i} className={`h-1.5 rounded-full transition-all ${i === activeIndex ? 'w-4 bg-brand' : 'w-1.5 bg-border-strong'}`} />
+              <span key={i} className={`h-1.5 rounded-full transition-colors ${i === activeIndex ? 'w-4 bg-brand' : 'w-1.5 bg-border-strong'}`} />
             ))}
           </div>
         )}

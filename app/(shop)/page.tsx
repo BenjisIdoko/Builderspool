@@ -58,20 +58,20 @@ export default async function Home() {
         <div className="absolute inset-0 -z-10 bg-[linear-gradient(90deg,rgba(11,31,58,0.94)_0%,rgba(11,31,58,0.78)_40%,rgba(11,31,58,0.15)_75%,rgba(11,31,58,0)_100%)] max-md:bg-[linear-gradient(180deg,rgba(11,31,58,0.9)_0%,rgba(11,31,58,0.72)_100%)]" />
         <div className="mx-auto flex min-h-[560px] w-full max-w-section flex-col justify-between pt-12 lg:min-h-[620px] lg:pt-20">
           <div>
-            <p className="text-label uppercase text-cyan">Pool &amp; Save · Abuja</p>
-            <h1 className="mt-4 max-w-[12ch] text-display-xl text-white">
+            <p className="bp-rise text-label uppercase text-cyan">Pool &amp; Save · Abuja</p>
+            <h1 className="bp-rise mt-4 max-w-[12ch] text-display-xl text-white">
               Build smarter. <span className="text-cyan">Save more.</span>
             </h1>
-            <p className="mt-5 max-w-[34ch] text-body-lg text-white/85">
+            <p className="bp-rise mt-5 max-w-[34ch] text-body-lg text-white/85" style={{ '--rise-delay': '60ms' } as React.CSSProperties}>
               Join today’s pool with other builders. Verified suppliers compete for the combined order.
             </p>
-            <p className="mt-4 text-body-sm text-white/85">
+            <p className="bp-rise mt-4 text-body-sm text-white/85" style={{ '--rise-delay': '60ms' } as React.CSSProperties}>
               <span className="font-mono font-medium text-cyan">50%</span> of the verified saving comes back to you.{' '}
               <Link href="#how" className="text-white underline underline-offset-2">
                 How it’s calculated
               </Link>
             </p>
-            <div className="mt-7 flex flex-wrap items-center gap-x-6 gap-y-3">
+            <div className="bp-rise mt-7 flex flex-wrap items-center gap-x-6 gap-y-3" style={{ '--rise-delay': '120ms' } as React.CSSProperties}>
               <Button asChild variant="cta" size="lg" className="h-12 px-7 text-base">
                 <Link href="#join">Join today’s pool</Link>
               </Button>
@@ -84,11 +84,9 @@ export default async function Home() {
         </div>
       </section>
 
-      <Reveal>
-        <section id="how" className="scroll-mt-40 bg-pale-blue">
-          <PoolSaveSteps />
-        </section>
-      </Reveal>
+      <section id="how" className="scroll-mt-40 bg-pale-blue">
+        <PoolSaveSteps />
+      </section>
 
       <div className="mx-auto flex w-full max-w-section flex-col gap-3 pt-section">
         <div id="join" className="scroll-mt-40">
