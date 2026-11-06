@@ -1,5 +1,8 @@
 # BuildersPool: port notes for the Floot build
 
+> **Status update, 6 Nov 2026.** The team is no longer using Floot. This repository is the product, and this file is its **rulebook**. Wherever the text below says "Floot", read it as "the earlier Floot prototype": its spec and screens are a source of ideas, not a system to port to. Instructions that say "paste into Floot" are obsolete; the rules they carry are the ones to build here. Where the current code differs from a rule here, the rule wins.
+
+
 Written 5 Nov 2026. Updated 6 Nov 2026 (sections 1b and 1c, the founder's call transcript and the resolved rules; section 2.11, service areas; scenarios 13 to 26). Source: the Next.js repo (`BenjisIdoko/Builderspool`, Phases 1 and 2, commits `e33cf81` to `20987c3`) compared with `BuildersPool_Technical_Requirements.docx` v1.0, which describes the Floot app as built.
 
 **Purpose.** Floot is now the product. The Next.js build solved some problems the Floot spec does not mention. This file lists them as rules and tests, so they can be checked in Floot (or pasted into it as prompts) without anyone reading the old code.

@@ -1,4 +1,7 @@
-# Floot prompts: ready to paste
+# Floot prompts: ready to paste (OBSOLETE)
+
+> **Obsolete as of 6 Nov 2026.** The team no longer uses Floot; everything is built in this repository. The rules in these prompts are still correct and are the specification for the build here (see `docs/floot-port-notes.md`). Do not send this file to anyone.
+
 
 Both prompts are taken from `docs/floot-port-notes.md` (sections 1c and 2.11) and reflect the founder's confirmed answers of 6 Nov 2026. Paste them into Floot one at a time, in this order, and check the result before the next. After each one, run the matching acceptance scenarios from section 4 of the port notes.
 

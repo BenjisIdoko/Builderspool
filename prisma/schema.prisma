@@ -42,10 +42,10 @@ enum SourcingScope {
 }
 
 enum CycleStatus {
-  OPEN     // collecting demand: paid order items join until poolClosesAt
-  BIDDING  // pool frozen, RFQ issued: approved sellers bid blind until bidsCloseAt
-  CLOSED   // bidding closed, being scored
-  AWARDED  // bids scored and allocated (acceptance, cascade and fallback follow)
+  OPEN // collecting demand: paid order items join until poolClosesAt
+  BIDDING // pool frozen, RFQ issued: approved sellers bid blind until bidsCloseAt
+  CLOSED // bidding closed, being scored
+  AWARDED // bids scored and allocated (acceptance, cascade and fallback follow)
 }
 
 enum BidStatus {
@@ -57,10 +57,10 @@ enum BidStatus {
 }
 
 enum AllocationStatus {
-  PENDING     // awarded, buyer not yet notified/confirmed
-  CONFIRMED   // buyer confirmed, ready for fulfillment
+  PENDING // awarded, buyer not yet notified/confirmed
+  CONFIRMED // buyer confirmed, ready for fulfillment
   FULFILLED
-  CANCELLED   // failed allocation, cascaded to a fallback bid (see lib/bidding/fallback.ts)
+  CANCELLED // failed allocation, cascaded to a fallback bid (see lib/bidding/fallback.ts)
 }
 
 enum OrderStatus {
@@ -71,9 +71,9 @@ enum OrderStatus {
 
 enum PayoutStatus {
   PENDING_GRN // awarded, but the fulfillment center hasn't confirmed physical receipt yet
-  PROCESSED   // GRN issued — cleared for disbursement, not yet sent
-  PAID        // disbursed to the seller
-  ON_HOLD     // an ops exception (quality/count dispute) blocks disbursement
+  PROCESSED // GRN issued — cleared for disbursement, not yet sent
+  PAID // disbursed to the seller
+  ON_HOLD // an ops exception (quality/count dispute) blocks disbursement
 }
 
 // Captured at checkout (2026-09-16) — a real, stored buyer choice, not a
@@ -143,20 +143,20 @@ model Dispatch {
 }
 
 model User {
-  id           String   @id @default(cuid())
-  role         Role
-  name         String
-  email        String   @unique
-  phone        String?
-  businessName String?
-  location     String?
+  id              String    @id @default(cuid())
+  role            Role
+  name            String
+  email           String    @unique
+  phone           String?
+  businessName    String?
+  location        String?
   // Real bcrypt hash (2026-09-16) — nullable only because the seeded demo
   // accounts predate real auth; lib/auth/password.ts + prisma/seed.ts
   // backfill a real hash for every seeded row, and every account created
   // through sign-up gets one at creation. Sign-in refuses a null hash
   // rather than treating it as "no password required."
-  passwordHash String?
-  createdAt    DateTime @default(now())
+  passwordHash    String?
+  createdAt       DateTime  @default(now())
   // Null until the user clicks a real verification-email link (lib/auth/
   // emailVerification.ts). Deliberately not enforced anywhere yet — no
   // action in the app is gated on this — it's tracked and surfaced as a
@@ -165,20 +165,21 @@ model User {
   emailVerifiedAt DateTime?
   // Set by an admin (internal staff) or the seller owner (their staff) to stop
   // an account signing in; sessions are revoked at the same moment.
-  disabledAt DateTime?
+  disabledAt      DateTime?
 
-  staffMembership SellerStaff?  @relation("StaffUser")
-  staff           SellerStaff[] @relation("SellerOwner")
-  sellerProfile SellerProfile?
-  sessions      Session[]
-  cartItems     CartItem[]
-  orders        Order[]
-  bids          Bid[]
-  priceAlerts   PriceAlert[]
-  notifications Notification[]
-  savingsWalletEntries SavingsWalletEntry[]
+  staffMembership         SellerStaff?             @relation("StaffUser")
+  staff                   SellerStaff[]            @relation("SellerOwner")
+  sellerProfile           SellerProfile?
+  sessions                Session[]
+  cartItems               CartItem[]
+  orders                  Order[]
+  bids                    Bid[]
+  priceAlerts             PriceAlert[]
+  notifications           Notification[]
+  savingsWalletEntries    SavingsWalletEntry[]
   passwordResetTokens     PasswordResetToken[]
   emailVerificationTokens EmailVerificationToken[]
+  zoneCoverage            SellerZoneCoverage[]
 }
 
 // One row per requested reset — tokenHash is the only thing ever stored
@@ -262,12 +263,12 @@ model SellerStaff {
 }
 
 enum LedgerAccount {
-  BUYER_SAVINGS_CREDIT   // the buyer's share of a verified Pool & Save saving
+  BUYER_SAVINGS_CREDIT // the buyer's share of a verified Pool & Save saving
   PLATFORM_SAVINGS_SHARE // BuildersPool's share of that saving
-  SELLER_PAYABLE         // owed to a seller once goods are received (payouts disabled in the MVP)
-  BUYER_REFUND_DUE       // paid by the buyer for units no supplier covered
-  PLATFORM_COMMISSION    // Buy Direct commission
-  PLATFORM_DELIVERY      // platform delivery fee
+  SELLER_PAYABLE // owed to a seller once goods are received (payouts disabled in the MVP)
+  BUYER_REFUND_DUE // paid by the buyer for units no supplier covered
+  PLATFORM_COMMISSION // Buy Direct commission
+  PLATFORM_DELIVERY // platform delivery fee
 }
 
 // Append-only money ledger in integer kobo (Transfer File section 4). A row is
@@ -342,11 +343,14 @@ enum KycStatus {
 // Seller-specific data. regionsServed feeds the geography eligibility filter;
 // trustScore feeds the reliability weight in the award scoring engine.
 model SellerProfile {
-  id            String   @id @default(cuid())
-  userId        String   @unique
-  regionsServed String[]
-  trustScore    Float    @default(50)
-  createdAt     DateTime @default(now())
+  id             String   @id @default(cuid())
+  userId         String   @unique
+  regionsServed  String[]
+  trustScore     Float    @default(50)
+  createdAt      DateTime @default(now())
+  // Founder's "national supply": covers every delivery zone (the call's
+  // "except national products"). Coverage per zone otherwise: SellerZoneCoverage.
+  nationalSupply Boolean  @default(false)
 
   // KYC (2026-09-16) — text/reference fields only, deliberately: this app
   // has no file-storage infra yet, so documentUrl is a link to something
@@ -376,15 +380,15 @@ model SellerProfile {
   // account name with the verified company name (lib/kyc/nameMatch.ts) so a
   // reviewer sees a mismatch before approving; documentExpiresAt is the
   // supporting document's own expiry (e.g. a SON certificate).
-  tin                String?
-  businessAddress    String?
-  bankName           String?
-  bankAccountNumber  String?
-  bankAccountName    String?
-  bankNameMatch      String? // MATCH | PARTIAL | MISMATCH
-  documentExpiresAt  DateTime?
-  suspendedAt        DateTime?
-  suspensionReason   String?
+  tin               String?
+  businessAddress   String?
+  bankName          String?
+  bankAccountNumber String?
+  bankAccountName   String?
+  bankNameMatch     String? // MATCH | PARTIAL | MISMATCH
+  documentExpiresAt DateTime?
+  suspendedAt       DateTime?
+  suspensionReason  String?
 
   cacVerifiedAt          DateTime?
   cacVerifiedCompanyName String?
@@ -396,43 +400,46 @@ model SellerProfile {
 }
 
 model FulfillmentCenter {
-  id        String   @id @default(cuid())
-  name      String
-  region    String
-  address   String
-  createdAt DateTime @default(now())
+  id         String   @id @default(cuid())
+  name       String
+  region     String
+  address    String
+  createdAt  DateTime @default(now())
+  // The centre's own locality (service areas, docs/floot-port-notes.md 2.11).
+  localityId String?
 
+  locality   Locality?   @relation(fields: [localityId], references: [id])
   orderItems OrderItem[]
 }
 
 model Material {
-  id            String        @id @default(cuid())
-  name          String
-  category      String
-  unit          String // e.g. "50kg bag", "12mm x 12m length", "trip (5 tons)"
-  spec          String? // grade, size, brand-neutral spec description (free text)
+  id               String        @id @default(cuid())
+  name             String
+  category         String
+  unit             String // e.g. "50kg bag", "12mm x 12m length", "trip (5 tons)"
+  spec             String? // grade, size, brand-neutral spec description (free text)
   // Structured spec fields (2026-09-15) — same real information as `spec`
   // above, broken into a fixed grid for display. Nullable and left blank
   // rather than guessed where the source spec text doesn't clearly state
   // it (e.g. no fabricated compliance/standard codes) — see prisma/seed.ts.
-  grade         String?
-  standard      String?
-  dimensions    String?
-  weight        String?
-  imageUrl      String? // kept as the single-image fallback everywhere except the PDP gallery
+  grade            String?
+  standard         String?
+  dimensions       String?
+  weight           String?
+  imageUrl         String? // kept as the single-image fallback everywhere except the PDP gallery
   // Room for a real multi-photo gallery (2026-09-16) — most materials only
   // have zero or one real photo today, so this holds at most `imageUrl`
   // duplicated as a single entry until real additional angles exist. Never
   // backfilled with anything not already a real, stored image.
-  images        String[]      @default([])
-  catalogPrice  Decimal       @db.Decimal(12, 2) // buyer-facing fixed price
+  images           String[]      @default([])
+  catalogPrice     Decimal       @db.Decimal(12, 2) // buyer-facing fixed price
   // Set true only by the catalogue-reference bulk import (2026-09-16) for
   // rows whose real research had no price data ("market rate — set via
   // seller bidding") — catalogPrice is a real Decimal, so those rows get an
   // unmistakable ₦1 placeholder plus this flag, rather than a plausible-
   // looking fabricated number, until admin sets a real price via the
   // materials editor. Never set true any other way.
-  needsPriceReview Boolean    @default(false)
+  needsPriceReview Boolean       @default(false)
   // A row admin has deliberately taken off the live catalog — e.g. a
   // duplicate of another row kept for its order/bid history, which can't be
   // deleted outright. Distinct from needsPriceReview: a retired row is not
@@ -441,9 +448,9 @@ model Material {
   // ones (see BUYER_VISIBLE, lib/queries/materials.ts); admin still sees
   // them, badged, since this app keeps a real record rather than hiding
   // state outright.
-  retired       Boolean       @default(false)
-  sourcingScope SourcingScope @default(NATIONAL)
-  createdAt     DateTime      @default(now())
+  retired          Boolean       @default(false)
+  sourcingScope    SourcingScope @default(NATIONAL)
+  createdAt        DateTime      @default(now())
 
   cartItems      CartItem[]
   orderItems     OrderItem[]
@@ -635,22 +642,22 @@ model Notification {
 // a fulfillment center confirming a seller's drop-off — and is the trigger
 // point for seller payout.
 model Allocation {
-  id             String           @id @default(cuid())
-  bidId          String
-  orderItemId    String
-  quantityFilled Int
-  status         AllocationStatus @default(PENDING)
+  id               String           @id @default(cuid())
+  bidId            String
+  orderItemId      String
+  quantityFilled   Int
+  status           AllocationStatus @default(PENDING)
   // The seller must accept an award by acceptDeadlineAt (Transfer File 5.4); a
   // decline or a timeout passes the quantity to the next-ranked bid
   // (cascadeRound counts the passes; the second round is final).
   acceptedAt       DateTime?
   declinedAt       DateTime?
   acceptDeadlineAt DateTime?
-  cascadeRound     Int       @default(0)
+  cascadeRound     Int              @default(0)
   cancelReason     String?
-  receivedAt     DateTime?
-  grnNumber      String?          @unique // set together with receivedAt when the GRN is issued
-  createdAt      DateTime         @default(now())
+  receivedAt       DateTime?
+  grnNumber        String?          @unique // set together with receivedAt when the GRN is issued
+  createdAt        DateTime         @default(now())
 
   payoutStatus    PayoutStatus @default(PENDING_GRN)
   payoutReference String?      @unique // set when payoutStatus becomes PAID
@@ -680,18 +687,18 @@ enum WalletEntryState {
 // that ends up costing more than the reference price is a margin loss
 // the business absorbs, not a debt charged back to the buyer).
 model SavingsWalletEntry {
-  id               String           @id @default(cuid())
-  buyerId          String
-  allocationId     String           @unique
-  referenceValue   Decimal          @db.Decimal(12, 2) // what the buyer actually paid for this quantity (locked checkout price)
-  actualValue      Decimal          @db.Decimal(12, 2) // what the platform actually paid the winning seller
-  grossSaving      Decimal          @db.Decimal(12, 2) // referenceValue - actualValue, always > 0
-  buyerShare       Decimal          @db.Decimal(12, 2) // grossSaving / 2 — the real wallet credit
-  state            WalletEntryState @default(AVAILABLE)
+  id                    String           @id @default(cuid())
+  buyerId               String
+  allocationId          String           @unique
+  referenceValue        Decimal          @db.Decimal(12, 2) // what the buyer actually paid for this quantity (locked checkout price)
+  actualValue           Decimal          @db.Decimal(12, 2) // what the platform actually paid the winning seller
+  grossSaving           Decimal          @db.Decimal(12, 2) // referenceValue - actualValue, always > 0
+  buyerShare            Decimal          @db.Decimal(12, 2) // grossSaving / 2 — the real wallet credit
+  state                 WalletEntryState @default(AVAILABLE)
   withdrawalRequestedAt DateTime?
-  paidAt           DateTime?
-  paymentReference String?          @unique // set when marked PAID — same manual-ops pattern as seller payoutReference, no live payment rail exists yet
-  createdAt        DateTime         @default(now())
+  paidAt                DateTime?
+  paymentReference      String?          @unique // set when marked PAID — same manual-ops pattern as seller payoutReference, no live payment rail exists yet
+  createdAt             DateTime         @default(now())
 
   buyer      User       @relation(fields: [buyerId], references: [id])
   allocation Allocation @relation(fields: [allocationId], references: [id])
@@ -705,12 +712,12 @@ model SavingsWalletEntry {
 // already been reached is computed at read time from the real catalogPrice,
 // never fabricated.
 model PriceAlert {
-  id          String    @id @default(cuid())
+  id          String   @id @default(cuid())
   materialId  String
   buyerId     String
-  targetPrice Decimal   @db.Decimal(12, 2)
-  active      Boolean   @default(true)
-  createdAt   DateTime  @default(now())
+  targetPrice Decimal  @db.Decimal(12, 2)
+  active      Boolean  @default(true)
+  createdAt   DateTime @default(now())
 
   material Material @relation(fields: [materialId], references: [id])
   buyer    User     @relation(fields: [buyerId], references: [id])
@@ -783,4 +790,105 @@ model Product {
 
   @@index([categoryId])
   @@index([brand])
+}
+
+// ─── Service areas (docs/floot-port-notes.md 2.11) ───────────────────────────
+// State -> Area Council (LGA) -> locality -> delivery zone. A locality belongs
+// to exactly one LGA and at most one active zone. The ZONE is the pool key,
+// the delivery-fee holder and the unit of seller coverage; localities only
+// decide which zone an address falls in. Additive tables: nothing here is read
+// by checkout or the engine until the later phases wire it in.
+
+model State {
+  id        String   @id @default(cuid())
+  name      String   @unique
+  active    Boolean  @default(true)
+  createdAt DateTime @default(now())
+
+  lgas Lga[]
+}
+
+model Lga {
+  id        String   @id @default(cuid())
+  stateId   String
+  name      String
+  active    Boolean  @default(true)
+  createdAt DateTime @default(now())
+
+  state      State      @relation(fields: [stateId], references: [id])
+  localities Locality[]
+
+  @@unique([stateId, name])
+}
+
+enum LocalityKind {
+  CITY
+  TOWN
+  DISTRICT
+}
+
+model Locality {
+  id        String       @id @default(cuid())
+  lgaId     String
+  zoneId    String? // null = not in any zone yet: no delivery, pickup only
+  name      String
+  kind      LocalityKind @default(DISTRICT)
+  active    Boolean      @default(true)
+  createdAt DateTime     @default(now())
+
+  lga                Lga                 @relation(fields: [lgaId], references: [id])
+  zone               DeliveryZone?       @relation(fields: [zoneId], references: [id])
+  fulfillmentCenters FulfillmentCenter[]
+  deliveryRequests   DeliveryRequest[]
+
+  @@unique([lgaId, name])
+  @@index([zoneId])
+}
+
+model DeliveryZone {
+  id          String   @id @default(cuid())
+  name        String   @unique
+  active      Boolean  @default(true)
+  // Flat delivery fee in naira, entered by the business in admin. null means
+  // no fee has been set, so the zone offers pickup only (never a default).
+  deliveryFee Decimal? @db.Decimal(12, 2)
+  createdAt   DateTime @default(now())
+
+  localities Locality[]
+  coverage   SellerZoneCoverage[]
+}
+
+enum CoverageStatus {
+  PENDING // the seller asked to cover this zone
+  APPROVED // ops approved it
+  REVOKED // ops removed it
+}
+
+model SellerZoneCoverage {
+  id          String         @id @default(cuid())
+  sellerId    String // the seller's User id
+  zoneId      String
+  status      CoverageStatus @default(PENDING)
+  decidedAt   DateTime?
+  decidedById String?
+  createdAt   DateTime       @default(now())
+
+  seller User         @relation(fields: [sellerId], references: [id])
+  zone   DeliveryZone @relation(fields: [zoneId], references: [id])
+
+  @@unique([sellerId, zoneId])
+  @@index([zoneId, status])
+}
+
+// "Tell us you want delivery here": a buyer in a locality we cannot deliver to
+// leaves a phone number. One row per phone and locality.
+model DeliveryRequest {
+  id         String   @id @default(cuid())
+  phone      String
+  localityId String
+  createdAt  DateTime @default(now())
+
+  locality Locality @relation(fields: [localityId], references: [id])
+
+  @@unique([phone, localityId])
 }

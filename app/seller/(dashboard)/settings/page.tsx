@@ -1,10 +1,12 @@
 import { redirect } from 'next/navigation';
 import { FileTextIcon } from '@phosphor-icons/react/ssr';
-import { getSellerIdFromSession } from '@/lib/seller/session';
+import { getSellerActor } from '@/lib/seller/session';
 import { getSellerProfile } from '@/lib/queries/sellerPortal';
 import { prisma } from '@/lib/prisma';
 import { kycStatusTone, pillClass } from '@/lib/statusColors';
 import { Badge } from '@/components/ui/badge';
+import { getSellerCoverage } from '@/lib/queries/areas';
+import { ZoneCoverageForm } from '@/components/seller/zone-coverage-form';
 
 const KYC_LABEL: Record<string, string> = {
   NOT_SUBMITTED: 'Not started',
@@ -23,11 +25,13 @@ function Field({ label, value }: { label: string; value: string }) {
 }
 
 export default async function SellerSettingsPage() {
-  const sellerId = await getSellerIdFromSession();
-  if (!sellerId) redirect('/seller/login');
+  const actor = await getSellerActor();
+  if (!actor) redirect('/seller/login');
+  const sellerId = actor.sellerId;
 
   const profile = await getSellerProfile(sellerId);
   if (!profile) redirect('/seller/login');
+  const coverage = await getSellerCoverage(sellerId);
 
   // Real, derived from actual bid history — not a stored field, so it's
   // computed the same honest way AdminSellers' directory derives it.
@@ -58,6 +62,14 @@ export default async function SellerSettingsPage() {
             <Field label="Regions served" value={profile.regionsServed.join(', ') || 'None set'} />
             <Field label="Contact email" value={profile.user.email} />
           </div>
+        </div>
+
+        <div className="rounded-card bg-card-alt p-6">
+          <h2 className="mb-1 text-label text-muted-foreground uppercase">Delivery zones you cover</h2>
+          <p className="mb-4 text-sm text-muted-foreground">
+            Tick the zones you can supply. You can bid in a zone only after BuildersPool approves it.
+          </p>
+          <ZoneCoverageForm zones={coverage.zones} nationalSupply={coverage.nationalSupply} canEdit={actor.isOwner} />
         </div>
 
         <div className="rounded-card bg-card-alt p-6">

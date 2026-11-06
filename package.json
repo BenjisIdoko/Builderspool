@@ -8,7 +8,8 @@
     "start": "next start",
     "lint": "eslint",
     "postinstall": "prisma generate",
-    "create-admin": "tsx scripts/create-admin.ts"
+    "create-admin": "tsx scripts/create-admin.ts",
+    "seed-areas": "tsx scripts/seed-service-areas.ts"
   },
   "dependencies": {
     "@phosphor-icons/react": "^2.1.10",

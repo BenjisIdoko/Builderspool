@@ -1,43 +1,39 @@
-# Builders Pool — Next.js reference implementation
+# Builders Pool
 
-> **Status (2026-11-06): reference implementation, feature-frozen.**
-> The product direction is the Floot build at <https://builderspool.floot.app>. This repository
-> is no longer where new product features are built. It stays alive for three reasons only.
+Collaborative procurement for construction materials in Abuja (FCT), Nigeria. Buyers either **Buy Direct** from a
+seller's listing or choose **Pool & Save**: their order joins a pool, vendors bid for the combined order, and the buyer
+keeps half of any verified saving. Live at <https://builderspool.vercel.app>.
 
-## What this repo is for
+> **Status (2026-11-06):** this repository is the product and where every build happens, with Claude Code.
+> The founder first prototyped the idea on Floot. The team is **not using Floot any more**; it is kept only as a source
+> of ideas and design patterns. Earlier notes calling this repo a "frozen reference" are obsolete.
 
-1. **Source of truth for the proven engine rules.** The cycle stage machine (compare-and-swap
-   stages), eligibility and scoring with reason codes, the award lifecycle (accept, decline,
-   one-pass cascade, refund due), the append-only integer-kobo ledger, the money switches, and
-   the auth and audit rules were built and tested here. When Floot and this code disagree, the
-   decisions table in [`docs/floot-port-notes.md`](docs/floot-port-notes.md) says which wins
-   and why. Port from here; do not re-invent.
-2. **A comparison and QA surface.** <https://builderspool.vercel.app> stays deployed so Floot's
-   behaviour can be checked against a working implementation, using the twelve acceptance
-   scenarios in the port notes.
-3. **The design system's reference build.** [`DESIGN.md`](DESIGN.md) (v3.0) was applied here end
-   to end, so it shows what the spec looks like in code.
+## Where the rules live
 
-## What this repo is not for
+| File | What it is |
+| --- | --- |
+| [`docs/floot-port-notes.md`](docs/floot-port-notes.md) | **The product rulebook.** The founder's own description of pooling and bidding (1b), the resolved rules (1c), the engine rules proven in earlier phases (section 2), service areas (2.11) and 26 acceptance scenarios (section 4). "Floot" in the name means the old prototype. |
+| [`DESIGN.md`](DESIGN.md) | Design system v3.0 (typography, layout, colour, motion, imagery, accessibility). |
+| `BUILDERSPOOL_PROJECT_BRIEF.md` | Original project brief. |
+| `docs/floot-prompts.md` | Obsolete: prompts written for a Floot handover. Kept for history. |
 
-- New features, new pages, or new business rules. Those go into Floot.
-- Real customers or real money. Paystack runs in **test mode**, the money switches default to
-  **off**, and no live payment keys should be added here.
-- A second source of product copy. The storefront text here follows the engine's real flow
-  (catalogue price now, blind bids, 50% of any verified saving to the savings wallet), which
-  differs from Floot's in places. Do not copy it back to Floot without checking the port notes.
+Where the code and the rulebook disagree, **the rulebook wins** and the code is changed. Pricing is owned by the business,
+not by engineering.
 
-## What changes are still accepted
+## Working rules
 
-- Security fixes and data-integrity fixes.
-- Bug fixes that make the reference behave the way its own spec says.
-- Updates to the port notes or `DESIGN.md` when Floot's decisions change them.
-
-## When this repo is retired
-
-Archive it (read-only, with this README pointing to Floot) once Floot passes the twelve
-acceptance scenarios in `docs/floot-port-notes.md` and the founder confirms the decisions
-table is settled. Until then, keep it deployed and frozen.
+- Money is whole kobo, the ledger is append-only and idempotent, and every money switch defaults to **off**. Paystack
+  runs in **test mode** until the founder says otherwise.
+- `DATABASE_URL` in `.env` points at one shared Supabase database, so a local write is a production write. The team
+  chose to build on it (not on a separate development database), so these safeguards apply to every change:
+  1. **Additive migrations only**: new tables, and new columns that are nullable or have a default. Never drop, rename
+     or retype anything that holds data. Backfills are a separate, reviewed step.
+  2. **Show the SQL first.** Generate it with `prisma migrate diff`, review it, and get the user's approval before
+     `prisma migrate deploy`. Each migration folder carries a `rollback.sql` that Prisma does not run.
+  3. **Test data is tagged and removed.** Nothing fake is left in the live database.
+  4. **New code must tolerate the old database and the old code must tolerate the new one**, because deploys and
+     migrations are not atomic.
+- Read `node_modules/next/dist/docs/` before changing framework behaviour: this Next.js version has breaking changes.
 
 ## Stack
 
