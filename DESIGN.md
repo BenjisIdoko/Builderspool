@@ -375,6 +375,23 @@ Pill, `caption`/`label`, soft-tint fill + coloured text + 1px tinted border + a 
 - **Offline / slow:** keep the last good data on screen with a quiet "Updating…" `caption`.
 - **Toasts:** bottom-centre on phones, top-right on desktop; 4s, dismissible, never the only record of an action.
 
+### 6.12 Product page
+
+- **Layout (desktop):** gallery and details in the left column; one right column (380px) carrying, top to bottom: chips (Pool & Save, category, supply scope), the product name (`h1`), "Sold per {unit}", the buy box, then the Pool & Save panel. On phones the order is gallery, header with price, Pool & Save panel, details; the buy box becomes the sticky bottom bar.
+- **One decision, one clear action.** The buy box carries the only filled `cta` button. The Pool & Save panel is information (pale-blue, cyan left rule) and has no button of its own unless the platform's flow makes joining a separate act from buying.
+- **Price:** `price-lg` in the sans face, never mono. Unit in `body-sm` beside it. If the platform shows the best delivered price for a zone, the zone and the verified seller are named above the figure.
+- **Unit text:** write it once ("Sold per metre"). Never "per per": units are stored without the word *per*, and the template adds it.
+- **No placeholder imagery.** A product without a real photograph shows a neutral "Photo coming soon" tile. A "DEMO" watermark or illustrated stand-in is never shown to buyers.
+- **Pool & Save panel contents:** the pool's close time (from configuration), real aggregate demand ("Pooled for today: 120 bags, 7 buyers", or "No orders yet — yours would open it"), the buyer's share of any saving, and what happens if a line cannot be filled. Every figure is a real aggregate; savings are labelled *Estimated* until an award is verified. Competitor bids, seller identities and scores are never shown.
+
+### 6.13 Join-the-pool form (flows where joining is separate from buying)
+
+- **Fields:** quantity (with its unit and the minimum), site address, nearest landmark (optional), site contact and phone (pre-filled from the account), needed-on-site date, offloading notes (optional). All fields use the standard 44px input with the `input-border` boundary and the same date control style — never a mix of bordered and borderless fields.
+- **Authorising spend is an explicit choice.** A checkbox that lets the platform buy from another seller if the pool fails starts **unticked**, states the maximum price, and says that nothing is bought if it is left unticked. A pre-ticked box that authorises spending money is not allowed.
+- **Say what happens next, once:** "No payment now. After the award at {time} you'll see the final price and pay to confirm. You can change or withdraw until {time}." Times come from configuration.
+- **Layout:** group related fields (site, contact, timing), keep the primary action ("Join the pool") and the secondary one (Cancel, a link) on one row, and open the form as a sheet or step rather than inline inside the panel.
+- **Disabled state:** the submit button is disabled only until required fields are valid, and the first missing field is named in text beside it.
+
 ---
 
 ## 7. Motion

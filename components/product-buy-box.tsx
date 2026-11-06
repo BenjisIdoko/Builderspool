@@ -46,7 +46,7 @@ export function ProductBuyBox({ material }: { material: BuyerMaterial }) {
 
   return (
     <>
-      <div className="hidden rounded-card bg-surface p-5 lg:sticky lg:top-44 lg:block lg:self-start">
+      <div className="hidden rounded-card bg-surface p-5 lg:block">
         <div className="mb-5 text-price-lg tabular-nums text-text-storefront">
           {formatNaira(material.catalogPrice)}{" "}
           <span className="font-sans text-body-sm font-medium text-muted-foreground">

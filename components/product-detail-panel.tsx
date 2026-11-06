@@ -51,11 +51,6 @@ export function ProductDetailPanel({
 
   return (
     <div>
-      <div className="mb-1.5 flex items-center gap-2 text-xs text-muted-foreground">
-        {material.category} · {regionLabel}
-      </div>
-      <h1 className="mb-6 text-ink">{material.name}</h1>
-
       <Tabs defaultValue={defaultTab}>
         <TabsList variant="line" className="mb-6 h-auto w-full justify-start gap-6 border-b border-border pb-0">
           {material.spec && (
