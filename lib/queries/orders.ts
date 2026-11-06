@@ -107,7 +107,8 @@ export function getOrderTrackingStages(order: BuyerOrder): TrackingStage[] {
   const receivedAt = minDate(allAllocations.filter((a) => a.receivedAt).map((a) => a.receivedAt!));
 
   const titles = [
-    'Order confirmed',
+    // Stage 0 is the order being placed; payment confirms it at stage 1.
+    'Order placed',
     'Payment confirmed',
     'Demand pooled',
     'Supplier assigned',
