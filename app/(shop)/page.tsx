@@ -10,7 +10,7 @@ import {
 import { getMaterials, getCategories } from '@/lib/queries/materials';
 import { HeroPoolBar } from '@/components/hero-pool-bar';
 import { getCycleTimes } from '@/lib/bidding/cycleTimes';
-import { buildPoolStages } from '@/lib/pool-stages';
+import { buildPoolStages, isPoolClosedForToday } from '@/lib/pool-stages';
 import { PoolSaveSteps } from '@/components/pool-save-steps';
 import { Button } from '@/components/ui/button';
 import { ProductRail } from '@/components/product-rail';
@@ -35,6 +35,8 @@ const TRUST = [
 export default async function Home() {
   const [{ materials }, categories, times] = await Promise.all([getMaterials(), getCategories(), getCycleTimes()]);
   const stages = buildPoolStages(times);
+  const closed = isPoolClosedForToday(times);
+  const poolDay = closed ? 'tomorrow’s' : 'today’s';
   // Home-page rails only feature products that have a real photo.
   const withPhoto = materials.filter((m) => m.imageUrl);
   const poolPicks = withPhoto.slice(0, 12);
@@ -66,7 +68,7 @@ export default async function Home() {
               Build smarter. <span className="text-cyan">Save more.</span>
             </h1>
             <p className="bp-rise mt-5 max-w-[34ch] text-body-lg text-white/85" style={{ '--rise-delay': '60ms' } as React.CSSProperties}>
-              Join today’s pool with other builders. Verified suppliers compete for the combined order.
+              Join the pool with other builders. Verified suppliers compete for the combined order.
             </p>
             <p className="bp-rise mt-4 text-body-sm text-white/85" style={{ '--rise-delay': '60ms' } as React.CSSProperties}>
               <span className="font-mono font-medium text-cyan">50%</span> of the verified saving comes back to you.{' '}
@@ -76,7 +78,7 @@ export default async function Home() {
             </p>
             <div className="bp-rise mt-7 flex flex-wrap items-center gap-x-6 gap-y-3" style={{ '--rise-delay': '120ms' } as React.CSSProperties}>
               <Button asChild variant="cta" size="lg" className="h-12 px-7 text-base">
-                <Link href="#join">Join today’s pool</Link>
+                <Link href="#join">Join {poolDay} pool</Link>
               </Button>
               <Link href="/catalog" className="text-body font-bold underline-offset-4 hover:underline">
                 Shop materials →
@@ -94,8 +96,12 @@ export default async function Home() {
       <div className="mx-auto flex w-full max-w-section flex-col gap-3 pt-section">
         <div id="join" className="scroll-mt-40">
           <ProductRail
-            title="Join today’s pool"
-            subtitle={`Order before ${times.poolCloseTime} to join today’s pool.`}
+            title={`Join ${poolDay} pool`}
+            subtitle={
+              closed
+                ? `Today’s pool has closed. Orders placed now join tomorrow’s pool, which closes at ${times.poolCloseTime}.`
+                : `Order before ${times.poolCloseTime} to join today’s pool.`
+            }
             href="/catalog"
             materials={poolPicks}
           />
