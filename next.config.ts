@@ -6,14 +6,25 @@ const isDev = process.env.NODE_ENV === "development";
 // 'unsafe-inline' unless every page is rendered dynamically with a per-request
 // nonce, which would give up static prerendering. What this still enforces:
 // no framing (clickjacking), no plugins, no <base> hijack, same-origin
-// connect/img/font/worker sources, and form submissions only to this site or
+// connect/font/worker sources and images (plus Supabase Storage for listing photos), and form submissions only to this site or
 // Paystack's hosted checkout (the payment redirect). React escaping remains
 // the primary XSS defence. 'unsafe-eval' is dev-only (React debugging).
+// Listing photos live in Supabase Storage (a public bucket), so that one
+// origin, and only it, may serve images. Derived from the same public URL the
+// upload code uses; absent (e.g. a bare local checkout) it adds nothing.
+const supabaseOrigin = (() => {
+  try {
+    return new URL(process.env.NEXT_PUBLIC_SUPABASE_URL ?? "").origin;
+  } catch {
+    return null;
+  }
+})();
+
 const contentSecurityPolicy = [
   "default-src 'self'",
   `script-src 'self' 'unsafe-inline'${isDev ? " 'unsafe-eval'" : ""}`,
   "style-src 'self' 'unsafe-inline'",
-  "img-src 'self' data: blob:",
+  `img-src 'self' data: blob:${supabaseOrigin ? ` ${supabaseOrigin}` : ""}`,
   "font-src 'self' data:",
   `connect-src 'self'${isDev ? " ws: wss:" : ""}`,
   "worker-src 'self'",
