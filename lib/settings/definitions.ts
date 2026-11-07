@@ -52,6 +52,7 @@ export const SETTING_DEFINITIONS: SettingDefinition[] = [
   { key: 'pool.maxWinnersPerCategoryZone', label: 'Maximum winning suppliers per category per zone', group: 'pool', type: 'int', default: 5, min: 1, max: 50 },
   { key: 'pool.minEligibleBidsPerLine', label: 'Minimum eligible bids needed to award a pool line', group: 'pool', type: 'int', default: 1, min: 1, max: 10, help: 'Open decision in the transfer file: 1 or 2.' },
 
+  { key: 'areas.checkoutPickerEnabled', label: 'Checkout: buyers pick their locality and zone', group: 'pool', type: 'bool', default: false, help: 'Turn on once every zone you deliver to has a delivery fee. Off: checkout uses the old region-based delivery charge.' },
   { key: 'direct.acceptWindowHours', label: 'Buy Direct: hours a seller has to accept an order line', group: 'pool', type: 'int', default: 24, min: 1, max: 168, help: 'A line the seller does not accept in time is refunded to the buyer.' },
 
   { key: 'fees.buyDirectCommissionPct', label: 'Buy Direct commission (%)', group: 'fees', type: 'percent', default: 3, min: 0, max: 100 },

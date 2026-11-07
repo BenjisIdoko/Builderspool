@@ -1,12 +1,17 @@
 import { prisma } from '../prisma';
 import { OrderStatus, PurchaseMode, type PaymentMethod } from '@prisma/client';
 import { getDeliveryCost, type FulfillmentMethod } from './deliveryCost';
+import { getSetting } from '../settings';
+import { regionForState } from '../areas/region';
 import { findServingCenter } from './findServingCenter';
 import { getPickableListing } from '../queries/offers';
 
 export interface CheckoutInput {
   buyerId: string;
   region: string;
+  // Where the buyer is. Required when the locality picker is switched on, in
+  // which case it decides the region, the zone and the delivery fee.
+  localityId?: string | null;
   fulfillmentMethod: FulfillmentMethod;
   paymentMethod: PaymentMethod;
   // How the whole cart is bought. DIRECT needs a picked seller on every line.
@@ -102,12 +107,39 @@ export async function createOrder(input: CheckoutInput) {
 
   // Every order routes through a fulfillment center regardless of method —
   // delivery just adds a final hop from center to site (pickup ends there).
-  const center = await findServingCenter(input.region);
-  if (!center) {
-    throw new Error(`No fulfillment center serves region ${input.region}.`);
+  // With the locality picker on, the buyer's locality decides the region, the
+  // zone (the pool key) and the delivery fee. Off, it is the old region flow.
+  let region = input.region;
+  let area: { localityId: string; zoneId: string } | null = null;
+  let zoneFee: number | null = null;
+  if (await getSetting<boolean>('areas.checkoutPickerEnabled')) {
+    if (!input.localityId) throw new Error('Choose where you are so we can check delivery.');
+    const locality = await prisma.locality.findUnique({
+      where: { id: input.localityId },
+      include: { zone: true, lga: { include: { state: true } } },
+    });
+    if (!locality || !locality.active) throw new Error('That area is not available. Choose another.');
+    if (!locality.zone || !locality.zone.active) throw new Error(`We do not deliver to ${locality.name} yet.`);
+    const zoneRegion = regionForState(locality.lga.state.name);
+    if (!zoneRegion) throw new Error(`We do not serve ${locality.lga.state.name} yet.`);
+    region = zoneRegion;
+    area = { localityId: locality.id, zoneId: locality.zone.id };
+    zoneFee = locality.zone.deliveryFee === null ? null : Number(locality.zone.deliveryFee);
+    if (input.fulfillmentMethod === 'DELIVERY' && zoneFee === null) {
+      throw new Error(`Delivery to ${locality.name} is not available yet. Choose pickup instead.`);
+    }
   }
 
-  const deliveryCost = getDeliveryCost(input.region, input.fulfillmentMethod);
+  const center = await findServingCenter(region);
+  if (!center) {
+    throw new Error(`No fulfillment center serves region ${region}.`);
+  }
+
+  const deliveryCost = area
+    ? input.fulfillmentMethod === 'DELIVERY'
+      ? (zoneFee as number)
+      : 0
+    : getDeliveryCost(region, input.fulfillmentMethod);
 
   // Real site details for DELIVERY — validated here (server-side) since the
   // client already enforces it, but the client's word alone was never trusted
@@ -128,7 +160,9 @@ export async function createOrder(input: CheckoutInput) {
     const order = await tx.order.create({
       data: {
         buyerId: input.buyerId,
-        region: input.region,
+        region,
+        localityId: area?.localityId ?? null,
+        zoneId: area?.zoneId ?? null,
         status: OrderStatus.PENDING_PAYMENT,
         paymentMethod: input.paymentMethod,
         ...delivery,

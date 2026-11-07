@@ -7,6 +7,8 @@ import { BankIcon, CheckCircleIcon, CircleIcon, DeviceMobileIcon, MapPinIcon, Tr
 import type { PaymentMethod } from '@prisma/client';
 import { useCart } from '@/lib/cart/CartContext';
 import { linePrice } from '@/lib/cart/types';
+import type { CheckoutAreas } from '@/lib/queries/checkoutAreas';
+import { CheckoutLocalityPicker, findLocality } from '@/components/checkout-locality-picker';
 import { formatNaira } from '@/lib/format';
 import { getDeliveryCost, type FulfillmentMethod } from '@/lib/checkout/deliveryCost';
 import { MaterialImage } from '@/components/material-image';
@@ -38,6 +40,7 @@ function formatYmd(ymd: string): string {
 type SubmitState = { status: 'idle' } | { status: 'submitting' } | { status: 'error'; message: string };
 
 export function CheckoutForm({
+  areas,
   defaultContactName,
   defaultContactPhone,
   poolDay,
@@ -45,6 +48,8 @@ export function CheckoutForm({
   earliestDate,
   testMode,
 }: {
+  /** The locality picker's data; `enabled` is false until the setting is switched on. */
+  areas: CheckoutAreas;
   defaultContactName: string;
   defaultContactPhone: string;
   /** Which pool an order placed now joins. */
@@ -66,6 +71,12 @@ export function CheckoutForm({
   const [neededBy, setNeededBy] = useState('');
   const [deliveryWindow, setDeliveryWindow] = useState('');
   const [deliveryNotes, setDeliveryNotes] = useState('');
+  const [localityId, setLocalityId] = useState('');
+  const zone = areas.enabled && localityId ? (findLocality(areas, localityId)?.zone ?? null) : null;
+  // With the picker on, delivery needs a zone that has a fee; otherwise pickup only.
+  const deliveryAvailable = !areas.enabled || (zone !== null && zone.fee !== null);
+  const costFor = (method: FulfillmentMethod) =>
+    areas.enabled ? (method === 'DELIVERY' ? (zone?.fee ?? 0) : 0) : getDeliveryCost(region, method);
   // How the whole cart is bought. Buy Direct needs a picked seller on every line.
   const [mode, setMode] = useState<'POOL' | 'DIRECT'>('POOL');
   const canBuyDirect = lines.length > 0 && lines.every((l) => l.listingId);
@@ -75,7 +86,9 @@ export function CheckoutForm({
   // The first required field still empty, named beside the pay button so a
   // disabled button is never a mystery.
   const missing =
-    fulfillmentMethod === 'DELIVERY'
+    areas.enabled && !zone
+      ? 'an area we deliver to'
+      : fulfillmentMethod === 'DELIVERY'
       ? !deliveryAddress.trim()
         ? 'your site address'
         : !deliveryContactName.trim()
@@ -85,7 +98,7 @@ export function CheckoutForm({
             : null
       : null;
 
-  const deliveryCost = getDeliveryCost(region, fulfillmentMethod);
+  const deliveryCost = costFor(fulfillmentMethod);
   const total = subtotal + deliveryCost;
 
   if (lines.length === 0) {
@@ -110,6 +123,7 @@ export function CheckoutForm({
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
           region,
+          localityId: areas.enabled ? localityId : null,
           fulfillmentMethod,
           paymentMethod,
           mode: effectiveMode,
@@ -166,7 +180,22 @@ export function CheckoutForm({
           </p>
         </section>
 
-        <div className="mb-3.5 text-label text-slate uppercase">01 · Region</div>
+        <div className="mb-3.5 text-label text-slate uppercase">{areas.enabled ? '01 · Where are you?' : '01 · Region'}</div>
+        {areas.enabled ? (
+          <div className="mb-10">
+            <CheckoutLocalityPicker
+              areas={areas}
+              value={localityId}
+              defaultPhone={defaultContactPhone}
+              onChange={(id) => {
+                setLocalityId(id);
+                // Switch to pickup straight away if the new area has no delivery.
+                const next = findLocality(areas, id)?.zone;
+                if (!next || next.fee === null) setFulfillmentMethod('PICKUP');
+              }}
+            />
+          </div>
+        ) : (
         <div className="mb-10 max-w-xs">
           <Label htmlFor="region" className="sr-only">
             Region
@@ -184,6 +213,7 @@ export function CheckoutForm({
             </SelectContent>
           </Select>
         </div>
+        )}
 
         <div className="mb-3.5 text-label text-slate uppercase">02 · Items ({lines.length})</div>
         <div className="divide-y divide-border rounded-lg bg-surface">
@@ -322,7 +352,7 @@ export function CheckoutForm({
             {fulfillmentMethod === 'DELIVERY' ? 'Delivering to' : 'Pickup from'}
           </div>
           <div className="mt-1 text-lg font-bold">
-            {region.charAt(0) + region.slice(1).toLowerCase()} region
+            {areas.enabled ? (zone ? zone.name : 'Choose your area') : `${region.charAt(0) + region.slice(1).toLowerCase()} region`}
           </div>
         </div>
 
@@ -367,12 +397,14 @@ export function CheckoutForm({
         <h2 className="mb-3 text-label text-muted-foreground uppercase">Shipping method</h2>
         <div className="mb-5 flex flex-col gap-2">
           {FULFILLMENT_OPTIONS.map(({ method, label }) => {
-            const cost = getDeliveryCost(region, method);
+            const cost = costFor(method);
+            const unavailable = method === 'DELIVERY' && !deliveryAvailable;
             const selected = fulfillmentMethod === method;
             return (
               <button
                 key={method}
                 type="button"
+                disabled={unavailable}
                 onClick={() => setFulfillmentMethod(method)}
                 className={`flex items-center justify-between gap-3 rounded-lg border p-3 text-left text-sm transition-colors ${
                   selected ? 'border-brand bg-info-soft' : 'border-input hover:border-brand'
@@ -386,7 +418,7 @@ export function CheckoutForm({
                   )}
                   <span className="font-semibold text-ink">{label}</span>
                 </span>
-                <span className="tabular-nums text-slate">{cost === 0 ? 'Free' : formatNaira(cost)}</span>
+                <span className="tabular-nums text-slate">{unavailable ? 'Not available here yet' : cost === 0 ? 'Free' : formatNaira(cost)}</span>
               </button>
             );
           })}

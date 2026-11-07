@@ -10,7 +10,7 @@ import { decideCoverageAction, setNationalSupplyAction, setZoneActiveAction } fr
 export const metadata = { title: 'Service areas' };
 
 export default async function AdminAreasPage() {
-  const { zones, lgas, requests, sellers } = await getAreasOverview();
+  const { zones, lgas, requests, sellers, demand } = await getAreasOverview();
 
   const deliverable = zones.filter((z) => z.active && z.deliveryFee !== null).length;
   const allLocalities = lgas.flatMap((l) => l.localities);
@@ -33,6 +33,31 @@ export default async function AdminAreasPage() {
         <KpiCard size="compact" label="Localities with no zone" value={String(unzoned)} icon={WarningIcon} tone={unzoned > 0 ? 'warning' : 'success'} chip="" />
         <KpiCard size="compact" label="Coverage requests" value={String(requests.length)} icon={CheckCircleIcon} tone={requests.length > 0 ? 'warning' : 'neutral'} chip="" />
       </div>
+
+      <section className="mb-8 rounded-card bg-card-alt p-5">
+        <h2 className="mb-1 text-heading-md text-ink">Where buyers want delivery</h2>
+        <p className="mb-4 text-sm text-muted-foreground">
+          Buyers in an area we do not deliver to can leave their number at checkout. The busiest areas are first, which is a good
+          guide to which zones to open and set a fee for.
+        </p>
+        {demand.length === 0 ? (
+          <p className="text-sm text-muted-foreground">No delivery requests yet.</p>
+        ) : (
+          <ul className="divide-y divide-hairline">
+            {demand.map((d) => (
+              <li key={d.localityId} className="flex flex-wrap items-center justify-between gap-2 py-2.5 text-body-sm">
+                <span className="text-ink">
+                  {d.name} <span className="text-slate">· {d.lga}</span>
+                </span>
+                <span className="flex items-center gap-2">
+                  <Badge variant={d.reason === 'Delivers' ? 'success' : 'warning'}>{d.reason}</Badge>
+                  <span className="font-mono text-figure tabular-nums text-ink">{d.count}</span>
+                </span>
+              </li>
+            ))}
+          </ul>
+        )}
+      </section>
 
       <section className="mb-8 rounded-card bg-card-alt p-5">
         <h2 className="mb-4 text-heading-md text-ink">Delivery zones</h2>

@@ -6,12 +6,13 @@ import { CheckoutSteps } from '@/components/checkout-steps';
 import { getCycleTimes } from '@/lib/bidding/cycleTimes';
 import { addDaysYmd, lagosYmd } from '@/lib/bidding/schedule';
 import { isPoolClosedForToday } from '@/lib/pool-stages';
+import { getCheckoutAreas } from '@/lib/queries/checkoutAreas';
 
 export const metadata = { title: 'Checkout' };
 
 export default async function CheckoutPage() {
   const buyer = await requireBuyer();
-  const times = await getCycleTimes();
+  const [times, areas] = await Promise.all([getCycleTimes(), getCheckoutAreas()]);
 
   return (
     <div className="mx-auto w-full max-w-section pt-6 pb-10">
@@ -32,6 +33,7 @@ export default async function CheckoutPage() {
         defaultContactPhone={buyer.phone ?? ''}
         // True only when the configured Paystack key is a test key, so the
         // TEST tag can never appear on (or be missing from) a live payment.
+        areas={areas}
         poolDay={isPoolClosedForToday(times) ? 'tomorrow' : 'today'}
         poolCloseTime={times.poolCloseTime}
         // Earliest on-site date a buyer can ask for: tomorrow, Lagos time.

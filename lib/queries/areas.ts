@@ -4,7 +4,7 @@ import { prisma } from '@/lib/prisma';
 // Admin view of the service areas: zones with their fee and counts, every
 // locality grouped by Area Council, and seller coverage requests.
 export async function getAreasOverview() {
-  const [zones, lgas, requests, sellers] = await Promise.all([
+  const [zones, lgas, requests, sellers, demand] = await Promise.all([
     prisma.deliveryZone.findMany({
       orderBy: { name: 'asc' },
       include: {
@@ -38,7 +38,14 @@ export async function getAreasOverview() {
         zoneCoverage: { where: { status: CoverageStatus.APPROVED }, select: { zone: { select: { name: true } } } },
       },
     }),
+    // Buyers asking for delivery where we do not deliver yet: demand by locality.
+    prisma.deliveryRequest.groupBy({ by: ['localityId'], _count: { _all: true }, orderBy: { _count: { localityId: 'desc' } }, take: 20 }),
   ]);
+  const demandLocalities = await prisma.locality.findMany({
+    where: { id: { in: demand.map((d) => d.localityId) } },
+    select: { id: true, name: true, lga: { select: { name: true } }, zone: { select: { name: true, deliveryFee: true } } },
+  });
+  const localityById = new Map(demandLocalities.map((l) => [l.id, l]));
 
   return {
     zones: zones.map((z) => ({
@@ -62,6 +69,17 @@ export async function getAreasOverview() {
         zoneName: loc.zone?.name ?? null,
       })),
     })),
+    demand: demand.map((d) => {
+      const l = localityById.get(d.localityId);
+      return {
+        localityId: d.localityId,
+        name: l?.name ?? 'Unknown area',
+        lga: l?.lga.name ?? '',
+        // Why we cannot deliver there yet: no zone, or a zone with no fee.
+        reason: !l?.zone ? 'Not in a zone' : l.zone.deliveryFee === null ? 'Zone has no fee' : 'Delivers',
+        count: d._count._all,
+      };
+    }),
     requests: requests.map((r) => ({
       id: r.id,
       zoneName: r.zone.name,

@@ -546,8 +546,18 @@ model Order {
   deliveryWindow       String? // free text (e.g. "Weekday mornings") — no delivery-slot system exists to validate against
   deliveryNotes        String? // offload/access notes for the driver
 
-  buyer User        @relation(fields: [buyerId], references: [id])
-  items OrderItem[]
+  // Where the buyer is, chosen at checkout once service areas are switched on.
+  // The zone is the pool key; it is copied here so moving a locality later never
+  // rewrites an existing order (docs/floot-port-notes.md 2.11).
+  localityId String?
+  zoneId     String?
+
+  buyer    User          @relation(fields: [buyerId], references: [id])
+  locality Locality?     @relation(fields: [localityId], references: [id])
+  zone     DeliveryZone? @relation(fields: [zoneId], references: [id])
+  items    OrderItem[]
+
+  @@index([zoneId])
 }
 
 // One line of a checkout order. priceLocked guarantees the fixed-price promise
@@ -875,6 +885,7 @@ model Locality {
   zone               DeliveryZone?       @relation(fields: [zoneId], references: [id])
   fulfillmentCenters FulfillmentCenter[]
   deliveryRequests   DeliveryRequest[]
+  orders             Order[]
 
   @@unique([lgaId, name])
   @@index([zoneId])
@@ -891,6 +902,7 @@ model DeliveryZone {
 
   localities Locality[]
   coverage   SellerZoneCoverage[]
+  orders     Order[]
 }
 
 enum CoverageStatus {
