@@ -80,6 +80,7 @@ export default async function AdminSheetsPage() {
                 <TableHead>Status</TableHead>
                 <TableHead className="text-right">Items</TableHead>
                 <TableHead className="text-right">Bids</TableHead>
+                <TableHead>Award</TableHead>
                 <TableHead>Bids close</TableHead>
               </TableRow>
             </TableHeader>
@@ -98,6 +99,21 @@ export default async function AdminSheetsPage() {
                   <TableCell className="text-right font-mono tabular-nums">
                     {s.bidCount}
                     {s.status !== 'OPEN' && s.status !== 'BIDDING' && <span className="text-slate"> ({s.eligibleCount} eligible)</span>}
+                  </TableCell>
+                  <TableCell>
+                    {s.status === 'CANCELLED' && s.cancelReason ? (
+                      <span className="text-sm text-muted-foreground">{s.cancelReason.replaceAll('_', ' ').toLowerCase()}</span>
+                    ) : s.awards.length === 0 ? (
+                      <span className="text-slate">—</span>
+                    ) : (
+                      <ul className="space-y-0.5 text-sm">
+                        {s.awards.map((a) => (
+                          <li key={a.rank}>
+                            <span className="font-mono tabular-nums text-slate">#{a.rank}</span> {a.vendor} · {a.status.toLowerCase()}
+                          </li>
+                        ))}
+                      </ul>
+                    )}
                   </TableCell>
                   <TableCell>{when(s.bidsCloseAt)}</TableCell>
                 </TableRow>

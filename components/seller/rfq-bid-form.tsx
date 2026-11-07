@@ -15,7 +15,7 @@ export type RfqLine = {
   imageUrl: string | null;
   category: string;
   quantity: number;
-  referencePrice: number | null;
+  ceiling: { price: number; basis: 'REFERENCE' | 'BUYER_PRICE' } | null;
 };
 
 const toPrice = (raw: string) => Number(raw.replace(/,/g, ''));
@@ -31,7 +31,7 @@ export function RfqBidForm({ sheetId, lines }: { sheetId: string; lines: RfqLine
 
   const entered = (l: RfqLine) => toPrice(prices[l.id] ?? '');
   const allFilled = lines.every((l) => Number.isFinite(entered(l)) && entered(l) > 0);
-  const above = lines.filter((l) => l.referencePrice !== null && entered(l) > l.referencePrice);
+  const above = lines.filter((l) => l.ceiling !== null && entered(l) > l.ceiling.price);
   const total = lines.reduce((sum, l) => sum + (Number.isFinite(entered(l)) ? entered(l) : 0) * l.quantity, 0);
 
   function submit() {
@@ -52,7 +52,7 @@ export function RfqBidForm({ sheetId, lines }: { sheetId: string; lines: RfqLine
     <div className="space-y-4">
       <ul className="divide-y divide-hairline overflow-hidden rounded-lg bg-card-alt">
         {lines.map((l) => {
-          const isAbove = l.referencePrice !== null && entered(l) > l.referencePrice;
+          const isAbove = l.ceiling !== null && entered(l) > l.ceiling.price;
           return (
             <li key={l.id} className="flex flex-wrap items-center gap-4 px-4 py-4 sm:px-5">
               <MaterialImage imageUrl={l.imageUrl} category={l.category} alt={l.name} className="size-16 shrink-0 rounded-md border border-border" sizes="64px" />
@@ -62,11 +62,12 @@ export function RfqBidForm({ sheetId, lines }: { sheetId: string; lines: RfqLine
                   {l.quantity.toLocaleString('en-NG')} × {l.unit}
                 </div>
                 <div className="mt-0.5 text-sm text-muted-foreground">
-                  {l.referencePrice === null ? (
-                    'No reference price for this item'
+                  {l.ceiling === null ? (
+                    'No limit for this item'
                   ) : (
                     <>
-                      Must not be above <span className="font-mono tabular-nums text-ink"><Money amount={l.referencePrice} /></span> each
+                      Must not be above <span className="font-mono tabular-nums text-ink"><Money amount={l.ceiling.price} /></span> each
+                      {l.ceiling.basis === 'BUYER_PRICE' && ' (no reference price, so the lowest price a buyer paid)'}
                     </>
                   )}
                 </div>
@@ -85,7 +86,7 @@ export function RfqBidForm({ sheetId, lines }: { sheetId: string; lines: RfqLine
                   aria-invalid={isAbove}
                   className="font-mono tabular-nums"
                 />
-                {isAbove && <p className="mt-1 text-caption text-danger">Above the reference.</p>}
+                {isAbove && <p className="mt-1 text-caption text-danger">Above the limit.</p>}
               </div>
             </li>
           );
@@ -101,8 +102,8 @@ export function RfqBidForm({ sheetId, lines }: { sheetId: string; lines: RfqLine
 
       {above.length > 0 && (
         <p className="rounded-md border border-danger/25 bg-danger-soft px-4 py-3 text-sm text-danger" role="alert">
-          {above.length === 1 ? 'One price is' : `${above.length} prices are`} above the reference ({above.map((l) => l.name).join(', ')}). A bid with any price above its
-          reference is ruled out as a whole when bids close.
+          {above.length === 1 ? 'One price is' : `${above.length} prices are`} above the limit ({above.map((l) => l.name).join(', ')}). A bid with any price above its
+          limit is ruled out as a whole when bids close.
         </p>
       )}
 

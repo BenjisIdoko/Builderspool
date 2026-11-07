@@ -1107,9 +1107,10 @@ model PoolSheet {
   cancelReason String?
   createdAt    DateTime  @default(now())
 
-  zone  DeliveryZone    @relation(fields: [zoneId], references: [id])
-  lines PoolSheetLine[]
-  bids  SheetBid[]
+  zone   DeliveryZone    @relation(fields: [zoneId], references: [id])
+  lines  PoolSheetLine[]
+  bids   SheetBid[]
+  awards SheetAward[]
 
   @@unique([category, zoneId, date])
   @@index([status, poolClosesAt])
@@ -1145,10 +1146,15 @@ model SheetBid {
   ineligibleReason String?
   totalAmount      Decimal        @db.Decimal(14, 2) // sum of price x quantity over all lines
   submittedAt      DateTime       @default(now())
+  // Weighted total out of 100, set when an ELIGIBLE bid is scored at bids close.
+  totalScore       Decimal?       @db.Decimal(6, 2)
+  scoredAt         DateTime?
 
-  sheet  PoolSheet      @relation(fields: [sheetId], references: [id])
-  seller User           @relation(fields: [sellerId], references: [id])
+  sheet  PoolSheet       @relation(fields: [sheetId], references: [id])
+  seller User            @relation(fields: [sellerId], references: [id])
   lines  SheetBidLine[]
+  scores SheetBidScore[]
+  award  SheetAward?
 
   @@unique([sheetId, sellerId])
 }
@@ -1163,4 +1169,60 @@ model SheetBidLine {
   line PoolSheetLine @relation(fields: [lineId], references: [id])
 
   @@unique([bidId, lineId])
+}
+
+// ─── Scoring and the three-rank award (docs/floot-port-notes.md 1c) ──────────
+// Eligible bids are scored on six criteria and ranked; the top three are offered
+// the whole sheet one after another, one accept window each.
+
+enum ScoreCriterion {
+  PRICE
+  PERFORMANCE
+  CAPACITY
+  DELIVERY
+  GEOGRAPHY
+  RESPONSIVENESS
+}
+
+// One row per criterion per scored bid: the weight it carried, the points it
+// earned, and a one-line reason a vendor or ops can read.
+model SheetBidScore {
+  id        String         @id @default(cuid())
+  bidId     String
+  criterion ScoreCriterion
+  weight    Int // the setting's weight when scored (the six add up to 100)
+  points    Decimal        @db.Decimal(6, 2) // 0 to weight
+  reason    String
+
+  bid SheetBid @relation(fields: [bidId], references: [id], onDelete: Cascade)
+
+  @@unique([bidId, criterion])
+}
+
+enum SheetAwardStatus {
+  WAITING // ranked, not yet offered: an earlier rank still holds the window
+  OFFERED // the vendor may accept until expiresAt
+  ACCEPTED // the vendor took the sheet
+  DECLINED // the vendor said no
+  EXPIRED // the window ran out with no answer
+}
+
+// One row per ranked bid (ranks 1 to 3).
+model SheetAward {
+  id            String           @id @default(cuid())
+  sheetId       String
+  bidId         String           @unique
+  rank          Int // 1, 2 or 3
+  status        SheetAwardStatus @default(WAITING)
+  offeredAt     DateTime?
+  expiresAt     DateTime? // when this rank's window ends
+  respondedAt   DateTime?
+  declineReason String?
+  createdAt     DateTime         @default(now())
+
+  sheet PoolSheet @relation(fields: [sheetId], references: [id])
+  bid   SheetBid  @relation(fields: [bidId], references: [id])
+
+  @@unique([sheetId, rank])
+  @@index([status, expiresAt])
 }

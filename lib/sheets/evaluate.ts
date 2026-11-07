@@ -2,6 +2,8 @@ import { SheetBidStatus, SheetStatus } from '@prisma/client';
 import { prisma } from '@/lib/prisma';
 import { recordAudit } from '@/lib/audit';
 import { getSheetAccess } from './access';
+import { lineCeiling } from './ceiling';
+import { startAwarding } from './award';
 
 export type BidDecision = {
   bidId: string;
@@ -22,11 +24,10 @@ export async function evaluateSheetBids(sheetId: string): Promise<BidDecision[]>
   const sheet = await prisma.poolSheet.findUniqueOrThrow({
     where: { id: sheetId },
     include: {
-      lines: { include: { material: { select: { name: true, unit: true } } } },
+      lines: { include: { material: { select: { name: true, unit: true } }, orderItems: { select: { priceLocked: true } } }, orderBy: { material: { name: 'asc' } } },
       bids: { where: { status: SheetBidStatus.SUBMITTED }, include: { lines: true } },
     },
   });
-  const lineById = new Map(sheet.lines.map((l) => [l.id, l]));
   const decisions: BidDecision[] = [];
 
   for (const bid of sheet.bids) {
@@ -36,11 +37,17 @@ export async function evaluateSheetBids(sheetId: string): Promise<BidDecision[]>
     if (!access.ok) reason = `${access.code}: ${access.message}`;
 
     if (!reason) {
-      for (const bl of bid.lines) {
-        const line = lineById.get(bl.lineId);
-        const ref = line?.referencePrice == null ? null : Number(line.referencePrice);
-        if (line && ref !== null && Number(bl.unitPrice) > ref) {
-          reason = `ABOVE_REFERENCE: ${line.material.name} bid at ${naira(Number(bl.unitPrice))}, above the ${naira(ref)} reference`;
+      // In sheet order (by item name), so the reason always names the same item.
+      const priceOf = new Map(bid.lines.map((bl) => [bl.lineId, bl]));
+      for (const line of sheet.lines) {
+        const bl = priceOf.get(line.id);
+        if (!bl) continue;
+        const ceiling = lineCeiling(line.referencePrice === null ? null : Number(line.referencePrice), line.orderItems.map((i) => Number(i.priceLocked)));
+        if (ceiling && Number(bl.unitPrice) > ceiling.price) {
+          reason =
+            ceiling.basis === 'REFERENCE'
+              ? `ABOVE_REFERENCE: ${line.material.name} bid at ${naira(Number(bl.unitPrice))}, above the ${naira(ceiling.price)} reference`
+              : `ABOVE_BUYER_PRICE: ${line.material.name} bid at ${naira(Number(bl.unitPrice))}, above the ${naira(ceiling.price)} a buyer paid (no reference price)`;
           break;
         }
       }
@@ -60,9 +67,9 @@ export async function evaluateSheetBids(sheetId: string): Promise<BidDecision[]>
 /**
  * Bids close: BIDDING -> AWARDING. Bids are checked first (idempotent), then one
  * compare-and-swap decides who moves the sheet on and writes the audit entry.
- * The award itself is the next slice; until it exists a sheet waits in AWARDING.
+ * Scoring and the first offer follow straight away (award.ts).
  */
-export async function closeSheetBidding(sheetId: string): Promise<{ decisions: BidDecision[] } | null> {
+export async function closeSheetBidding(sheetId: string, now = new Date()): Promise<{ decisions: BidDecision[] } | null> {
   const decisions = await evaluateSheetBids(sheetId);
   const { count } = await prisma.poolSheet.updateMany({ where: { id: sheetId, status: SheetStatus.BIDDING }, data: { status: SheetStatus.AWARDING } });
   if (count === 0) return null;
@@ -77,5 +84,7 @@ export async function closeSheetBidding(sheetId: string): Promise<{ decisions: B
     summary: `Bids closed on ${sheet.category} sheet: ${sheet.bids.length} submitted, ${eligible} eligible`,
     metadata: { decisions },
   });
+  // A failure here is recovered by the tick, which starts any AWARDING sheet with no awards.
+  await startAwarding(sheetId, now).catch((err) => console.error('startAwarding failed for sheet', sheetId, err));
   return { decisions };
 }

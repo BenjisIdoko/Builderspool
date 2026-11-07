@@ -7,6 +7,7 @@ import { MaterialImage } from '@/components/material-image';
 import { Money } from '@/components/money';
 import { Badge } from '@/components/ui/badge';
 import { RfqBidForm } from '@/components/seller/rfq-bid-form';
+import { SheetAwardResponse } from '@/components/seller/sheet-award-response';
 
 export const metadata = { title: 'RFQ' };
 
@@ -18,6 +19,15 @@ const BID_STATUS = {
   INELIGIBLE: { label: 'Ruled out', variant: 'danger' },
 } as const;
 
+const CRITERION_LABEL = {
+  PRICE: 'Price',
+  PERFORMANCE: 'Performance',
+  CAPACITY: 'Capacity',
+  DELIVERY: 'Delivery',
+  GEOGRAPHY: 'Geography',
+  RESPONSIVENESS: 'Responsiveness',
+} as const;
+
 // "ABOVE_REFERENCE: Cement bid at ₦950, above the ₦900 reference" -> the sentence after the code.
 const reasonText = (reason: string | null) => (reason ? reason.split(': ').slice(1).join(': ') || reason : null);
 
@@ -27,6 +37,9 @@ export default async function SellerRfqPage({ params }: { params: Promise<{ shee
   if (!sellerId) redirect('/seller/login');
   const rfq = await getRfq(sheetId, sellerId);
   if (!rfq) notFound();
+
+  const award = rfq.myBid?.award ?? null;
+  const offerOpen = award?.open ?? false;
 
   return (
     <div className="mx-auto w-full max-w-7xl px-4 pt-6 pb-16 sm:px-8 sm:pt-8 sm:pb-20 [&>*]:max-w-4xl">
@@ -44,8 +57,31 @@ export default async function SellerRfqPage({ params }: { params: Promise<{ shee
         </span>
       </p>
       <p className="mb-6 text-sm text-muted-foreground">
-        Bids are blind: you cannot see other vendors&apos; prices. Price every item. A price above an item&apos;s reference rules out your whole bid.
+        Bids are blind: you cannot see other vendors&apos; prices. Price every item. A price above an item&apos;s limit rules out your whole bid.
       </p>
+
+      {offerOpen && award?.expiresAt && (
+        <div className="mb-4 rounded-lg border border-cyan/30 bg-pale-blue px-5 py-4">
+          <h2 className="text-heading-sm text-ink">You are rank {award.rank}: this sheet is offered to you</h2>
+          <p className="mt-1 mb-4 text-sm text-ink">
+            Accept to supply every item on this sheet at your bid prices. The offer closes at <strong>{closesText(award.expiresAt)}</strong>; if you do not answer,
+            it passes to the next ranked vendor.
+          </p>
+          <SheetAwardResponse sheetId={rfq.id} awardId={award.id} />
+        </div>
+      )}
+      {award?.status === 'ACCEPTED' && (
+        <p className="mb-4 rounded-md border border-success/25 bg-success-soft px-4 py-3 text-sm text-success">You accepted this sheet as rank {award.rank}. It is yours to supply.</p>
+      )}
+      {award?.status === 'DECLINED' && <p className="mb-4 rounded-md bg-surface px-4 py-3 text-sm text-ink">You declined this offer. It passed to the next ranked vendor.</p>}
+      {award && (award.status === 'EXPIRED' || (award.status === 'OFFERED' && !offerOpen)) && (
+        <p className="mb-4 rounded-md bg-surface px-4 py-3 text-sm text-ink">
+          {award.declineReason ?? 'The offer window ended before it was accepted, so it passed on.'}
+        </p>
+      )}
+      {rfq.myBid && rfq.myBid.status === 'ELIGIBLE' && !award && rfq.status !== 'BIDDING' && (
+        <p className="mb-4 rounded-md bg-surface px-4 py-3 text-sm text-ink">Your bid was eligible but did not rank in the top three, so no offer was made to you.</p>
+      )}
 
       {rfq.myBid && (
         <div className="mb-4 rounded-lg bg-card-alt px-5 py-4">
@@ -63,6 +99,28 @@ export default async function SellerRfqPage({ params }: { params: Promise<{ shee
         </div>
       )}
 
+      {rfq.myBid && rfq.myBid.scores.length > 0 && (
+        <section className="mb-4 rounded-lg bg-card-alt px-5 py-4" aria-labelledby="score-heading">
+          <div className="mb-3 flex flex-wrap items-baseline justify-between gap-2">
+            <h2 id="score-heading" className="text-heading-sm text-ink">How your bid scored</h2>
+            <span className="font-mono tabular-nums text-ink">{rfq.myBid.totalScore?.toFixed(2)} / 100</span>
+          </div>
+          <ul className="divide-y divide-hairline">
+            {rfq.myBid.scores.map((s) => (
+              <li key={s.criterion} className="flex flex-wrap items-baseline justify-between gap-x-4 gap-y-1 py-2.5">
+                <div className="min-w-0 basis-60 flex-1">
+                  <div className="text-sm font-medium text-ink">{CRITERION_LABEL[s.criterion]}</div>
+                  <div className="text-sm text-muted-foreground">{s.reason}</div>
+                </div>
+                <span className="font-mono text-sm tabular-nums text-ink">
+                  {s.points.toFixed(2)} <span className="text-slate">/ {s.weight}</span>
+                </span>
+              </li>
+            ))}
+          </ul>
+        </section>
+      )}
+
       {rfq.canBid ? (
         <RfqBidForm sheetId={rfq.id} lines={rfq.lines} />
       ) : (
@@ -78,7 +136,13 @@ export default async function SellerRfqPage({ params }: { params: Promise<{ shee
                     {l.quantity.toLocaleString('en-NG')} × {l.unit}
                   </div>
                   <div className="mt-0.5 text-sm text-muted-foreground">
-                    {l.referencePrice === null ? 'No reference price' : <>Reference <Money amount={l.referencePrice} /> each</>}
+                    {l.ceiling === null ? (
+                      'No limit set'
+                    ) : (
+                      <>
+                        {l.ceiling.basis === 'REFERENCE' ? 'Reference' : 'Limit (lowest buyer price)'} <Money amount={l.ceiling.price} /> each
+                      </>
+                    )}
                   </div>
                 </div>
                 {l.myPrice !== null && (

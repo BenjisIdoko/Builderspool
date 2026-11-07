@@ -1,7 +1,9 @@
 import { CoverageStatus, SheetBidStatus, SheetStatus } from '@prisma/client';
 import { prisma } from '@/lib/prisma';
 import { getSheetAccess } from '@/lib/sheets/access';
+import { lineCeiling } from '@/lib/sheets/ceiling';
 
+const CRITERION_ORDER = ['PRICE', 'PERFORMANCE', 'CAPACITY', 'DELIVERY', 'GEOGRAPHY', 'RESPONSIVENESS'] as const;
 const MATERIAL_LIVE = { retired: false, needsPriceReview: false } as const;
 
 // Every catalogue category with this seller's registration status for it.
@@ -35,7 +37,7 @@ export async function getSellerRfqs(sellerId: string) {
     include: {
       zone: { select: { name: true } },
       _count: { select: { lines: true } },
-      bids: { where: { sellerId }, select: { status: true, totalAmount: true, ineligibleReason: true } },
+      bids: { where: { sellerId }, select: { status: true, totalAmount: true, ineligibleReason: true, award: { select: { status: true, rank: true } } } },
     },
     orderBy: [{ date: 'desc' }, { bidsCloseAt: 'asc' }],
     take: 60,
@@ -48,7 +50,9 @@ export async function getSellerRfqs(sellerId: string) {
     status: s.status,
     bidsCloseAt: s.bidsCloseAt,
     lineCount: s._count.lines,
-    myBid: s.bids[0] ? { status: s.bids[0].status, totalAmount: Number(s.bids[0].totalAmount), reason: s.bids[0].ineligibleReason } : null,
+    myBid: s.bids[0]
+      ? { status: s.bids[0].status, totalAmount: Number(s.bids[0].totalAmount), reason: s.bids[0].ineligibleReason, award: s.bids[0].award ? { status: s.bids[0].award.status, rank: s.bids[0].award.rank } : null }
+      : null,
   }));
 }
 
@@ -59,8 +63,8 @@ export async function getRfq(sheetId: string, sellerId: string) {
     where: { id: sheetId },
     include: {
       zone: { select: { name: true } },
-      lines: { include: { material: { select: { name: true, unit: true, imageUrl: true, category: true } } }, orderBy: { material: { name: 'asc' } } },
-      bids: { where: { sellerId }, include: { lines: true } },
+      lines: { include: { material: { select: { name: true, unit: true, imageUrl: true, category: true } }, orderItems: { select: { priceLocked: true } } }, orderBy: { material: { name: 'asc' } } },
+      bids: { where: { sellerId }, include: { lines: true, scores: true, award: true } },
     },
   });
   if (!sheet) return null;
@@ -88,10 +92,31 @@ export async function getRfq(sheetId: string, sellerId: string) {
       imageUrl: l.material.imageUrl,
       category: l.material.category,
       quantity: l.totalQuantity,
-      referencePrice: l.referencePrice === null ? null : Number(l.referencePrice),
+      // The most a vendor may bid: the reference, or (no reference) the lowest price a buyer paid.
+      ceiling: sheet.status === SheetStatus.OPEN ? null : lineCeiling(l.referencePrice === null ? null : Number(l.referencePrice), l.orderItems.map((i) => Number(i.priceLocked))),
       myPrice: priceByLine.get(l.id) ?? null,
     })),
-    myBid: myBid ? { status: myBid.status, totalAmount: Number(myBid.totalAmount), reason: myBid.ineligibleReason, submittedAt: myBid.submittedAt } : null,
+    myBid: myBid
+      ? {
+          status: myBid.status,
+          totalAmount: Number(myBid.totalAmount),
+          reason: myBid.ineligibleReason,
+          submittedAt: myBid.submittedAt,
+          totalScore: myBid.totalScore === null ? null : Number(myBid.totalScore),
+          scores: CRITERION_ORDER.map((c) => myBid.scores.find((x) => x.criterion === c)).filter((x): x is NonNullable<typeof x> => !!x).map((x) => ({ criterion: x.criterion, weight: x.weight, points: Number(x.points), reason: x.reason })),
+          // An OFFERED row can outlive its window until the next tick, so the clock decides whether it is still open.
+          award: myBid.award
+            ? {
+                id: myBid.award.id,
+                rank: myBid.award.rank,
+                status: myBid.award.status,
+                expiresAt: myBid.award.expiresAt,
+                declineReason: myBid.award.declineReason,
+                open: myBid.award.status === 'OFFERED' && !!myBid.award.expiresAt && myBid.award.expiresAt.getTime() > now,
+              }
+            : null,
+        }
+      : null,
   };
 }
 
@@ -110,6 +135,7 @@ export async function getAdminSheets() {
         zone: { select: { name: true } },
         lines: { select: { totalQuantity: true, referencePrice: true } },
         bids: { select: { status: true } },
+        awards: { orderBy: { rank: 'asc' }, select: { rank: true, status: true, bid: { select: { seller: { select: { businessName: true, name: true } } } } } },
       },
     }),
   ]);
@@ -128,6 +154,8 @@ export async function getAdminSheets() {
       noReference: s.status === SheetStatus.OPEN ? 0 : s.lines.filter((l) => l.referencePrice === null).length,
       bidCount: s.bids.length,
       eligibleCount: s.bids.filter((b) => b.status === SheetBidStatus.ELIGIBLE).length,
+      cancelReason: s.cancelReason,
+      awards: s.awards.map((a) => ({ rank: a.rank, status: a.status, vendor: a.bid.seller.businessName ?? a.bid.seller.name })),
     })),
   };
 }
