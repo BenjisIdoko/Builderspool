@@ -133,6 +133,8 @@ export async function getRfq(sheetId: string, sellerId: string) {
                 status: myBid.award.status,
                 expiresAt: myBid.award.expiresAt,
                 declineReason: myBid.award.declineReason,
+                // The fixed end of this rank's window: the latest an offer to this vendor could run to.
+                windowEndsAt: myBid.award.rank === 1 ? sheet.rank1EndsAt : myBid.award.rank === 2 ? sheet.rank2EndsAt : sheet.rank3EndsAt,
                 open: myBid.award.status === 'OFFERED' && !!myBid.award.expiresAt && myBid.award.expiresAt.getTime() > now,
               }
             : null,

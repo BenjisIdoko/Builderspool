@@ -70,6 +70,15 @@ export default async function SellerRfqPage({ params }: { params: Promise<{ shee
           <SheetAwardResponse sheetId={rfq.id} awardId={award.id} />
         </div>
       )}
+      {award?.status === 'WAITING' && (
+        <div className="mb-4 rounded-lg bg-card-alt px-5 py-4">
+          <h2 className="text-heading-sm text-ink">You are rank {award.rank}: waiting for your turn</h2>
+          <p className="mt-1 text-sm text-muted-foreground">
+            Your bid is one of the top three. The sheet is offered to you only if the vendors ranked above you decline or do not answer in time. If it reaches you, you
+            will get an alert and can accept until no later than <strong className="text-ink">{closesText(award.windowEndsAt)}</strong>. Nothing is needed from you until then.
+          </p>
+        </div>
+      )}
       {award?.status === 'ACCEPTED' && (
         <p className="mb-4 rounded-md border border-success/25 bg-success-soft px-4 py-3 text-sm text-success">You accepted this sheet as rank {award.rank}. It is yours to supply.</p>
       )}

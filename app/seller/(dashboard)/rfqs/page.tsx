@@ -60,6 +60,7 @@ export default async function SellerRfqsPage() {
                         <Badge variant={status.variant}>{status.label}</Badge>
                         {r.myBid && <Badge variant={BID_STATUS[r.myBid.status].variant}>{BID_STATUS[r.myBid.status].label}</Badge>}
                         {r.myBid?.award?.status === 'OFFERED' && <Badge variant="warning">Offer waiting: rank {r.myBid.award.rank}</Badge>}
+                        {r.myBid?.award?.status === 'WAITING' && <Badge variant="outline">Rank {r.myBid.award.rank}: waiting your turn</Badge>}
                         {r.myBid?.award?.status === 'ACCEPTED' && <Badge variant="success">You won this sheet</Badge>}
                       </div>
                       <div className="mt-1 flex flex-wrap items-center gap-x-4 gap-y-1 text-sm text-muted-foreground">

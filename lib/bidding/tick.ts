@@ -92,14 +92,12 @@ export async function advanceCycles(now = new Date()): Promise<TickReport> {
 
 let lastNudge = 0;
 
-// A cheap check any page can call: if a cycle deadline has passed, advance.
-// Throttled to once a minute per server instance. This keeps the timeline
-// honest on hosting plans that only allow a daily cron.
-export async function maybeAdvanceCycles(): Promise<void> {
-  const now = new Date();
-  if (now.getTime() - lastNudge < 60_000) return;
-  lastNudge = now.getTime();
-
+/**
+ * Advances every deadline that has passed, but only if something is due (a few cheap
+ * counts first). Not throttled: this is what a per-minute external trigger calls, and
+ * it is as safe to run twice as advanceCycles itself. Returns whether it advanced.
+ */
+export async function advanceIfDue(now = new Date()): Promise<boolean> {
   const due = await prisma.bidCycle.count({
     where: {
       OR: [
@@ -116,5 +114,17 @@ export async function maybeAdvanceCycles(): Promise<void> {
     where: { status: DirectStatus.AWAITING_ACCEPT, acceptDeadlineAt: { lte: now } },
   });
   const dueSheets = await countDueSheets(now);
-  if (due + overdueAwards + overdueDirect + dueSheets > 0) await advanceCycles(now);
+  if (due + overdueAwards + overdueDirect + dueSheets === 0) return false;
+  await advanceCycles(now);
+  return true;
+}
+
+// A cheap check any page can call: if a deadline has passed, advance. Throttled to
+// once a minute per server instance. The per-minute trigger (/api/pool/tick) is the
+// reliable clock; this keeps things moving between its calls.
+export async function maybeAdvanceCycles(): Promise<void> {
+  const now = new Date();
+  if (now.getTime() - lastNudge < 60_000) return;
+  lastNudge = now.getTime();
+  await advanceIfDue(now);
 }
