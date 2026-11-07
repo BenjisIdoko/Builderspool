@@ -1,6 +1,6 @@
 import { prisma } from '../prisma';
 import { WalletEntryState } from '@prisma/client';
-import type { Allocation, Bid, OrderItem, Order, Prisma } from '@prisma/client';
+import type { Allocation, Bid, OrderItem, Order, Prisma, SheetFulfilment } from '@prisma/client';
 import { getSetting } from '../settings';
 import { koboToNaira, nairaToKobo, splitKobo } from '../money';
 import { postLedgerEntry } from '../ledger';
@@ -57,11 +57,54 @@ export async function creditSavingsForAllocation(
   return entry;
 }
 
+/**
+ * The same 50/50 savings split for a category-sheet line, called in the same
+ * transaction as its GRN. The buyer paid the locked price; the platform paid the
+ * winning vendor's bid price; any saving is shared (odd kobo to the buyer). Nothing
+ * is credited, and nothing charged back, when the bid ended up at or above the price paid.
+ */
+export async function creditSavingsForSheetFulfilment(
+  fulfilment: SheetFulfilment & { orderItem: OrderItem & { order: Order } },
+  db: Prisma.TransactionClient | typeof prisma = prisma,
+) {
+  const referenceKobo = nairaToKobo(fulfilment.orderItem.priceLocked) * fulfilment.quantity;
+  const actualKobo = nairaToKobo(fulfilment.unitPrice) * fulfilment.quantity;
+  const grossKobo = referenceKobo - actualKobo;
+  if (grossKobo <= 0) return null;
+
+  const buyerSharePct = await getSetting<number>('fees.poolSavingsBuyerSharePct');
+  const { first: buyerKobo, second: platformKobo } = splitKobo(grossKobo, buyerSharePct);
+  const buyerId = fulfilment.orderItem.order.buyerId;
+
+  const entry = await db.savingsWalletEntry.create({
+    data: {
+      buyerId,
+      sheetFulfilmentId: fulfilment.id,
+      referenceValue: koboToNaira(referenceKobo),
+      actualValue: koboToNaira(actualKobo),
+      grossSaving: koboToNaira(grossKobo),
+      buyerShare: koboToNaira(buyerKobo),
+    },
+  });
+
+  const common = { orderId: fulfilment.orderItem.orderId, orderItemId: fulfilment.orderItemId };
+  await postLedgerEntry(
+    { ...common, account: 'BUYER_SAVINGS_CREDIT', amountKobo: buyerKobo, entryKey: `savings-credit:sheet:${fulfilment.id}`, memo: 'Buyer share of verified Pool & Save saving', userId: buyerId },
+    db,
+  );
+  await postLedgerEntry(
+    { ...common, account: 'PLATFORM_SAVINGS_SHARE', amountKobo: platformKobo, entryKey: `savings-platform:sheet:${fulfilment.id}`, memo: 'BuildersPool share of verified Pool & Save saving' },
+    db,
+  );
+  return entry;
+}
+
 export async function getSavingsWalletForBuyer(buyerId: string) {
   const entries = await prisma.savingsWalletEntry.findMany({
     where: { buyerId },
     include: {
       allocation: { include: { bid: { include: { material: true } } } },
+      sheetFulfilment: { include: { orderItem: { include: { material: true } } } },
     },
     orderBy: { createdAt: 'desc' },
   });
@@ -96,6 +139,7 @@ export async function getSavingsForAdmin() {
     include: {
       buyer: true,
       allocation: { include: { bid: { include: { material: true } } } },
+      sheetFulfilment: { include: { orderItem: { include: { material: true } } } },
     },
     orderBy: { createdAt: 'desc' },
   });

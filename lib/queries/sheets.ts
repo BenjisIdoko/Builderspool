@@ -73,6 +73,14 @@ export async function getRfq(sheetId: string, sellerId: string) {
   const myBid = sheet.bids[0] ?? null;
   if (!access.ok && !myBid) return null;
 
+  const supply = myBid
+    ? await prisma.sheetFulfilment.findMany({
+        where: { sheetId, sellerId },
+        include: { orderItem: { include: { material: { select: { name: true, unit: true } }, fulfillmentCenter: { select: { name: true, address: true } } } } },
+        orderBy: { createdAt: 'asc' },
+      })
+    : [];
+
   const now = Date.now();
   const open = sheet.status === SheetStatus.BIDDING && now < sheet.bidsCloseAt.getTime();
   const priceByLine = new Map((myBid?.lines ?? []).map((l) => [l.lineId, Number(l.unitPrice)]));
@@ -95,6 +103,19 @@ export async function getRfq(sheetId: string, sellerId: string) {
       // The most a vendor may bid: the reference, or (no reference) the lowest price a buyer paid.
       ceiling: sheet.status === SheetStatus.OPEN ? null : lineCeiling(l.referencePrice === null ? null : Number(l.referencePrice), l.orderItems.map((i) => Number(i.priceLocked))),
       myPrice: priceByLine.get(l.id) ?? null,
+    })),
+    // What the winning vendor must supply, line by line. Never includes who the buyer is.
+    supply: supply.map((f) => ({
+      id: f.id,
+      material: f.orderItem.material.name,
+      unit: f.orderItem.material.unit,
+      quantity: f.quantity,
+      unitPrice: Number(f.unitPrice),
+      status: f.status,
+      payoutStatus: f.payoutStatus,
+      grnNumber: f.grnNumber,
+      center: f.orderItem.fulfillmentCenter ? { name: f.orderItem.fulfillmentCenter.name, address: f.orderItem.fulfillmentCenter.address } : null,
+      failReason: f.failReason,
     })),
     myBid: myBid
       ? {
@@ -158,4 +179,33 @@ export async function getAdminSheets() {
       awards: s.awards.map((a) => ({ rank: a.rank, status: a.status, vendor: a.bid.seller.businessName ?? a.bid.seller.name })),
     })),
   };
+}
+
+// Admin: fulfilments still awaiting goods, or received but not yet paid, newest first.
+export async function getAdminSheetFulfilments() {
+  const rows = await prisma.sheetFulfilment.findMany({
+    where: { OR: [{ status: 'PENDING' }, { status: 'FULFILLED', payoutStatus: { not: 'PAID' } }] },
+    orderBy: { createdAt: 'desc' },
+    take: 100,
+    include: {
+      seller: { select: { businessName: true, name: true } },
+      sheet: { select: { category: true, zone: { select: { name: true } } } },
+      orderItem: { select: { material: { select: { name: true, unit: true } }, fulfillmentCenter: { select: { name: true } } } },
+    },
+  });
+  return rows.map((f) => ({
+    id: f.id,
+    material: f.orderItem.material.name,
+    unit: f.orderItem.material.unit,
+    quantity: f.quantity,
+    amount: Number(f.unitPrice) * f.quantity,
+    vendor: f.seller.businessName ?? f.seller.name,
+    category: f.sheet.category,
+    zone: f.sheet.zone.name,
+    center: f.orderItem.fulfillmentCenter?.name ?? null,
+    status: f.status,
+    payoutStatus: f.payoutStatus,
+    holdReason: f.holdReason,
+    grnNumber: f.grnNumber,
+  }));
 }

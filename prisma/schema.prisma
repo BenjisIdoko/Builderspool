@@ -202,6 +202,7 @@ model User {
   directFulfilments       DirectFulfilment[]
   categoryRegistrations   SellerCategory[]
   sheetBids               SheetBid[]
+  sheetFulfilments        SheetFulfilment[]
 }
 
 // One row per requested reset — tokenHash is the only thing ever stored
@@ -598,6 +599,7 @@ model OrderItem {
   allocations       Allocation[]
   dispatch          Dispatch?
   direct            DirectFulfilment?
+  sheetFulfilment   SheetFulfilment?
 }
 
 // One per material, per region (null = national), per day.
@@ -665,6 +667,8 @@ enum NotificationType {
   CYCLE_CLOSING_SOON
   BID_WON
   BID_LOST
+  SHEET_OPENED // a category sheet is open for bids
+  SHEET_OFFERED // the vendor's ranked bid is offered the whole sheet
 }
 
 // Real, event-driven in-app alerts — created only from an actual bidding
@@ -741,7 +745,10 @@ enum WalletEntryState {
 model SavingsWalletEntry {
   id                    String           @id @default(cuid())
   buyerId               String
-  allocationId          String           @unique
+  // Exactly one of allocationId (older per-material pools) and sheetFulfilmentId
+  // (category sheets) is set; a CHECK constraint in the migration enforces it.
+  allocationId          String?          @unique
+  sheetFulfilmentId     String?          @unique
   referenceValue        Decimal          @db.Decimal(12, 2) // what the buyer actually paid for this quantity (locked checkout price)
   actualValue           Decimal          @db.Decimal(12, 2) // what the platform actually paid the winning seller
   grossSaving           Decimal          @db.Decimal(12, 2) // referenceValue - actualValue, always > 0
@@ -752,8 +759,9 @@ model SavingsWalletEntry {
   paymentReference      String?          @unique // set when marked PAID — same manual-ops pattern as seller payoutReference, no live payment rail exists yet
   createdAt             DateTime         @default(now())
 
-  buyer      User       @relation(fields: [buyerId], references: [id])
-  allocation Allocation @relation(fields: [allocationId], references: [id])
+  buyer           User             @relation(fields: [buyerId], references: [id])
+  allocation      Allocation?      @relation(fields: [allocationId], references: [id], onDelete: Restrict)
+  sheetFulfilment SheetFulfilment? @relation(fields: [sheetFulfilmentId], references: [id], onDelete: Restrict)
 
   @@index([buyerId, state])
 }
@@ -1105,12 +1113,16 @@ model PoolSheet {
   awardedAt    DateTime?
   cancelledAt  DateTime?
   cancelReason String?
+  // When the outcome was carried out: lines handed to the winning vendor, or sent
+  // back to the seller each buyer picked (or refunded). Set once; makes settling safe to repeat.
+  settledAt    DateTime?
   createdAt    DateTime  @default(now())
 
-  zone   DeliveryZone    @relation(fields: [zoneId], references: [id])
-  lines  PoolSheetLine[]
-  bids   SheetBid[]
-  awards SheetAward[]
+  zone        DeliveryZone      @relation(fields: [zoneId], references: [id])
+  lines       PoolSheetLine[]
+  bids        SheetBid[]
+  awards      SheetAward[]
+  fulfilments SheetFulfilment[]
 
   @@unique([category, zoneId, date])
   @@index([status, poolClosesAt])
@@ -1150,11 +1162,12 @@ model SheetBid {
   totalScore       Decimal?       @db.Decimal(6, 2)
   scoredAt         DateTime?
 
-  sheet  PoolSheet       @relation(fields: [sheetId], references: [id])
-  seller User            @relation(fields: [sellerId], references: [id])
-  lines  SheetBidLine[]
-  scores SheetBidScore[]
-  award  SheetAward?
+  sheet       PoolSheet         @relation(fields: [sheetId], references: [id])
+  seller      User              @relation(fields: [sellerId], references: [id])
+  lines       SheetBidLine[]
+  scores      SheetBidScore[]
+  award       SheetAward?
+  fulfilments SheetFulfilment[]
 
   @@unique([sheetId, sellerId])
 }
@@ -1225,4 +1238,49 @@ model SheetAward {
 
   @@unique([sheetId, rank])
   @@index([status, expiresAt])
+}
+
+// ─── Carrying out a sheet's outcome ──────────────────────────────────────────
+// A vendor who accepted a sheet supplies every pooled order line on it at their
+// own bid price. One row per order line, created when the sheet is awarded.
+// The payout fields reuse PayoutStatus so escrow, GRN and payout screens read the
+// same lifecycle as other lines. The seller is owed bid price x quantity, and only
+// after the fulfilment centre receives the goods and the quality check passes
+// (the GRN). Lines on a cancelled sheet do not use this table: they go back to the
+// seller each buyer picked through Buy Direct, or are refunded.
+
+enum SheetFulfilmentStatus {
+  PENDING // awarded; goods not yet received
+  FULFILLED // received and quality checked (GRN issued)
+  FAILED // ops marked that the vendor did not supply it; the line is sent back or refunded
+}
+
+model SheetFulfilment {
+  id              String                @id @default(cuid())
+  orderItemId     String                @unique
+  sheetId         String
+  bidId           String
+  sellerId        String // the winning vendor's User id
+  quantity        Int
+  unitPrice       Decimal               @db.Decimal(12, 2) // the vendor's bid price for this item, fixed at award
+  status          SheetFulfilmentStatus @default(PENDING)
+  receivedAt      DateTime?
+  grnNumber       String?               @unique
+  payoutStatus    PayoutStatus          @default(PENDING_GRN)
+  payoutReference String?               @unique
+  paidAt          DateTime?
+  holdReason      String?
+  failedAt        DateTime?
+  failReason      String?
+  createdAt       DateTime              @default(now())
+  updatedAt       DateTime              @updatedAt
+
+  orderItem          OrderItem           @relation(fields: [orderItemId], references: [id])
+  sheet              PoolSheet           @relation(fields: [sheetId], references: [id])
+  bid                SheetBid            @relation(fields: [bidId], references: [id])
+  seller             User                @relation(fields: [sellerId], references: [id])
+  savingsWalletEntry SavingsWalletEntry?
+
+  @@index([sellerId, status])
+  @@index([sheetId])
 }

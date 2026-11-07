@@ -99,6 +99,46 @@ export default async function SellerRfqPage({ params }: { params: Promise<{ shee
         </div>
       )}
 
+      {award?.status === 'ACCEPTED' && rfq.supply.length > 0 && (
+        <section className="mb-4 rounded-lg bg-card-alt px-5 py-4" aria-labelledby="supply-heading">
+          <div className="mb-3 flex flex-wrap items-baseline justify-between gap-2">
+            <h2 id="supply-heading" className="text-heading-sm text-ink">What you supply</h2>
+            <span className="font-mono tabular-nums text-ink">
+              <Money amount={rfq.supply.reduce((sum, l) => sum + l.unitPrice * l.quantity, 0)} />
+            </span>
+          </div>
+          <p className="mb-3 text-sm text-muted-foreground">
+            Send these to the fulfilment centre. You are paid at your bid price once the centre has received the goods and the quality check has passed.
+          </p>
+          <ul className="divide-y divide-hairline">
+            {rfq.supply.map((l) => (
+              <li key={l.id} className="flex flex-wrap items-baseline justify-between gap-x-4 gap-y-1 py-2.5">
+                <div className="min-w-0 basis-60 flex-1">
+                  <div className="text-sm font-medium text-ink">
+                    {l.material} <span className="font-normal text-slate">× {l.quantity.toLocaleString('en-NG')} {l.unit}</span>
+                  </div>
+                  {l.center && (
+                    <div className="text-sm text-muted-foreground">
+                      Deliver to {l.center.name}, {l.center.address}
+                    </div>
+                  )}
+                  {l.status === 'FAILED' && <div className="text-sm text-danger">Marked as not supplied{l.failReason ? `: ${l.failReason}` : ''}</div>}
+                </div>
+                <div className="text-right">
+                  <div className="font-mono text-sm tabular-nums text-ink">
+                    <Money amount={l.unitPrice * l.quantity} />
+                  </div>
+                  <div className="text-caption text-slate">
+                    {l.status === 'PENDING' ? 'Awaiting goods' : l.status === 'FAILED' ? 'Not supplied' : l.payoutStatus === 'PAID' ? 'Paid' : l.payoutStatus === 'ON_HOLD' ? 'Received · payout on hold' : 'Received · payment due'}
+                    {l.grnNumber ? ` · ${l.grnNumber}` : ''}
+                  </div>
+                </div>
+              </li>
+            ))}
+          </ul>
+        </section>
+      )}
+
       {rfq.myBid && rfq.myBid.scores.length > 0 && (
         <section className="mb-4 rounded-lg bg-card-alt px-5 py-4" aria-labelledby="score-heading">
           <div className="mb-3 flex flex-wrap items-baseline justify-between gap-2">

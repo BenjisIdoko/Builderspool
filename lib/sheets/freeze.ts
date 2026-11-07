@@ -2,6 +2,7 @@ import { SheetStatus } from '@prisma/client';
 import { prisma } from '@/lib/prisma';
 import { recordAudit } from '@/lib/audit';
 import { referencePriceFor } from './reference';
+import { notifySheetOpened } from './notify';
 
 /**
  * Pool close: OPEN -> BIDDING. Fixes each line's total quantity (recounted from
@@ -43,5 +44,7 @@ export async function freezeSheet(sheetId: string, now = new Date()): Promise<bo
     summary: `Froze ${sheet.category} sheet: ${priced.length} line(s), ${priced.filter((p) => p.reference === null).length} without a reference price`,
     metadata: { lines: priced.map((p) => ({ material: p.name, quantity: p.quantity, referencePrice: p.reference })) },
   });
+  const zone = await prisma.deliveryZone.findUnique({ where: { id: sheet.zoneId }, select: { name: true } });
+  await notifySheetOpened(sheet, zone?.name ?? 'your zone');
   return true;
 }

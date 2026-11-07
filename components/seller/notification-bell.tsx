@@ -24,6 +24,8 @@ const TYPE_ICON: Record<NotificationType, React.ComponentType<{ className?: stri
   CYCLE_CLOSING_SOON: ClockCountdownIcon,
   BID_WON: TrophyIcon,
   BID_LOST: XCircleIcon,
+  SHEET_OPENED: PackageIcon,
+  SHEET_OFFERED: TrophyIcon,
 };
 
 const TYPE_TONE: Record<NotificationType, string> = {
@@ -31,6 +33,8 @@ const TYPE_TONE: Record<NotificationType, string> = {
   CYCLE_CLOSING_SOON: 'bg-warning-soft text-warning-text',
   BID_WON: 'bg-success-soft text-success',
   BID_LOST: 'bg-danger-soft text-danger',
+  SHEET_OPENED: 'bg-pale-blue text-cyan-text',
+  SHEET_OFFERED: 'bg-success-soft text-success',
 };
 
 function timeAgo(date: Date) {

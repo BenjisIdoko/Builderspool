@@ -112,7 +112,7 @@ export default async function AccountPage() {
               <div key={entry.id} className="flex items-center justify-between gap-4 px-5 py-3.5">
                 <div className="min-w-0">
                   <div className="truncate text-sm font-semibold text-ink">
-                    {entry.allocation.bid.material.name}
+                    {entry.allocation?.bid.material.name ?? entry.sheetFulfilment?.orderItem.material.name}
                   </div>
                   <div className="mt-0.5 text-xs text-muted-foreground">
                     {formatNaira(Number(entry.referenceValue))} paid → {formatNaira(Number(entry.actualValue))}{' '}

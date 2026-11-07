@@ -135,7 +135,7 @@ export default async function AdminSavingsPage({
                     <div className="max-w-40 truncate">{entry.buyer.businessName ?? entry.buyer.name}</div>
                   </TableCell>
                   <TableCell className="py-3 text-ink">
-                    <div className="max-w-40 truncate">{entry.allocation.bid.material.name}</div>
+                    <div className="max-w-40 truncate">{entry.allocation?.bid.material.name ?? entry.sheetFulfilment?.orderItem.material.name}</div>
                   </TableCell>
                   <TableCell className="py-3 text-ink">
                     <div className="text-xs text-muted-foreground">

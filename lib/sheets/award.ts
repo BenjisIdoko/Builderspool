@@ -4,6 +4,8 @@ import { recordAudit } from '@/lib/audit';
 import { getSettings } from '@/lib/settings';
 import { completedOrderCounts, scoringParamsFromSettings } from '@/lib/bidding/award';
 import { getSheetAccess } from './access';
+import { notifySheetOffered } from './notify';
+import { settleSheet } from './settle';
 import { scoreSheetBids, type SheetScoreCandidate, type SheetScoringParams } from './scoring';
 
 const RANKS = 3;
@@ -32,6 +34,8 @@ export async function cancelSheet(sheetId: string, reason: string, now = new Dat
   const { count } = await prisma.poolSheet.updateMany({ where: { id: sheetId, status: SheetStatus.AWARDING }, data: { status: SheetStatus.CANCELLED, cancelledAt: now, cancelReason: reason } });
   if (count === 0) return false;
   await recordAudit({ actor: null, action: 'sheet.cancelled', entityType: 'PoolSheet', entityId: sheetId, summary: `Sheet cancelled: ${reason}`, metadata: { reason } });
+  // Send each line back to the seller the buyer picked, or refund it. A failure here is retried by the tick.
+  await settleSheet(sheetId, now).catch((err) => console.error('settleSheet failed for cancelled sheet', sheetId, err));
   return true;
 }
 
@@ -144,6 +148,7 @@ export async function startAwarding(sheetId: string, now = new Date()): Promise<
     skipDuplicates: true,
   });
   if (count > 0) {
+    await notifySheetOffered(top[0].sellerId, sheet, 1, windowEnd(sheet, 1));
     await recordAudit({
       actor: null,
       action: 'sheet.award_offered',
@@ -174,6 +179,8 @@ export async function offerNextRank(sheetId: string, now = new Date()): Promise<
     data: { status: SheetAwardStatus.OFFERED, offeredAt: now, expiresAt: windowEnd(sheet, next.rank) },
   });
   if (count === 0) return 'none';
+  const nextBid = await prisma.sheetBid.findUniqueOrThrow({ where: { id: next.bidId }, select: { sellerId: true } });
+  await notifySheetOffered(nextBid.sellerId, sheet, next.rank, windowEnd(sheet, next.rank));
   await recordAudit({ actor: null, action: 'sheet.award_offered', entityType: 'SheetAward', entityId: next.id, summary: `Offered ${sheet.category} sheet to rank ${next.rank}`, metadata: { sheetId, rank: next.rank } });
   return 'offered';
 }
@@ -206,6 +213,8 @@ export async function acceptSheetAward(input: { awardId: string; sellerId: strin
     summary: `Accepted ${award.sheet.category} sheet as rank ${award.rank}`,
     metadata: { sheetId: award.sheetId, bidId: award.bidId, rank: award.rank },
   });
+  // Hand every pooled line to this vendor. A failure here is retried by the tick.
+  await settleSheet(award.sheetId, now).catch((err) => console.error('settleSheet failed for awarded sheet', award.sheetId, err));
   return { ok: true };
 }
 
