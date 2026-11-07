@@ -2,6 +2,7 @@ import { prisma } from '../prisma';
 import { AllocationStatus, CycleStatus, DirectStatus } from '@prisma/client';
 import { notifyCycleOpened } from '../notifications';
 import { expireOverdueDirect } from '../direct';
+import { advanceSheets, countDueSheets } from '../sheets/tick';
 import { awardCycle } from './award';
 import { expireOverdueAllocations, finalizeCycleFallback, type FallbackReport } from './fallback';
 import type { CycleCloseReport } from './types';
@@ -12,6 +13,8 @@ export interface TickReport {
   expiredAwards: number;
   expiredDirect: number;
   fallbacks: FallbackReport[];
+  sheetsFrozen: string[];
+  sheetsClosed: string[];
 }
 
 // Moves a cycle OPEN -> BIDDING: demand is frozen, the RFQ is issued and
@@ -46,7 +49,7 @@ export async function closeAndAwardCycle(cycleId: string): Promise<CycleCloseRep
  * page-load nudge, admin button): each stage is a compare-and-swap.
  */
 export async function advanceCycles(now = new Date()): Promise<TickReport> {
-  const report: TickReport = { frozen: [], awarded: [], expiredAwards: 0, expiredDirect: 0, fallbacks: [] };
+  const report: TickReport = { frozen: [], awarded: [], expiredAwards: 0, expiredDirect: 0, fallbacks: [], sheetsFrozen: [], sheetsClosed: [] };
 
   const toFreeze = await prisma.bidCycle.findMany({
     where: { status: CycleStatus.OPEN, poolClosesAt: { lte: now } },
@@ -79,6 +82,11 @@ export async function advanceCycles(now = new Date()): Promise<TickReport> {
     if (result) report.fallbacks.push(result);
   }
 
+  // Category sheets run on their own clock; each stage is its own compare-and-swap.
+  const sheets = await advanceSheets(now);
+  report.sheetsFrozen = sheets.frozen;
+  report.sheetsClosed = sheets.closed;
+
   return report;
 }
 
@@ -107,5 +115,6 @@ export async function maybeAdvanceCycles(): Promise<void> {
   const overdueDirect = await prisma.directFulfilment.count({
     where: { status: DirectStatus.AWAITING_ACCEPT, acceptDeadlineAt: { lte: now } },
   });
-  if (due + overdueAwards + overdueDirect > 0) await advanceCycles(now);
+  const dueSheets = await countDueSheets(now);
+  if (due + overdueAwards + overdueDirect + dueSheets > 0) await advanceCycles(now);
 }

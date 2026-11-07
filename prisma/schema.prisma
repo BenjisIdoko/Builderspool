@@ -200,6 +200,8 @@ model User {
   zoneCoverage            SellerZoneCoverage[]
   listings                SellerListing[]
   directFulfilments       DirectFulfilment[]
+  categoryRegistrations   SellerCategory[]
+  sheetBids               SheetBid[]
 }
 
 // One row per requested reset — tokenHash is the only thing ever stored
@@ -482,6 +484,7 @@ model Material {
   priceSnapshots PriceSnapshot[]
   priceAlerts    PriceAlert[]
   listings       SellerListing[]
+  sheetLines     PoolSheetLine[]
 }
 
 // A record of what catalogPrice was at a point in time — buyer-safe price
@@ -581,6 +584,9 @@ model OrderItem {
   // on lines bought before any seller had a live listing.
   listingId          String?
   mode               PurchaseMode @default(POOL)
+  // The sheet line this pooled line was grouped into (category x zone x day).
+  // Null for Buy Direct lines and for lines pooled under the older per-material cycles.
+  sheetLineId        String?
   createdAt          DateTime     @default(now())
 
   order             Order              @relation(fields: [orderId], references: [id])
@@ -588,6 +594,7 @@ model OrderItem {
   material          Material           @relation(fields: [materialId], references: [id])
   fulfillmentCenter FulfillmentCenter? @relation(fields: [fulfilmentCenterId], references: [id])
   bidCycle          BidCycle?          @relation(fields: [bidCycleId], references: [id])
+  sheetLine         PoolSheetLine?     @relation(fields: [sheetLineId], references: [id])
   allocations       Allocation[]
   dispatch          Dispatch?
   direct            DirectFulfilment?
@@ -903,6 +910,7 @@ model DeliveryZone {
   localities Locality[]
   coverage   SellerZoneCoverage[]
   orders     Order[]
+  sheets     PoolSheet[]
 }
 
 enum CoverageStatus {
@@ -1039,4 +1047,120 @@ model DirectFulfilment {
 
   @@index([sellerId, status])
   @@index([status, acceptDeadlineAt])
+}
+
+// ─── Pool & Save sheets (docs/floot-port-notes.md 1c) ────────────────────────
+// The founder's model: pooled lines are grouped by category and delivery zone
+// into one RFQ sheet per day. Vendors registered for the category bid on every
+// line; the whole sheet is awarded to one vendor. These tables run alongside the
+// older per-material BidCycle flow, which keeps serving pools already in flight.
+
+enum SheetStatus {
+  OPEN // collecting lines until pool close
+  BIDDING // frozen: reference prices fixed, vendors may bid
+  AWARDING // bids closed; awards are offered rank by rank
+  AWARDED // a vendor accepted the sheet
+  CANCELLED // no vendor accepted (or none eligible): lines revert or are refunded
+}
+
+enum SheetBidStatus {
+  SUBMITTED
+  ELIGIBLE
+  INELIGIBLE
+}
+
+// A vendor registered to bid for a category. Ops approve, like zone coverage.
+model SellerCategory {
+  id          String         @id @default(cuid())
+  sellerId    String // the seller's User id
+  category    String // Material.category
+  status      CoverageStatus @default(PENDING)
+  decidedAt   DateTime?
+  decidedById String?
+  createdAt   DateTime       @default(now())
+
+  seller User @relation(fields: [sellerId], references: [id])
+
+  @@unique([sellerId, category])
+  @@index([category, status])
+}
+
+// One per category, delivery zone and day.
+model PoolSheet {
+  id       String      @id @default(cuid())
+  category String // Material.category
+  zoneId   String
+  date     DateTime    @db.Date
+  status   SheetStatus @default(OPEN)
+
+  // The day's timeline, set from Admin > Settings in Africa/Lagos time when the
+  // sheet is created: pool close, bids close, and the end of each one-hour accept
+  // window (rank 1, 2, 3). The last window end is the final result time.
+  poolClosesAt DateTime
+  bidsCloseAt  DateTime
+  rank1EndsAt  DateTime
+  rank2EndsAt  DateTime
+  rank3EndsAt  DateTime
+  frozenAt     DateTime? // when the reference prices were fixed
+  awardedAt    DateTime?
+  cancelledAt  DateTime?
+  cancelReason String?
+  createdAt    DateTime  @default(now())
+
+  zone  DeliveryZone    @relation(fields: [zoneId], references: [id])
+  lines PoolSheetLine[]
+  bids  SheetBid[]
+
+  @@unique([category, zoneId, date])
+  @@index([status, poolClosesAt])
+}
+
+// One per material on a sheet.
+model PoolSheetLine {
+  id             String   @id @default(cuid())
+  sheetId        String
+  materialId     String
+  // Total pooled quantity; kept in step as lines join, final once frozen.
+  totalQuantity  Int      @default(0)
+  // The lowest live listing price among sellers serving the sheet's zone,
+  // fixed at pool close before bidding starts. Null if no seller listed it.
+  referencePrice Decimal? @db.Decimal(12, 2)
+
+  sheet      PoolSheet      @relation(fields: [sheetId], references: [id])
+  material   Material       @relation(fields: [materialId], references: [id])
+  orderItems OrderItem[]
+  bidLines   SheetBidLine[]
+
+  @@unique([sheetId, materialId])
+}
+
+// A vendor's one submission on a sheet: a price for every line.
+model SheetBid {
+  id               String         @id @default(cuid())
+  sheetId          String
+  sellerId         String
+  status           SheetBidStatus @default(SUBMITTED)
+  // Why an otherwise-submitted bid was excluded (e.g. ABOVE_REFERENCE,
+  // OUTSIDE_ZONE, NOT_REGISTERED), so it can be explained to the vendor.
+  ineligibleReason String?
+  totalAmount      Decimal        @db.Decimal(14, 2) // sum of price x quantity over all lines
+  submittedAt      DateTime       @default(now())
+
+  sheet  PoolSheet      @relation(fields: [sheetId], references: [id])
+  seller User           @relation(fields: [sellerId], references: [id])
+  lines  SheetBidLine[]
+
+  @@unique([sheetId, sellerId])
+}
+
+model SheetBidLine {
+  id        String  @id @default(cuid())
+  bidId     String
+  lineId    String
+  unitPrice Decimal @db.Decimal(12, 2)
+
+  bid  SheetBid      @relation(fields: [bidId], references: [id], onDelete: Cascade)
+  line PoolSheetLine @relation(fields: [lineId], references: [id])
+
+  @@unique([bidId, lineId])
 }

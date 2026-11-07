@@ -15,13 +15,19 @@ export interface SettingDefinition {
   max?: number;
 }
 
-export type SettingGroupId = 'cycle' | 'scoring' | 'pool' | 'fees' | 'money' | 'accounts';
+export type SettingGroupId = 'cycle' | 'sheets' | 'scoring' | 'pool' | 'fees' | 'money' | 'accounts';
 
 export const SETTING_GROUPS: { id: SettingGroupId; title: string; description: string }[] = [
   {
     id: 'cycle',
     title: 'Pool & Save daily cycle',
     description: 'Times are Africa/Lagos. Each must come after the one before it.',
+  },
+  {
+    id: 'sheets',
+    title: 'Category sheets (new pooling engine)',
+    description:
+      'Orders pool by category and delivery zone. Times are Africa/Lagos. Bids close plus three accept windows must equal the final result time.',
   },
   {
     id: 'scoring',
@@ -39,6 +45,12 @@ export const SETTING_DEFINITIONS: SettingDefinition[] = [
   { key: 'cycle.bidCloseTime', label: 'Blind bidding closes (scoring and award run then)', group: 'cycle', type: 'time', default: '18:00' },
   { key: 'cycle.acceptDeadlineTime', label: 'Unaccepted awards pass to next-ranked bid', group: 'cycle', type: 'time', default: '19:00' },
   { key: 'cycle.fallbackTime', label: 'Final result (unfilled lines marked unsuccessful and refunded)', group: 'cycle', type: 'time', default: '19:50' },
+
+  { key: 'sheets.enabled', label: 'Pool new orders onto category sheets', group: 'sheets', type: 'bool', default: false, help: 'Off: paid pool orders use the older per-material cycles. Leave off until the sheet engine is complete; sheets already open keep running either way.' },
+  { key: 'sheets.poolCloseTime', label: 'Pool closes (demand frozen, reference prices fixed)', group: 'sheets', type: 'time', default: '12:00' },
+  { key: 'sheets.bidCloseTime', label: 'Bids close (bids checked, awards start)', group: 'sheets', type: 'time', default: '15:00' },
+  { key: 'sheets.acceptWindowMinutes', label: 'Minutes each ranked vendor has to accept', group: 'sheets', type: 'int', default: 60, min: 15, max: 240, help: 'Rank 1, then rank 2, then rank 3, one window each.' },
+  { key: 'sheets.finalTime', label: 'Final result (unaccepted lines revert or refund)', group: 'sheets', type: 'time', default: '18:00', help: 'Must equal bids close plus three accept windows.' },
 
   { key: 'scoring.priceWeight', label: 'Landed price (unit + delivery)', group: 'scoring', type: 'int', default: 30, min: 0, max: 100 },
   { key: 'scoring.performanceWeight', label: 'Historical performance', group: 'scoring', type: 'int', default: 20, min: 0, max: 100 },

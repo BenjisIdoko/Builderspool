@@ -49,10 +49,33 @@ export function validateSettingsSet(values: SettingValues): void {
   const total = weightKeys.reduce((sum, k) => sum + Number(values[k]), 0);
   if (total !== 100) throw new Error(`The six scoring weights add up to ${total}; they must add up to 100.`);
 
+  validateSheetTimeline(values);
+
   const order = ['cycle.poolCloseTime', 'cycle.bidCloseTime', 'cycle.acceptDeadlineTime', 'cycle.fallbackTime'];
   for (let i = 1; i < order.length; i++) {
     if (String(values[order[i]]) < String(values[order[i - 1]])) {
       throw new Error(`${SETTING_BY_KEY[order[i]].label} cannot be earlier than ${SETTING_BY_KEY[order[i - 1]].label.toLowerCase()}.`);
     }
+  }
+}
+
+const minutesOf = (hhmm: string) => Number(hhmm.slice(0, 2)) * 60 + Number(hhmm.slice(3, 5));
+const hhmmOf = (minutes: number) => `${String(Math.floor(minutes / 60)).padStart(2, '0')}:${String(minutes % 60).padStart(2, '0')}`;
+
+// The sheet day: pool closes, bids close, three accept windows, final result.
+// Refuses any set of times where the windows do not land exactly on the final
+// result, so a rank can never be offered a window that runs past it.
+function validateSheetTimeline(values: SettingValues): void {
+  const poolClose = String(values['sheets.poolCloseTime']);
+  const bidClose = String(values['sheets.bidCloseTime']);
+  const final = String(values['sheets.finalTime']);
+  const window = Number(values['sheets.acceptWindowMinutes']);
+
+  if (bidClose <= poolClose) throw new Error('Bids must close after the pool closes.');
+  const expected = minutesOf(bidClose) + 3 * window;
+  if (expected >= 24 * 60 || minutesOf(final) !== expected) {
+    throw new Error(
+      `Bids close at ${bidClose} and each accept window is ${window} minutes, so the final result must be ${expected >= 24 * 60 ? 'within the same day' : hhmmOf(expected)}, not ${final}.`,
+    );
   }
 }

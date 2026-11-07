@@ -1,3 +1,4 @@
+import Link from 'next/link';
 import { ClockIcon, StackIcon, TruckIcon } from '@phosphor-icons/react/ssr';
 import { getSellerIdFromSession } from '@/lib/seller/session';
 import { getSellerBids } from '@/lib/queries/sellerPortal';
@@ -17,7 +18,8 @@ export default async function SellerBidsPage() {
       <div className="mb-1 text-xs text-muted-foreground">Merchant · bidding</div>
       <h1 className="mb-1 text-heading-lg text-ink">My bids</h1>
       <p className="mb-6 text-sm text-muted-foreground">
-        Every bid you&apos;ve submitted, across every cycle — withdraw one while it&apos;s still open.
+        Every bid you&apos;ve submitted, across every cycle — withdraw one while it&apos;s still open. Bidding on a whole category in one
+        go? Open <Link href="/seller/rfqs" className="font-semibold text-brand hover:underline">RFQs</Link>.
       </p>
 
       {bids.length === 0 ? (

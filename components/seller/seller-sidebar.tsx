@@ -5,6 +5,7 @@ import { LogoTile } from '@/components/logo';
 import { usePathname } from 'next/navigation';
 import {
   CaretUpDownIcon,
+  ClipboardTextIcon,
   DotsThreeVerticalIcon,
   GaugeIcon,
   GearIcon,
@@ -39,6 +40,7 @@ const LINK_GROUPS = [
     label: 'Commerce',
     links: [
       { href: '/seller/listings', label: 'My listings', icon: TagIcon },
+      { href: '/seller/rfqs', label: 'RFQs', icon: ClipboardTextIcon },
       { href: '/seller/bids', label: 'My bids', icon: StackIcon },
       { href: '/seller/orders', label: 'Orders', icon: ReceiptIcon },
       { href: '/seller/allocations', label: 'Allocations', icon: TruckIcon },

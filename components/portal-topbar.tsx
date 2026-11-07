@@ -12,6 +12,7 @@ const ADMIN_LABELS: [string, string][] = [
   ['/admin/listings', 'Listing review'],
   ['/admin/direct', 'Buy Direct orders'],
   ['/admin/areas', 'Service areas'],
+  ['/admin/sheets', 'Pool sheets'],
   ['/admin/haulage', 'Haulage & dispatch'],
   ['/admin/escrow', 'Escrow settlement'],
   ['/admin/savings', 'Savings settlement'],
@@ -23,6 +24,7 @@ const ADMIN_LABELS: [string, string][] = [
 
 const SELLER_LABELS: [string, string][] = [
   ['/seller/listings', 'My listings'],
+  ['/seller/rfqs', 'RFQs'],
   ['/seller/bids', 'My bids'],
   ['/seller/orders', 'Orders'],
   ['/seller/allocations', 'Allocations'],

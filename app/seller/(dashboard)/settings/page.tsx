@@ -7,6 +7,8 @@ import { kycStatusTone, pillClass } from '@/lib/statusColors';
 import { Badge } from '@/components/ui/badge';
 import { getSellerCoverage } from '@/lib/queries/areas';
 import { ZoneCoverageForm } from '@/components/seller/zone-coverage-form';
+import { CategoryRegistrationForm } from '@/components/seller/category-registration-form';
+import { getSellerCategories } from '@/lib/queries/sheets';
 
 const KYC_LABEL: Record<string, string> = {
   NOT_SUBMITTED: 'Not started',
@@ -31,7 +33,7 @@ export default async function SellerSettingsPage() {
 
   const profile = await getSellerProfile(sellerId);
   if (!profile) redirect('/seller/login');
-  const coverage = await getSellerCoverage(sellerId);
+  const [coverage, categories] = await Promise.all([getSellerCoverage(sellerId), getSellerCategories(sellerId)]);
 
   // Real, derived from actual bid history — not a stored field, so it's
   // computed the same honest way AdminSellers' directory derives it.
@@ -70,6 +72,14 @@ export default async function SellerSettingsPage() {
             Tick the zones you can supply. You can bid in a zone only after BuildersPool approves it.
           </p>
           <ZoneCoverageForm zones={coverage.zones} nationalSupply={coverage.nationalSupply} canEdit={actor.isOwner} />
+        </div>
+
+        <div className="rounded-card bg-card-alt p-6">
+          <h2 className="mb-1 text-label text-muted-foreground uppercase">Categories you bid for</h2>
+          <p className="mb-4 text-sm text-muted-foreground">
+            Tick the product categories you can supply. You receive requests for quotation (RFQs) only for categories BuildersPool has approved.
+          </p>
+          <CategoryRegistrationForm categories={categories} canEdit={actor.isOwner} />
         </div>
 
         <div className="rounded-card bg-card-alt p-6">

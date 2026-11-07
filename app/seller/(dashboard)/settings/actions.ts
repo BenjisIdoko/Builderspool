@@ -55,3 +55,53 @@ export async function saveZoneCoverageAction(formData: FormData): Promise<{ erro
     return { error: err instanceof Error ? err.message : 'Could not save your delivery zones.' };
   }
 }
+
+// The owner asks to bid for the ticked categories. Same rules as delivery zones:
+// ticking creates (or renews) a request that ops approve, unticking a request
+// still waiting withdraws it, and an approved category is removed by ops only.
+export async function saveCategoriesAction(formData: FormData): Promise<{ error: string } | { ok: true }> {
+  const owner = await requireSellerOwner();
+  try {
+    const wanted = new Set(formData.getAll('category').filter((v): v is string => typeof v === 'string'));
+
+    const [known, existing] = await Promise.all([
+      prisma.material.findMany({ where: { retired: false, needsPriceReview: false }, distinct: ['category'], select: { category: true } }),
+      prisma.sellerCategory.findMany({ where: { sellerId: owner.sellerId } }),
+    ]);
+    const valid = new Set(known.map((k) => k.category));
+    const byCategory = new Map(existing.map((e) => [e.category, e]));
+
+    for (const category of valid) {
+      const row = byCategory.get(category);
+      const wants = wanted.has(category);
+
+      if (wants && !row) {
+        await prisma.sellerCategory.create({ data: { sellerId: owner.sellerId, category } });
+        await recordAudit({
+          actor: { id: owner.userId, role: 'SELLER' },
+          action: 'sheets.category_requested',
+          entityType: 'SellerCategory',
+          entityId: category,
+          summary: `Requested to bid for ${category}`,
+        });
+      } else if (wants && row?.status === CoverageStatus.REVOKED) {
+        await prisma.sellerCategory.update({ where: { id: row.id }, data: { status: CoverageStatus.PENDING, decidedAt: null, decidedById: null } });
+        await recordAudit({
+          actor: { id: owner.userId, role: 'SELLER' },
+          action: 'sheets.category_requested',
+          entityType: 'SellerCategory',
+          entityId: category,
+          summary: `Asked again to bid for ${category}`,
+        });
+      } else if (!wants && row?.status === CoverageStatus.PENDING) {
+        await prisma.sellerCategory.delete({ where: { id: row.id } });
+      }
+    }
+
+    revalidatePath('/seller/settings');
+    revalidatePath('/admin/sheets');
+    return { ok: true };
+  } catch (err) {
+    return { error: err instanceof Error ? err.message : 'Could not save your categories.' };
+  }
+}

@@ -11,7 +11,7 @@ import { ChartBarIcon, StackIcon, TagIcon, ClipboardTextIcon, WalletIcon } from 
 const TABS = [
   { href: '/seller', label: 'Dashboard', icon: ChartBarIcon, match: (p: string) => p === '/seller' },
   { href: '/seller/listings', label: 'Listings', icon: TagIcon, match: (p: string) => p.startsWith('/seller/listings') },
-  { href: '/seller/bids', label: 'Bids', icon: StackIcon, match: (p: string) => p.startsWith('/seller/bids') },
+  { href: '/seller/bids', label: 'Bids', icon: StackIcon, match: (p: string) => p.startsWith('/seller/bids') || p.startsWith('/seller/rfqs') },
   { href: '/seller/orders', label: 'Orders', icon: ClipboardTextIcon, match: (p: string) => p.startsWith('/seller/orders') },
   { href: '/seller/payouts', label: 'Payouts', icon: WalletIcon, match: (p: string) => p.startsWith('/seller/payouts') },
 ];
