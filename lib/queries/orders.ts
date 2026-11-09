@@ -1,6 +1,7 @@
 import { prisma } from '../prisma';
 import { Prisma } from '@prisma/client';
 import { getOrderTotal } from '../checkout/orderTotal';
+import { isRefundedLine } from '../orders/lineStatus';
 
 // Shared with lib/queries/adminOrders.ts — same real fields whether a buyer
 // is viewing their own order or an admin is viewing any order, just a
@@ -12,6 +13,10 @@ export const ORDER_DETAIL_INCLUDE = {
       material: { select: { id: true, name: true, category: true, unit: true, imageUrl: true, catalogPrice: true } },
       fulfillmentCenter: { select: { name: true, address: true, region: true } },
       bidCycle: { select: { status: true } },
+      // Category-sheet and Buy Direct lines: what happened to this line, in the buyer's terms.
+      sheetLine: { select: { sheet: { select: { status: true, poolClosesAt: true, bidsCloseAt: true, rank3EndsAt: true } } } },
+      sheetFulfilment: { select: { status: true, receivedAt: true, savingsWalletEntry: { select: { buyerShare: true } } } },
+      direct: { select: { status: true, acceptDeadlineAt: true, receivedAt: true } },
       allocations: {
         select: {
           createdAt: true,
@@ -50,6 +55,9 @@ export function toPlainOrder(order: OrderWithDetails) {
       priceLocked: Number(item.priceLocked),
       deliveryCost: Number(item.deliveryCost),
       material: { ...item.material, catalogPrice: Number(item.material.catalogPrice) },
+      sheetFulfilment: item.sheetFulfilment
+        ? { ...item.sheetFulfilment, savingsWalletEntry: item.sheetFulfilment.savingsWalletEntry ? { buyerShare: Number(item.sheetFulfilment.savingsWalletEntry.buyerShare) } : null }
+        : null,
     })),
   };
 }
@@ -87,24 +95,35 @@ export function getOrderTrackingStages(order: BuyerOrder): TrackingStage[] {
   const isPickup = order.items.every((item) => item.deliveryCost === 0);
 
   const itemStageIndex = (item: BuyerOrder['items'][number]) => {
-    const received = item.allocations.some((a) => a.receivedAt);
+    const received = item.allocations.some((a) => a.receivedAt) || !!item.sheetFulfilment?.receivedAt || !!item.direct?.receivedAt;
     if (received) return 4;
-    const assigned = item.allocations.length > 0;
+    const assigned =
+      item.allocations.length > 0 ||
+      item.sheetFulfilment?.status === 'PENDING' ||
+      item.direct?.status === 'ACCEPTED' ||
+      item.direct?.status === 'FULFILLED';
     if (assigned) return 3;
-    if (item.bidCycleId) return 2;
+    if (item.bidCycleId || item.sheetLineId) return 2;
     if (order.status === 'PAID') return 1;
     return 0;
   };
 
-  const currentIndex =
-    order.items.length === 0 ? 0 : Math.min(...order.items.map(itemStageIndex));
+  // A line that ended refunded (no supplier took it) must not hold the whole order back
+  // while its other lines move on; it only counts when every line ended that way.
+  const live = order.items.filter((item) => !isRefundedLine(item));
+  const counted = live.length > 0 ? live : order.items;
+  const currentIndex = counted.length === 0 ? 0 : Math.min(...counted.map(itemStageIndex));
 
   // Earliest real timestamp across items for stages 3/4 — "as far along as
   // the least-advanced item" for the stage index, matched by the earliest
   // moment any item actually reached it.
   const allAllocations = order.items.flatMap((item) => item.allocations);
   const assignedAt = minDate(allAllocations.map((a) => a.createdAt));
-  const receivedAt = minDate(allAllocations.filter((a) => a.receivedAt).map((a) => a.receivedAt!));
+  const receivedAt = minDate([
+    ...allAllocations.filter((a) => a.receivedAt).map((a) => a.receivedAt!),
+    ...order.items.flatMap((i) => (i.sheetFulfilment?.receivedAt ? [i.sheetFulfilment.receivedAt] : [])),
+    ...order.items.flatMap((i) => (i.direct?.receivedAt ? [i.direct.receivedAt] : [])),
+  ]);
 
   const titles = [
     // Stage 0 is the order being placed; payment confirms it at stage 1.

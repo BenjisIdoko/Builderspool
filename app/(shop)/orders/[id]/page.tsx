@@ -24,6 +24,7 @@ import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { MaterialImage } from '@/components/material-image';
 import { OrderActions } from '@/components/order-actions';
+import { describeLine, type LineTone } from '@/lib/orders/lineStatus';
 import { retryPaymentAction } from '../actions';
 
 const STATUS_LABEL: Record<string, string> = {
@@ -38,6 +39,13 @@ const DISPATCH_LABEL: Record<string, string> = {
   IN_TRANSIT: 'In transit',
   DELIVERED: 'Delivered',
   CANCELLED: 'Cancelled',
+};
+
+const LINE_TONE_CLASS: Record<LineTone, string> = {
+  info: 'text-brand',
+  success: 'text-success',
+  warning: 'text-warning-text',
+  danger: 'text-danger',
 };
 
 const STAGE_ICONS = [CheckCircleIcon, CurrencyNgnIcon, UsersThreeIcon, HandshakeIcon, TruckIcon, PackageIcon];
@@ -297,7 +305,9 @@ export default async function OrderConfirmationPage({
           <div className="text-right">Total</div>
         </div>
         <div className="divide-y divide-border border-t border-border">
-          {order.items.map((item) => (
+          {order.items.map((item) => {
+            const line = describeLine(item, order.status === 'PAID');
+            return (
             <div key={item.id} className="grid grid-cols-[1fr_auto_auto] items-center gap-4 px-5 py-4">
               <div className="flex items-center gap-3">
                 <MaterialImage
@@ -309,7 +319,13 @@ export default async function OrderConfirmationPage({
                 />
                 <div>
                   <div className="font-medium text-ink">{item.material.name}</div>
-                  {item.unfilledQuantity > 0 && (
+                  {line && (
+                    <div className="mt-0.5 text-xs">
+                      <span className={`font-medium ${LINE_TONE_CLASS[line.tone]}`}>{line.label}</span>
+                      {line.detail && <span className="text-muted-foreground"> · {line.detail}</span>}
+                    </div>
+                  )}
+                  {item.unfilledQuantity > 0 && !line && (
                     <div className="mt-0.5 text-xs font-medium text-danger">
                       No winning supplier for {item.unfilledQuantity} of {item.quantity} — not charged, refund due
                     </div>
@@ -323,7 +339,8 @@ export default async function OrderConfirmationPage({
                 {formatNaira(item.priceLocked * item.quantity)}
               </div>
             </div>
-          ))}
+            );
+          })}
         </div>
         <div className="flex flex-col gap-1.5 border-t border-border px-5 py-4 text-sm">
           <div className="flex justify-between text-slate">
