@@ -9,7 +9,7 @@ import {
 } from '@phosphor-icons/react/ssr';
 import { getMaterials, getCategories } from '@/lib/queries/materials';
 import { HeroPoolBar } from '@/components/hero-pool-bar';
-import { getCycleTimes } from '@/lib/bidding/cycleTimes';
+import { getBuyerFacingTimes } from '@/lib/bidding/buyerTimes';
 import { buildPoolStages, isPoolClosedForToday } from '@/lib/pool-stages';
 import { PoolSaveSteps } from '@/components/pool-save-steps';
 import { Button } from '@/components/ui/button';
@@ -33,8 +33,8 @@ const TRUST = [
 ];
 
 export default async function Home() {
-  const [{ materials }, categories, times] = await Promise.all([getMaterials(), getCategories(), getCycleTimes()]);
-  const stages = buildPoolStages(times);
+  const [{ materials }, categories, { times, sheets }] = await Promise.all([getMaterials(), getCategories(), getBuyerFacingTimes()]);
+  const stages = buildPoolStages(times, sheets);
   const closed = isPoolClosedForToday(times);
   const poolDay = closed ? 'tomorrow’s' : 'today’s';
   // Home-page rails only feature products that have a real photo.

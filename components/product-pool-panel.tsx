@@ -1,5 +1,6 @@
 import { UsersThreeIcon } from '@phosphor-icons/react/ssr';
 import type { PoolSnapshot } from '@/lib/queries/pool';
+import { refundRuleText } from '@/lib/pool-stages';
 
 // The Pool & Save panel on a product page. It states, truthfully for this
 // platform's flow, what happens to an order: the buyer pays the catalogue
@@ -33,7 +34,7 @@ export function ProductPoolPanel({ pool, unit }: { pool: PoolSnapshot; unit: str
 
       <dl className="mt-4 grid gap-4 sm:grid-cols-2">
         <div>
-          <dt className="text-label text-slate uppercase">Pooled for {day}</dt>
+          <dt className="text-label text-slate uppercase">Pooled for {day}{pool.sheets && ' · all areas'}</dt>
           <dd className="mt-1 text-body-sm text-ink">
             {empty ? (
               'No orders yet — yours would open it.'
@@ -56,7 +57,7 @@ export function ProductPoolPanel({ pool, unit }: { pool: PoolSnapshot; unit: str
       </dl>
 
       <p className="mt-4 text-caption text-slate">
-        If no supplier can fill part of your order, the unfilled amount is refunded.
+        {refundRuleText(pool.sheets)}
       </p>
     </section>
   );

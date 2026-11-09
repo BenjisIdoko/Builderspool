@@ -11,6 +11,7 @@ import type { CheckoutAreas } from '@/lib/queries/checkoutAreas';
 import { CheckoutLocalityPicker, findLocality } from '@/components/checkout-locality-picker';
 import { formatNaira } from '@/lib/format';
 import { getDeliveryCost, type FulfillmentMethod } from '@/lib/checkout/deliveryCost';
+import { refundRuleText } from '@/lib/pool-stages';
 import { MaterialImage } from '@/components/material-image';
 import { PickupLocation } from '@/components/pickup-location';
 import { Badge } from '@/components/ui/badge';
@@ -47,6 +48,7 @@ export function CheckoutForm({
   defaultContactPhone,
   poolDay,
   poolCloseTime,
+  sheets,
   earliestDate,
   testMode,
 }: {
@@ -59,6 +61,8 @@ export function CheckoutForm({
   /** Which pool an order placed now joins. */
   poolDay: 'today' | 'tomorrow';
   poolCloseTime: string;
+  /** True when this order will pool on a category sheet (changes the refund wording). */
+  sheets: boolean;
   /** YYYY-MM-DD, tomorrow in Lagos. */
   earliestDate: string;
   testMode: boolean;
@@ -182,8 +186,7 @@ export function CheckoutForm({
             You pay the catalogue price now. The pool {poolDay === 'today' ? 'closes' : 'for tomorrow closes'} at{' '}
             <span className="font-mono text-figure">{poolCloseTime}</span>; then verified suppliers bid blind for the
             whole pool. If the winning bid costs less than the catalogue price, you keep 50% of the saving in your
-            savings wallet once delivery is confirmed. If no supplier can fill part of your order, the unfilled amount
-            is refunded.
+            savings wallet once delivery is confirmed. {refundRuleText(sheets)}
           </p>
         </section>
 

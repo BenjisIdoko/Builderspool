@@ -3,7 +3,7 @@ import { CaretLeftIcon } from '@phosphor-icons/react/ssr';
 import { requireBuyer } from '@/lib/buyer/auth';
 import { CheckoutForm } from './checkout-form';
 import { CheckoutSteps } from '@/components/checkout-steps';
-import { getCycleTimes } from '@/lib/bidding/cycleTimes';
+import { getBuyerFacingTimes } from '@/lib/bidding/buyerTimes';
 import { addDaysYmd, lagosYmd } from '@/lib/bidding/schedule';
 import { isPoolClosedForToday } from '@/lib/pool-stages';
 import { getCheckoutAreas } from '@/lib/queries/checkoutAreas';
@@ -13,8 +13,8 @@ export const metadata = { title: 'Checkout' };
 
 export default async function CheckoutPage() {
   const buyer = await requireBuyer();
-  const [times, areas, centerRows] = await Promise.all([
-    getCycleTimes(),
+  const [{ times, sheets }, areas, centerRows] = await Promise.all([
+    getBuyerFacingTimes(),
     getCheckoutAreas(),
     prisma.fulfillmentCenter.findMany({ select: { region: true, name: true, address: true }, orderBy: { createdAt: 'asc' } }),
   ]);
@@ -45,6 +45,7 @@ export default async function CheckoutPage() {
         centers={centers}
         poolDay={isPoolClosedForToday(times) ? 'tomorrow' : 'today'}
         poolCloseTime={times.poolCloseTime}
+        sheets={sheets}
         // Earliest on-site date a buyer can ask for: tomorrow, Lagos time.
         earliestDate={addDaysYmd(lagosYmd(new Date()), 1)}
         testMode={process.env.PAYSTACK_SECRET_KEY?.startsWith('sk_test_') ?? false}
