@@ -9,19 +9,31 @@ function leadTime(days: number) {
   return days === 1 ? '1 day' : `${days} days`;
 }
 
-// Seller offers for one product, cheapest first. Renders nothing until at
-// least one verified seller has a live listing, so the page never shows an
-// empty "offers" box.
+// Seller offers for one product, cheapest first: the Buy Direct side of the page. With
+// no live listing it says so plainly, so a buyer never wonders where Buy Direct went.
 export function ProductOffers({ unit }: { unit: string }) {
   const { offers, selected, select } = useOfferSelection();
-  if (offers.length === 0) return null;
+  if (offers.length === 0) {
+    return (
+      <section aria-labelledby="offers-heading" className="rounded-card bg-surface p-5 shadow-[0_0_0_1px_var(--color-hairline)]">
+        <h2 id="offers-heading" className="text-heading-sm text-ink">
+          Buy Direct
+        </h2>
+        <p className="mt-1 text-body-sm text-slate">
+          No seller has listed this product yet, so Buy Direct is not available for it. Pool &amp; Save works now, and Buy Direct appears here as soon as a verified seller lists it.
+        </p>
+      </section>
+    );
+  }
 
   return (
     <section aria-labelledby="offers-heading" className="rounded-card bg-surface p-5 shadow-[0_0_0_1px_var(--color-hairline)]">
       <h2 id="offers-heading" className="text-heading-sm text-ink">
-        Offers from sellers ({offers.length})
+        Buy Direct: offers from sellers ({offers.length})
       </h2>
-      <p className="mt-1 text-body-sm text-slate">Each seller sets their own price per {unit}. Pick the seller you want; your price follows your choice.</p>
+      <p className="mt-1 text-body-sm text-slate">
+        Each seller sets their own price per {unit}. Pick a seller, then choose Buy Direct at checkout to buy from them; or choose Pool &amp; Save there to have suppliers bid for your order instead. Your price follows your pick.
+      </p>
 
       <ul role="radiogroup" aria-labelledby="offers-heading" className="mt-4 divide-y divide-hairline">
         {offers.map((o, i) => (

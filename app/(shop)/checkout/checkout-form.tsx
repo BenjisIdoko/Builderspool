@@ -12,6 +12,7 @@ import { CheckoutLocalityPicker, findLocality } from '@/components/checkout-loca
 import { formatNaira } from '@/lib/format';
 import { getDeliveryCost, type FulfillmentMethod } from '@/lib/checkout/deliveryCost';
 import { MaterialImage } from '@/components/material-image';
+import { PickupLocation } from '@/components/pickup-location';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -41,6 +42,7 @@ type SubmitState = { status: 'idle' } | { status: 'submitting' } | { status: 'er
 
 export function CheckoutForm({
   areas,
+  centers,
   defaultContactName,
   defaultContactPhone,
   poolDay,
@@ -50,6 +52,8 @@ export function CheckoutForm({
 }: {
   /** The locality picker's data; `enabled` is false until the setting is switched on. */
   areas: CheckoutAreas;
+  /** Pickup centre by region, so "Pickup from" names the real place. */
+  centers: Record<string, { name: string; address: string }>;
   defaultContactName: string;
   defaultContactPhone: string;
   /** Which pool an order placed now joins. */
@@ -80,6 +84,9 @@ export function CheckoutForm({
   // How the whole cart is bought. Buy Direct needs a picked seller on every line.
   const [mode, setMode] = useState<'POOL' | 'DIRECT'>('POOL');
   const canBuyDirect = lines.length > 0 && lines.every((l) => l.listingId);
+  const noSeller = lines.filter((l) => !l.listingId).map((l) => l.name);
+  const noSellerText = `${noSeller.slice(0, 2).join(', ')}${noSeller.length > 2 ? ` and ${noSeller.length - 2} more` : ''}`;
+  const center = centers[region] ?? null;
   const effectiveMode = mode === 'DIRECT' && canBuyDirect ? 'DIRECT' : 'POOL';
   const [state, setState] = useState<SubmitState>({ status: 'idle' });
 
@@ -235,6 +242,13 @@ export function CheckoutForm({
           ))}
         </div>
 
+        {fulfillmentMethod === 'PICKUP' && center && (
+          <>
+            <div className="mt-10 mb-3.5 text-label text-slate uppercase">03 · Collect your order</div>
+            <PickupLocation name={center.name} address={center.address} />
+          </>
+        )}
+
         {fulfillmentMethod === 'DELIVERY' && (
           <>
             <div className="mt-10 mb-3.5 text-label text-slate uppercase">03 · Delivery details</div>
@@ -351,9 +365,16 @@ export function CheckoutForm({
             )}
             {fulfillmentMethod === 'DELIVERY' ? 'Delivering to' : 'Pickup from'}
           </div>
-          <div className="mt-1 text-lg font-bold">
-            {areas.enabled ? (zone ? zone.name : 'Choose your area') : `${region.charAt(0) + region.slice(1).toLowerCase()} region`}
-          </div>
+          {fulfillmentMethod === 'PICKUP' && center ? (
+            <>
+              <div className="mt-1 text-lg font-bold">{center.name}</div>
+              <div className="mt-0.5 text-xs text-white/70">{center.address}</div>
+            </>
+          ) : (
+            <div className="mt-1 text-lg font-bold">
+              {areas.enabled ? (zone ? zone.name : 'Choose your area') : `${region.charAt(0) + region.slice(1).toLowerCase()} region`}
+            </div>
+          )}
         </div>
 
         <div className="mb-5 text-xl font-bold text-ink">
@@ -387,7 +408,11 @@ export function CheckoutForm({
                 <span>
                   <span className="block font-semibold text-ink">{opt.label}</span>
                   <span className="block text-xs text-slate">{opt.body}</span>
-                  {opt.disabled && <span className="mt-1 block text-xs text-warning-text">Pick a seller for every item to use Buy Direct.</span>}
+                  {opt.disabled && opt.value === 'DIRECT' && (
+                    <span className="mt-1 block text-xs text-warning-text">
+                      Buy Direct needs a seller picked on every item. {noSellerText} {noSeller.length === 1 ? 'has' : 'have'} none: open the product page to pick one, or no seller has listed {noSeller.length === 1 ? 'it' : 'them'} yet.
+                    </span>
+                  )}
                 </span>
               </button>
             );

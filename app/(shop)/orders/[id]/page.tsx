@@ -24,6 +24,7 @@ import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { MaterialImage } from '@/components/material-image';
 import { OrderActions } from '@/components/order-actions';
+import { PickupLocation } from '@/components/pickup-location';
 import { describeLine, type LineTone } from '@/lib/orders/lineStatus';
 import { retryPaymentAction } from '../actions';
 
@@ -171,6 +172,12 @@ export default async function OrderConfirmationPage({
           )}
         </div>
       </div>
+
+      {isPickup && center && order.status !== 'PENDING_PAYMENT' && (
+        <div className="mb-8">
+          <PickupLocation name={center.name} address={center.address} />
+        </div>
+      )}
 
       <div className="mb-8 rounded-lg bg-surface p-5">
         <div className="mb-3 text-[11px] font-semibold text-muted-foreground uppercase">Contact</div>
