@@ -19,7 +19,7 @@ export function ProductRail({
 
   return (
     <section className="rounded-md bg-surface">
-      <div className="flex items-center justify-between gap-3 border-b border-hairline px-4 py-3">
+      <div className="flex items-center justify-between gap-3 border-b border-hairline px-5 py-4 lg:px-6 lg:py-5">
         <div className="min-w-0">
           <h2 className="text-heading-lg text-ink">{title}</h2>
           {subtitle && <p className="text-[13px] text-slate">{subtitle}</p>}
@@ -28,7 +28,7 @@ export function ProductRail({
           SEE ALL
         </Link>
       </div>
-      <ul className="flex snap-x gap-2 overflow-x-auto p-2 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
+      <ul className="flex snap-x gap-3 overflow-x-auto p-4 [scrollbar-width:none] lg:gap-4 lg:p-5 [&::-webkit-scrollbar]:hidden">
         {materials.map((material) => (
           <li key={material.id} className="w-[176px] shrink-0 snap-start sm:w-[200px] lg:w-[224px]">
             <MaterialCard material={material} />

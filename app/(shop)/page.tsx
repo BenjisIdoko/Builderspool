@@ -51,6 +51,7 @@ export default async function Home() {
 
   return (
     <div className="flex flex-1 flex-col">
+      <div className="relative">
       <section className="relative isolate overflow-hidden bg-ink text-white">
         <Image
           src="/hero/warehouse.webp"
@@ -61,7 +62,10 @@ export default async function Home() {
           className="-z-20 object-cover object-[50%_40%]"
         />
         <div className="absolute inset-0 -z-10 bg-[linear-gradient(90deg,rgba(11,31,58,0.94)_0%,rgba(11,31,58,0.78)_40%,rgba(11,31,58,0.15)_75%,rgba(11,31,58,0)_100%)] max-md:bg-[linear-gradient(180deg,rgba(11,31,58,0.9)_0%,rgba(11,31,58,0.72)_100%)]" />
-        <div className="mx-auto flex min-h-[560px] w-full max-w-section flex-col justify-between pt-12 lg:min-h-[620px] lg:pt-20">
+        {/* The hero is 85svh tall (DESIGN.md 5.4), never below 34rem nor above 60rem. The copy is
+            centred in it; the bottom padding clears the half of the pool band that hangs over its
+            lower edge. To change the height, change the 85. */}
+        <div className="mx-auto flex min-h-[clamp(34rem,85svh,60rem)] w-full max-w-section flex-col justify-center pt-14 pb-28 lg:pt-16 lg:pb-28">
           <div>
             <p className="bp-rise text-label uppercase text-cyan">Pool &amp; Save · Abuja</p>
             <h1 className="bp-rise mt-4 max-w-[12ch] text-display-xl text-white">
@@ -85,15 +89,24 @@ export default async function Home() {
               </Link>
             </div>
           </div>
-          <HeroPoolBar stages={stages} />
         </div>
       </section>
 
-      <section id="how" className="scroll-mt-40 bg-pale-blue">
+      {/* The live pool band straddles the hero's bottom edge (DESIGN.md 5.4): anchored to it and
+          shifted down by half its own height, so it works at any height. */}
+      <div className="absolute inset-x-0 bottom-0 z-10 translate-y-1/2">
+        <div className="mx-auto w-full max-w-section">
+          <HeroPoolBar stages={stages} />
+        </div>
+      </div>
+      </div>
+
+      {/* The top padding clears the half of the band that hangs below the hero. */}
+      <section id="how" className="scroll-mt-40 bg-pale-blue pt-[4.5rem] lg:pt-12">
         <PoolSaveSteps times={times} />
       </section>
 
-      <div className="mx-auto flex w-full max-w-section flex-col gap-3 pt-section">
+      <div className="mx-auto flex w-full max-w-section flex-col gap-[var(--section-tight)] pt-section">
         <div id="join" className="scroll-mt-40">
           <ProductRail
             title={`Join ${poolDay} pool`}
@@ -117,7 +130,7 @@ export default async function Home() {
 
       <Reveal>
         <section id="safe" className="mx-auto w-full max-w-section scroll-mt-40 pt-section">
-          <ul className="grid grid-cols-1 gap-x-8 gap-y-4 sm:grid-cols-2 lg:grid-cols-4">
+          <ul className="grid grid-cols-1 gap-x-8 gap-y-6 sm:grid-cols-2 lg:grid-cols-4">
             {TRUST.map(({ icon: Icon, title, sub }) => (
               <li key={title} className="flex items-start gap-3">
                 <Icon weight="fill" className="mt-0.5 size-5 shrink-0 text-cyan-strong" />
@@ -133,7 +146,7 @@ export default async function Home() {
 
       <Reveal>
         <section id="delivery" className="mx-auto w-full max-w-section scroll-mt-40 pt-section">
-          <div className="grid-12 gap-y-3">
+          <div className="grid-12 gap-y-4">
             <Link
               href="#delivery"
               className="col-span-12 flex flex-col overflow-hidden rounded-panel bg-ink text-white lg:col-span-7 lg:min-h-[360px]"
@@ -168,7 +181,7 @@ export default async function Home() {
               </span>
             </Link>
           </div>
-          <p className="mt-4 max-w-[72ch] text-caption text-slate">
+          <p className="mt-6 max-w-[72ch] text-caption text-slate">
             Delivery: one flat fee per seller, shown before you pay, across {DELIVERY_ZONES.join(', ')}. Or collect free
             at the Ushafa Fulfilment Centre, Monday to Saturday, 8am – 6pm.
           </p>
@@ -176,9 +189,9 @@ export default async function Home() {
       </Reveal>
 
       <Reveal>
-        <section className="mx-auto w-full max-w-section pt-section pb-section-tight">
+        <section className="mx-auto w-full max-w-section pt-section pb-section">
           <h2 className="text-heading-lg text-ink">Shop by category</h2>
-          <ul className="mt-6 grid grid-cols-2 gap-3 sm:grid-cols-3 lg:grid-cols-6">
+          <ul className="mt-8 grid grid-cols-2 gap-4 sm:grid-cols-3 lg:grid-cols-6">
             {categories.map((cat) => {
               const photo = categoryPhoto.get(cat.name) ?? null;
               return (

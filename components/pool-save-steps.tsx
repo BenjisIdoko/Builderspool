@@ -57,7 +57,7 @@ function buildSteps(times: CycleTimes) {
 export function PoolSaveSteps({ times }: { times: CycleTimes }) {
   const steps = buildSteps(times);
   return (
-    <div className="mx-auto w-full max-w-section py-section">
+    <div className="mx-auto w-full max-w-section pt-section pb-section-loose">
       <h2 className="text-heading-lg text-ink">How Pool &amp; Save works</h2>
       <ol className="mt-8 grid gap-x-8 gap-y-8 sm:grid-cols-2 lg:grid-cols-4">
         {steps.map((step, i) => (

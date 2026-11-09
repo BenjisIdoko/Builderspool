@@ -279,14 +279,14 @@ The palette is unchanged. v3.0 only *tightens how it is used*.
 
 - 4px base; components use 4–24; **sections use rhythm tokens**, not ad-hoc padding.
 - Rhythm (phone → desktop): `tight` 32 → 48, `default` 48 → 80, `loose` 72 → 120.
-- Gap between a heading and its content: 16px (phone) / 24px (desktop). Gap between sibling cards: 8–12px on the ground.
+- Gap between a heading and its content: 16px (phone) / 24px (desktop). Gap between sibling cards: 12–16px on the ground (rails: 12px phone, 16px desktop).
 - A section is separated from the next by **rhythm + tone change**, not by a rule.
 
 ### 5.4 Page anatomy — Home (Showroom)
 
 1. **Header** (64px / 56px, white, sticky, hairline shadow): mark + wordmark · search pill · Account · Cart. Utility strip (desktop): Sell on BuildersPool · Help.
-2. **Hero** — full-bleed navy, 560–640px tall on desktop, ≤ 70svh on phones. Left: label eyebrow, `display-xl` headline, `body-lg` support line, **one** `cta` button + one text link. Right/behind: a single real photograph (Ushafa depot or a delivery at a site). No tiles beside it.
-3. **Live pool band** — directly under the hero, overlapping its bottom edge by 48px: the pool module (§6.1). This is the first thing a scrolling visitor sees.
+2. **Hero** — full-bleed navy, **85svh tall on every screen** (floor 34rem, cap 60rem), copy centred in it. Set by the owner on 2026-11-09; v3.0 had 560–640px and ≤ 70svh. Left: label eyebrow, `display-xl` headline, `body-lg` support line, **one** `cta` button + one text link. Right/behind: a single real photograph (Ushafa depot or a delivery at a site). No tiles beside it.
+3. **Live pool band** — anchored to the hero's bottom edge and shifted down by half its own height, so it straddles the edge at any height: the pool module (§6.1). Fully rounded panel with the `floating` shadow, and it sets its own white text (it is no longer inside the hero). This is the first thing a scrolling visitor sees.
 4. **How Pool & Save works** — four numbered steps in one row, each a `heading-sm` + `body-sm`, with a single illustration or cropped photo per step. `loose` rhythm.
 5. **Today's pool** rail, then **Lowest prices** rail — only products with real photographs.
 6. **Proof strip** — verified suppliers, paid after delivery, delivery code, disputes: four short statements in one row, no icons larger than 20px.

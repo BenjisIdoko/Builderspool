@@ -4,7 +4,7 @@ import { pad2, usePoolClock } from '@/lib/pool-clock';
 import type { PoolStage } from '@/lib/pool-stages';
 
 // The live pool, as a bar along the bottom of the hero: a real countdown to the
-// next deadline and where today's cycle is right now. Stage times come from the
+// next deadline and where today's cycle is right now. It floats over the hero's bottom edge. Stage times come from the
 // live timeline in Admin > Settings. It states no participant counts or
 // prices — only time and stage.
 export function HeroPoolBar({ stages }: { stages: PoolStage[] }) {
@@ -21,7 +21,7 @@ export function HeroPoolBar({ stages }: { stages: PoolStage[] }) {
     <div
       id="pool"
       aria-label="Today’s Pool & Save"
-      className="mt-10 grid scroll-mt-40 grid-cols-3 gap-px overflow-hidden rounded-t-panel bg-on-navy-line md:grid-cols-[1.2fr_1fr_1fr_1fr]"
+      className="grid scroll-mt-40 grid-cols-3 gap-px overflow-hidden rounded-panel bg-on-navy-line text-white shadow-[0_8px_24px_rgba(11,31,58,0.12)] md:grid-cols-[1.2fr_1fr_1fr_1fr]"
     >
       <div className="col-span-3 bg-navy-raised/95 p-4 md:col-span-1">
         <div className="text-label uppercase text-cyan">{heading}</div>
