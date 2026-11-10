@@ -63,18 +63,16 @@ export function CheckoutLocalityPicker({
         <p className="rounded-md bg-pale-blue px-4 py-3 text-body-sm text-ink" role="status">
           <span className="font-semibold">{zone.name}</span>
           <br />
-          <span className="font-mono text-figure tabular-nums">{zone.sellerCount}</span>{' '}
-          {zone.sellerCount === 1 ? 'seller delivers' : 'sellers deliver'} here.{' '}
-          {zone.fee === null ? 'Delivery is not available here yet; pickup only.' : `Delivery to site: ${formatNaira(zone.fee)}.`}
+          {zone.fee === null ? 'Delivery is not available here yet. Pickup only.' : `Delivery to site: ${formatNaira(zone.fee)}.`}
         </p>
       )}
 
-      {selected && (!zone || zone.fee === null) && <RequestDelivery localityId={selected.id} localityName={selected.name} noZone={!zone} defaultPhone={defaultPhone} />}
+      {selected && (!zone || zone.fee === null) && <RequestDelivery localityId={selected.id} localityName={selected.name} defaultPhone={defaultPhone} />}
     </div>
   );
 }
 
-function RequestDelivery({ localityId, localityName, noZone, defaultPhone }: { localityId: string; localityName: string; noZone: boolean; defaultPhone: string }) {
+function RequestDelivery({ localityId, localityName, defaultPhone }: { localityId: string; localityName: string; defaultPhone: string }) {
   const [phone, setPhone] = useState(defaultPhone);
   const [message, setMessage] = useState<{ tone: 'error' | 'ok'; text: string } | null>(null);
   const [isPending, startTransition] = useTransition();
@@ -89,8 +87,7 @@ function RequestDelivery({ localityId, localityName, noZone, defaultPhone }: { l
 
   return (
     <div className="space-y-2 rounded-md bg-card-alt px-4 py-3">
-      {noZone && <p className="text-body-sm text-ink">We do not deliver to {localityName} yet, so we cannot take this order.</p>}
-      <p className="text-body-sm text-slate">Want delivery to {localityName}? Leave your number and we will tell you when it starts.</p>
+      <p className="text-body-sm text-slate">We do not deliver to {localityName} yet. Leave your number and we will tell you when we do.</p>
       <div className="flex flex-wrap items-center gap-2">
         <Input value={phone} onChange={(e) => setPhone(e.target.value)} inputMode="tel" aria-label="Phone number" placeholder="0803 123 4567" className="h-9 w-48" />
         <Button type="button" size="sm" variant="outline" disabled={isPending} onClick={send}>

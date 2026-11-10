@@ -28,6 +28,13 @@ export function refundRuleText(everyItemHasSeller = true): string {
   return 'If no supplier takes the pool, your order goes to the seller you picked, at the price you paid. If that seller cannot supply it, you are refunded.';
 }
 
+/** One line for checkout, shown only under the selected Pool & Save option. */
+export function checkoutFallbackText(everyItemHasSeller = true): string {
+  return everyItemHasSeller
+    ? 'If no supplier takes it, it goes to your picked seller, or you are refunded.'
+    : 'If no supplier takes it, items with a picked seller go to that seller; the rest are refunded.';
+}
+
 /** When the saving reaches the wallet: when our centre issues the goods-received note (lib/fulfillment/grn.ts, lib/sheets/fulfil.ts), not on buyer confirmation. */
 export const SAVINGS_TIMING_TEXT = 'once we have received and checked your order at our fulfilment centre';
 

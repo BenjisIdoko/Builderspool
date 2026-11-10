@@ -11,7 +11,7 @@ import type { CheckoutAreas } from '@/lib/queries/checkoutAreas';
 import { CheckoutLocalityPicker, findLocality } from '@/components/checkout-locality-picker';
 import { formatNaira } from '@/lib/format';
 import { getDeliveryCost, type FulfillmentMethod } from '@/lib/checkout/deliveryCost';
-import { refundRuleText, SAVINGS_TIMING_TEXT } from '@/lib/pool-stages';
+import { checkoutFallbackText } from '@/lib/pool-stages';
 import { MaterialImage } from '@/components/material-image';
 import { PickupLocation } from '@/components/pickup-location';
 import { Badge } from '@/components/ui/badge';
@@ -33,6 +33,7 @@ const PAYMENT_OPTIONS: { method: PaymentMethod; label: string; icon: typeof Bank
 ];
 
 const REGIONS = ['ABUJA', 'LAGOS', 'KANO'];
+const AREA_MISSING = 'Choose an area we deliver to.';
 
 function formatYmd(ymd: string): string {
   const [y, m, d] = ymd.split('-').map(Number);
@@ -95,7 +96,7 @@ export function CheckoutForm({
   // disabled button is never a mystery.
   const missing =
     areas.enabled && !zone
-      ? 'an area we deliver to'
+      ? AREA_MISSING
       : fulfillmentMethod === 'DELIVERY'
       ? !deliveryAddress.trim()
         ? 'your site address'
@@ -177,16 +178,6 @@ export function CheckoutForm({
   return (
     <form onSubmit={handleSubmit} className="grid grid-cols-1 gap-8 lg:grid-cols-[1fr_380px]">
       <div className="flex flex-col">
-        <section aria-label="Pool & Save" className="mb-8 rounded-card border-l-4 border-cyan bg-pale-blue p-4">
-          <p className="text-heading-sm text-ink">This order joins {poolDay}’s pool</p>
-          <p className="mt-1 text-body-sm text-ink">
-            You pay the catalogue price now. The pool {poolDay === 'today' ? 'closes' : 'for tomorrow closes'} at{' '}
-            <span className="font-mono text-figure">{poolCloseTime}</span>; suppliers then compete to fill the whole
-            pool. If they do it for less than the catalogue price, you keep 50% of the saving in your savings wallet{' '}
-            {SAVINGS_TIMING_TEXT}. {refundRuleText(noSeller.length === 0)}
-          </p>
-        </section>
-
         <div className="mb-3.5 text-label text-slate uppercase">{areas.enabled ? '01 · Where are you?' : '01 · Region'}</div>
         {areas.enabled ? (
           <div className="mb-10">
@@ -263,7 +254,7 @@ export function CheckoutForm({
                     id="deliveryAddress"
                     value={deliveryAddress}
                     onChange={(e) => setDeliveryAddress(e.target.value)}
-                    placeholder="Street address and any access notes a driver would need to find the site"
+                    placeholder="Street address and access notes"
                     required
                     rows={2}
                   />
@@ -368,7 +359,6 @@ export function CheckoutForm({
           {fulfillmentMethod === 'PICKUP' && center ? (
             <>
               <div className="mt-1 text-lg font-bold">{center.name}</div>
-              <div className="mt-0.5 text-xs text-white/70">{center.address}</div>
             </>
           ) : (
             <div className="mt-1 text-lg font-bold">
@@ -385,8 +375,8 @@ export function CheckoutForm({
         <div className="mb-5 flex flex-col gap-2">
           {(
             [
-              { value: 'DIRECT', label: 'Buy Direct', body: 'From the seller you picked. They accept your order and send it to our fulfilment centre, where it is checked before it reaches you.', disabled: !canBuyDirect },
-              { value: 'POOL', label: 'Pool & Save', body: 'Your order joins today’s pool and verified suppliers compete to fill it. You keep half of any saving. You do not choose which supplier wins.', disabled: false },
+              { value: 'DIRECT', label: 'Buy Direct', body: 'From the seller you picked.', disabled: !canBuyDirect },
+              { value: 'POOL', label: 'Pool & Save', body: `Joins ${poolDay === 'today' ? 'today’s' : 'tomorrow’s'} pool, which closes at ${poolCloseTime}. You keep half of any saving.`, disabled: false },
             ] as const
           ).map((opt) => {
             const selected = effectiveMode === opt.value;
@@ -408,9 +398,12 @@ export function CheckoutForm({
                 <span>
                   <span className="block font-semibold text-ink">{opt.label}</span>
                   <span className="block text-xs text-slate">{opt.body}</span>
+                  {selected && opt.value === 'POOL' && (
+                    <span className="mt-1 block text-xs text-slate">{checkoutFallbackText(noSeller.length === 0)}</span>
+                  )}
                   {opt.disabled && opt.value === 'DIRECT' && (
                     <span className="mt-1 block text-xs text-warning-text">
-                      Buy Direct needs a seller picked on every item. {noSellerText} {noSeller.length === 1 ? 'has' : 'have'} none: open the product page to pick one, or no seller has listed {noSeller.length === 1 ? 'it' : 'them'} yet.
+                      Needs a seller picked on every item. Missing: {noSellerText}.
                     </span>
                   )}
                 </span>
@@ -453,11 +446,6 @@ export function CheckoutForm({
           <h2 className="text-label text-muted-foreground uppercase">Payment method</h2>
           {testMode && <Badge variant="test">Test</Badge>}
         </div>
-        {testMode && (
-          <p className="mb-3 rounded-md bg-warning-soft px-3 py-2 text-xs text-warning-text">
-            Test payment — no real money moves. Use Paystack&apos;s test card.
-          </p>
-        )}
         <div className="mb-5 flex flex-col gap-2">
           {PAYMENT_OPTIONS.map(({ method, label, icon: Icon }) => {
             const selected = paymentMethod === method;
@@ -482,13 +470,10 @@ export function CheckoutForm({
           })}
         </div>
 
-        <div className="mb-5 flex items-start gap-2 rounded-lg bg-success-soft p-3 text-xs text-success">
-          <LockKeyIcon className="mt-0.5 size-4 shrink-0" />
-          <span>
-            Funds are held by Builders Pool once payment confirms, and released to the fulfilling
-            supplier only after the fulfillment center confirms receipt — never before.
-          </span>
-        </div>
+        <p className="mb-5 flex items-center gap-2 text-xs text-slate">
+          <LockKeyIcon className="size-4 shrink-0" />
+          Suppliers are paid only after we receive your goods.
+        </p>
 
         <div className="flex flex-col gap-1.5 border-t border-border pt-4 text-sm">
           <div className="flex justify-between text-slate">
@@ -516,7 +501,7 @@ export function CheckoutForm({
         </Button>
         {missing && (
           <p className="mt-2 text-center text-caption text-slate" role="status">
-            Add {missing} to continue.
+            {missing === AREA_MISSING ? missing : `Add ${missing} to continue.`}
           </p>
         )}
       </div>
