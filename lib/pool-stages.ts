@@ -23,9 +23,15 @@ export function buildPoolStages(times: CycleTimes, sheets = false): PoolStage[] 
 }
 
 /** What happens if no supplier takes the pool: the founder's rule (docs/floot-port-notes.md 1c). */
-export function refundRuleText(): string {
-  return 'If no supplier takes the pool, your order goes to the seller you chose, at the price you paid. If that seller cannot supply it, you are refunded.';
+export function refundRuleText(everyItemHasSeller = true): string {
+  if (!everyItemHasSeller) {
+    return 'If no supplier takes the pool, an item with a seller picked goes to that seller at the price you paid; an item with no seller picked is refunded. If a picked seller cannot supply it, you are refunded.';
+  }
+  return 'If no supplier takes the pool, your order goes to the seller you picked, at the price you paid. If that seller cannot supply it, you are refunded.';
 }
+
+/** When the saving reaches the wallet: when our centre issues the goods-received note (lib/fulfillment/grn.ts, lib/sheets/fulfil.ts), not on buyer confirmation. */
+export const SAVINGS_TIMING_TEXT = 'once we have received and checked your order at our fulfilment centre';
 
 /**
  * True once today's pool has closed (Lagos time), so an order placed now joins

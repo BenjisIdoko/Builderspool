@@ -1,6 +1,6 @@
 import { UsersThreeIcon } from '@phosphor-icons/react/ssr';
 import type { PoolSnapshot } from '@/lib/queries/pool';
-import { refundRuleText } from '@/lib/pool-stages';
+import { refundRuleText, SAVINGS_TIMING_TEXT } from '@/lib/pool-stages';
 
 // The Pool & Save panel on a product page. It states, truthfully for this
 // platform's flow, what happens to an order: the buyer pays the catalogue
@@ -50,8 +50,7 @@ export function ProductPoolPanel({ pool, unit }: { pool: PoolSnapshot; unit: str
         <div>
           <dt className="text-label text-slate uppercase">Your share of any saving</dt>
           <dd className="mt-1 text-body-sm text-ink">
-            <span className="font-mono text-figure">50%</span> of the verified saving, paid to your savings wallet after
-            delivery is confirmed.
+            <span className="font-mono text-figure">50%</span> of the verified saving, paid to your savings wallet {SAVINGS_TIMING_TEXT}.
           </dd>
         </div>
       </dl>

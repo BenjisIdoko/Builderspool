@@ -1,6 +1,7 @@
 import Image from 'next/image';
 import { REVEAL_STAGGER, Reveal } from '@/components/motion/reveal';
 import type { CycleTimes } from '@/lib/bidding/schedule';
+import { SAVINGS_TIMING_TEXT } from '@/lib/pool-stages';
 
 // "How Pool & Save works" — four numbered steps in one row on a pale-blue
 // band. Times come from the live timeline in Admin > Settings; the steps
@@ -49,7 +50,7 @@ function buildSteps(times: CycleTimes) {
     },
     {
       title: 'Best bid wins, you save',
-      body: 'If the winning bid costs less than the catalogue price, you keep 50% of the saving in your savings wallet once delivery is confirmed.',
+      body: 'If the winning bid costs less than the catalogue price, you keep 50% of the saving in your savings wallet ' + SAVINGS_TIMING_TEXT + '.',
     },
   ];
 }

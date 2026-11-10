@@ -11,7 +11,7 @@ import type { CheckoutAreas } from '@/lib/queries/checkoutAreas';
 import { CheckoutLocalityPicker, findLocality } from '@/components/checkout-locality-picker';
 import { formatNaira } from '@/lib/format';
 import { getDeliveryCost, type FulfillmentMethod } from '@/lib/checkout/deliveryCost';
-import { refundRuleText } from '@/lib/pool-stages';
+import { refundRuleText, SAVINGS_TIMING_TEXT } from '@/lib/pool-stages';
 import { MaterialImage } from '@/components/material-image';
 import { PickupLocation } from '@/components/pickup-location';
 import { Badge } from '@/components/ui/badge';
@@ -183,7 +183,7 @@ export function CheckoutForm({
             You pay the catalogue price now. The pool {poolDay === 'today' ? 'closes' : 'for tomorrow closes'} at{' '}
             <span className="font-mono text-figure">{poolCloseTime}</span>; then verified suppliers bid blind for the
             whole pool. If the winning bid costs less than the catalogue price, you keep 50% of the saving in your
-            savings wallet once delivery is confirmed. {refundRuleText()}
+            savings wallet {SAVINGS_TIMING_TEXT}. {refundRuleText(noSeller.length === 0)}
           </p>
         </section>
 
@@ -386,7 +386,7 @@ export function CheckoutForm({
           {(
             [
               { value: 'DIRECT', label: 'Buy Direct', body: 'From the seller you picked. They accept your order and send it to our fulfilment centre, where it is checked before it reaches you.', disabled: !canBuyDirect },
-              { value: 'POOL', label: 'Pool & Save', body: 'Your order joins today’s pool and suppliers bid for it. You keep half of any saving, and you do not choose the supplier.', disabled: false },
+              { value: 'POOL', label: 'Pool & Save', body: 'Your order joins today’s pool and suppliers bid for it. You keep half of any saving. You do not choose which supplier wins.', disabled: false },
             ] as const
           ).map((opt) => {
             const selected = effectiveMode === opt.value;
