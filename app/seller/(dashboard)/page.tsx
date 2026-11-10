@@ -13,7 +13,9 @@ import {
   ChartLineUpIcon,
   ArrowRightIcon,
 } from '@phosphor-icons/react/ssr';
-import { getSellerIdFromSession } from '@/lib/seller/session';
+import { getSellerActor } from '@/lib/seller/session';
+import { getSellerOnboarding } from '@/lib/onboarding/seller';
+import { ChecklistCard } from '@/components/checklist-card';
 import { getSellerProfile, getOpenCyclesForSeller, getSellerBids, getSellerAllocations } from '@/lib/queries/sellerPortal';
 import { formatNaira } from '@/lib/format';
 import { pillClass, payoutStatusTone } from '@/lib/statusColors';
@@ -37,7 +39,11 @@ const QUICK_ACTIONS = [
 ];
 
 export default async function SellerDashboardPage() {
-  const sellerId = (await getSellerIdFromSession())!;
+  const actor = (await getSellerActor())!;
+  const sellerId = actor.sellerId;
+  // The owner sees the setup checklist until it is complete; staff cannot do the owner-only steps.
+  const onboarding = actor.isOwner ? await getSellerOnboarding(sellerId) : null;
+  const showChecklist = !!onboarding && !onboarding.complete;
   const [profile, cycles, bids, allocations] = await Promise.all([
     getSellerProfile(sellerId),
     getOpenCyclesForSeller(sellerId),
@@ -133,7 +139,15 @@ export default async function SellerDashboardPage() {
           above the seller's own name on a fresh page load. */}
       {!profile!.user.emailVerifiedAt && <VerifyEmailBanner />}
 
-      {profile!.kycStatus !== 'APPROVED' && (
+      {showChecklist && onboarding && (
+        <ChecklistCard
+          title="Get ready to sell"
+          intro="Five short steps before your first bid. Three of them wait on BuildersPool, and each row shows who has the next move."
+          checklist={onboarding}
+        />
+      )}
+
+      {!showChecklist && profile!.kycStatus !== 'APPROVED' && (
         <Link
           href="/seller/kyc"
           className={`mb-8 flex items-center gap-2.5 rounded-lg border px-4 py-3 text-sm transition-colors ${

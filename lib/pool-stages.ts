@@ -4,7 +4,7 @@ import { cycleDateFor, lagosYmd, type CycleTimes } from './bidding/schedule';
 // Admin > Settings so the storefront never states a time the engine does not
 // use. Three stages are enough for a buyer: demand is frozen, bidding closes
 // and winners are chosen, and the final result (anything no supplier can fill
-// is refunded). The seller-only accept deadline is not shown.
+// goes back to the seller the buyer chose, or is refunded). The seller-only accept deadline is not shown.
 export type PoolStage = { time: string; label: string; detail: string };
 
 export function buildPoolStages(times: CycleTimes, sheets = false): PoolStage[] {
@@ -18,15 +18,13 @@ export function buildPoolStages(times: CycleTimes, sheets = false): PoolStage[] 
   return [
     { time: times.poolCloseTime, label: 'Pool closes', detail: 'Orders placed before this join the day’s pool.' },
     { time: times.bidCloseTime, label: 'Winners chosen', detail: 'Verified suppliers bid blind; the best-scoring bid wins.' },
-    { time: times.fallbackTime, label: 'Final result', detail: 'Any line no supplier can fill is refunded.' },
+    { time: times.fallbackTime, label: 'Final result', detail: 'If no supplier takes the pool, your order goes to the seller you chose, or is refunded.' },
   ];
 }
 
-/** The refund rule, worded for the pooling the buyer's order will actually use. */
-export function refundRuleText(sheets: boolean): string {
-  return sheets
-    ? 'If no supplier takes the pool, your order goes to the seller you chose at the price you paid; if that seller cannot supply it, you are refunded.'
-    : 'If no supplier can fill part of your order, the unfilled amount is refunded.';
+/** What happens if no supplier takes the pool: the founder's rule (docs/floot-port-notes.md 1c). */
+export function refundRuleText(): string {
+  return 'If no supplier takes the pool, your order goes to the seller you chose, at the price you paid. If that seller cannot supply it, you are refunded.';
 }
 
 /**

@@ -57,7 +57,7 @@ export function ProductPoolPanel({ pool, unit }: { pool: PoolSnapshot; unit: str
       </dl>
 
       <p className="mt-4 text-caption text-slate">
-        {refundRuleText(pool.sheets)}
+        {refundRuleText()}
       </p>
     </section>
   );

@@ -21,6 +21,8 @@ import { getSellersForVerification } from '@/lib/queries/adminVerification';
 import { getMaterialsNeedingPriceReviewCount } from '@/lib/queries/adminMaterials';
 import { getVerifiedSellerCount } from '@/lib/queries/adminSellers';
 import { getCurrentAdmin } from '@/lib/admin/session';
+import { getGoLiveReadiness } from '@/lib/onboarding/goLive';
+import { ChecklistCard } from '@/components/checklist-card';
 import { formatNaira } from '@/lib/format';
 import { orderStatusTone, cycleStatusTone, pillClass } from '@/lib/statusColors';
 import { Badge } from '@/components/ui/badge';
@@ -64,6 +66,7 @@ export default async function AdminDashboardPage() {
     gmvMtd,
     escrowInCustody,
     verifiedSellerCount,
+    readiness,
   ] = await Promise.all([
     getAllCycles(),
     getAdminKpis(),
@@ -76,6 +79,7 @@ export default async function AdminDashboardPage() {
     getGmvMonthToDate(),
     getEscrowInCustody(),
     getVerifiedSellerCount(),
+    getGoLiveReadiness(),
   ]);
 
   const pendingVerificationCount = verificationSellers.filter((s) => s.sellerProfile?.kycStatus === 'PENDING').length;
@@ -163,6 +167,14 @@ export default async function AdminDashboardPage() {
       <p className="mb-6 text-sm text-muted-foreground">
         Marketplace health across escrow, fulfillment, and merchant activity — last updated just now.
       </p>
+
+      {!readiness.complete && (
+        <ChecklistCard
+          title="Go-live readiness"
+          intro="What must be true before the sheet engine takes real orders. It reads live data, so a row turns green as soon as the work is done."
+          checklist={readiness}
+        />
+      )}
 
       <div className="mb-7 grid grid-cols-[repeat(auto-fit,minmax(200px,1fr))] gap-3.5">
         {kpiCards.map((kpi) => (
