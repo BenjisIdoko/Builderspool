@@ -21,9 +21,10 @@ export function HeroPoolBar({ stages }: { stages: PoolStage[] }) {
     <div
       id="pool"
       aria-label="Today’s Pool & Save"
-      className="grid scroll-mt-40 grid-cols-3 gap-px overflow-hidden rounded-panel bg-on-navy-line text-white shadow-[0_8px_24px_rgba(11,31,58,0.12)] md:grid-cols-[1.2fr_1fr_1fr_1fr]"
+      style={{ '--stages': stages.length } as React.CSSProperties}
+      className="grid scroll-mt-40 grid-cols-[repeat(var(--stages),1fr)] gap-px overflow-hidden rounded-panel bg-on-navy-line text-white shadow-[0_8px_24px_rgba(11,31,58,0.12)] md:grid-cols-[1.2fr_repeat(var(--stages),1fr)]"
     >
-      <div className="col-span-3 bg-navy-raised/95 p-4 md:col-span-1">
+      <div className="col-span-full bg-navy-raised/95 p-4 md:col-span-1">
         <div className="text-label uppercase text-cyan">{heading}</div>
         <div className="font-mono text-figure-lg tabular-nums" aria-live="off">
           {clock === null ? '--:--:--' : `${pad2(clock.hours)}:${pad2(clock.minutes)}:${pad2(clock.seconds)}`}

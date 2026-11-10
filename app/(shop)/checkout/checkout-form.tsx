@@ -181,9 +181,9 @@ export function CheckoutForm({
           <p className="text-heading-sm text-ink">This order joins {poolDay}’s pool</p>
           <p className="mt-1 text-body-sm text-ink">
             You pay the catalogue price now. The pool {poolDay === 'today' ? 'closes' : 'for tomorrow closes'} at{' '}
-            <span className="font-mono text-figure">{poolCloseTime}</span>; then verified suppliers bid blind for the
-            whole pool. If the winning bid costs less than the catalogue price, you keep 50% of the saving in your
-            savings wallet {SAVINGS_TIMING_TEXT}. {refundRuleText(noSeller.length === 0)}
+            <span className="font-mono text-figure">{poolCloseTime}</span>; suppliers then compete to fill the whole
+            pool. If they do it for less than the catalogue price, you keep 50% of the saving in your savings wallet{' '}
+            {SAVINGS_TIMING_TEXT}. {refundRuleText(noSeller.length === 0)}
           </p>
         </section>
 
@@ -386,7 +386,7 @@ export function CheckoutForm({
           {(
             [
               { value: 'DIRECT', label: 'Buy Direct', body: 'From the seller you picked. They accept your order and send it to our fulfilment centre, where it is checked before it reaches you.', disabled: !canBuyDirect },
-              { value: 'POOL', label: 'Pool & Save', body: 'Your order joins today’s pool and suppliers bid for it. You keep half of any saving. You do not choose which supplier wins.', disabled: false },
+              { value: 'POOL', label: 'Pool & Save', body: 'Your order joins today’s pool and verified suppliers compete to fill it. You keep half of any saving. You do not choose which supplier wins.', disabled: false },
             ] as const
           ).map((opt) => {
             const selected = effectiveMode === opt.value;

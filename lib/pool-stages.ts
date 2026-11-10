@@ -2,23 +2,21 @@ import { cycleDateFor, lagosYmd, type CycleTimes } from './bidding/schedule';
 
 // The buyer-facing view of the daily cycle, built from the live timeline in
 // Admin > Settings so the storefront never states a time the engine does not
-// use. Three stages are enough for a buyer: demand is frozen, bidding closes
-// and winners are chosen, and the final result (anything no supplier can fill
-// goes back to the seller the buyer chose, or is refunded). The seller-only accept deadline is not shown.
+// use. Two stages are enough for a buyer: the pool closes, and the final result
+// (anything no supplier takes goes back to the seller the buyer picked, or is
+// refunded). Supplier-side steps (bidding, scoring, ranks) are not shown. The seller-only accept deadline is not shown.
 export type PoolStage = { time: string; label: string; detail: string };
 
 export function buildPoolStages(times: CycleTimes, sheets = false): PoolStage[] {
   if (sheets) {
     return [
       { time: times.poolCloseTime, label: 'Pool closes', detail: 'Orders placed before this join the day’s pool for your area.' },
-      { time: times.bidCloseTime, label: 'Bids close', detail: 'Verified suppliers bid blind; the best-scoring bids are offered the pool in turn.' },
-      { time: times.fallbackTime, label: 'Final result', detail: 'If no supplier takes the pool, your order goes to the seller you chose, or is refunded.' },
+      { time: times.fallbackTime, label: 'Final result', detail: 'A supplier is confirmed for your order. If none takes the pool, it goes to the seller you picked, or is refunded.' },
     ];
   }
   return [
     { time: times.poolCloseTime, label: 'Pool closes', detail: 'Orders placed before this join the day’s pool.' },
-    { time: times.bidCloseTime, label: 'Winners chosen', detail: 'Verified suppliers bid blind; the best-scoring bid wins.' },
-    { time: times.fallbackTime, label: 'Final result', detail: 'If no supplier takes the pool, your order goes to the seller you chose, or is refunded.' },
+    { time: times.fallbackTime, label: 'Final result', detail: 'A supplier is confirmed for your order. If none takes the pool, it goes to the seller you picked, or is refunded.' },
   ];
 }
 

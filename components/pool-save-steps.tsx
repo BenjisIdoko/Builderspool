@@ -45,12 +45,12 @@ function buildSteps(times: CycleTimes) {
       body: `At ${times.poolCloseTime} the day’s orders are frozen and sent to verified suppliers as one request.`,
     },
     {
-      title: 'Suppliers bid blind',
-      body: `Until ${times.bidCloseTime}, without seeing each other’s prices. Bids are scored on price, performance, capacity and delivery.`,
+      title: 'Suppliers compete',
+      body: `Verified suppliers offer to fill the pool for less. Your result is ready by ${times.fallbackTime}.`,
     },
     {
-      title: 'Best bid wins, you save',
-      body: 'If the winning bid costs less than the catalogue price, you keep 50% of the saving in your savings wallet ' + SAVINGS_TIMING_TEXT + '.',
+      title: 'Best price wins, you save',
+      body: 'If the winning price is lower than the catalogue price, you keep 50% of the saving in your savings wallet ' + SAVINGS_TIMING_TEXT + '.',
     },
   ];
 }

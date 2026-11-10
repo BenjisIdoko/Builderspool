@@ -29,7 +29,7 @@ export function ProductPoolPanel({ pool, unit }: { pool: PoolSnapshot; unit: str
 
       <p className="mt-3 text-body-sm text-ink">
         You pay the catalogue price now. Orders placed before {pool.poolCloseTime} join {day}’s pool, and verified
-        suppliers bid blind for the whole pool.
+        suppliers then compete to fill the whole pool.
       </p>
 
       <dl className="mt-4 grid gap-4 sm:grid-cols-2">

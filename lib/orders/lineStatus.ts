@@ -31,11 +31,11 @@ export function describeLine(item: LineStatusInput, orderPaid: boolean): LineSta
   if (!orderPaid) return null;
   const { sheetLine, sheetFulfilment, direct } = item;
   const revertedFromSheet = sheetLine?.sheet.status === 'CANCELLED' || sheetFulfilment?.status === 'FAILED';
-  const sentBack = revertedFromSheet ? 'No supplier took the pool, so your order went to the seller you chose, at the price you paid. ' : '';
+  const sentBack = revertedFromSheet ? 'No supplier took the pool, so your order went to the seller you picked, at the price you paid. ' : '';
 
   if (isRefundedLine(item)) {
     const why =
-      direct?.status === 'DECLINED' ? 'The seller you chose declined this line.' : direct?.status === 'EXPIRED' ? 'The seller you chose did not accept in time.' : direct ? 'The seller you chose could not supply it.' : revertedFromSheet ? 'No supplier could supply it.' : undefined;
+      direct?.status === 'DECLINED' ? 'The seller you picked declined this line.' : direct?.status === 'EXPIRED' ? 'The seller you picked did not accept in time.' : direct ? 'The seller you picked could not supply it.' : revertedFromSheet ? 'No supplier could supply it.' : undefined;
     return { tone: 'danger', label: 'Not supplied: refund due', detail: [sentBack && direct ? sentBack.trim() : '', why].filter(Boolean).join(' ') || undefined };
   }
 
@@ -64,15 +64,15 @@ export function describeLine(item: LineStatusInput, orderPaid: boolean): LineSta
     const s = sheetLine.sheet;
     switch (s.status) {
       case 'OPEN':
-        return { tone: 'info', label: 'In today’s pool', detail: `The pool closes at ${time(s.poolClosesAt)}; then suppliers bid for it.` };
+        return { tone: 'info', label: 'In today’s pool', detail: `The pool closes at ${time(s.poolClosesAt)}; then suppliers compete to fill it.` };
       case 'BIDDING':
-        return { tone: 'info', label: 'Suppliers are bidding', detail: `Bidding closes at ${time(s.bidsCloseAt)}.` };
+        return { tone: 'info', label: 'Suppliers are competing for it', detail: `The result is due by ${time(s.rank3EndsAt)}.` };
       case 'AWARDING':
         return { tone: 'info', label: 'Choosing a supplier', detail: `The result is due by ${time(s.rank3EndsAt)}.` };
       case 'AWARDED':
         return { tone: 'info', label: 'Supplier confirmed', detail: 'The goods are on their way to the fulfilment centre.' };
       case 'CANCELLED':
-        return { tone: 'warning', label: 'Sending to the seller you chose', detail: 'No supplier took the pool, so it goes to the seller you chose, at the price you paid.' };
+        return { tone: 'warning', label: 'Sending to the seller you picked', detail: 'No supplier took the pool, so it goes to the seller you picked, at the price you paid.' };
     }
   }
   return null;

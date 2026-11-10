@@ -32,7 +32,7 @@ export function ProductOffers({ unit }: { unit: string }) {
         Buy Direct: offers from sellers ({offers.length})
       </h2>
       <p className="mt-1 text-body-sm text-slate">
-        Each seller sets their own price per {unit}. Pick a seller, then choose Buy Direct at checkout to buy from them; or choose Pool &amp; Save there to have suppliers bid for your order instead. Your price follows your pick.
+        Each seller sets their own price per {unit}. Pick a seller, then choose Buy Direct at checkout to buy from them; or choose Pool &amp; Save there to have suppliers compete for your order instead. Your price follows your pick.
       </p>
 
       <ul role="radiogroup" aria-labelledby="offers-heading" className="mt-4 divide-y divide-hairline">
