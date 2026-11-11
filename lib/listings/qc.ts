@@ -33,6 +33,12 @@ export const QC_REASON_TEXT: Record<QcReason, string> = {
   PRICE_INVALID: 'Enter a price above zero.',
 };
 
+/** What a seller is told right after saving a listing the checks rejected: the actual reasons, not a pointer to them. */
+export function notLiveMessage(reasons: readonly string[]): string {
+  const fixes = reasons.map((r) => QC_REASON_TEXT[r as QcReason]).filter(Boolean);
+  return `Saved, but it can't go live yet. ${fixes.length > 0 ? fixes.join(' ') : 'See the notes above the form.'}`;
+}
+
 export interface QcPhoto {
   widthPx: number;
   heightPx: number;

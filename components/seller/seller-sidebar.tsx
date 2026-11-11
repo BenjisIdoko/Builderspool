@@ -65,7 +65,7 @@ export function SellerSidebar({
   const pathname = usePathname();
 
   return (
-    <aside className="hidden w-[264px] shrink-0 flex-col bg-ink text-white lg:flex">
+    <aside className="hidden w-[264px] shrink-0 flex-col self-start overflow-y-auto bg-ink text-white [scrollbar-width:thin] lg:sticky lg:top-0 lg:flex lg:h-svh">
       <Link href="/seller" className="flex items-center justify-between gap-2 border-b border-white/10 px-[18px] py-[22px] pb-4 outline-none focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-white/70">
         <span className="flex items-center gap-2.5">
           <LogoTile className="size-9" />

@@ -69,7 +69,7 @@ export function AdminSidebar({ adminName }: { adminName: string }) {
   const pathname = usePathname();
 
   return (
-    <aside className="hidden w-[264px] shrink-0 flex-col bg-ink text-white lg:flex">
+    <aside className="hidden w-[264px] shrink-0 flex-col self-start overflow-y-auto bg-ink text-white [scrollbar-width:thin] lg:sticky lg:top-0 lg:flex lg:h-svh">
       <Link href="/admin" className="flex items-center justify-between gap-2 border-b border-white/10 px-[18px] py-[22px] pb-4">
         <span className="flex items-center gap-2.5">
           <LogoTile className="size-9" />
@@ -119,7 +119,7 @@ export function AdminSidebar({ adminName }: { adminName: string }) {
             <div className="truncate text-[13px] font-bold text-white">{adminName}</div>
             <form action={signOutAdmin}>
               <button type="submit" className="text-[11.5px] text-white/70 hover:text-white hover:underline">
-                Sign out
+                Log out
               </button>
             </form>
           </div>

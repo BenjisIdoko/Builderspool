@@ -55,7 +55,7 @@ export default async function AdminDashboardLayout({ children }: { children: Rea
                   </div>
                   <form action={signOutAdmin}>
                     <Button type="submit" variant="ghost" size="sm" className="w-full justify-start gap-2 px-2">
-                      Sign out
+                      Log out
                     </Button>
                   </form>
                 </>

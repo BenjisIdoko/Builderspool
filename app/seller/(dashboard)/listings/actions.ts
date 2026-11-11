@@ -5,7 +5,7 @@ import { KycStatus, ListingQcResult, ListingStatus } from '@prisma/client';
 import { prisma } from '@/lib/prisma';
 import { getSellerActor } from '@/lib/seller/session';
 import { recordAudit } from '@/lib/audit';
-import { median, runListingQc } from '@/lib/listings/qc';
+import { median, notLiveMessage, runListingQc } from '@/lib/listings/qc';
 import { deleteListingPhotoFile, isListingUploadConfigured, uploadListingPhoto } from '@/lib/storage/listingPhotos';
 
 type Result = { error: string } | { ok: true; message: string };
@@ -117,7 +117,7 @@ export async function saveListingAction(formData: FormData): Promise<Result> {
     });
 
     revalidatePath('/seller/listings');
-    if (qc.result === ListingQcResult.REJECTED) return { error: 'Saved, but it cannot go live yet. See what to fix below.' };
+    if (qc.result === ListingQcResult.REJECTED) return { error: notLiveMessage(qc.reasons) };
     if (qc.result === ListingQcResult.NEEDS_REVIEW) return { ok: true, message: 'Saved. Our team will check it before it goes live.' };
     if (!verified) return { ok: true, message: 'Saved as a draft. It goes live once your KYC is verified.' };
     return { ok: true, message: 'Saved and live.' };

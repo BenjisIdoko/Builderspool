@@ -99,11 +99,18 @@ export function ListingForm({
       )}
 
       {values && values.reasons.length > 0 && (
-        <ul className="space-y-1 rounded-md bg-card-alt px-4 py-3 text-sm text-ink">
-          {values.reasons.map((r) => (
-            <li key={r}>{reasonText[r] ?? r}</li>
-          ))}
-        </ul>
+        <div
+          role="group"
+          aria-label={values.status === 'REJECTED' ? 'What to fix' : 'What we will check'}
+          className={`rounded-md px-4 py-3 text-sm ${values.status === 'REJECTED' ? 'bg-danger-soft text-danger' : 'bg-card-alt text-ink'}`}
+        >
+          <div className="mb-1 font-semibold">{values.status === 'REJECTED' ? 'To go live, fix:' : 'Our team will check:'}</div>
+          <ul className="list-disc space-y-0.5 pl-5">
+            {values.reasons.map((r) => (
+              <li key={r}>{reasonText[r] ?? r}</li>
+            ))}
+          </ul>
+        </div>
       )}
 
       <div className="grid gap-4 sm:grid-cols-2">
@@ -164,7 +171,7 @@ export function ListingForm({
           </Button>
         )}
         {message && (
-          <span className={`text-caption ${message.tone === 'error' ? 'text-danger' : 'text-success'}`} role="status">
+          <span className={`max-w-prose text-pretty text-sm ${message.tone === 'error' ? 'text-danger' : 'text-success'}`} role={message.tone === 'error' ? 'alert' : 'status'}>
             {message.text}
           </span>
         )}
