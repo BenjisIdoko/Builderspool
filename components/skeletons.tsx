@@ -76,7 +76,7 @@ export function DetailSkeleton() {
   return (
     <div className="grid grid-cols-1 gap-8 lg:grid-cols-[1fr_380px]">
       <div>
-        <Skeleton className="aspect-square w-full rounded-xl" />
+        <Skeleton className="aspect-square w-full rounded-md" />
         <div className="mt-3 grid grid-cols-4 gap-2.5">
           {Array.from({ length: 4 }).map((_, i) => (
             <Skeleton key={i} className="aspect-square rounded-lg" />
@@ -86,11 +86,11 @@ export function DetailSkeleton() {
         <Skeleton className="mt-3 h-4 w-full" />
         <Skeleton className="mt-2 h-4 w-5/6" />
       </div>
-      <div className="rounded-xl border border-border bg-surface p-6">
+      <div className="h-fit rounded-card bg-surface p-5">
         <Skeleton className="mb-4 h-6 w-1/2" />
         <Skeleton className="mb-2 h-4 w-full" />
         <Skeleton className="mb-6 h-4 w-2/3" />
-        <Skeleton className="h-11 w-full rounded-lg" />
+        <Skeleton className="h-13 w-full rounded-md" />
       </div>
     </div>
   );

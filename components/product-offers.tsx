@@ -19,7 +19,7 @@ export function ProductOffers({ unit }: { unit: string }) {
         <h2 id="offers-heading" className="text-heading-sm text-ink">
           Buy Direct
         </h2>
-        <p className="mt-1 text-body-sm text-slate">
+        <p className="mt-1 text-pretty text-body-sm text-slate">
           No seller has listed this product yet, so Buy Direct is not available for it. Pool &amp; Save works now, and Buy Direct appears here as soon as a verified seller lists it.
         </p>
       </section>
@@ -31,14 +31,14 @@ export function ProductOffers({ unit }: { unit: string }) {
       <h2 id="offers-heading" className="text-heading-sm text-ink">
         Buy Direct: offers from sellers ({offers.length})
       </h2>
-      <p className="mt-1 text-body-sm text-slate">
+      <p className="mt-1 text-pretty text-body-sm text-slate">
         Each seller sets their own price per {unit}. Pick a seller, then choose Buy Direct at checkout to buy from them; or choose Pool &amp; Save there to have suppliers compete for your order instead. Your price follows your pick.
       </p>
 
       <ul role="radiogroup" aria-labelledby="offers-heading" className="mt-4 divide-y divide-hairline">
         {offers.map((o, i) => (
           <li key={o.id}>
-            <label className="flex min-h-14 cursor-pointer items-center gap-3 py-3">
+            <label className="-mx-2 flex min-h-14 cursor-pointer items-center gap-3 rounded-md px-2 py-3 transition-colors duration-150 hover:bg-well/60 has-checked:bg-info-soft has-focus-visible:ring-2 has-focus-visible:ring-ring">
               <input
                 type="radio"
                 name="offer"
@@ -49,7 +49,7 @@ export function ProductOffers({ unit }: { unit: string }) {
               />
             {o.photoUrl ? (
               // eslint-disable-next-line @next/next/no-img-element
-              <img src={o.photoUrl} alt="" className="size-12 shrink-0 rounded-md bg-well object-cover" />
+              <img src={o.photoUrl} alt="" className="size-12 shrink-0 rounded-md bg-well object-cover outline outline-1 -outline-offset-1 outline-black/10 dark:outline-white/10" />
             ) : (
               <div aria-hidden className="size-12 shrink-0 rounded-md bg-well" />
             )}

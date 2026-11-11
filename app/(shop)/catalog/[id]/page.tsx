@@ -25,7 +25,7 @@ export async function generateMetadata({ params }: { params: Promise<{ id: strin
   const { id } = await params;
   const material = await getMaterialById(id);
   if (!material) return { title: 'Product not found' };
-  const description = `${material.name} — ${formatNaira(material.catalogPrice)} per ${material.unit}. Fixed catalogue price, held in escrow until delivery is confirmed.`;
+  const description = `${material.name} — ${formatNaira(material.catalogPrice)} per ${material.unit}. Fixed catalogue price. Suppliers are paid only after we receive your goods.`;
   return {
     title: material.name,
     description,
@@ -51,16 +51,16 @@ export default async function MaterialPage({ params }: { params: Promise<{ id: s
 
   return (
     <div className="mx-auto w-full max-w-section pt-6 pb-28 lg:pb-10">
-      <nav className="mb-6 flex items-center gap-1.5 text-sm text-muted-foreground">
-        <Link href="/catalog" className="hover:text-ink">
+      <nav aria-label="Breadcrumb" className="mb-6 flex flex-wrap items-center gap-1.5 text-sm text-muted-foreground">
+        <Link href="/catalog" className="rounded-sm outline-none transition-colors hover:text-ink focus-visible:ring-2 focus-visible:ring-ring">
           Catalogue
         </Link>
         <CaretRightIcon className="size-3.5" />
-        <Link href={`/catalog?category=${encodeURIComponent(material.category)}`} className="hover:text-ink">
+        <Link href={`/catalog?category=${encodeURIComponent(material.category)}`} className="rounded-sm outline-none transition-colors hover:text-ink focus-visible:ring-2 focus-visible:ring-ring">
           {material.category}
         </Link>
         <CaretRightIcon className="size-3.5" />
-        <span className="text-ink">{material.name}</span>
+        <span aria-current="page" className="text-ink">{material.name}</span>
       </nav>
 
       <OfferSelectionProvider offers={offers}>
@@ -82,7 +82,7 @@ export default async function MaterialPage({ params }: { params: Promise<{ id: s
                 {material.sourcingScope === 'NATIONAL' ? 'National supply' : 'Regional'}
               </span>
             </div>
-            <h1 className="text-ink">{material.name}</h1>
+            <h1 className="text-balance text-ink">{material.name}</h1>
             <p className="mt-1 text-body-sm text-slate">Sold per {material.unit}</p>
             <p className="mt-3 text-price-lg tabular-nums text-ink lg:hidden">
               <SelectedPrice catalogPrice={material.catalogPrice} />

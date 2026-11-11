@@ -41,7 +41,7 @@ export function ProductGallery({
         <div
           ref={trackRef}
           onScroll={handleScroll}
-          className="flex snap-x snap-mandatory overflow-x-auto rounded-card border border-border [scrollbar-width:none] [&::-webkit-scrollbar]:hidden"
+          className="flex snap-x snap-mandatory overflow-x-auto rounded-card outline outline-1 -outline-offset-1 outline-black/10 dark:outline-white/10 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden"
         >
           {slides.map((img, i) => (
             <button
@@ -50,7 +50,7 @@ export function ProductGallery({
               onClick={() => img && setZoomOpen(true)}
               disabled={!img}
               aria-label={!img ? `${alt} — no photo yet` : undefined}
-              className="w-full shrink-0 snap-center"
+              className="w-full shrink-0 snap-center outline-none focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-ring"
             >
               <MaterialImage imageUrl={img} category={category} alt={`${alt} photo ${i + 1}`} className="aspect-square w-full" />
             </button>
@@ -59,7 +59,7 @@ export function ProductGallery({
         {slides.length > 1 && (
           <div className="mt-3 flex justify-center gap-1.5" aria-hidden>
             {slides.map((_, i) => (
-              <span key={i} className={`h-1.5 rounded-full transition-colors ${i === activeIndex ? 'w-4 bg-brand' : 'w-1.5 bg-border-strong'}`} />
+              <span key={i} className={`h-1.5 rounded-full transition-[width,background-color] duration-200 ${i === activeIndex ? 'w-4 bg-brand' : 'w-1.5 bg-border-strong'}`} />
             ))}
           </div>
         )}
@@ -69,13 +69,13 @@ export function ProductGallery({
       <button
         type="button"
         onClick={() => activeImage && setZoomOpen(true)}
-        className="group relative block w-full cursor-zoom-in overflow-hidden rounded-md bg-surface"
+        className="group relative block w-full cursor-zoom-in overflow-hidden rounded-md bg-surface outline outline-1 -outline-offset-1 outline-black/10 dark:outline-white/10 focus-visible:ring-2 focus-visible:ring-ring"
         disabled={!activeImage}
         aria-label={!activeImage ? `${alt} — no photo yet` : undefined}
       >
         <MaterialImage imageUrl={activeImage} category={category} alt={alt} className="aspect-square w-full" />
         {activeImage && (
-          <span className="absolute right-3 bottom-3 flex size-9 items-center justify-center rounded-full bg-white/90 text-ink opacity-0 transition-opacity group-hover:opacity-100">
+          <span className="absolute right-3 bottom-3 flex size-9 items-center justify-center rounded-full bg-white/90 text-ink opacity-0 transition-opacity duration-150 group-hover:opacity-100 group-focus-visible:opacity-100">
             <MagnifyingGlassPlusIcon className="size-4" />
           </span>
         )}
@@ -92,8 +92,8 @@ export function ProductGallery({
             // there are fewer real photos) — nothing for a screen reader to
             // announce, so it's hidden rather than labeled "no photo" 3 times.
             aria-hidden={!img || undefined}
-            className={`overflow-hidden rounded-lg border-2 ${
-              img && i === activeIndex ? 'border-brand' : 'border-border'
+            className={`overflow-hidden rounded-lg border-2 transition-[border-color,scale] duration-150 outline-none focus-visible:ring-2 focus-visible:ring-ring active:not-disabled:scale-[0.96] ${
+              img && i === activeIndex ? 'border-brand' : 'border-border enabled:hover:border-border-strong'
             } ${!img ? 'cursor-default' : ''}`}
           >
             <MaterialImage imageUrl={img} category={category} alt={`${alt} photo ${i + 1}`} className="aspect-square w-full" />

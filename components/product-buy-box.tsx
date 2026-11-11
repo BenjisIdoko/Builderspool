@@ -3,6 +3,7 @@
 import { useState } from "react";
 import {
   CaretDownIcon,
+  CheckIcon,
   LockKeyIcon,
   PlusIcon,
 } from "@phosphor-icons/react/ssr";
@@ -18,6 +19,20 @@ import {
   SheetDescription,
   SheetTitle,
 } from "@/components/ui/sheet";
+
+// Plus turns into a check once the item is added. Both icons stay mounted and cross-fade (scale
+// 0.25 to 1, opacity, 4px blur, 300ms, no overshoot), so it only animates when `added` changes.
+function AddIcon({ added }: { added: boolean }) {
+  const swap = "absolute inset-0 size-4 transition-[opacity,filter,scale] duration-300 [transition-timing-function:cubic-bezier(0.2,0,0,1)] motion-reduce:transition-none";
+  const on = "scale-100 opacity-100 blur-0";
+  const off = "scale-[0.25] opacity-0 blur-[4px]";
+  return (
+    <span aria-hidden className="relative size-4 shrink-0">
+      <PlusIcon className={`${swap} ${added ? off : on}`} />
+      <CheckIcon weight="bold" className={`${swap} ${added ? on : off}`} />
+    </span>
+  );
+}
 
 // The compact purchase card — split out from ProductDetailPanel (which now
 // only carries the title/tabs for the left column) to match the Fable
@@ -87,13 +102,12 @@ export function ProductBuyBox({ material }: { material: BuyerMaterial }) {
           size="lg"
           onClick={handleAdd}
         >
-          <PlusIcon className="size-4" />
+          <AddIcon added={added} />
           {added ? "Added" : "Add to cart"}
         </Button>
         <p className="flex items-start gap-1.5 text-xs text-muted-foreground">
           <LockKeyIcon className="mt-0.5 size-3.5 shrink-0" />
-          Held in escrow once paid — released only after the fulfillment center
-          confirms receipt.
+          Suppliers are paid only after we receive your goods.
         </p>
       </div>
 
@@ -105,7 +119,7 @@ export function ProductBuyBox({ material }: { material: BuyerMaterial }) {
         <button
           type="button"
           onClick={() => setSheetOpen(true)}
-          className="flex h-13 shrink-0 items-center gap-2 rounded-md border border-input px-4 text-body-sm font-bold text-ink"
+          className="flex h-13 shrink-0 items-center gap-2 rounded-md border border-input px-4 text-body-sm font-bold tabular-nums text-ink transition-[background-color,scale] duration-150 outline-none focus-visible:ring-2 focus-visible:ring-ring active:scale-[0.96] active:bg-well"
         >
           Qty {quantity}
           <CaretDownIcon className="size-3.5 text-muted-foreground" />
@@ -117,7 +131,7 @@ export function ProductBuyBox({ material }: { material: BuyerMaterial }) {
           className="flex-1 gap-2"
           onClick={handleAdd}
         >
-          <PlusIcon className="size-4" />
+          <AddIcon added={added} />
           {added
             ? "Added"
             : `Add to cart · ${formatNaira(price * quantity)}`}

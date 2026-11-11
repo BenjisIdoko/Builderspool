@@ -27,7 +27,7 @@ export function ProductPoolPanel({ pool, unit }: { pool: PoolSnapshot; unit: str
         </span>
       </div>
 
-      <p className="mt-3 text-body-sm text-ink">
+      <p className="mt-3 text-pretty text-body-sm text-ink">
         You pay the catalogue price now. Orders placed before {pool.poolCloseTime} join {day}’s pool, and verified
         suppliers then compete to fill the whole pool.
       </p>
@@ -55,7 +55,7 @@ export function ProductPoolPanel({ pool, unit }: { pool: PoolSnapshot; unit: str
         </div>
       </dl>
 
-      <p className="mt-4 text-caption text-slate">
+      <p className="mt-4 text-pretty text-caption text-slate">
         {refundRuleText()}
       </p>
     </section>
