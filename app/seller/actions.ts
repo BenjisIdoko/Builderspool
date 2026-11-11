@@ -54,7 +54,7 @@ export async function signInSeller(formData: FormData): Promise<{ error: string 
 
     await createSession(SELLER_SESSION, user.id, { ttlMs: SESSION_TTL.seller, persistent: true });
   } catch (err) {
-    return { error: err instanceof Error ? err.message : 'Could not sign in.' };
+    return { error: err instanceof Error ? err.message : 'Could not log in.' };
   }
 }
 
@@ -108,7 +108,7 @@ export async function submitBid(formData: FormData) {
   const quantityOffered = Number(formData.get('quantityOffered'));
   const estimatedDeliveryDays = Number(formData.get('estimatedDeliveryDays'));
 
-  if (!sellerId) throw new Error('Sign in as a seller to bid.');
+  if (!sellerId) throw new Error('Log in as a seller to bid.');
   if (typeof cycleId !== 'string') {
     throw new Error('Missing cycle id.');
   }
@@ -167,7 +167,7 @@ export async function submitBid(formData: FormData) {
 export async function withdrawBid(formData: FormData) {
   const sellerId = await getSellerIdFromSession();
   const bidId = formData.get('bidId');
-  if (!sellerId) throw new Error('Sign in as a seller to withdraw a bid.');
+  if (!sellerId) throw new Error('Log in as a seller to withdraw a bid.');
   if (typeof bidId !== 'string') {
     throw new Error('Missing bid id.');
   }
@@ -189,7 +189,7 @@ export async function withdrawBid(formData: FormData) {
 // errors as data for the same reason signInSeller does.
 async function loadOwnAward(allocationId: unknown) {
   const sellerId = await getSellerIdFromSession();
-  if (!sellerId) throw new Error('Sign in as a seller to respond to an award.');
+  if (!sellerId) throw new Error('Log in as a seller to respond to an award.');
   if (typeof allocationId !== 'string') throw new Error('Missing award id.');
   const allocation = await prisma.allocation.findUnique({ where: { id: allocationId }, include: { bid: true } });
   if (!allocation || allocation.bid.sellerId !== sellerId) throw new Error('Not your award.');

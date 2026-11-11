@@ -12,7 +12,7 @@ type Result = { error: string } | { ok: true };
 // after the window closed changes nothing.
 export async function answerDirectOrderAction(formData: FormData): Promise<Result> {
   const actor = await getSellerActor();
-  if (!actor) return { error: 'Sign in again to continue.' };
+  if (!actor) return { error: 'Log in again to continue.' };
 
   const id = String(formData.get('id') ?? '');
   const decision = String(formData.get('decision') ?? '');

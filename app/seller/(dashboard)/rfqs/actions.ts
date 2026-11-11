@@ -10,7 +10,7 @@ type Result = { error: string } | { ok: true; totalAmount: number };
 // account, never a value from the form.
 export async function submitSheetBidAction(sheetId: string, prices: Record<string, number>): Promise<Result> {
   const actor = await getSellerActor();
-  if (!actor) return { error: 'Sign in again to continue.' };
+  if (!actor) return { error: 'Log in again to continue.' };
 
   const clean: Record<string, number> = {};
   for (const [lineId, price] of Object.entries(prices ?? {})) clean[lineId] = Number(price);
@@ -25,7 +25,7 @@ export async function submitSheetBidAction(sheetId: string, prices: Record<strin
 
 export async function acceptSheetAwardAction(sheetId: string, awardId: string): Promise<{ error: string } | { ok: true }> {
   const actor = await getSellerActor();
-  if (!actor) return { error: 'Sign in again to continue.' };
+  if (!actor) return { error: 'Log in again to continue.' };
   const r = await acceptSheetAward({ awardId, sellerId: actor.sellerId, actorId: actor.userId });
   if (!r.ok) return { error: r.error };
   revalidatePath(`/seller/rfqs/${sheetId}`);
@@ -36,7 +36,7 @@ export async function acceptSheetAwardAction(sheetId: string, awardId: string): 
 
 export async function declineSheetAwardAction(sheetId: string, awardId: string, reason: string): Promise<{ error: string } | { ok: true }> {
   const actor = await getSellerActor();
-  if (!actor) return { error: 'Sign in again to continue.' };
+  if (!actor) return { error: 'Log in again to continue.' };
   const r = await declineSheetAward({ awardId, sellerId: actor.sellerId, actorId: actor.userId, reason });
   if (!r.ok) return { error: r.error };
   revalidatePath(`/seller/rfqs/${sheetId}`);

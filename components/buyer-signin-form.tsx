@@ -33,7 +33,7 @@ export function BuyerSignInForm() {
   return (
     <>
       <h1 className="mb-1 text-2xl font-bold tracking-tight text-ink">Log in</h1>
-      <p className="mb-7 text-sm text-muted-foreground">Sign in to your Builders Pool account.</p>
+      <p className="mb-7 text-sm text-muted-foreground">Log in to your Builders Pool account.</p>
 
       <form onSubmit={handleSubmit} className="space-y-5">
         <div>
@@ -62,7 +62,7 @@ export function BuyerSignInForm() {
         {error && <p role="alert" className="text-sm text-danger">{error}</p>}
 
         <Button type="submit" size="lg" className={AUTH_BUTTON} disabled={isPending} aria-busy={isPending}>
-          {isPending ? 'Signing in…' : 'Sign in'}
+          {isPending ? 'Logging in…' : 'Log in'}
         </Button>
       </form>
 

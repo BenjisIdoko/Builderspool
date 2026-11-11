@@ -50,7 +50,7 @@ export async function signInAdmin(formData: FormData): Promise<{ error: string }
 
     await createSession(ADMIN_SESSION, admin.id, { ttlMs: SESSION_TTL.admin, persistent: true });
   } catch (err) {
-    return { error: err instanceof Error ? err.message : 'Could not sign in.' };
+    return { error: err instanceof Error ? err.message : 'Could not log in.' };
   }
 }
 

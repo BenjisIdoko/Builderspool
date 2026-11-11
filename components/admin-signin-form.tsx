@@ -53,7 +53,7 @@ export function AdminSignInForm() {
       {error && <p className="text-sm text-danger">{error}</p>}
 
       <Button type="submit" size="lg" className={AUTH_BUTTON} disabled={isPending}>
-        {isPending ? 'Signing in…' : 'Sign in'}
+        {isPending ? 'Logging in…' : 'Log in'}
       </Button>
     </form>
   );

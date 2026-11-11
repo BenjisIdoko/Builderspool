@@ -33,7 +33,7 @@ export function SellerSignInForm() {
   return (
     <>
       <h1 className="mb-1 text-2xl font-bold tracking-tight text-ink">Seller login</h1>
-      <p className="mb-7 text-sm text-muted-foreground">Sign in to submit bids and manage allocations.</p>
+      <p className="mb-7 text-sm text-muted-foreground">Log in to submit bids and manage allocations.</p>
 
       <form onSubmit={handleSubmit} className="space-y-5">
         <div>
@@ -54,10 +54,10 @@ export function SellerSignInForm() {
           <PasswordInput className={AUTH_INPUT} id="password" name="password" required autoComplete="current-password" />
         </div>
 
-        {error && <p className="text-sm text-danger">{error}</p>}
+        {error && <p role="alert" className="text-sm text-danger">{error}</p>}
 
         <Button type="submit" size="lg" className={AUTH_BUTTON} disabled={isPending}>
-          {isPending ? 'Signing in…' : 'Sign in'}
+          {isPending ? 'Logging in…' : 'Log in'}
         </Button>
       </form>
 

@@ -39,7 +39,7 @@ export function ResetPasswordForm({ token, role }: { token: string; role: string
         <p className="mb-7 text-sm text-muted-foreground">Your password has been updated.</p>
         <Link href={loginPath}>
           <Button size="lg" className={AUTH_BUTTON}>
-            Sign in
+            Log in
           </Button>
         </Link>
       </>
@@ -65,7 +65,7 @@ export function ResetPasswordForm({ token, role }: { token: string; role: string
           <Input className={AUTH_INPUT} id="confirmPassword" name="confirmPassword" type="password" required autoComplete="new-password" />
         </div>
 
-        {error && <p className="text-sm text-danger">{error}</p>}
+        {error && <p role="alert" className="text-sm text-danger">{error}</p>}
 
         <Button type="submit" size="lg" className={AUTH_BUTTON} disabled={isPending}>
           {isPending ? 'Resetting…' : 'Reset password'}

@@ -50,7 +50,7 @@ export async function signInBuyer(formData: FormData): Promise<{ error: string }
       persistent: remember,
     });
   } catch (err) {
-    return { error: err instanceof Error ? err.message : 'Could not sign in.' };
+    return { error: err instanceof Error ? err.message : 'Could not log in.' };
   }
 }
 

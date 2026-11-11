@@ -94,7 +94,7 @@ export function SellerSignUpForm() {
           />
         </div>
 
-        {error && <p className="text-sm text-danger">{error}</p>}
+        {error && <p role="alert" className="text-sm text-danger">{error}</p>}
 
         <Button type="submit" size="lg" className={AUTH_BUTTON} disabled={isPending}>
           {isPending ? 'Creating account…' : 'Create seller account'}
@@ -104,7 +104,7 @@ export function SellerSignUpForm() {
       <p className="mt-6 text-sm text-muted-foreground">
         Already registered?{' '}
         <Link href="/seller/login" className="font-medium text-brand hover:underline">
-          Sign in
+          Log in
         </Link>
       </p>
     </>

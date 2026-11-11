@@ -9,7 +9,7 @@ export async function POST(request: NextRequest) {
   // id, which would let anyone place orders (and wipe the cart) as any buyer.
   const buyer = await getCurrentBuyer();
   if (!buyer) {
-    return NextResponse.json({ error: 'Sign in to check out.' }, { status: 401 });
+    return NextResponse.json({ error: 'Log in to check out.' }, { status: 401 });
   }
 
   let order: Awaited<ReturnType<typeof createOrder>>;

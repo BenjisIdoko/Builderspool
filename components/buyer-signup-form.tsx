@@ -33,7 +33,7 @@ export function BuyerSignUpForm() {
   return (
     <>
       <h1 className="mb-1 text-2xl font-bold tracking-tight text-ink">Create your account</h1>
-      <p className="mb-7 text-sm text-muted-foreground">Buy materials at a fixed price, pooled with other buyers. Takes under a minute.</p>
+      <p className="mb-7 text-pretty text-sm text-muted-foreground">Buy materials at a fixed price, pooled with other buyers. Takes under a minute.</p>
 
       <form onSubmit={handleSubmit} className="space-y-5">
         <div>
@@ -46,25 +46,26 @@ export function BuyerSignUpForm() {
           <Label htmlFor="email" className={AUTH_LABEL}>
             Email
           </Label>
-          <Input className={AUTH_INPUT} id="email" name="email" type="email" required autoComplete="email" />
+          <Input className={AUTH_INPUT} id="email" name="email" type="email" required autoComplete="email" autoCapitalize="none" spellCheck={false} />
         </div>
         <div>
           <Label htmlFor="password" className={AUTH_LABEL}>
             Password
           </Label>
-          <PasswordInput className={AUTH_INPUT} id="password" name="password" required autoComplete="new-password" minLength={8} />
+          <PasswordInput className={AUTH_INPUT} id="password" name="password" required autoComplete="new-password" minLength={8} aria-describedby="password-hint" />
+          <p id="password-hint" className="mt-1.5 text-xs text-muted-foreground">At least 8 characters.</p>
         </div>
-        {error && <p className="text-sm text-danger">{error}</p>}
+        {error && <p role="alert" className="text-sm text-danger">{error}</p>}
 
-        <Button type="submit" size="lg" className={AUTH_BUTTON} disabled={isPending}>
+        <Button type="submit" size="lg" className={AUTH_BUTTON} disabled={isPending} aria-busy={isPending}>
           {isPending ? 'Creating account…' : 'Create account'}
         </Button>
       </form>
 
       <p className="mt-6 text-sm text-muted-foreground">
         Already have an account?{' '}
-        <Link href="/login" className="font-medium text-brand hover:underline">
-          Sign in
+        <Link href="/login" className="rounded-sm font-medium text-brand outline-none hover:underline focus-visible:ring-2 focus-visible:ring-ring">
+          Log in
         </Link>
       </p>
     </>

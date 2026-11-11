@@ -28,7 +28,7 @@ export default async function AdminTeamPage() {
       <div className="mb-1 text-xs text-muted-foreground">Admin · accounts</div>
       <h1 className="mb-1 text-heading-lg text-ink">Operations team</h1>
       <p className="mb-8 text-sm text-muted-foreground">
-        Internal staff for catalogue QC, hub fulfilment and last-mile delivery. Their sign-in and workspaces arrive with
+        Internal staff for catalogue QC, hub fulfilment and last-mile delivery. Their log-ins and workspaces arrive with
         those phases; accounts created now are ready for them. Seller staff are managed by each seller owner.
       </p>
 

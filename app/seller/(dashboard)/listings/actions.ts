@@ -28,7 +28,7 @@ function intField(fd: FormData, key: string): number | null {
 // flag waits for ops; one that fails tells the seller what to fix.
 export async function saveListingAction(formData: FormData): Promise<Result> {
   const actor = await getSellerActor();
-  if (!actor) return { error: 'Sign in again to continue.' };
+  if (!actor) return { error: 'Log in again to continue.' };
 
   try {
     const materialId = String(formData.get('materialId') ?? '');
@@ -130,7 +130,7 @@ export async function saveListingAction(formData: FormData): Promise<Result> {
 // rejected has to go through the checks again by saving.
 export async function setListingPausedAction(listingId: string, paused: boolean): Promise<Result> {
   const actor = await getSellerActor();
-  if (!actor) return { error: 'Sign in again to continue.' };
+  if (!actor) return { error: 'Log in again to continue.' };
 
   const listing = await prisma.sellerListing.findFirst({ where: { id: listingId, sellerId: actor.sellerId } });
   if (!listing) return { error: 'Listing not found.' };
@@ -152,7 +152,7 @@ export async function setListingPausedAction(listingId: string, paused: boolean)
 
 export async function removeListingPhotoAction(photoId: string): Promise<Result> {
   const actor = await getSellerActor();
-  if (!actor) return { error: 'Sign in again to continue.' };
+  if (!actor) return { error: 'Log in again to continue.' };
 
   const photo = await prisma.listingPhoto.findFirst({ where: { id: photoId, listing: { sellerId: actor.sellerId } } });
   if (!photo) return { error: 'Photo not found.' };

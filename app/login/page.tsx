@@ -8,7 +8,7 @@ export default function LoginPage() {
     <AuthSplitScreen
       eyebrow="Construction materials · sourced nationally"
       headline="One fixed price, no back-and-forth."
-      body="Sign in to track your orders, reorder in one click, and manage price alerts on the materials you buy."
+      body="Log in to track your orders, reorder in one click, and manage price alerts on the materials you buy."
     >
       <BuyerSignInForm />
     </AuthSplitScreen>

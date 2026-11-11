@@ -3,6 +3,8 @@ import { CheckCircleIcon, XCircleIcon } from '@phosphor-icons/react/ssr';
 import { verifyEmailToken } from '@/lib/auth/emailVerification';
 import { AuthSplitScreen } from '@/components/auth-split-screen';
 
+export const metadata = { title: 'Verify your email' };
+
 export default async function VerifyEmailPage({
   searchParams,
 }: {

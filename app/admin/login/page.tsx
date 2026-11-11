@@ -11,7 +11,7 @@ export default function AdminLoginPage() {
       body="Cycles, escrow, verification and haulage — the operations desk for every buyer and seller on Builders Pool."
     >
       <h2 className="mb-1 text-heading-lg text-ink">Ops admin login</h2>
-      <p className="mb-7 text-sm text-muted-foreground">Sign in with your ops account.</p>
+      <p className="mb-7 text-sm text-muted-foreground">Log in with your ops account.</p>
       <AdminSignInForm />
     </AuthSplitScreen>
   );
