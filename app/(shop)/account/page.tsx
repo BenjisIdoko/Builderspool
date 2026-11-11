@@ -1,17 +1,16 @@
-import { EmptyState } from '@/components/empty-state/empty-state';
-import { EmptyListIllustration } from '@/components/empty-state/illustrations';
 import { BellIcon, WalletIcon } from '@phosphor-icons/react/ssr';
 import { requireBuyer } from '@/lib/buyer/auth';
 import { getOrdersForBuyer } from '@/lib/queries/orders';
 import { getPriceAlertsForBuyer } from '@/lib/queries/priceAlerts';
 import { getSavingsWalletForBuyer } from '@/lib/wallet';
 import { getSetting } from '@/lib/settings';
-import { formatNaira, formatLagosDateTime } from '@/lib/format';
-import { orderStatusTone, walletEntryTone, pillClass } from '@/lib/statusColors';
+import { formatNaira } from '@/lib/format';
+import { walletEntryTone, pillClass } from '@/lib/statusColors';
 import { updateBuyerProfile, requestWithdrawalAction } from './actions';
 import { cancelPriceAlert } from '../catalog/actions';
 import { signOutBuyer as signOutBuyerAction } from '@/app/login/actions';
 import { VerifyEmailBanner } from '@/components/verify-email-banner';
+import { OrderHistoryList } from '@/components/order-history-list';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -19,12 +18,6 @@ import { Label } from '@/components/ui/label';
 import Link from 'next/link';
 
 export const metadata = { title: 'Your account' };
-
-const STATUS_LABEL: Record<string, string> = {
-  PENDING_PAYMENT: 'Awaiting payment',
-  PAID: 'Paid',
-  CANCELLED: 'Cancelled',
-};
 
 const WALLET_LABEL: Record<string, string> = {
   AVAILABLE: 'Available',
@@ -54,7 +47,7 @@ export default async function AccountPage() {
         </div>
         <form action={signOutBuyerAction}>
           <Button type="submit" variant="outline" size="sm">
-            Sign out
+            Log out
           </Button>
         </form>
       </div>
@@ -169,44 +162,7 @@ export default async function AccountPage() {
         <div className="border-b border-border px-5 py-4">
           <h2 className="text-heading-sm text-ink">Order history</h2>
         </div>
-        {orders.length === 0 ? (
-          <EmptyState
-            illustration={EmptyListIllustration}
-            variant="inline"
-            title="No orders yet"
-            description="Your orders will show up here once you place your first one."
-          >
-            <Button asChild variant="outline">
-              <Link href="/catalog">Browse materials</Link>
-            </Button>
-          </EmptyState>
-        ) : (
-          <div className="divide-y divide-border">
-            {orders.map((order) => (
-              <Link
-                key={order.id}
-                href={`/orders/${order.id}`}
-                className="flex items-center justify-between gap-4 px-5 py-4 transition-colors hover:bg-well"
-              >
-                <div>
-                  <div className="flex items-center gap-2">
-                    <span className="font-mono text-sm font-medium text-ink" title={order.id}>
-                      #{order.id.slice(-6).toUpperCase()}
-                    </span>
-                    <Badge variant="outline" className={pillClass(orderStatusTone(order.status))}>
-                      {STATUS_LABEL[order.status] ?? order.status}
-                    </Badge>
-                  </div>
-                  <div className="mt-1 text-sm text-muted-foreground">
-                    {formatLagosDateTime(order.createdAt)} ·{' '}
-                    {order.itemCount} item{order.itemCount === 1 ? '' : 's'}
-                  </div>
-                </div>
-                <div className="font-bold tabular-nums text-ink">{formatNaira(order.total)}</div>
-              </Link>
-            ))}
-          </div>
-        )}
+        <OrderHistoryList orders={orders} />
       </div>
 
       <div className="mt-8 overflow-hidden rounded-lg bg-surface">
