@@ -15,6 +15,7 @@ export function KycDocumentInput() {
       name="document"
       type="file"
       accept="application/pdf,image/jpeg,image/png"
+      className="cursor-pointer py-0 pl-1.5 text-sm text-muted-foreground file:mr-3 file:h-8 file:cursor-pointer file:rounded-md file:bg-well file:px-3 file:text-sm file:font-medium file:text-ink file:transition-colors hover:file:bg-border-strong/40"
       onChange={(e) => {
         const input = e.currentTarget;
         const file = input.files?.[0];

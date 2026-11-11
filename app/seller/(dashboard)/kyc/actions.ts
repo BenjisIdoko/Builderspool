@@ -10,34 +10,28 @@ import { compareBusinessNames } from '@/lib/kyc/nameMatch';
 import { getSetting } from '@/lib/settings';
 import { recordAudit } from '@/lib/audit';
 
-function requiredText(formData: FormData, key: string): string {
+function requiredText(formData: FormData, key: string, label: string): string {
   const value = formData.get(key);
   if (typeof value !== 'string' || value.trim().length === 0) {
-    throw new Error(`Missing ${key}.`);
+    throw new Error(`Enter your ${label}.`);
   }
   return value.trim();
 }
 
-// The supporting document is uploaded to a private Supabase Storage bucket
-// (lib/storage/kycDocuments.ts); optional on resubmission — leaving the file
-// input empty keeps whatever document is already on file.
-export async function submitKyc(formData: FormData) {
-  // KYC is the owner's: staff cannot change what the business declares.
-  const { sellerId, userId: actorId } = await requireSellerOwner();
+function readKycFields(formData: FormData) {
+  const businessRegNumber = requiredText(formData, 'businessRegNumber', 'business registration number');
+  const cacNumber = requiredText(formData, 'cacNumber', 'CAC number');
+  const idType = requiredText(formData, 'idType', 'ID type');
+  const idNumber = requiredText(formData, 'idNumber', 'ID number');
 
-  const businessRegNumber = requiredText(formData, 'businessRegNumber');
-  const cacNumber = requiredText(formData, 'cacNumber');
-  const idType = requiredText(formData, 'idType');
-  const idNumber = requiredText(formData, 'idNumber');
-
-  const tin = requiredText(formData, 'tin');
+  const tin = requiredText(formData, 'tin', 'tax identification number');
   if (!/^[A-Za-z0-9-]{6,20}$/.test(tin)) throw new Error('Enter a valid TIN (6–20 letters, digits or hyphens).');
-  const businessAddress = requiredText(formData, 'businessAddress');
+  const businessAddress = requiredText(formData, 'businessAddress', 'business address');
   if (businessAddress.length < 10) throw new Error('Enter the full business address.');
-  const bankName = requiredText(formData, 'bankName');
-  const bankAccountNumber = requiredText(formData, 'bankAccountNumber');
+  const bankName = requiredText(formData, 'bankName', 'bank');
+  const bankAccountNumber = requiredText(formData, 'bankAccountNumber', 'account number');
   if (!/^\d{10}$/.test(bankAccountNumber)) throw new Error('A Nigerian bank account number has 10 digits.');
-  const bankAccountName = requiredText(formData, 'bankAccountName');
+  const bankAccountName = requiredText(formData, 'bankAccountName', 'account name');
   if (formData.get('termsAccepted') !== 'on') throw new Error('Accept the seller terms to submit.');
 
   const expiryRaw = formData.get('documentExpiresAt');
@@ -47,11 +41,31 @@ export async function submitKyc(formData: FormData) {
     if (Number.isNaN(documentExpiresAt.getTime())) throw new Error('Enter a valid document expiry date.');
     const today = new Date();
     if (documentExpiresAt < new Date(today.getFullYear(), today.getMonth(), today.getDate())) {
-      throw new Error('That document has already expired — upload a current one.');
+      throw new Error('That document has already expired. Upload a current one.');
     }
   }
   const documentFile = formData.get('document');
   const newDocument = documentFile instanceof File && documentFile.size > 0 ? documentFile : null;
+
+  return { businessRegNumber, cacNumber, idType, idNumber, tin, businessAddress, bankName, bankAccountNumber, bankAccountName, documentExpiresAt, newDocument };
+}
+
+// The supporting document is uploaded to a private Supabase Storage bucket
+// (lib/storage/kycDocuments.ts); optional on resubmission — leaving the file
+// input empty keeps whatever document is already on file.
+export async function submitKyc(formData: FormData): Promise<{ error: string } | { ok: true }> {
+  // KYC is the owner's: staff cannot change what the business declares.
+  const { sellerId, userId: actorId } = await requireSellerOwner();
+
+  // Problems with what the seller typed come back as text beside the form, not
+  // as an error page that throws their answers away.
+  let fields: ReturnType<typeof readKycFields>;
+  try {
+    fields = readKycFields(formData);
+  } catch (err) {
+    return { error: err instanceof Error ? err.message : 'Check the details and try again.' };
+  }
+  const { businessRegNumber, cacNumber, idType, idNumber, tin, businessAddress, bankName, bankAccountNumber, bankAccountName, documentExpiresAt, newDocument } = fields;
 
   const [existing, owner, termsVersion] = await Promise.all([
     prisma.sellerProfile.findUniqueOrThrow({ where: { userId: sellerId } }),
@@ -68,7 +82,12 @@ export async function submitKyc(formData: FormData) {
 
   // Upload first so a rejected/failed file stops the whole submission before
   // anything is written; if the DB write then fails, the orphan is removed.
-  const stored = newDocument ? await uploadKycDocument(sellerId, newDocument) : null;
+  let stored: Awaited<ReturnType<typeof uploadKycDocument>> | null = null;
+  try {
+    stored = newDocument ? await uploadKycDocument(sellerId, newDocument) : null;
+  } catch (err) {
+    return { error: err instanceof Error ? err.message : 'The document could not be uploaded.' };
+  }
 
   try {
     await prisma.sellerProfile.update({
@@ -126,6 +145,7 @@ export async function submitKyc(formData: FormData) {
 
   revalidatePath('/seller/kyc');
   revalidatePath('/admin/verification');
+  return { ok: true };
 }
 
 // When admins publish a new terms version (Settings > accounts.termsVersion),
