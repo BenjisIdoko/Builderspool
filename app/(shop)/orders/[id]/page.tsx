@@ -56,10 +56,10 @@ export default async function OrderConfirmationPage({
   searchParams,
 }: {
   params: Promise<{ id: string }>;
-  searchParams: Promise<{ reference?: string; trxref?: string }>;
+  searchParams: Promise<{ reference?: string; trxref?: string; payment?: string }>;
 }) {
   const { id } = await params;
-  const { reference, trxref } = await searchParams;
+  const { reference, trxref, payment } = await searchParams;
   const [firstLoad, buyer] = await Promise.all([getOrderById(id), requireBuyer()]);
   if (!firstLoad || firstLoad.buyerId !== buyer.id) notFound();
 
@@ -93,6 +93,11 @@ export default async function OrderConfirmationPage({
 
   return (
     <div className="mx-auto w-full max-w-3xl px-6 pt-6 pb-12">
+      {payment === 'failed' && order.status === 'PENDING_PAYMENT' && (
+        <p role="alert" className="mb-4 text-pretty rounded-md bg-danger-soft px-4 py-3 text-sm text-danger">
+          We couldn&apos;t open the payment page. Your order is saved. Try Pay now again, or contact us if it keeps happening.
+        </p>
+      )}
       <div className="mb-8 flex flex-wrap items-start justify-between gap-4 rounded-lg bg-surface p-6">
         <div className="flex items-start gap-4">
           <span

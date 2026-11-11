@@ -16,6 +16,22 @@ interface InitializeParams {
   amountNaira: number;
   reference: string;
   callbackUrl: string;
+  /** Which ways to pay Paystack's page offers. Omit to show every channel the account has on. */
+  channels?: string[];
+}
+
+/** What the buyer picked at checkout, as Paystack channels. Without this Paystack opens its default card form. */
+export function paystackChannelsFor(method: 'BANK_TRANSFER' | 'CARD' | 'USSD' | null | undefined): string[] | undefined {
+  switch (method) {
+    case 'CARD':
+      return ['card'];
+    case 'BANK_TRANSFER':
+      return ['bank_transfer', 'bank'];
+    case 'USSD':
+      return ['ussd'];
+    default:
+      return undefined;
+  }
 }
 
 interface InitializeResult {
@@ -36,6 +52,7 @@ export async function initializePaystackTransaction(params: InitializeParams): P
       amount: Math.round(params.amountNaira * 100), // Paystack takes kobo, the smallest NGN unit
       reference: params.reference,
       callback_url: params.callbackUrl,
+      ...(params.channels && params.channels.length > 0 ? { channels: params.channels } : {}),
     }),
   });
 

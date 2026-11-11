@@ -15,7 +15,13 @@ export async function retryPaymentAction(formData: FormData) {
   if (!order || order.buyerId !== buyer.id || order.status !== 'PENDING_PAYMENT') return;
 
   const origin = await getRequestOrigin();
-  const { authorizationUrl } = await initiateOrderPayment(orderId, origin);
+  let authorizationUrl: string | null = null;
+  try {
+    ({ authorizationUrl } = await initiateOrderPayment(orderId, origin));
+  } catch (err) {
+    console.error('Could not start payment for order', orderId, err instanceof Error ? err.message : err);
+  }
 
-  redirect(authorizationUrl);
+  // redirect() works by throwing, so it stays outside the try.
+  redirect(authorizationUrl ?? `/orders/${orderId}?payment=failed`);
 }

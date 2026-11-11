@@ -179,7 +179,7 @@ export function CheckoutForm({
           window.location.href = body.payment.authorizationUrl;
           return;
         }
-        router.push(`/orders/${body.order.id}`);
+        router.push(`/orders/${body.order.id}${body.paymentError ? '?payment=failed' : ''}`);
         return;
       }
 
