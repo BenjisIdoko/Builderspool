@@ -8,6 +8,7 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription, Di
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Textarea } from '@/components/ui/textarea';
 
 type Category = { id: string; name: string; slug: string };
@@ -133,18 +134,18 @@ export function ReferenceProductActions({ product, categories }: { product: Refe
               <Label htmlFor={`categoryId-${product.id}`} className="mb-1 text-xs text-muted-foreground">
                 Category
               </Label>
-              <select
-                id={`categoryId-${product.id}`}
-                name="categoryId"
-                defaultValue={product.categoryId}
-                className="h-8 w-full rounded-md border border-input bg-transparent px-2.5 text-sm no-zoom outline-none focus-visible:border-ring focus-visible:ring-3 focus-visible:ring-ring/50"
-              >
-                {categories.map((c) => (
-                  <option key={c.id} value={c.id}>
-                    {c.name}
-                  </option>
-                ))}
-              </select>
+              <Select name="categoryId" defaultValue={product.categoryId}>
+                <SelectTrigger id={`categoryId-${product.id}`} className="w-full">
+                  <SelectValue />
+                </SelectTrigger>
+                <SelectContent>
+                  {categories.map((c) => (
+                    <SelectItem key={c.id} value={c.id}>
+                      {c.name}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
             </div>
 
             <div className="grid grid-cols-2 gap-3">
@@ -176,31 +177,31 @@ export function ReferenceProductActions({ product, categories }: { product: Refe
                 <Label htmlFor={`projectScale-${product.id}`} className="mb-1 text-xs text-muted-foreground">
                   Project scale
                 </Label>
-                <select
-                  id={`projectScale-${product.id}`}
-                  name="projectScale"
-                  defaultValue={product.projectScale}
-                  className="h-8 w-full rounded-md border border-input bg-transparent px-2.5 text-sm no-zoom outline-none focus-visible:border-ring focus-visible:ring-3 focus-visible:ring-ring/50"
-                >
-                  <option value="SMALL">Small</option>
-                  <option value="MEGA">Mega</option>
-                  <option value="BOTH">Both</option>
-                </select>
+                <Select name="projectScale" defaultValue={product.projectScale}>
+                  <SelectTrigger id={`projectScale-${product.id}`} className="w-full">
+                    <SelectValue />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="SMALL">Small</SelectItem>
+                    <SelectItem value="MEGA">Mega</SelectItem>
+                    <SelectItem value="BOTH">Both</SelectItem>
+                  </SelectContent>
+                </Select>
               </div>
               <div>
                 <Label htmlFor={`sourcingModel-${product.id}`} className="mb-1 text-xs text-muted-foreground">
                   Sourcing model
                 </Label>
-                <select
-                  id={`sourcingModel-${product.id}`}
-                  name="sourcingModel"
-                  defaultValue={product.sourcingModel}
-                  className="h-8 w-full rounded-md border border-input bg-transparent px-2.5 text-sm no-zoom outline-none focus-visible:border-ring focus-visible:ring-3 focus-visible:ring-ring/50"
-                >
-                  <option value="NATIONAL">National</option>
-                  <option value="REGIONAL">Regional</option>
-                  <option value="BOTH">Both</option>
-                </select>
+                <Select name="sourcingModel" defaultValue={product.sourcingModel}>
+                  <SelectTrigger id={`sourcingModel-${product.id}`} className="w-full">
+                    <SelectValue />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="NATIONAL">National</SelectItem>
+                    <SelectItem value="REGIONAL">Regional</SelectItem>
+                    <SelectItem value="BOTH">Both</SelectItem>
+                  </SelectContent>
+                </Select>
               </div>
             </div>
 

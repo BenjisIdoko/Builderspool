@@ -13,6 +13,7 @@ import { AnimatedCount, AnimatedNaira } from '@/components/ui/animated-number';
 import { AddMoreMaterials, CheckoutLineItems } from '@/components/checkout-line-items';
 import { getDeliveryCost, type FulfillmentMethod } from '@/lib/checkout/deliveryCost';
 import { checkoutFallbackText } from '@/lib/pool-stages';
+import { DatePicker } from '@/components/ui/date-picker';
 import { PickupLocation } from '@/components/pickup-location';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
@@ -33,6 +34,8 @@ const PAYMENT_OPTIONS: { method: PaymentMethod; label: string; icon: typeof Bank
 ];
 
 const REGIONS = ['ABUJA', 'LAGOS', 'KANO'];
+// Delivery windows a buyer can ask for, inside our Monday to Saturday, 8am to 6pm hours.
+const DELIVERY_WINDOWS = ['Morning (8am–12pm)', 'Afternoon (12pm–4pm)', 'Late afternoon (4pm–6pm)'];
 const AREA_MISSING = 'Choose an area we deliver to.';
 
 function formatYmd(ymd: string): string {
@@ -307,19 +310,26 @@ export function CheckoutForm({
                     <Label htmlFor="neededBy" className="mb-1.5 text-body-sm font-medium text-ink">
                       Needed on site by <span className="font-normal text-muted-foreground">(optional)</span>
                     </Label>
-                    <Input id="neededBy" type="date" min={earliestDate} value={neededBy} onChange={(e) => setNeededBy(e.target.value)} />
+                    <DatePicker id="neededBy" min={earliestDate} value={neededBy} onChange={setNeededBy} placeholder="Pick a date" />
                     <p className="mt-1 text-caption text-muted-foreground">Earliest: {formatYmd(earliestDate)}</p>
                   </div>
                   <div>
                     <Label htmlFor="deliveryWindow" className="mb-1.5 text-body-sm font-medium text-ink">
                       Preferred time of day <span className="font-normal text-muted-foreground">(optional)</span>
                     </Label>
-                    <Input
-                      id="deliveryWindow"
-                      value={deliveryWindow}
-                      onChange={(e) => setDeliveryWindow(e.target.value)}
-                      placeholder="e.g. Weekday mornings, or any time"
-                    />
+                    <Select value={deliveryWindow || 'any'} onValueChange={(v) => setDeliveryWindow(v === 'any' ? '' : v)}>
+                      <SelectTrigger id="deliveryWindow" className="w-full">
+                        <SelectValue />
+                      </SelectTrigger>
+                      <SelectContent>
+                        <SelectItem value="any">Any time</SelectItem>
+                        {DELIVERY_WINDOWS.map((w) => (
+                          <SelectItem key={w} value={w}>
+                            {w}
+                          </SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
                   </div>
                 </div>
                 <div>

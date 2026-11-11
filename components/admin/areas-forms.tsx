@@ -1,10 +1,12 @@
 'use client';
 
 import { useRef, useState, useTransition } from 'react';
+import { flushSync } from 'react-dom';
 import { addLocalityAction, addZoneAction, setLocalityZoneAction, setZoneFeeAction } from '@/app/admin/(dashboard)/areas/actions';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 
 type Result = { error: string } | { ok: true };
 
@@ -101,6 +103,8 @@ export function LocalityZoneForm({
 }) {
   const { isPending, message, run } = useAction(setLocalityZoneAction);
   const formRef = useRef<HTMLFormElement>(null);
+  // '' means no zone, but a Select item cannot have an empty value, so 'none' stands in for it.
+  const [zone, setZone] = useState(zoneId ?? 'none');
   return (
     <form
       ref={formRef}
@@ -111,22 +115,29 @@ export function LocalityZoneForm({
       className="flex flex-wrap items-center justify-end gap-2"
     >
       <input type="hidden" name="localityId" value={localityId} />
-      <select
-        name="zoneId"
-        defaultValue={zoneId ?? ''}
-        aria-label="Delivery zone"
-        className="h-9 max-w-64 min-w-0 rounded-md border border-input bg-surface px-2 text-body-sm no-zoom text-ink"
-        onChange={() => formRef.current?.requestSubmit()}
+      <input type="hidden" name="zoneId" value={zone === 'none' ? '' : zone} />
+      <Select
+        value={zone}
+        onValueChange={(next) => {
+          // Update first, so the hidden field holds the new zone when the form is submitted.
+          flushSync(() => setZone(next));
+          formRef.current?.requestSubmit();
+        }}
         disabled={isPending}
       >
-        <option value="">No zone (pickup only)</option>
-        {zones.map((z) => (
-          <option key={z.id} value={z.id}>
-            {z.name}
-            {z.active ? '' : ' (inactive)'}
-          </option>
-        ))}
-      </select>
+        <SelectTrigger aria-label="Delivery zone" className="max-w-64 min-w-0">
+          <SelectValue />
+        </SelectTrigger>
+        <SelectContent>
+          <SelectItem value="none">No zone (pickup only)</SelectItem>
+          {zones.map((z) => (
+            <SelectItem key={z.id} value={z.id}>
+              {z.name}
+              {z.active ? '' : ' (inactive)'}
+            </SelectItem>
+          ))}
+        </SelectContent>
+      </Select>
       <Message message={message} />
     </form>
   );
@@ -146,13 +157,18 @@ export function AddLocalityForm({ lgas }: { lgas: { id: string; name: string }[]
         <Label htmlFor="loc-lga" className="mb-1.5 text-body-sm font-medium text-ink">
           Area Council
         </Label>
-        <select id="loc-lga" name="lgaId" required className="h-11 w-full rounded-md border border-input bg-surface px-3 text-body no-zoom text-ink">
-          {lgas.map((l) => (
-            <option key={l.id} value={l.id}>
-              {l.name}
-            </option>
-          ))}
-        </select>
+        <Select name="lgaId" required>
+          <SelectTrigger id="loc-lga" className="h-11 w-full">
+            <SelectValue placeholder="Choose an area council" />
+          </SelectTrigger>
+          <SelectContent>
+            {lgas.map((l) => (
+              <SelectItem key={l.id} value={l.id}>
+                {l.name}
+              </SelectItem>
+            ))}
+          </SelectContent>
+        </Select>
       </div>
       <div>
         <Label htmlFor="loc-name" className="mb-1.5 text-body-sm font-medium text-ink">
@@ -164,11 +180,16 @@ export function AddLocalityForm({ lgas }: { lgas: { id: string; name: string }[]
         <Label htmlFor="loc-kind" className="mb-1.5 text-body-sm font-medium text-ink">
           Type
         </Label>
-        <select id="loc-kind" name="kind" defaultValue="DISTRICT" className="h-11 w-full rounded-md border border-input bg-surface px-3 text-body no-zoom text-ink">
-          <option value="DISTRICT">District</option>
-          <option value="TOWN">Town</option>
-          <option value="CITY">City</option>
-        </select>
+        <Select name="kind" defaultValue="DISTRICT">
+          <SelectTrigger id="loc-kind" className="h-11 w-full">
+            <SelectValue />
+          </SelectTrigger>
+          <SelectContent>
+            <SelectItem value="DISTRICT">District</SelectItem>
+            <SelectItem value="TOWN">Town</SelectItem>
+            <SelectItem value="CITY">City</SelectItem>
+          </SelectContent>
+        </Select>
       </div>
       <Button type="submit" disabled={isPending}>
         {isPending ? 'Adding…' : 'Add locality'}

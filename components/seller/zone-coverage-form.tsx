@@ -4,6 +4,7 @@ import { useState, useTransition } from 'react';
 import { saveZoneCoverageAction } from '@/app/seller/(dashboard)/settings/actions';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
+import { Checkbox } from '@/components/ui/checkbox';
 
 type ZoneRow = { id: string; name: string; status: 'PENDING' | 'APPROVED' | 'REVOKED' | null };
 
@@ -43,14 +44,7 @@ export function ZoneCoverageForm({ zones, nationalSupply, canEdit }: { zones: Zo
           return (
             <li key={z.id}>
               <label className="flex min-h-12 cursor-pointer items-center gap-3 px-4 py-2.5">
-                <input
-                  type="checkbox"
-                  name="zoneId"
-                  value={z.id}
-                  defaultChecked={z.status === 'PENDING' || z.status === 'APPROVED'}
-                  disabled={!canEdit || locked}
-                  className="size-5 shrink-0 accent-[var(--color-ink)]"
-                />
+                <Checkbox name="zoneId" value={z.id} defaultChecked={z.status === 'PENDING' || z.status === 'APPROVED'} disabled={!canEdit || locked} />
                 {locked && <input type="hidden" name="zoneId" value={z.id} />}
                 <span className="min-w-0 flex-1 text-body text-ink">{z.name}</span>
                 {badge && <Badge variant={badge.variant}>{badge.label}</Badge>}

@@ -2,6 +2,7 @@
 
 import { useRouter } from 'next/navigation';
 import type { MaterialSort } from '@/lib/queries/materials';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 
 const SORT_OPTIONS: { value: MaterialSort; label: string }[] = [
   { value: 'relevance', label: 'Relevance' },
@@ -42,18 +43,18 @@ export function CatalogSortSelect({
       <label htmlFor="sort" className="text-xs text-muted-foreground">
         Sort
       </label>
-      <select
-        id="sort"
-        value={sort}
-        onChange={(e) => router.push(buildUrl(e.target.value as MaterialSort))}
-        className="h-11 rounded-md border border-input bg-surface px-3 text-sm no-zoom outline-none transition-colors duration-150 hover:bg-well focus-visible:border-ring focus-visible:ring-3 focus-visible:ring-ring/50 lg:h-9"
-      >
-        {SORT_OPTIONS.map((o) => (
-          <option key={o.value} value={o.value}>
-            {o.label}
-          </option>
-        ))}
-      </select>
+      <Select value={sort} onValueChange={(v) => router.push(buildUrl(v as MaterialSort))}>
+        <SelectTrigger id="sort" className="h-11 w-auto min-w-44 lg:h-9">
+          <SelectValue />
+        </SelectTrigger>
+        <SelectContent align="end">
+          {SORT_OPTIONS.map((o) => (
+            <SelectItem key={o.value} value={o.value}>
+              {o.label}
+            </SelectItem>
+          ))}
+        </SelectContent>
+      </Select>
     </div>
   );
 }

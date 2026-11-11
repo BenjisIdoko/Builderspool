@@ -6,6 +6,7 @@ import { kycStatusTone, pillClass } from '@/lib/statusColors';
 import { submitKyc, verifyCacAction, acceptCurrentTermsAction } from './actions';
 import { getSettings } from '@/lib/settings';
 import { prisma } from '@/lib/prisma';
+import { lagosYmd } from '@/lib/bidding/schedule';
 import { describeExpiry, documentExpiryState } from '@/lib/kyc/expiry';
 import { isKycUploadConfigured } from '@/lib/storage/kycDocuments';
 import { KycDocumentInput } from '@/components/seller/kyc-document-input';
@@ -13,6 +14,9 @@ import { Badge } from '@/components/ui/badge';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Button } from '@/components/ui/button';
+import { Checkbox } from '@/components/ui/checkbox';
+import { DatePicker } from '@/components/ui/date-picker';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 
 const KYC_LABEL: Record<string, string> = {
   NOT_SUBMITTED: 'Not started',
@@ -23,6 +27,7 @@ const KYC_LABEL: Record<string, string> = {
 };
 
 export default async function SellerKycPage() {
+  const todayYmd = lagosYmd(new Date());
   const actor = await getSellerActor();
   if (!actor) redirect('/seller/login');
 
@@ -133,20 +138,16 @@ export default async function SellerKycPage() {
               <Label htmlFor="idType" className="mb-1.5 text-xs text-muted-foreground">
                 ID type
               </Label>
-              <select
-                id="idType"
-                name="idType"
-                required
-                defaultValue={profile.idType ?? ''}
-                className="h-8 w-full rounded-md border border-input bg-transparent px-2.5 text-sm no-zoom outline-none focus-visible:border-ring focus-visible:ring-3 focus-visible:ring-ring/50"
-              >
-                <option value="" disabled>
-                  Select an ID type
-                </option>
-                <option value="NIN">NIN</option>
-                <option value="International passport">International passport</option>
-                <option value="Driver's licence">Driver&apos;s licence</option>
-              </select>
+              <Select name="idType" required defaultValue={profile.idType ?? undefined}>
+                <SelectTrigger id="idType" className="w-full">
+                  <SelectValue placeholder="Select an ID type" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="NIN">NIN</SelectItem>
+                  <SelectItem value="International passport">International passport</SelectItem>
+                  <SelectItem value="Driver's licence">Driver&apos;s licence</SelectItem>
+                </SelectContent>
+              </Select>
             </div>
             <div>
               <Label htmlFor="idNumber" className="mb-1.5 text-xs text-muted-foreground">
@@ -249,16 +250,17 @@ export default async function SellerKycPage() {
             <Label htmlFor="documentExpiresAt" className="mb-1.5 text-xs text-muted-foreground">
               Document expiry date (if it has one, e.g. a SON certificate)
             </Label>
-            <Input
+            <DatePicker
               id="documentExpiresAt"
               name="documentExpiresAt"
-              type="date"
+              min={todayYmd}
               defaultValue={profile.documentExpiresAt ? profile.documentExpiresAt.toISOString().slice(0, 10) : ''}
+              placeholder="No expiry date"
             />
           </div>
 
-          <label className="flex items-start gap-2.5 text-sm text-ink">
-            <input type="checkbox" name="termsAccepted" required className="mt-0.5 size-4 accent-[var(--color-brand)]" />
+          <label className="flex items-start gap-3 text-sm text-ink">
+            <Checkbox name="termsAccepted" required className="mt-0.5" />
             <span>
               I accept the BuildersPool seller terms (version {termsVersion}) on behalf of this business.
               <span className="block text-xs text-muted-foreground">The full terms text will be published before the pilot.</span>

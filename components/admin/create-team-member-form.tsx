@@ -5,6 +5,7 @@ import { createTeamMemberAction } from '@/app/admin/(dashboard)/team/actions';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 
 const ROLE_OPTIONS = [
   { value: 'QC_OFFICER', label: 'QC officer' },
@@ -39,22 +40,18 @@ export function CreateTeamMemberForm() {
           <Label htmlFor="member-role" className="mb-1.5 text-xs text-muted-foreground">
             Role
           </Label>
-          <select
-            id="member-role"
-            name="role"
-            required
-            defaultValue=""
-            className="h-8 w-full rounded-md border border-input bg-transparent px-2.5 text-sm no-zoom outline-none focus-visible:border-ring focus-visible:ring-3 focus-visible:ring-ring/50"
-          >
-            <option value="" disabled>
-              Select a role
-            </option>
-            {ROLE_OPTIONS.map((o) => (
-              <option key={o.value} value={o.value}>
-                {o.label}
-              </option>
-            ))}
-          </select>
+          <Select name="role" required>
+            <SelectTrigger id="member-role" className="w-full">
+              <SelectValue placeholder="Select a role" />
+            </SelectTrigger>
+            <SelectContent>
+              {ROLE_OPTIONS.map((o) => (
+                <SelectItem key={o.value} value={o.value}>
+                  {o.label}
+                </SelectItem>
+              ))}
+            </SelectContent>
+          </Select>
         </div>
         <div>
           <Label htmlFor="member-name" className="mb-1.5 text-xs text-muted-foreground">

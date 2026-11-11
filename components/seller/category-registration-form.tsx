@@ -4,6 +4,7 @@ import { useState, useTransition } from 'react';
 import { saveCategoriesAction } from '@/app/seller/(dashboard)/settings/actions';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
+import { Checkbox } from '@/components/ui/checkbox';
 
 type CategoryRow = { name: string; status: 'PENDING' | 'APPROVED' | 'REVOKED' | null };
 
@@ -40,14 +41,7 @@ export function CategoryRegistrationForm({ categories, canEdit }: { categories: 
           return (
             <li key={c.name}>
               <label className="flex min-h-12 cursor-pointer items-center gap-3 px-4 py-2.5">
-                <input
-                  type="checkbox"
-                  name="category"
-                  value={c.name}
-                  defaultChecked={c.status === 'PENDING' || c.status === 'APPROVED'}
-                  disabled={!canEdit || locked}
-                  className="size-5 shrink-0 accent-[var(--color-ink)]"
-                />
+                <Checkbox name="category" value={c.name} defaultChecked={c.status === 'PENDING' || c.status === 'APPROVED'} disabled={!canEdit || locked} />
                 {locked && <input type="hidden" name="category" value={c.name} />}
                 <span className="min-w-0 flex-1 text-body text-ink">{c.name}</span>
                 {badge && <Badge variant={badge.variant}>{badge.label}</Badge>}

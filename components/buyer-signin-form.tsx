@@ -8,6 +8,7 @@ import { Input } from '@/components/ui/input';
 import { PasswordInput } from '@/components/password-input';
 import { Label } from '@/components/ui/label';
 import { Button } from '@/components/ui/button';
+import { Checkbox } from '@/components/ui/checkbox';
 import { AUTH_INPUT, AUTH_LABEL, AUTH_BUTTON } from '@/components/auth-field-styles';
 
 export function BuyerSignInForm() {
@@ -55,7 +56,7 @@ export function BuyerSignInForm() {
         </div>
 
         <label className="flex min-h-11 cursor-pointer items-center gap-2.5 text-sm text-slate">
-          <input type="checkbox" name="remember" className="size-5 rounded border-input accent-brand" />
+          <Checkbox name="remember" />
           Remember me
         </label>
 

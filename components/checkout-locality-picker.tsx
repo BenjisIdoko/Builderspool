@@ -7,6 +7,7 @@ import { formatNaira } from '@/lib/format';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
+import { Select, SelectContent, SelectGroup, SelectItem, SelectLabel, SelectTrigger, SelectValue } from '@/components/ui/select';
 
 export function findLocality(areas: CheckoutAreas, id: string): CheckoutLocality | null {
   for (const lga of areas.lgas) {
@@ -40,23 +41,23 @@ export function CheckoutLocalityPicker({
         <Label htmlFor="locality" className="sr-only">
           Your area
         </Label>
-        <select
-          id="locality"
-          value={value}
-          onChange={(e) => onChange(e.target.value)}
-          className="h-11 w-full rounded-md border border-input-border bg-surface px-3 text-body no-zoom text-ink"
-        >
-          <option value="">Choose your area</option>
-          {areas.lgas.map((lga) => (
-            <optgroup key={lga.id} label={lga.name}>
-              {lga.localities.map((loc) => (
-                <option key={loc.id} value={loc.id}>
-                  {loc.name}
-                </option>
-              ))}
-            </optgroup>
-          ))}
-        </select>
+        <Select value={value} onValueChange={onChange}>
+          <SelectTrigger id="locality" className="h-11 w-full">
+            <SelectValue placeholder="Choose your area" />
+          </SelectTrigger>
+          <SelectContent>
+            {areas.lgas.map((lga) => (
+              <SelectGroup key={lga.id}>
+                <SelectLabel>{lga.name}</SelectLabel>
+                {lga.localities.map((loc) => (
+                  <SelectItem key={loc.id} value={loc.id}>
+                    {loc.name}
+                  </SelectItem>
+                ))}
+              </SelectGroup>
+            ))}
+          </SelectContent>
+        </Select>
       </div>
 
       {selected && zone && (

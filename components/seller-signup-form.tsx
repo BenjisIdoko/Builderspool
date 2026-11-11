@@ -7,7 +7,8 @@ import { signUpSeller } from '@/app/seller/actions';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Button } from '@/components/ui/button';
-import { AUTH_INPUT, AUTH_LABEL, AUTH_BUTTON, AUTH_SELECT } from '@/components/auth-field-styles';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
+import { AUTH_INPUT, AUTH_LABEL, AUTH_BUTTON } from '@/components/auth-field-styles';
 
 export function SellerSignUpForm() {
   const router = useRouter();
@@ -59,20 +60,16 @@ export function SellerSignUpForm() {
           <Label htmlFor="location" className={AUTH_LABEL}>
             Primary region
           </Label>
-          <select
-            id="location"
-            name="location"
-            required
-            defaultValue=""
-            className={AUTH_SELECT}
-          >
-            <option value="" disabled>
-              Select a region
-            </option>
-            <option value="ABUJA">Abuja</option>
-            <option value="LAGOS">Lagos</option>
-            <option value="KANO">Kano</option>
-          </select>
+          <Select name="location" required>
+            <SelectTrigger id="location" className="h-12 w-full px-4 text-base sm:h-11">
+              <SelectValue placeholder="Select a region" />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="ABUJA">Abuja</SelectItem>
+              <SelectItem value="LAGOS">Lagos</SelectItem>
+              <SelectItem value="KANO">Kano</SelectItem>
+            </SelectContent>
+          </Select>
         </div>
         <div>
           <Label htmlFor="password" className={AUTH_LABEL}>

@@ -6,6 +6,7 @@ import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 
 export type ListingFormValues = {
   id?: string;
@@ -74,21 +75,18 @@ export function ListingForm({
       ) : (
         <div className="space-y-1.5">
           <Label htmlFor="new-material">Product</Label>
-          <select
-            id="new-material"
-            name="materialId"
-            required
-            value={materialId}
-            onChange={(e) => setMaterialId(e.target.value)}
-            className="h-11 w-full rounded-md border border-input-border bg-surface px-3 text-body text-ink no-zoom outline-none transition-colors duration-150 hover:bg-well focus-visible:border-ring focus-visible:ring-3 focus-visible:ring-ring/50"
-          >
-            <option value="">Choose a product</option>
-            {materials.map((m) => (
-              <option key={m.id} value={m.id}>
-                {m.name} ({m.unit})
-              </option>
-            ))}
-          </select>
+          <Select name="materialId" required value={materialId} onValueChange={setMaterialId}>
+            <SelectTrigger id="new-material" className="h-11 w-full">
+              <SelectValue placeholder="Choose a product" />
+            </SelectTrigger>
+            <SelectContent>
+              {materials.map((m) => (
+                <SelectItem key={m.id} value={m.id}>
+                  {m.name} ({m.unit})
+                </SelectItem>
+              ))}
+            </SelectContent>
+          </Select>
         </div>
       )}
 

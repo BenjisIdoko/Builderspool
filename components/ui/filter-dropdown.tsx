@@ -1,5 +1,6 @@
 'use client';
 
+import { Checkbox } from '@/components/ui/checkbox';
 import { useEffect, useRef, useState } from 'react';
 import { FunnelIcon } from '@phosphor-icons/react/ssr';
 import { cn } from 'cn';
@@ -63,27 +64,8 @@ export function FilterCheckboxRow({
   children: React.ReactNode;
 }) {
   return (
-    <label className="flex cursor-pointer items-center gap-2 py-1 text-[13px] text-ink">
-      <input type="checkbox" checked={checked} onChange={onChange} className="size-3.5 accent-brand" />
-      {children}
-    </label>
-  );
-}
-
-export function FilterRadioRow({
-  name,
-  checked,
-  onChange,
-  children,
-}: {
-  name: string;
-  checked: boolean;
-  onChange: () => void;
-  children: React.ReactNode;
-}) {
-  return (
-    <label className="flex cursor-pointer items-center gap-2 py-1 text-[13px] text-ink">
-      <input type="radio" name={name} checked={checked} onChange={onChange} className="size-3.5 accent-brand" />
+    <label className="flex min-h-9 cursor-pointer items-center gap-2.5 py-1 text-[13px] text-ink">
+      <Checkbox checked={checked} onCheckedChange={() => onChange()} />
       {children}
     </label>
   );

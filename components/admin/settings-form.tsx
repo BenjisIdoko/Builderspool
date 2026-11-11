@@ -5,6 +5,8 @@ import { updateSettingsAction } from '@/app/admin/(dashboard)/settings/actions';
 import type { SettingDefinition, SettingGroupId } from '@/lib/settings/definitions';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
+import { Switch } from '@/components/ui/switch';
+import { TimePicker } from '@/components/ui/time-picker';
 import { Label } from '@/components/ui/label';
 
 type Group = { id: SettingGroupId; title: string; description: string };
@@ -51,13 +53,7 @@ export function SettingsForm({
                 <div key={d.key} className={d.type === 'bool' ? 'flex items-start gap-3 sm:col-span-2' : ''}>
                   {d.type === 'bool' ? (
                     <>
-                      <input
-                        id={d.key}
-                        name={d.key}
-                        type="checkbox"
-                        defaultChecked={Boolean(values[d.key])}
-                        className="mt-0.5 size-4 accent-[var(--color-brand)]"
-                      />
+                      <Switch id={d.key} name={d.key} defaultChecked={Boolean(values[d.key])} className="mt-0.5" />
                       <div>
                         <Label htmlFor={d.key} className="text-sm text-ink">
                           {d.label}
@@ -70,16 +66,20 @@ export function SettingsForm({
                       <Label htmlFor={d.key} className="mb-1.5 text-xs text-muted-foreground">
                         {d.label}
                       </Label>
-                      <Input
-                        id={d.key}
-                        name={d.key}
-                        required
-                        type={d.type === 'time' ? 'time' : d.type === 'text' ? 'text' : 'number'}
-                        min={d.min}
-                        max={d.max}
-                        step={d.type === 'int' || d.type === 'percent' ? 1 : undefined}
-                        defaultValue={String(values[d.key])}
-                      />
+                      {d.type === 'time' ? (
+                        <TimePicker id={d.key} name={d.key} required defaultValue={String(values[d.key])} />
+                      ) : (
+                        <Input
+                          id={d.key}
+                          name={d.key}
+                          required
+                          type={d.type === 'text' ? 'text' : 'number'}
+                          min={d.min}
+                          max={d.max}
+                          step={d.type === 'int' || d.type === 'percent' ? 1 : undefined}
+                          defaultValue={String(values[d.key])}
+                        />
+                      )}
                       {d.help && <p className="mt-1 text-xs text-muted-foreground">{d.help}</p>}
                     </>
                   )}

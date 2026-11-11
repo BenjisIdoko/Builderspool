@@ -4,6 +4,7 @@ import { useRouter } from 'next/navigation';
 import { MagnifyingGlassIcon } from '@phosphor-icons/react/ssr';
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 
 type Category = { slug: string; name: string; productCount: number };
 
@@ -21,9 +22,9 @@ export function CatalogueFilterBar({
 }) {
   const router = useRouter();
 
-  function handleCategoryChange(e: React.ChangeEvent<HTMLSelectElement>) {
+  function handleCategoryChange(value: string) {
     const params = new URLSearchParams();
-    if (e.target.value) params.set('category', e.target.value);
+    if (value !== 'all') params.set('category', value);
     if (q) params.set('q', q);
     const qs = params.toString();
     router.push(`/admin/catalogue-reference${qs ? `?${qs}` : ''}`);
@@ -31,18 +32,19 @@ export function CatalogueFilterBar({
 
   return (
     <div className="mb-6 flex flex-wrap items-center gap-3">
-      <select
-        value={category ?? ''}
-        onChange={handleCategoryChange}
-        className="h-8 min-w-52 rounded-md border border-input bg-transparent px-2.5 text-sm no-zoom outline-none focus-visible:border-ring focus-visible:ring-3 focus-visible:ring-ring/50"
-      >
-        <option value="">All categories</option>
-        {categories.map((c) => (
-          <option key={c.slug} value={c.slug}>
-            {c.name} ({c.productCount})
-          </option>
-        ))}
-      </select>
+      <Select value={category ?? 'all'} onValueChange={handleCategoryChange}>
+        <SelectTrigger aria-label="Category" className="min-w-52">
+          <SelectValue />
+        </SelectTrigger>
+        <SelectContent>
+          <SelectItem value="all">All categories</SelectItem>
+          {categories.map((c) => (
+            <SelectItem key={c.slug} value={c.slug}>
+              {c.name} ({c.productCount})
+            </SelectItem>
+          ))}
+        </SelectContent>
+      </Select>
 
       <form className="flex max-w-sm flex-1 items-center gap-2">
         {category && <input type="hidden" name="category" value={category} />}

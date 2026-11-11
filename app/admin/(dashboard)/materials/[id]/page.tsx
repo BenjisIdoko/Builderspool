@@ -7,6 +7,7 @@ import { formatNaira } from '@/lib/format';
 import { updateMaterialAction, setMaterialRetiredAction } from '../actions';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Button } from '@/components/ui/button';
 
 export default async function AdminMaterialEditPage({ params }: { params: Promise<{ id: string }> }) {
@@ -94,15 +95,15 @@ export default async function AdminMaterialEditPage({ params }: { params: Promis
               <Label htmlFor="sourcingScope" className="mb-1.5 text-xs text-muted-foreground">
                 Sourcing scope
               </Label>
-              <select
-                id="sourcingScope"
-                name="sourcingScope"
-                defaultValue={material.sourcingScope}
-                className="h-8 w-full rounded-md border border-input bg-transparent px-2.5 text-sm no-zoom outline-none focus-visible:border-ring focus-visible:ring-3 focus-visible:ring-ring/50"
-              >
-                <option value="NATIONAL">National</option>
-                <option value="REGIONAL">Regional</option>
-              </select>
+              <Select name="sourcingScope" defaultValue={material.sourcingScope}>
+                <SelectTrigger id="sourcingScope" className="w-full">
+                  <SelectValue />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="NATIONAL">National</SelectItem>
+                  <SelectItem value="REGIONAL">Regional</SelectItem>
+                </SelectContent>
+              </Select>
             </div>
           </div>
         </div>

@@ -3,6 +3,7 @@
 import { SealCheckIcon } from '@phosphor-icons/react/ssr';
 import { Money } from '@/components/money';
 import { useOfferSelection } from '@/components/offer-selection';
+import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
 
 function leadTime(days: number) {
   if (days <= 0) return 'Same day';
@@ -35,18 +36,11 @@ export function ProductOffers({ unit }: { unit: string }) {
         Each seller sets their own price per {unit}. Pick a seller, then choose Buy Direct at checkout to buy from them; or choose Pool &amp; Save there to have suppliers compete for your order instead. Your price follows your pick.
       </p>
 
-      <ul role="radiogroup" aria-labelledby="offers-heading" className="mt-4 divide-y divide-hairline">
+      <RadioGroup value={selected?.id ?? ''} onValueChange={select} aria-labelledby="offers-heading" className="mt-4 gap-0 divide-y divide-hairline">
         {offers.map((o, i) => (
-          <li key={o.id}>
-            <label className="-mx-2 flex min-h-14 cursor-pointer items-center gap-3 rounded-md px-2 py-3 transition-colors duration-150 hover:bg-well/60 has-checked:bg-info-soft has-focus-visible:ring-2 has-focus-visible:ring-ring">
-              <input
-                type="radio"
-                name="offer"
-                value={o.id}
-                checked={selected?.id === o.id}
-                onChange={() => select(o.id)}
-                className="size-5 shrink-0 accent-[var(--color-ink)]"
-              />
+          <div key={o.id}>
+            <label className="-mx-2 flex min-h-14 cursor-pointer items-center gap-3 rounded-md px-2 py-3 transition-colors duration-150 hover:bg-well/60 has-data-[state=checked]:bg-info-soft has-focus-visible:ring-2 has-focus-visible:ring-ring">
+              <RadioGroupItem value={o.id} />
             {o.photoUrl ? (
               // eslint-disable-next-line @next/next/no-img-element
               <img src={o.photoUrl} alt="" className="size-12 shrink-0 rounded-md bg-well object-cover outline outline-1 -outline-offset-1 outline-black/10 dark:outline-white/10" />
@@ -76,9 +70,9 @@ export function ProductOffers({ unit }: { unit: string }) {
               <div className="text-caption text-slate">per {unit}</div>
             </div>
             </label>
-          </li>
+          </div>
         ))}
-      </ul>
+      </RadioGroup>
     </section>
   );
 }
