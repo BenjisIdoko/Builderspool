@@ -1,12 +1,11 @@
 import Image from 'next/image';
 import { REVEAL_STAGGER, Reveal } from '@/components/motion/reveal';
 import type { CycleTimes } from '@/lib/bidding/schedule';
-import { SAVINGS_TIMING_TEXT } from '@/lib/pool-stages';
 
 // "How Pool & Save works" — four numbered steps in one row on a pale-blue
 // band. Times come from the live timeline in Admin > Settings; the steps
-// describe this platform's flow (fixed catalogue price now, savings shared
-// after delivery is confirmed). Typographic on purpose: the numerals carry
+// describe this platform's flow (fixed catalogue price now, half of any saving
+// credited once we have checked the order). Typographic on purpose: the numerals carry
 // the rhythm until there is photography for each step.
 // Each step shows one crop of the Ushafa warehouse picture (one file, four
 // framings: stock on pallets, full racks, the benefits banners, a truck being
@@ -38,19 +37,19 @@ function buildSteps(times: CycleTimes) {
   return [
     {
       title: 'Order at the catalogue price',
-      body: `Pay the fixed catalogue price. Orders placed before ${times.poolCloseTime} join today’s pool.`,
+      body: `Pay the fixed price now. Orders placed before ${times.poolCloseTime} join today’s pool.`,
     },
     {
-      title: 'Demand is pooled',
-      body: `At ${times.poolCloseTime} the day’s orders are frozen and sent to verified suppliers as one request.`,
+      title: 'Your order joins the pool',
+      body: `At ${times.poolCloseTime} the pool closes and goes to verified suppliers as one request.`,
     },
     {
       title: 'Suppliers compete',
       body: `Verified suppliers offer to fill the pool for less. Your result is ready by ${times.fallbackTime}.`,
     },
     {
-      title: 'Best price wins, you save',
-      body: 'If the winning price is lower than the catalogue price, you keep 50% of the saving in your savings wallet ' + SAVINGS_TIMING_TEXT + '.',
+      title: 'You keep half the saving',
+      body: 'If suppliers beat the catalogue price, half the saving goes to your wallet once we’ve checked your order.',
     },
   ];
 }
@@ -67,7 +66,7 @@ export function PoolSaveSteps({ times }: { times: CycleTimes }) {
               <StepPhoto index={i} />
               <div className="border-t-2 border-cyan-text pt-4">
               <span className="font-mono text-figure-lg text-cyan-text">{String(i + 1).padStart(2, '0')}</span>
-              <h3 className="mt-3 text-heading-sm text-ink">{step.title}</h3>
+              <h3 className="mt-3 text-balance text-heading-sm text-ink">{step.title}</h3>
               <p className="mt-2 max-w-[34ch] text-pretty text-body-sm text-slate">{step.body}</p>
               </div>
             </Reveal>
