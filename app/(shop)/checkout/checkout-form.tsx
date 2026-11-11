@@ -6,13 +6,13 @@ import { useRouter } from 'next/navigation';
 import { BankIcon, CheckCircleIcon, CircleIcon, DeviceMobileIcon, MapPinIcon, TruckIcon, CreditCardIcon, LockKeyIcon } from '@phosphor-icons/react/ssr';
 import type { PaymentMethod } from '@prisma/client';
 import { useCart } from '@/lib/cart/CartContext';
-import { linePrice } from '@/lib/cart/types';
 import type { CheckoutAreas } from '@/lib/queries/checkoutAreas';
 import { CheckoutLocalityPicker, findLocality } from '@/components/checkout-locality-picker';
 import { formatNaira, formatClock } from '@/lib/format';
+import { AnimatedCount, AnimatedNaira } from '@/components/ui/animated-number';
+import { AddMoreMaterials, CheckoutLineItems } from '@/components/checkout-line-items';
 import { getDeliveryCost, type FulfillmentMethod } from '@/lib/checkout/deliveryCost';
 import { checkoutFallbackText } from '@/lib/pool-stages';
-import { MaterialImage } from '@/components/material-image';
 import { PickupLocation } from '@/components/pickup-location';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
@@ -227,25 +227,11 @@ export function CheckoutForm({
         </div>
         )}
 
-        <div className="mb-3.5 text-label text-slate uppercase">02 · Items ({lines.length})</div>
-        <div className="divide-y divide-border rounded-lg bg-surface">
-          {lines.map((line) => (
-            <div key={line.materialId} className="flex items-center gap-3 p-4">
-              <MaterialImage
-                imageUrl={line.imageUrl}
-                category={line.category}
-                alt={line.name}
-                className="size-12 shrink-0 rounded-md outline outline-1 -outline-offset-1 outline-black/10 dark:outline-white/10"
-                sizes="48px"
-              />
-              <div className="min-w-0 flex-1">
-                <div className="truncate text-sm font-semibold text-ink">{line.name}</div>
-                <div className="text-xs tabular-nums text-muted-foreground">Qty {line.quantity}</div>
-              </div>
-              <span className="font-bold tabular-nums text-slate">{formatNaira(linePrice(line) * line.quantity)}</span>
-            </div>
-          ))}
+        <div className="mb-3.5 text-label text-slate uppercase">
+          02 · Items (<AnimatedCount value={lines.length} />)
         </div>
+        <CheckoutLineItems />
+        <AddMoreMaterials />
 
         {fulfillmentMethod === 'PICKUP' && center && (
           <>
@@ -480,15 +466,15 @@ export function CheckoutForm({
         <div className="flex flex-col gap-1.5 border-t border-border pt-4 text-sm">
           <div className="flex justify-between text-slate">
             <span>Materials subtotal</span>
-            <span className="tabular-nums font-bold text-ink">{formatNaira(subtotal)}</span>
+            <AnimatedNaira value={subtotal} className="font-bold text-ink" />
           </div>
           <div className="flex justify-between text-slate">
             <span>{fulfillmentMethod === 'DELIVERY' ? 'Delivery' : 'Pickup'}</span>
-            <span className="tabular-nums font-bold text-ink">{deliveryCost === 0 ? 'Free' : formatNaira(deliveryCost)}</span>
+            {deliveryCost === 0 ? <span className="font-bold text-ink">Free</span> : <AnimatedNaira value={deliveryCost} className="font-bold text-ink" />}
           </div>
           <div className="flex justify-between border-t border-border pt-2.5 text-base font-bold text-ink">
             <span>Order total</span>
-            <span className="tabular-nums">{formatNaira(total)}</span>
+            <AnimatedNaira value={total} />
           </div>
         </div>
 
@@ -499,7 +485,7 @@ export function CheckoutForm({
           className="mt-5 w-full"
           disabled={state.status === 'submitting' || missing !== null}
         >
-          {state.status === 'submitting' ? 'Opening secure payment…' : `Pay ${formatNaira(total)} securely`}
+          {state.status === 'submitting' ? 'Opening secure payment…' : <>Pay <AnimatedNaira value={total} /> securely</>}
         </Button>
         {missing && (
           <p className="mt-2 text-center text-caption text-slate" role="status">
