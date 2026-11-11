@@ -88,7 +88,8 @@ export async function reissueStaffInviteAction(
   }
 }
 
-export async function removeStaffAction(formData: FormData) {
+// Returns what went wrong as text so the team page can show it in its dialog.
+export async function removeStaffAction(formData: FormData): Promise<{ error: string } | { ok: true }> {
   const owner = await requireSellerOwner();
   const staffUserId = text(formData, 'staffUserId');
 
@@ -96,7 +97,7 @@ export async function removeStaffAction(formData: FormData) {
     where: { userId: staffUserId, sellerUserId: owner.sellerId },
     include: { user: { select: { name: true } } },
   });
-  if (!membership) throw new Error('That staff member is not on your team.');
+  if (!membership) return { error: 'That person is no longer on your team. Refresh the page.' };
 
   await prisma.$transaction([
     prisma.user.update({ where: { id: staffUserId }, data: { disabledAt: new Date() } }),
@@ -112,4 +113,5 @@ export async function removeStaffAction(formData: FormData) {
     summary: `Removed seller staff ${membership.user.name}`,
   });
   revalidatePath('/seller/team');
+  return { ok: true };
 }

@@ -30,29 +30,34 @@ export function AddStaffForm() {
 
   return (
     <form ref={formRef} onSubmit={submit} className="space-y-4 rounded-lg bg-card-alt p-5">
-      <h2 className="text-heading-sm text-ink">Add a staff member</h2>
+      <div>
+        <h2 className="text-heading-sm text-ink">Add a staff member</h2>
+        <p className="mt-1 max-w-[64ch] text-pretty text-sm text-muted-foreground">
+          They get their own login. You&apos;ll get a private link to send them, and they choose their own password.
+        </p>
+      </div>
       <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
         <div>
-          <Label htmlFor="staff-name" className="mb-1.5 text-xs text-muted-foreground">
+          <Label htmlFor="staff-name" className="mb-1.5">
             Name
           </Label>
           <Input id="staff-name" name="name" required autoComplete="off" />
         </div>
         <div>
-          <Label htmlFor="staff-email" className="mb-1.5 text-xs text-muted-foreground">
+          <Label htmlFor="staff-email" className="mb-1.5">
             Email
           </Label>
           <Input id="staff-email" name="email" type="email" required autoComplete="off" />
         </div>
       </div>
       {invite && <InviteLinkPanel name={invite.name} inviteUrl={invite.inviteUrl} onDismiss={() => setInvite(null)} />}
-      <div className="flex items-center justify-end gap-4">
+      <div className="flex flex-wrap items-center justify-end gap-x-4 gap-y-2">
         {message && (
-          <p className={`text-sm ${message.tone === 'error' ? 'text-danger' : 'text-success'}`} role="status">
+          <p className={`text-pretty text-sm ${message.tone === 'error' ? 'text-danger' : 'text-success'}`} role={message.tone === 'error' ? 'alert' : 'status'}>
             {message.text}
           </p>
         )}
-        <Button type="submit" disabled={isPending}>
+        <Button type="submit" disabled={isPending} aria-busy={isPending}>
           {isPending ? 'Adding…' : 'Add staff member'}
         </Button>
       </div>
