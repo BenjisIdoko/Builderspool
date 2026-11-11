@@ -23,6 +23,45 @@ function intField(fd: FormData, key: string): number | null {
   return Number.isInteger(n) ? n : NaN;
 }
 
+type CheckedListing = { id: string; materialId: string; price: unknown; shelfLifeDays: number | null; sellerId: string };
+
+// Runs the upload checks on a listing's current photos and sets its status from
+// the outcome. Shared by saving and by removing a photo, so both treat a listing
+// the same way: still good stays live, anything else says what to fix.
+async function applyListingChecks(listing: CheckedListing, perishable: boolean, verified: boolean) {
+  const photos = await prisma.listingPhoto.findMany({ where: { listingId: listing.id }, orderBy: { sortOrder: 'asc' } });
+  const others = await prisma.sellerListing.findMany({
+    where: { materialId: listing.materialId, status: ListingStatus.ACTIVE, NOT: { sellerId: listing.sellerId } },
+    select: { price: true },
+  });
+  const medianPrice = median(others.map((o) => Number(o.price)));
+  const qc = runListingQc({
+    price: Number(listing.price),
+    medianPrice,
+    perishable,
+    shelfLifeDays: listing.shelfLifeDays,
+    photos,
+    duplicatePhoto: false,
+  });
+  // Only a verified seller can go live; everyone else stays a draft that is
+  // saved but invisible to buyers.
+  const status = qc.result === ListingQcResult.PASSED && !verified ? ListingStatus.DRAFT : STATUS_FOR[qc.result];
+  await prisma.sellerListing.update({
+    where: { id: listing.id },
+    data: {
+      status,
+      qcResult: qc.result,
+      qcReasons: qc.reasons,
+      qcMedianPrice: medianPrice,
+      qcCheckedAt: new Date(),
+      reviewedAt: null,
+      reviewedById: null,
+      reviewNote: null,
+    },
+  });
+  return qc;
+}
+
 // Saves a seller's listing for one material, stores any new photos, then runs
 // the upload checks. A listing that passes goes live by itself; one the checks
 // flag waits for ops; one that fails tells the seller what to fix.
@@ -75,39 +114,8 @@ export async function saveListingAction(formData: FormData): Promise<Result> {
       await prisma.listingPhoto.createMany({ data: stored.map((s, i) => ({ listingId: listing.id, ...s, sortOrder: base + i })) });
     }
 
-    const photos = await prisma.listingPhoto.findMany({ where: { listingId: listing.id }, orderBy: { sortOrder: 'asc' } });
-    const others = await prisma.sellerListing.findMany({
-      where: { materialId, status: ListingStatus.ACTIVE, NOT: { sellerId: actor.sellerId } },
-      select: { price: true },
-    });
-    const medianPrice = median(others.map((o) => Number(o.price)));
-    const qc = runListingQc({
-      price,
-      medianPrice,
-      perishable: material.perishable,
-      shelfLifeDays,
-      photos,
-      duplicatePhoto: false,
-    });
-
-    // Only a verified seller can go live; everyone else stays a draft that is
-    // saved but invisible to buyers.
     const verified = profile?.kycStatus === KycStatus.APPROVED;
-    const status = qc.result === ListingQcResult.PASSED && !verified ? ListingStatus.DRAFT : STATUS_FOR[qc.result];
-
-    await prisma.sellerListing.update({
-      where: { id: listing.id },
-      data: {
-        status,
-        qcResult: qc.result,
-        qcReasons: qc.reasons,
-        qcMedianPrice: medianPrice,
-        qcCheckedAt: new Date(),
-        reviewedAt: null,
-        reviewedById: null,
-        reviewNote: null,
-      },
-    });
+    const qc = await applyListingChecks(listing, material.perishable, verified);
     await recordAudit({
       actor: { id: actor.userId, role: actor.isOwner ? 'SELLER' : 'SELLER_STAFF' },
       action: existing ? 'listing.updated' : 'listing.created',
@@ -159,12 +167,19 @@ export async function removeListingPhotoAction(photoId: string): Promise<Result>
 
   await prisma.listingPhoto.delete({ where: { id: photo.id } });
   await deleteListingPhotoFile(photo.path);
-  // Fewer photos can break the checks, so a live listing goes back to draft
-  // until it is saved again.
-  await prisma.sellerListing.updateMany({
-    where: { id: photo.listingId, status: ListingStatus.ACTIVE },
-    data: { status: ListingStatus.DRAFT, qcResult: null, qcReasons: [] },
+
+  // Fewer photos can break the checks, so run them again. A live listing that
+  // still has a good photo stays live; one left with none says what to fix.
+  const listing = await prisma.sellerListing.findUnique({
+    where: { id: photo.listingId },
+    include: { material: { select: { perishable: true } }, seller: { select: { sellerProfile: { select: { kycStatus: true } } } } },
   });
   revalidatePath('/seller/listings');
-  return { ok: true, message: 'Photo removed. Save the listing again to put it live.' };
+  // Paused, flagged or ops-decided listings keep their status; only live and draft ones are re-checked.
+  if (!listing || (listing.status !== ListingStatus.ACTIVE && listing.status !== ListingStatus.DRAFT)) return { ok: true, message: 'Photo removed. Save the listing to run the checks again.' };
+
+  const qc = await applyListingChecks(listing, listing.material.perishable, listing.seller.sellerProfile?.kycStatus === KycStatus.APPROVED);
+  if (qc.result === ListingQcResult.REJECTED) return { ok: true, message: notLiveMessage(qc.reasons) };
+  if (qc.result === ListingQcResult.NEEDS_REVIEW) return { ok: true, message: 'Photo removed. Our team will check the listing before it goes live.' };
+  return { ok: true, message: 'Photo removed.' };
 }

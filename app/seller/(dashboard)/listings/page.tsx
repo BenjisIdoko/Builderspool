@@ -11,7 +11,7 @@ export default async function SellerListingsPage() {
   const actor = await getSellerActor();
   if (!actor) redirect('/seller/login');
 
-  const [listings, materials] = await Promise.all([
+  const [listings, materials, profile] = await Promise.all([
     prisma.sellerListing.findMany({
       where: { sellerId: actor.sellerId },
       include: { photos: { orderBy: { sortOrder: 'asc' } }, material: { select: { name: true } } },
@@ -19,10 +19,12 @@ export default async function SellerListingsPage() {
     }),
     prisma.material.findMany({
       where: { retired: false, needsPriceReview: false },
-      select: { id: true, name: true, unit: true, perishable: true },
+      select: { id: true, name: true, unit: true, perishable: true, category: true },
       orderBy: [{ category: 'asc' }, { name: 'asc' }],
     }),
+    prisma.sellerProfile.findUnique({ where: { userId: actor.sellerId }, select: { kycStatus: true } }),
   ]);
+  const verified = profile?.kycStatus === 'APPROVED';
 
   const listed = new Set(listings.map((l) => l.materialId));
   const available = materials.filter((m) => !listed.has(m.id));
@@ -59,7 +61,7 @@ export default async function SellerListingsPage() {
           {available.length === 0 ? (
             <p className="text-sm text-muted-foreground">You have listed every product in the catalogue.</p>
           ) : (
-            <ListingForm key={listings.length} materials={available} values={null} reasonText={reasonText} uploadsEnabled={uploadsEnabled} />
+            <ListingForm key={listings.length} materials={available} values={null} reasonText={reasonText} uploadsEnabled={uploadsEnabled} verified={verified} />
           )}
         </div>
       </div>
@@ -74,7 +76,7 @@ export default async function SellerListingsPage() {
           <ul className="divide-y divide-border">
             {listings.map((l) => (
               <li key={l.id} className="px-5 py-4">
-                <ListingForm materials={materials} values={toValues(l)} reasonText={reasonText} uploadsEnabled={uploadsEnabled} />
+                <ListingForm materials={materials} values={toValues(l)} reasonText={reasonText} uploadsEnabled={uploadsEnabled} verified={verified} />
               </li>
             ))}
           </ul>

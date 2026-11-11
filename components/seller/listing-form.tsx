@@ -6,7 +6,7 @@ import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
+import { Select, SelectContent, SelectGroup, SelectItem, SelectLabel, SelectTrigger, SelectValue } from '@/components/ui/select';
 
 export type ListingFormValues = {
   id?: string;
@@ -21,7 +21,7 @@ export type ListingFormValues = {
   photos: { id: string; url: string; widthPx: number; heightPx: number }[];
 };
 
-export type MaterialOption = { id: string; name: string; unit: string; perishable: boolean };
+export type MaterialOption = { id: string; name: string; unit: string; perishable: boolean; category: string };
 
 const STATUS_BADGE = {
   DRAFT: { label: 'Draft', variant: 'warning' },
@@ -36,11 +36,13 @@ export function ListingForm({
   values,
   reasonText,
   uploadsEnabled,
+  verified,
 }: {
   materials: MaterialOption[];
   values: ListingFormValues | null;
   reasonText: Record<string, string>;
   uploadsEnabled: boolean;
+  verified: boolean;
 }) {
   const [isPending, startTransition] = useTransition();
   const [message, setMessage] = useState<{ tone: 'error' | 'ok'; text: string } | null>(null);
@@ -48,6 +50,10 @@ export function ListingForm({
   const formRef = useRef<HTMLFormElement>(null);
   const selected = materials.find((m) => m.id === materialId);
   const badge = values?.status ? STATUS_BADGE[values.status] : null;
+  const byCategory = materials.reduce<Record<string, MaterialOption[]>>((acc, m) => {
+    (acc[m.category] ??= []).push(m);
+    return acc;
+  }, {});
 
   function run(fn: () => Promise<{ error: string } | { ok: true; message: string }>) {
     setMessage(null);
@@ -71,6 +77,7 @@ export function ListingForm({
         <div className="flex flex-wrap items-center gap-2">
           <h3 className="text-heading-sm text-ink">{selected?.name}</h3>
           {badge && <Badge variant={badge.variant}>{badge.label}</Badge>}
+          {selected && <span className="basis-full text-caption text-muted-foreground">{selected.category}</span>}
         </div>
       ) : (
         <div className="space-y-1.5">
@@ -80,14 +87,26 @@ export function ListingForm({
               <SelectValue placeholder="Choose a product" />
             </SelectTrigger>
             <SelectContent>
-              {materials.map((m) => (
-                <SelectItem key={m.id} value={m.id}>
-                  {m.name} ({m.unit})
-                </SelectItem>
+              {Object.entries(byCategory).map(([category, items]) => (
+                <SelectGroup key={category}>
+                  <SelectLabel>{category}</SelectLabel>
+                  {items.map((m) => (
+                    <SelectItem key={m.id} value={m.id}>
+                      {m.name} ({m.unit})
+                    </SelectItem>
+                  ))}
+                </SelectGroup>
               ))}
             </SelectContent>
           </Select>
+          {selected && <p className="text-caption text-muted-foreground">Category: {selected.category}</p>}
         </div>
+      )}
+
+      {values?.status === 'DRAFT' && values.reasons.length === 0 && (
+        <p role="note" className="text-pretty rounded-md bg-card-alt px-4 py-3 text-sm text-ink">
+          {verified ? 'Not live yet. Save changes to run the checks and put it live.' : 'Saved, but not live. It goes live once your KYC is verified.'}
+        </p>
       )}
 
       {values?.reviewNote && (
