@@ -60,11 +60,12 @@ export function SellerOrderTable({ orders }: { orders: SellerOrderRow[] }) {
               key={tab}
               type="button"
               onClick={() => setStatus(tab)}
-              className={`inline-flex shrink-0 items-center rounded-full px-3 py-1.5 text-xs font-semibold transition-colors ${
+              aria-pressed={status === tab}
+              className={`inline-flex min-h-11 shrink-0 items-center rounded-full px-4 text-xs font-semibold outline-none focus-visible:ring-2 focus-visible:ring-ring transition-[background-color,color,scale] duration-150 active:scale-[0.96] lg:min-h-8 lg:px-3 ${
                 status === tab ? 'bg-ink text-canvas' : 'bg-well text-slate hover:text-ink'
               }`}
             >
-              {tab} ({counts[tab]})
+              {tab} (<span className="tabular-nums">{counts[tab]}</span>)
             </button>
           ))}
         </div>
@@ -73,7 +74,7 @@ export function SellerOrderTable({ orders }: { orders: SellerOrderRow[] }) {
           <FilterDropdown>
             <FilterDropdownLabel>Show only</FilterDropdownLabel>
             <FilterCheckboxRow checked={needsActionOnly} onChange={() => setNeedsActionOnly((v) => !v)}>
-              Not yet received at hub
+              Not yet received at our centre
             </FilterCheckboxRow>
           </FilterDropdown>
           <div className="relative max-w-xs flex-1">
@@ -82,6 +83,8 @@ export function SellerOrderTable({ orders }: { orders: SellerOrderRow[] }) {
               value={search}
               onChange={(e) => setSearch(e.target.value)}
               placeholder="Search material or buyer…"
+              aria-label="Search orders by material or buyer"
+              autoComplete="off"
               className="pl-9"
             />
           </div>
@@ -90,7 +93,13 @@ export function SellerOrderTable({ orders }: { orders: SellerOrderRow[] }) {
 
       {filtered.length === 0 ? (
         <div className="rounded-card bg-card-alt">
-          <EmptyState illustration={NoResultsIllustration} variant="inline" as="p" title="No requisitions match this filter" description="Try a different status." />
+          <EmptyState
+            illustration={NoResultsIllustration}
+            variant="inline"
+            as="p"
+            title={orders.length === 0 ? 'No Pool & Save orders yet' : 'No orders match this filter'}
+            description={orders.length === 0 ? 'Orders appear here once a pool is awarded to you.' : 'Try a different status, or clear the search.'}
+          />
         </div>
       ) : (
         <>
@@ -103,9 +112,9 @@ export function SellerOrderTable({ orders }: { orders: SellerOrderRow[] }) {
           <Table>
             <TableHeader>
               <TableRow>
-                <TableHead>Requisition</TableHead>
+                <TableHead>Order</TableHead>
                 <TableHead>Buyer &amp; material</TableHead>
-                <TableHead className="text-right">Escrow amount</TableHead>
+                <TableHead className="text-right">Amount</TableHead>
                 <TableHead>Status</TableHead>
                 <TableHead className="text-right">Detail</TableHead>
               </TableRow>

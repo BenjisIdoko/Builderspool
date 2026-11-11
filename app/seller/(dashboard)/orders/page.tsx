@@ -30,15 +30,15 @@ export default async function SellerOrdersPage() {
   return (
     <div className="mx-auto w-full max-w-7xl px-4 pt-6 pb-16 sm:px-8 sm:pt-8 sm:pb-20">
       <div className="mb-1 text-xs text-muted-foreground">Merchant · fulfillment</div>
-      <h1 className="mb-1 text-heading-lg text-ink">Incoming requisitions</h1>
-      <p className="mb-6 text-sm text-muted-foreground">
-        Every real requisition awarded to you — filter, search, and drill into drop-off and payout detail.
+      <h1 className="mb-1 text-heading-lg text-ink">Orders</h1>
+      <p className="mb-6 max-w-[64ch] text-pretty text-sm text-muted-foreground">
+        Orders awarded to you. Filter or search them, and open one for its drop-off and payout details.
       </p>
 
       {direct.length > 0 && (
         <section className="mb-8 rounded-card bg-card-alt p-5">
-          <h2 className="mb-1 text-heading-md text-ink">Buy Direct orders ({direct.length})</h2>
-          <p className="mb-4 text-sm text-muted-foreground">
+          <h2 className="mb-1 text-heading-md text-ink">Buy Direct orders (<span className="tabular-nums">{direct.length}</span>)</h2>
+          <p className="mb-4 max-w-[64ch] text-pretty text-sm text-muted-foreground">
             Buyers chose your listing. Accept within the window, then send the goods to the fulfilment centre. You are paid after it
             receives and checks them, less BuildersPool&rsquo;s commission.
           </p>
@@ -60,7 +60,7 @@ export default async function SellerOrdersPage() {
                 </div>
                 {d.status === 'AWAITING_ACCEPT' && (
                   <>
-                    <p className="text-caption text-slate">
+                    <p className="text-caption tabular-nums text-slate">
                       Answer by {formatLagosDateTime(d.acceptDeadlineAt)}.
                     </p>
                     <DirectOrderActions id={d.id} />
@@ -77,6 +77,9 @@ export default async function SellerOrdersPage() {
         </section>
       )}
 
+      <h2 className="mb-3 text-heading-md text-ink">
+        Pool &amp; Save orders (<span className="tabular-nums">{orders.length}</span>)
+      </h2>
       <SellerOrderTable orders={orders} />
     </div>
   );

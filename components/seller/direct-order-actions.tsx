@@ -22,15 +22,15 @@ export function DirectOrderActions({ id }: { id: string }) {
   return (
     <form onSubmit={(e) => e.preventDefault()} className="flex flex-wrap items-center gap-2">
       <input type="hidden" name="id" value={id} />
-      <Input name="reason" placeholder="Reason, if declining" aria-label="Reason for declining" maxLength={300} className="h-9 min-w-48 flex-1" />
-      <Button type="button" size="sm" disabled={isPending} onClick={(e) => answer('accept', e.currentTarget.form!)}>
-        Accept
+      <Input name="reason" placeholder="Reason, if declining" aria-label="Reason for declining" maxLength={300} autoComplete="off" className="min-w-48 flex-1" />
+      <Button type="button" disabled={isPending} aria-busy={isPending} onClick={(e) => answer('accept', e.currentTarget.form!)}>
+        {isPending ? 'Saving…' : 'Accept'}
       </Button>
-      <Button type="button" size="sm" variant="outline" disabled={isPending} onClick={(e) => answer('decline', e.currentTarget.form!)}>
+      <Button type="button" variant="outline" disabled={isPending} onClick={(e) => answer('decline', e.currentTarget.form!)}>
         Decline
       </Button>
       {error && (
-        <span className="w-full text-caption text-danger" role="alert">
+        <span className="w-full text-pretty text-sm text-danger" role="alert">
           {error}
         </span>
       )}

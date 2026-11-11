@@ -18,7 +18,8 @@ export function SellerOrderCard({ order, amount }: { order: SellerOrderRow; amou
       <button
         type="button"
         onClick={() => setOpen(true)}
-        className="w-full rounded-card bg-card-alt p-3.5 text-left"
+        aria-haspopup="dialog"
+        className="w-full rounded-card bg-card-alt p-3.5 text-left outline-none transition-[background-color,scale] duration-150 hover:bg-well/60 focus-visible:ring-2 focus-visible:ring-ring active:scale-[0.98]"
       >
         <div className="mb-1 flex items-center justify-between gap-2">
           <span className="text-[13.5px] font-bold text-ink">{order.shortId}</span>
@@ -45,22 +46,22 @@ export function SellerOrderCard({ order, amount }: { order: SellerOrderRow; amou
           </SheetDescription>
           <dl className="flex flex-col gap-3 text-sm">
             <div className="flex justify-between gap-4">
-              <dt className="text-muted-foreground">Escrow amount</dt>
+              <dt className="shrink-0 text-muted-foreground">Amount</dt>
               <dd className="font-bold tabular-nums text-ink">{amount}</dd>
             </div>
             <div className="flex justify-between gap-4">
-              <dt className="text-muted-foreground">Status</dt>
+              <dt className="shrink-0 text-muted-foreground">Status</dt>
               <dd className="font-bold text-ink">{STATUS_LABEL[order.status] ?? order.status}</dd>
             </div>
             <div className="flex justify-between gap-4">
-              <dt className="text-muted-foreground">Drop-off</dt>
+              <dt className="shrink-0 text-muted-foreground">Drop-off</dt>
               <dd className="text-right font-semibold text-ink">
-                {order.centerName ?? 'No fulfillment center on record'}
+                {order.centerName ?? 'No fulfilment centre on record'}
                 {order.centerAddress ? ` — ${order.centerAddress}` : ''}
               </dd>
             </div>
             <div className="flex justify-between gap-4">
-              <dt className="text-muted-foreground">Received</dt>
+              <dt className="shrink-0 text-muted-foreground">Received</dt>
               <dd className="text-right font-semibold text-ink">
                 {order.receivedAt
                   ? `${order.receivedAt}${order.grnNumber ? ` (${order.grnNumber})` : ''}`
@@ -68,7 +69,7 @@ export function SellerOrderCard({ order, amount }: { order: SellerOrderRow; amou
               </dd>
             </div>
             <div className="flex justify-between gap-4">
-              <dt className="text-muted-foreground">Payout</dt>
+              <dt className="shrink-0 text-muted-foreground">Payout</dt>
               <dd className="font-semibold text-ink">{PAYOUT_LABEL[order.payoutStatus] ?? order.payoutStatus}</dd>
             </div>
           </dl>
