@@ -33,7 +33,7 @@ const PAYOUT_LABEL: Record<string, string> = {
 };
 
 const QUICK_ACTIONS = [
-  { href: '/seller', label: 'View open demand pools' },
+  { href: '/seller/rfqs', label: 'Answer open RFQs' },
   { href: '/seller/bids', label: 'Review my bids' },
   { href: '/seller/allocations', label: 'View payout schedule' },
 ];
@@ -65,7 +65,7 @@ export default async function SellerDashboardPage() {
 
   const kpiCards = [
     {
-      label: 'Open demand pools',
+      label: 'Open pools',
       value: String(cycles.length),
       icon: StackIcon,
       tone: 'info' as const,
@@ -103,7 +103,7 @@ export default async function SellerDashboardPage() {
             KYC verified
           </Badge>
         ) : (
-          <Link href="/seller/kyc">
+          <Link href="/seller/kyc" className="-my-2 inline-flex items-center rounded-full py-2 outline-none focus-visible:ring-2 focus-visible:ring-ring">
             <Badge
               variant="outline"
               className={pillClass(
@@ -142,7 +142,7 @@ export default async function SellerDashboardPage() {
       {showChecklist && onboarding && (
         <ChecklistCard
           title="Get ready to sell"
-          intro="Five short steps before your first bid. Three of them wait on BuildersPool, and each row shows who has the next move."
+          intro="Five short steps before your first bid. Each row shows who has the next move."
           checklist={onboarding}
         />
       )}
@@ -181,8 +181,8 @@ export default async function SellerDashboardPage() {
       <div className="mb-14 grid grid-cols-1 gap-5 lg:grid-cols-[1fr_280px] lg:items-start">
         <div>
           <div className="mb-3 flex items-baseline justify-between">
-            <h2 className="text-label text-slate uppercase">Real-time order stream</h2>
-            <Link href="/seller/allocations" className="text-sm font-semibold text-brand hover:underline">
+            <h2 className="text-label text-slate uppercase">Recent awards</h2>
+            <Link href="/seller/allocations" className="-my-3 rounded-sm py-3 text-sm font-semibold text-brand outline-none hover:underline focus-visible:ring-2 focus-visible:ring-ring">
               View all →
             </Link>
           </div>
@@ -214,10 +214,10 @@ export default async function SellerDashboardPage() {
               <Table>
                 <TableHeader>
                   <TableRow>
-                    <TableHead>Requisition</TableHead>
+                    <TableHead>Order</TableHead>
                     <TableHead>Material</TableHead>
-                    <TableHead className="text-right">Escrow amount</TableHead>
-                    <TableHead>Status</TableHead>
+                    <TableHead className="text-right">Amount</TableHead>
+                    <TableHead>Payout</TableHead>
                   </TableRow>
                 </TableHeader>
                 <TableBody>
@@ -256,8 +256,8 @@ export default async function SellerDashboardPage() {
               <Link
                 key={action.href}
                 href={action.href}
-                className={`flex items-center justify-between gap-2 py-2.5 text-sm font-medium text-ink hover:text-brand ${
-                  i < QUICK_ACTIONS.length - 1 ? 'border-b border-border' : ''
+                className={`-mx-2 flex min-h-11 items-center justify-between gap-2 rounded-md px-2 text-sm font-medium text-ink outline-none transition-colors duration-150 hover:bg-well focus-visible:ring-2 focus-visible:ring-ring ${
+                  i < QUICK_ACTIONS.length - 1 ? 'border-b border-border rounded-b-none' : ''
                 }`}
               >
                 {action.label}
@@ -269,7 +269,7 @@ export default async function SellerDashboardPage() {
       </div>
 
       <h2 className="mb-1 text-heading-md text-ink">Open demand pools</h2>
-      <p className="mb-6 text-sm text-muted-foreground">
+      <p className="mb-6 max-w-[64ch] text-pretty text-sm text-muted-foreground">
         Blind bidding — you&apos;ll never see other sellers&apos; bids or buyer identities, only the
         aggregated demand.
       </p>
@@ -280,19 +280,19 @@ export default async function SellerDashboardPage() {
             illustration={EmptyListIllustration}
             variant="inline"
             as="p"
-            title="No open cycles right now"
-            description="New cycles in your regions will appear here as buyers' orders are pooled."
+            title="No open demand pools right now"
+            description="New pools in your regions appear here as buyers' orders are pooled."
           />
         </div>
       ) : (
-        <div className="grid grid-cols-1 sm:grid-cols-3">
+        <div className="grid grid-cols-1 gap-3.5 sm:grid-cols-2 xl:grid-cols-3">
           {cycles.map((cycle) => (
-            <div key={cycle.id} className="border-t border-r border-border p-6">
+            <div key={cycle.id} className="flex flex-col rounded-card bg-card-alt p-5">
               <div className="mb-3 flex items-baseline justify-between gap-2">
-                <span className="text-[11px] font-semibold text-slate">
+                <span className="text-xs font-semibold text-slate">
                   {cycle.region ?? 'National'}
                 </span>
-                <span className="flex items-center gap-1 text-[11px] text-muted-foreground">
+                <span className="flex items-center gap-1 text-xs tabular-nums text-muted-foreground">
                   <ClockIcon className="size-3" />
                   {cycle.canBid
                     ? `Bids close ${cycle.bidsCloseAt.toLocaleTimeString('en-NG', { hour: '2-digit', minute: '2-digit', hour12: false, timeZone: 'Africa/Lagos' })}`
@@ -310,13 +310,13 @@ export default async function SellerDashboardPage() {
 
               <div className="mb-1 flex justify-between text-[13px]">
                 <span className="text-slate">Pooled demand</span>
-                <span className="font-semibold text-ink">
+                <span className="font-semibold tabular-nums text-ink">
                   {cycle.totalQuantityRequested} {cycle.material.unit}
                 </span>
               </div>
 
               {cycle.myBid && (
-                <div className="mt-3 flex items-start gap-1.5 rounded-md bg-well px-3 py-2.5 text-[12.5px] text-ink">
+                <div className="mt-3 flex items-start gap-1.5 rounded-md bg-well px-3 py-2.5 text-[12.5px] tabular-nums text-ink">
                   <CheckCircleIcon className="mt-0.5 size-3.5 shrink-0 text-brand" />
                   <span>
                     Your bid: <span className="font-bold">{formatNaira(cycle.myBid.unitPrice)}</span> for{' '}
@@ -327,11 +327,11 @@ export default async function SellerDashboardPage() {
                 </div>
               )}
 
-              <div className="mt-4">
+              <div className="mt-auto pt-4">
                 {cycle.canBid ? (
                   <BidDialog cycle={cycle} />
                 ) : (
-                  <p className="text-xs text-muted-foreground">
+                  <p className="text-pretty text-xs text-muted-foreground">
                     Still collecting demand. Blind bidding opens when the pool closes
                     {cycle.poolClosesAt
                       ? ` at ${cycle.poolClosesAt.toLocaleTimeString('en-NG', { hour: '2-digit', minute: '2-digit', hour12: false, timeZone: 'Africa/Lagos' })}`

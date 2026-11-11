@@ -27,7 +27,7 @@ export function MobileNav({
         <Button
           type="button"
           variant="ghost"
-          size="icon-sm"
+          size="icon"
           aria-label="Open menu"
           className={hideFrom === 'sm' ? 'sm:hidden' : 'lg:hidden'}
         >

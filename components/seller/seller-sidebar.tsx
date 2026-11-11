@@ -4,9 +4,7 @@ import Link from 'next/link';
 import { LogoTile } from '@/components/logo';
 import { usePathname } from 'next/navigation';
 import {
-  CaretUpDownIcon,
   ClipboardTextIcon,
-  DotsThreeVerticalIcon,
   GaugeIcon,
   GearIcon,
   IdentificationCardIcon,
@@ -34,7 +32,7 @@ const KYC_BADGE_LABEL: Record<string, string> = {
 const LINK_GROUPS = [
   {
     label: 'Overview',
-    links: [{ href: '/seller', label: 'Open cycles', icon: GaugeIcon }],
+    links: [{ href: '/seller', label: 'Dashboard', icon: GaugeIcon }],
   },
   {
     label: 'Commerce',
@@ -68,15 +66,14 @@ export function SellerSidebar({
 
   return (
     <aside className="hidden w-[264px] shrink-0 flex-col bg-ink text-white lg:flex">
-      <Link href="/seller" className="flex items-center justify-between gap-2 border-b border-white/10 px-[18px] py-[22px] pb-4">
+      <Link href="/seller" className="flex items-center justify-between gap-2 border-b border-white/10 px-[18px] py-[22px] pb-4 outline-none focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-white/70">
         <span className="flex items-center gap-2.5">
           <LogoTile className="size-9" />
           <span className="leading-tight">
             <span className="block font-display text-[14.5px] font-extrabold tracking-[-0.02em] text-white">BUILDERS<span className="text-orange">POOL</span></span>
-            <span className="block text-[11px] font-semibold tracking-wide text-white/60">Seller portal</span>
+            <span className="block text-[11px] font-semibold tracking-wide text-white/70">Seller portal</span>
           </span>
         </span>
-        <CaretUpDownIcon className="size-3.5 text-white/40" />
       </Link>
 
       <div className="px-[18px] pt-3.5 pb-2">
@@ -91,12 +88,13 @@ export function SellerSidebar({
             </div>
             <div className="flex flex-col gap-1">
               {group.links.filter((link) => isOwner || !('ownerOnly' in link && link.ownerOnly)).map((link) => {
-                const active = pathname === link.href;
+                const active = link.href === '/seller' ? pathname === '/seller' : pathname.startsWith(link.href);
                 return (
                   <Link
                     key={link.href}
                     href={link.href}
-                    className={`flex items-center gap-2.5 rounded-md px-3 py-2.5 text-sm font-medium transition-colors ${
+                    aria-current={active ? 'page' : undefined}
+                    className={`flex items-center gap-2.5 rounded-md px-3 py-2.5 text-sm font-medium outline-none transition-colors duration-150 focus-visible:ring-2 focus-visible:ring-white/70 ${
                       active ? 'bg-white/15 text-white' : 'text-white/75 hover:bg-white/10 hover:text-white'
                     }`}
                   >
@@ -129,12 +127,11 @@ export function SellerSidebar({
               {profile.user.businessName ?? profile.user.name}
             </div>
             <form action={signOutSeller}>
-              <button type="submit" className="text-[11.5px] text-white/70 hover:text-white hover:underline">
-                Sign out
+              <button type="submit" className="-my-2 rounded-sm py-2 text-xs text-white/75 outline-none hover:text-white hover:underline focus-visible:ring-2 focus-visible:ring-white/70">
+                Log out
               </button>
             </form>
           </div>
-          <DotsThreeVerticalIcon className="size-3.5 shrink-0 text-white/40" />
         </div>
       </div>
     </aside>

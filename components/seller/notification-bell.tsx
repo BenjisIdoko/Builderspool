@@ -65,7 +65,7 @@ function NotificationRow({ n }: { n: Notification }) {
     <Link
       href={n.link ?? '#'}
       onClick={handleClick}
-      className={`flex w-full items-start gap-2.5 border-b border-border px-3.5 py-3 text-left last:border-0 hover:bg-well ${
+      className={`flex w-full items-start gap-2.5 border-b border-border px-3.5 py-3 text-left outline-none transition-colors duration-150 last:border-0 hover:bg-well focus-visible:bg-well focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-ring ${
         n.read ? '' : 'bg-info-soft/40'
       }`}
     >
@@ -75,7 +75,12 @@ function NotificationRow({ n }: { n: Notification }) {
       <span className="min-w-0 flex-1">
         <span className="flex items-center gap-1.5">
           <span className="text-[13px] font-semibold text-ink">{n.title}</span>
-          {!n.read && <span className="size-1.5 shrink-0 rounded-full bg-brand" />}
+          {!n.read && (
+            <>
+              <span aria-hidden className="size-1.5 shrink-0 rounded-full bg-brand" />
+              <span className="sr-only">Unread</span>
+            </>
+          )}
         </span>
         <span className="mt-0.5 block text-xs text-slate">{n.body}</span>
         <span className="mt-1 block text-[11px] text-muted-foreground">{timeAgo(n.createdAt)}</span>
@@ -94,10 +99,10 @@ export function NotificationBell({
   return (
     <DropdownMenu>
       <DropdownMenuTrigger asChild>
-        <Button type="button" variant="ghost" size="icon-sm" className="relative" aria-label="Notifications">
+        <Button type="button" variant="ghost" size="icon" className="relative lg:size-9" aria-label={unreadCount > 0 ? `Notifications, ${unreadCount} unread` : 'Notifications'}>
           <BellIcon className="size-4.5" />
           {unreadCount > 0 && (
-            <span className="absolute -top-0.5 -right-0.5 flex size-4 items-center justify-center rounded-full bg-danger text-[9px] font-bold text-white">
+            <span aria-hidden className="absolute top-0.5 right-0.5 flex size-4 items-center justify-center rounded-full bg-danger text-[9px] font-bold tabular-nums text-white">
               {unreadCount > 9 ? '9+' : unreadCount}
             </span>
           )}
@@ -108,7 +113,7 @@ export function NotificationBell({
           <span className="text-sm font-bold text-ink">Notifications</span>
           {unreadCount > 0 && (
             <form action={markAllNotificationsReadAction}>
-              <button type="submit" className="text-xs font-medium text-brand hover:underline">
+              <button type="submit" className="-my-3 rounded-sm py-3 text-xs font-medium text-brand outline-none hover:underline focus-visible:ring-2 focus-visible:ring-ring">
                 Mark all read
               </button>
             </form>
@@ -134,7 +139,7 @@ export function NotificationBell({
         {notifications.length > 0 && (
           <Link
             href="/seller"
-            className="block border-t border-border px-3.5 py-2.5 text-center text-xs font-medium text-brand hover:bg-well"
+            className="block border-t border-border px-3.5 py-3.5 text-center text-xs font-medium text-brand outline-none hover:bg-well focus-visible:bg-well focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-ring"
           >
             View open demand pools →
           </Link>

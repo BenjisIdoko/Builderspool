@@ -32,7 +32,7 @@ const SELLER_LABELS: [string, string][] = [
   ['/seller/kyc', 'KYC verification'],
   ['/seller/settings', 'Settings'],
   ['/seller/team', 'Team'],
-  ['/seller', 'Merchant dashboard'],
+  ['/seller', 'Dashboard'],
 ];
 
 // The design omits the topbar search box on detail/settings/reference-type
@@ -50,7 +50,7 @@ function getBreadcrumb(portal: 'admin' | 'seller', pathname: string): { parent?:
   const table = portal === 'admin' ? ADMIN_LABELS : SELLER_LABELS;
   const match = [...table].sort((a, b) => b[0].length - a[0].length).find(([prefix]) => pathname.startsWith(prefix));
   const showSearch = !NO_SEARCH_PREFIXES.some((p) => pathname.startsWith(p));
-  return { label: match?.[1] ?? (portal === 'admin' ? 'Ops desk' : 'Merchant dashboard'), showSearch };
+  return { label: match?.[1] ?? (portal === 'admin' ? 'Ops desk' : 'Dashboard'), showSearch };
 }
 
 export function PortalTopbar({
@@ -67,7 +67,7 @@ export function PortalTopbar({
 
   return (
     <div className="hidden h-16 shrink-0 items-center justify-between gap-4 border-b border-border bg-surface px-8 lg:flex">
-      <div className="text-[13px] text-muted-foreground">
+      <nav aria-label="Breadcrumb" className="text-[13px] text-muted-foreground">
         Console
         {parent && (
           <>
@@ -76,8 +76,8 @@ export function PortalTopbar({
           </>
         )}
         <span className="mx-1">/</span>
-        <span className="font-semibold text-ink">{label}</span>
-      </div>
+        <span aria-current="page" className="font-semibold text-ink">{label}</span>
+      </nav>
       <div className="flex items-center gap-4">
         {showSearch && <TopbarSearchTrigger width={portal === 'admin' ? 240 : 220} />}
         {bellSlot}

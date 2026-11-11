@@ -72,19 +72,19 @@ export default async function SellerDashboardLayout({ children }: { children: Re
                   <form action={signOutSeller}>
                     <Button type="submit" variant="ghost" size="sm" className="w-full justify-start gap-2 px-2">
                       <SignOutIcon className="size-4" />
-                      Sign out
+                      Log out
                     </Button>
                   </form>
                 </>
               }
             />
-            <Link href="/seller" className="flex items-center gap-2">
+            <Link href="/seller" className="flex min-h-11 items-center gap-2 rounded-sm outline-none focus-visible:ring-2 focus-visible:ring-ring">
               <LogoMark className="size-7" />
               <span className="text-sm font-medium tracking-tight text-ink">Seller portal</span>
             </Link>
             <div className="ml-auto flex items-center gap-1">
               <NotificationBell notifications={notifications} unreadCount={unreadCount} />
-              <Link href="/seller/settings" aria-label="Settings" className="rounded-full">
+              <Link href="/seller/settings" aria-label="Settings" className="flex size-11 items-center justify-center rounded-full outline-none focus-visible:ring-2 focus-visible:ring-ring">
                 <Avatar name={profile.user.businessName ?? profile.user.name} className="size-9 text-xs" />
               </Link>
             </div>

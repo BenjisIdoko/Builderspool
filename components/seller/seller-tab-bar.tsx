@@ -35,7 +35,7 @@ export function SellerTabBar() {
               key={href}
               href={href}
               aria-current={active ? 'page' : undefined}
-              className={`flex min-h-12 flex-1 flex-col items-center justify-center gap-[3px] text-[10px] font-bold ${active ? 'text-brand' : 'text-muted-foreground'}`}
+              className={`flex min-h-12 flex-1 flex-col items-center justify-center gap-[3px] rounded-md text-[11px] font-bold outline-none transition-[color,scale] duration-150 focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-ring active:scale-[0.96] ${active ? 'text-brand' : 'text-muted-foreground'}`}
             >
               <Icon weight={active ? 'fill' : 'regular'} className="size-[22px]" />
               {label}
