@@ -40,6 +40,20 @@ function formatYmd(ymd: string): string {
   return new Date(Date.UTC(y, m - 1, d)).toLocaleDateString('en-NG', { day: 'numeric', month: 'short', year: 'numeric', timeZone: 'UTC' });
 }
 
+// Selected / unselected mark for the option rows. Both icons stay mounted and cross-fade (scale
+// 0.25 to 1, opacity, 4px blur, 300ms, no overshoot), so it animates only when the choice changes.
+function RadioDot({ selected, className = '' }: { selected: boolean; className?: string }) {
+  const swap = 'absolute inset-0 size-4.5 transition-[opacity,filter,scale] duration-300 [transition-timing-function:cubic-bezier(0.2,0,0,1)] motion-reduce:transition-none';
+  const on = 'scale-100 opacity-100 blur-0';
+  const off = 'scale-[0.25] opacity-0 blur-[4px]';
+  return (
+    <span aria-hidden className={`relative size-4.5 shrink-0 ${className}`}>
+      <CheckCircleIcon weight="fill" className={`${swap} text-brand ${selected ? on : off}`} />
+      <CircleIcon className={`${swap} text-muted-foreground ${selected ? off : on}`} />
+    </span>
+  );
+}
+
 type SubmitState = { status: 'idle' } | { status: 'submitting' } | { status: 'error'; message: string };
 
 export function CheckoutForm({
@@ -221,12 +235,12 @@ export function CheckoutForm({
                 imageUrl={line.imageUrl}
                 category={line.category}
                 alt={line.name}
-                className="size-12 shrink-0 rounded-md border border-border"
+                className="size-12 shrink-0 rounded-md outline outline-1 -outline-offset-1 outline-black/10 dark:outline-white/10"
                 sizes="48px"
               />
               <div className="min-w-0 flex-1">
                 <div className="truncate text-sm font-semibold text-ink">{line.name}</div>
-                <div className="text-xs text-muted-foreground">Qty {line.quantity}</div>
+                <div className="text-xs tabular-nums text-muted-foreground">Qty {line.quantity}</div>
               </div>
               <span className="font-bold tabular-nums text-slate">{formatNaira(linePrice(line) * line.quantity)}</span>
             </div>
@@ -386,23 +400,19 @@ export function CheckoutForm({
                 type="button"
                 disabled={opt.disabled}
                 onClick={() => setMode(opt.value)}
-                className={`flex items-start gap-2.5 rounded-lg border p-3 text-left text-sm transition-colors disabled:cursor-not-allowed disabled:opacity-60 ${
-                  selected ? 'border-brand bg-info-soft' : 'border-input hover:border-brand'
+                className={`flex items-start gap-2.5 rounded-lg border p-3 text-left text-sm transition-[border-color,background-color,scale] duration-150 ease-out outline-none focus-visible:ring-2 focus-visible:ring-ring active:not-disabled:scale-[0.98] disabled:cursor-not-allowed disabled:opacity-60 ${
+                  selected ? 'border-brand bg-info-soft' : 'border-input enabled:hover:border-brand'
                 }`}
               >
-                {selected ? (
-                  <CheckCircleIcon weight="fill" className="mt-0.5 size-4.5 shrink-0 text-brand" />
-                ) : (
-                  <CircleIcon className="mt-0.5 size-4.5 shrink-0 text-muted-foreground" />
-                )}
+                <RadioDot selected={selected} className="mt-0.5" />
                 <span>
                   <span className="block font-semibold text-ink">{opt.label}</span>
-                  <span className="block text-xs text-slate">{opt.body}</span>
+                  <span className="block text-pretty text-xs text-slate">{opt.body}</span>
                   {selected && opt.value === 'POOL' && (
-                    <span className="mt-1 block text-xs text-slate">{checkoutFallbackText(noSeller.length === 0)}</span>
+                    <span className="mt-1 block text-pretty text-xs text-slate">{checkoutFallbackText(noSeller.length === 0)}</span>
                   )}
                   {opt.disabled && opt.value === 'DIRECT' && (
-                    <span className="mt-1 block text-xs text-warning-text">
+                    <span className="mt-1 block text-pretty text-xs text-warning-text">
                       Needs a seller picked on every item. Missing: {noSellerText}.
                     </span>
                   )}
@@ -424,16 +434,12 @@ export function CheckoutForm({
                 type="button"
                 disabled={unavailable}
                 onClick={() => setFulfillmentMethod(method)}
-                className={`flex items-center justify-between gap-3 rounded-lg border p-3 text-left text-sm transition-colors ${
-                  selected ? 'border-brand bg-info-soft' : 'border-input hover:border-brand'
+                className={`flex items-center justify-between gap-3 rounded-lg border p-3 text-left text-sm transition-[border-color,background-color,scale] duration-150 ease-out outline-none focus-visible:ring-2 focus-visible:ring-ring active:not-disabled:scale-[0.98] disabled:cursor-not-allowed disabled:opacity-60 ${
+                  selected ? 'border-brand bg-info-soft' : 'border-input enabled:hover:border-brand'
                 }`}
               >
                 <span className="flex items-center gap-2.5">
-                  {selected ? (
-                    <CheckCircleIcon weight="fill" className="size-4.5 shrink-0 text-brand" />
-                  ) : (
-                    <CircleIcon className="size-4.5 shrink-0 text-muted-foreground" />
-                  )}
+                  <RadioDot selected={selected} />
                   <span className="font-semibold text-ink">{label}</span>
                 </span>
                 <span className="tabular-nums text-slate">{unavailable ? 'Not available here yet' : cost === 0 ? 'Free' : formatNaira(cost)}</span>
@@ -454,15 +460,11 @@ export function CheckoutForm({
                 key={method}
                 type="button"
                 onClick={() => setPaymentMethod(method)}
-                className={`flex items-center gap-2.5 rounded-lg border p-3 text-left text-sm transition-colors ${
+                className={`flex items-center gap-2.5 rounded-lg border p-3 text-left text-sm transition-[border-color,background-color,scale] duration-150 ease-out outline-none focus-visible:ring-2 focus-visible:ring-ring active:not-disabled:scale-[0.98] ${
                   selected ? 'border-brand bg-info-soft' : 'border-input hover:border-brand'
                 }`}
               >
-                {selected ? (
-                  <CheckCircleIcon weight="fill" className="size-4.5 shrink-0 text-brand" />
-                ) : (
-                  <CircleIcon className="size-4.5 shrink-0 text-muted-foreground" />
-                )}
+                <RadioDot selected={selected} />
                 <Icon className="size-4 shrink-0 text-slate" />
                 <span className="font-semibold text-ink">{label}</span>
               </button>
