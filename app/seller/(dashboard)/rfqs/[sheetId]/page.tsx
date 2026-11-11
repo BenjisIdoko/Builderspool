@@ -8,10 +8,11 @@ import { Money } from '@/components/money';
 import { Badge } from '@/components/ui/badge';
 import { RfqBidForm } from '@/components/seller/rfq-bid-form';
 import { SheetAwardResponse } from '@/components/seller/sheet-award-response';
+import { formatLagosDateTime } from '@/lib/format';
 
 export const metadata = { title: 'RFQ' };
 
-const closesText = (d: Date) => d.toLocaleString('en-NG', { dateStyle: 'medium', timeStyle: 'short', timeZone: 'Africa/Lagos' });
+const closesText = formatLagosDateTime;
 
 const BID_STATUS = {
   SUBMITTED: { label: 'Bid sent', variant: 'outline' },

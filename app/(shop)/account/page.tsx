@@ -6,7 +6,7 @@ import { getOrdersForBuyer } from '@/lib/queries/orders';
 import { getPriceAlertsForBuyer } from '@/lib/queries/priceAlerts';
 import { getSavingsWalletForBuyer } from '@/lib/wallet';
 import { getSetting } from '@/lib/settings';
-import { formatNaira } from '@/lib/format';
+import { formatNaira, formatLagosDateTime } from '@/lib/format';
 import { orderStatusTone, walletEntryTone, pillClass } from '@/lib/statusColors';
 import { updateBuyerProfile, requestWithdrawalAction } from './actions';
 import { cancelPriceAlert } from '../catalog/actions';
@@ -198,7 +198,7 @@ export default async function AccountPage() {
                     </Badge>
                   </div>
                   <div className="mt-1 text-sm text-muted-foreground">
-                    {order.createdAt.toLocaleString('en-NG', { dateStyle: 'medium', timeStyle: 'short' })} ·{' '}
+                    {formatLagosDateTime(order.createdAt)} ·{' '}
                     {order.itemCount} item{order.itemCount === 1 ? '' : 's'}
                   </div>
                 </div>

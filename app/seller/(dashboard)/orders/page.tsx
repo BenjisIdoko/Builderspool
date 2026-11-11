@@ -5,6 +5,7 @@ import { Badge } from '@/components/ui/badge';
 import { Money } from '@/components/money';
 import { DirectOrderActions } from '@/components/seller/direct-order-actions';
 import { SellerOrderTable, type SellerOrderRow } from '@/components/seller/order-table';
+import { formatLagosDateTime } from '@/lib/format';
 
 export default async function SellerOrdersPage() {
   const sellerId = (await getSellerIdFromSession())!;
@@ -22,7 +23,7 @@ export default async function SellerOrdersPage() {
     payoutStatus: a.payoutStatus,
     centerName: a.orderItem.fulfillmentCenter?.name ?? null,
     centerAddress: a.orderItem.fulfillmentCenter?.address ?? null,
-    receivedAt: a.receivedAt ? a.receivedAt.toLocaleString('en-NG', { dateStyle: 'medium', timeStyle: 'short' }) : null,
+    receivedAt: a.receivedAt ? formatLagosDateTime(a.receivedAt) : null,
     grnNumber: a.grnNumber,
   }));
 
@@ -60,7 +61,7 @@ export default async function SellerOrdersPage() {
                 {d.status === 'AWAITING_ACCEPT' && (
                   <>
                     <p className="text-caption text-slate">
-                      Answer by {d.acceptDeadlineAt.toLocaleString('en-NG', { dateStyle: 'medium', timeStyle: 'short', timeZone: 'Africa/Lagos' })}.
+                      Answer by {formatLagosDateTime(d.acceptDeadlineAt)}.
                     </p>
                     <DirectOrderActions id={d.id} />
                   </>

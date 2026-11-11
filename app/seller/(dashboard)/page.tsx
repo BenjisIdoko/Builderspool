@@ -17,7 +17,7 @@ import { getSellerActor } from '@/lib/seller/session';
 import { getSellerOnboarding } from '@/lib/onboarding/seller';
 import { ChecklistCard } from '@/components/checklist-card';
 import { getSellerProfile, getOpenCyclesForSeller, getSellerBids, getSellerAllocations } from '@/lib/queries/sellerPortal';
-import { formatNaira } from '@/lib/format';
+import { formatNaira, formatLagosClock, formatLagosDateTime } from '@/lib/format';
 import { pillClass, payoutStatusTone } from '@/lib/statusColors';
 import { BidDialog } from '@/components/seller/bid-dialog';
 import { VerifyEmailBanner } from '@/components/verify-email-banner';
@@ -295,10 +295,10 @@ export default async function SellerDashboardPage() {
                 <span className="flex items-center gap-1 text-xs tabular-nums text-muted-foreground">
                   <ClockIcon className="size-3" />
                   {cycle.canBid
-                    ? `Bids close ${cycle.bidsCloseAt.toLocaleTimeString('en-NG', { hour: '2-digit', minute: '2-digit', hour12: false, timeZone: 'Africa/Lagos' })}`
+                    ? `Bids close ${formatLagosClock(cycle.bidsCloseAt)}`
                     : cycle.poolClosesAt
-                      ? `Pool closes ${cycle.poolClosesAt.toLocaleString('en-NG', { dateStyle: 'medium', timeStyle: 'short', hour12: false, timeZone: 'Africa/Lagos' })}`
-                      : cycle.cutoffAt.toLocaleString('en-NG', { dateStyle: 'medium', timeStyle: 'short', timeZone: 'Africa/Lagos' })}
+                      ? `Pool closes ${formatLagosDateTime(cycle.poolClosesAt)}`
+                      : formatLagosDateTime(cycle.cutoffAt)}
                 </span>
               </div>
 
@@ -334,7 +334,7 @@ export default async function SellerDashboardPage() {
                   <p className="text-pretty text-xs text-muted-foreground">
                     Still collecting demand. Blind bidding opens when the pool closes
                     {cycle.poolClosesAt
-                      ? ` at ${cycle.poolClosesAt.toLocaleTimeString('en-NG', { hour: '2-digit', minute: '2-digit', hour12: false, timeZone: 'Africa/Lagos' })}`
+                      ? ` at ${formatLagosClock(cycle.poolClosesAt)}`
                       : ''}
                     .
                   </p>

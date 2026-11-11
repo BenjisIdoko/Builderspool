@@ -29,3 +29,28 @@ export function formatElapsedSince(since: Date) {
   if (hours > 0) parts.push(`${hours} ${hours === 1 ? 'hour' : 'hours'}`);
   return parts.join(', ');
 }
+
+// ---- Times, shown to people the way Nigerians say them: "5pm", "7:50pm", "12pm".
+// Stored and compared times stay "HH:MM" (24-hour); these only format what is displayed.
+const LAGOS = 'Africa/Lagos';
+
+/** "17:00" -> "5pm", "19:50" -> "7:50pm", "12:00" -> "12pm", "00:30" -> "12:30am". */
+export function formatClock(hhmm: string): string {
+  const [h, m] = hhmm.split(':').map(Number);
+  if (!Number.isFinite(h) || !Number.isFinite(m)) return hhmm;
+  const suffix = h % 24 >= 12 ? 'pm' : 'am';
+  const h12 = h % 12 === 0 ? 12 : h % 12;
+  return m === 0 ? `${h12}${suffix}` : `${h12}:${String(m).padStart(2, '0')}${suffix}`;
+}
+
+/** The time of day of `date` in Lagos, as "5pm" or "7:50pm". */
+export function formatLagosClock(date: Date): string {
+  const parts = new Intl.DateTimeFormat('en-GB', { hour: '2-digit', minute: '2-digit', hourCycle: 'h23', timeZone: LAGOS }).formatToParts(date);
+  const get = (type: string) => parts.find((p) => p.type === type)?.value ?? '00';
+  return formatClock(`${get('hour')}:${get('minute')}`);
+}
+
+/** "10 Nov 2026, 5pm" in Lagos time (never the server's own time zone). */
+export function formatLagosDateTime(date: Date): string {
+  return `${date.toLocaleDateString('en-NG', { dateStyle: 'medium', timeZone: LAGOS })}, ${formatLagosClock(date)}`;
+}

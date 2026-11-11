@@ -8,6 +8,7 @@ import { withdrawBid } from '../../actions';
 import { MaterialImage } from '@/components/material-image';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
+import { formatLagosDateTime } from '@/lib/format';
 
 export default async function SellerBidsPage() {
   const sellerId = (await getSellerIdFromSession())!;
@@ -58,7 +59,7 @@ export default async function SellerBidsPage() {
                     </span>
                     <span className="flex items-center gap-1.5">
                       <ClockIcon className="size-3.5" />
-                      {bid.submittedAt.toLocaleString('en-NG', { dateStyle: 'medium', timeStyle: 'short' })}
+                      {formatLagosDateTime(bid.submittedAt)}
                     </span>
                   </div>
                 </div>

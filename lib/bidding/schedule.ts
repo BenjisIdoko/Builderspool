@@ -1,3 +1,4 @@
+import { formatLagosClock } from '../format';
 // The Pool & Save daily timeline (Transfer File 5.4) in Africa/Lagos time.
 // Lagos is UTC+1 all year (no daylight saving), so a fixed offset is exact.
 const LAGOS_OFFSET_MS = 60 * 60 * 1000;
@@ -58,5 +59,5 @@ export function ymdToDbDate(ymd: string): Date {
 }
 
 export function formatLagosTime(date: Date): string {
-  return date.toLocaleTimeString('en-NG', { hour: '2-digit', minute: '2-digit', hour12: false, timeZone: 'Africa/Lagos' });
+  return formatLagosClock(date);
 }

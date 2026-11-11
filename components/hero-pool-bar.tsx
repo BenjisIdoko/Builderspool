@@ -2,6 +2,7 @@
 
 import { pad2, usePoolClock } from '@/lib/pool-clock';
 import type { PoolStage } from '@/lib/pool-stages';
+import { formatClock } from '@/lib/format';
 
 // The live pool, as a bar along the bottom of the hero: a real countdown to the
 // next deadline and where today's cycle is right now. It floats over the hero's bottom edge. Stage times come from the
@@ -38,7 +39,7 @@ export function HeroPoolBar({ stages }: { stages: PoolStage[] }) {
             aria-current={active ? 'step' : undefined}
             className={`p-3 md:p-4 ${active ? 'bg-white text-ink' : 'bg-navy-raised/95 text-on-navy-muted'}`}
           >
-            <div className="font-mono text-figure tabular-nums">{stage.time}</div>
+            <div className="font-mono text-figure tabular-nums">{formatClock(stage.time)}</div>
             <div className="text-body-sm font-bold">{stage.label}</div>
           </div>
         );

@@ -5,6 +5,7 @@ import { getSellerIdFromSession } from '@/lib/seller/session';
 import { getSellerRfqs } from '@/lib/queries/sheets';
 import { Money } from '@/components/money';
 import { Badge } from '@/components/ui/badge';
+import { formatLagosDateTime } from '@/lib/format';
 
 export const metadata = { title: 'RFQs' };
 
@@ -22,7 +23,7 @@ const BID_STATUS = {
   INELIGIBLE: { label: 'Ruled out', variant: 'danger' },
 } as const;
 
-const closesText =(d: Date) => d.toLocaleString('en-NG', { dateStyle: 'medium', timeStyle: 'short', timeZone: 'Africa/Lagos' });
+const closesText = formatLagosDateTime;
 
 export default async function SellerRfqsPage() {
   const sellerId = await getSellerIdFromSession();

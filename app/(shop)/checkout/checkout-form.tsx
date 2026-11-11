@@ -9,7 +9,7 @@ import { useCart } from '@/lib/cart/CartContext';
 import { linePrice } from '@/lib/cart/types';
 import type { CheckoutAreas } from '@/lib/queries/checkoutAreas';
 import { CheckoutLocalityPicker, findLocality } from '@/components/checkout-locality-picker';
-import { formatNaira } from '@/lib/format';
+import { formatNaira, formatClock } from '@/lib/format';
 import { getDeliveryCost, type FulfillmentMethod } from '@/lib/checkout/deliveryCost';
 import { checkoutFallbackText } from '@/lib/pool-stages';
 import { MaterialImage } from '@/components/material-image';
@@ -390,7 +390,7 @@ export function CheckoutForm({
           {(
             [
               { value: 'DIRECT', label: 'Buy Direct', body: 'From the seller you picked.', disabled: !canBuyDirect },
-              { value: 'POOL', label: 'Pool & Save', body: `Joins ${poolDay === 'today' ? 'today’s' : 'tomorrow’s'} pool, which closes at ${poolCloseTime}. You keep half of any saving.`, disabled: false },
+              { value: 'POOL', label: 'Pool & Save', body: `Joins ${poolDay === 'today' ? 'today’s' : 'tomorrow’s'} pool, which closes at ${formatClock(poolCloseTime)}. You keep half of any saving.`, disabled: false },
             ] as const
           ).map((opt) => {
             const selected = effectiveMode === opt.value;

@@ -9,6 +9,7 @@ import { Button } from '@/components/ui/button';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import { forceAwardCycle, freezeCycleNowAction, issueGrnAction, disbursePayoutAction, toggleAllocationHoldAction } from '@/app/admin/actions';
 import { allocationStatusTone, bidStatusTone, cycleStatusTone, payoutStatusTone, pillClass } from '@/lib/statusColors';
+import { formatLagosClock, formatLagosDateTime } from '@/lib/format';
 
 const REJECTION_LABEL: Record<string, string> = {
   NOT_APPROVED: 'Seller not approved',
@@ -56,9 +57,9 @@ export default async function AdminCycleDetailPage({ params }: { params: Promise
           </div>
           <p className="mt-1 text-sm text-muted-foreground">
             {cycle.region ?? 'National'} · bids close{' '}
-            {(cycle.bidsCloseAt ?? cycle.cutoffAt).toLocaleString('en-NG', { dateStyle: 'medium', timeStyle: 'short', hour12: false, timeZone: 'Africa/Lagos' })}
+            {formatLagosDateTime(cycle.bidsCloseAt ?? cycle.cutoffAt)}
             {cycle.poolClosesAt &&
-              ` · pool closes ${cycle.poolClosesAt.toLocaleTimeString('en-NG', { hour: '2-digit', minute: '2-digit', hour12: false, timeZone: 'Africa/Lagos' })}`}{' '}
+              ` · pool closes ${formatLagosClock(cycle.poolClosesAt)}`}{' '}
             (Lagos time)
           </p>
           <p className="mt-2 text-sm text-ink">

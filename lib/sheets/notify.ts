@@ -1,5 +1,6 @@
 import { CoverageStatus, KycStatus, NotificationType } from '@prisma/client';
 import { prisma } from '@/lib/prisma';
+import { formatLagosClock } from '@/lib/format';
 
 // In-app vendor alerts for sheet events. Best effort: a failed alert is logged and
 // never blocks the pooling step it describes.
@@ -12,7 +13,7 @@ async function send(userIds: string[], type: NotificationType, title: string, bo
   }
 }
 
-const when = (d: Date) => d.toLocaleTimeString('en-NG', { hour: '2-digit', minute: '2-digit', hour12: false, timeZone: 'Africa/Lagos' });
+const when = formatLagosClock;
 
 /** Vendors who may bid on a sheet: verified, approved for its category, and covering its zone (or national supply). */
 export async function eligibleVendorIds(sheet: { category: string; zoneId: string }): Promise<string[]> {

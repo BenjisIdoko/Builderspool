@@ -18,7 +18,7 @@ import { getOrderById, getOrderTrackingStages } from '@/lib/queries/orders';
 import { getEscrowStatus, ESCROW_STATUS_LABEL } from '@/lib/queries/escrow';
 import { requireBuyer } from '@/lib/buyer/auth';
 import { verifyAndConfirmOrderPayment } from '@/lib/payments/verifyOrderPayment';
-import { formatNaira, formatElapsedSince } from '@/lib/format';
+import { formatNaira, formatElapsedSince, formatLagosDateTime } from '@/lib/format';
 import { orderStatusTone, pillClass, escrowStatusTone, dispatchStatusTone } from '@/lib/statusColors';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
@@ -257,7 +257,7 @@ export default async function OrderConfirmationPage({
                     </span>
                     {stage.at && (
                       <div className="mt-0.5 text-xs text-muted-foreground">
-                        {stage.at.toLocaleString('en-NG', { dateStyle: 'medium', timeStyle: 'short' })}
+                        {formatLagosDateTime(stage.at)}
                       </div>
                     )}
                     {stage.achieved && stage.key === (isPickup ? 'Ready for pickup' : 'Out for delivery') && grnNumber && (

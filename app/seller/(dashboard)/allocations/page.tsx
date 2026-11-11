@@ -6,6 +6,7 @@ import { Badge } from '@/components/ui/badge';
 import { MaterialImage } from '@/components/material-image';
 import { AwardResponse } from '@/components/seller/award-response';
 import { formatLagosTime } from '@/lib/bidding/schedule';
+import { formatLagosDateTime } from '@/lib/format';
 
 const PAYOUT_STATUS_LABEL: Record<string, string> = {
   PENDING_GRN: 'Payout pending GRN',
@@ -101,7 +102,7 @@ export default async function SellerAllocationsPage() {
                 )}
                 {allocation.receivedAt && (
                   <div className="mt-1 text-xs text-brand">
-                    Received {allocation.receivedAt.toLocaleString('en-NG', { dateStyle: 'medium', timeStyle: 'short' })}
+                    Received {formatLagosDateTime(allocation.receivedAt)}
                     {allocation.grnNumber && <span className="ml-1 text-muted-foreground">{allocation.grnNumber}</span>}
                   </div>
                 )}

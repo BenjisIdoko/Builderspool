@@ -14,6 +14,7 @@ import { buildPoolStages, isPoolClosedForToday } from '@/lib/pool-stages';
 import { PoolSaveSteps } from '@/components/pool-save-steps';
 import { Button } from '@/components/ui/button';
 import { ProductRail } from '@/components/product-rail';
+import { formatClock } from '@/lib/format';
 
 // Home page copy is taken from the Floot site (builderspool.floot.app).
 const DELIVERY_ZONES = [
@@ -112,8 +113,8 @@ export default async function Home() {
             title={`Join ${poolDay} pool`}
             subtitle={
               closed
-                ? `Today’s pool has closed. Orders placed now join tomorrow’s pool, which closes at ${times.poolCloseTime}.`
-                : `Order before ${times.poolCloseTime} to join today’s pool.`
+                ? `Today’s pool has closed. Orders placed now join tomorrow’s pool, which closes at ${formatClock(times.poolCloseTime)}.`
+                : `Order before ${formatClock(times.poolCloseTime)} to join today’s pool.`
             }
             href="/catalog"
             materials={poolPicks}

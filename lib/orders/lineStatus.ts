@@ -1,3 +1,4 @@
+import { formatLagosClock, formatLagosDateTime } from '@/lib/format';
 // What a buyer sees about one order line once it is paid, in plain words. Pure (no
 // database, no clock) so every state can be tested on plain data. Returns null for
 // lines pooled under the older per-material cycles, whose tracking is unchanged.
@@ -18,8 +19,8 @@ export interface LineStatusInput {
   direct: { status: 'AWAITING_ACCEPT' | 'ACCEPTED' | 'FULFILLED' | 'DECLINED' | 'EXPIRED'; acceptDeadlineAt: Date } | null;
 }
 
-const time = (d: Date) => d.toLocaleTimeString('en-NG', { hour: '2-digit', minute: '2-digit', hour12: false, timeZone: 'Africa/Lagos' });
-const dateTime = (d: Date) => d.toLocaleString('en-NG', { dateStyle: 'medium', timeStyle: 'short', timeZone: 'Africa/Lagos' });
+const time = formatLagosClock;
+const dateTime = formatLagosDateTime;
 const naira = (n: number) => `₦${n.toLocaleString('en-NG', { maximumFractionDigits: 2 })}`;
 
 /** True when no supplier took the line and the buyer is owed it back. */

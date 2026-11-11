@@ -2,6 +2,7 @@ import { prisma } from '../prisma';
 import { NotificationType } from '@prisma/client';
 import { isSellerEligible } from '../bidding/scoring';
 import type { BidCycle } from '@prisma/client';
+import { formatLagosClock } from '@/lib/format';
 
 async function createNotification(userId: string, type: NotificationType, title: string, body: string, link?: string) {
   return prisma.notification.create({ data: { userId, type, title, body, link } });
@@ -54,7 +55,7 @@ export async function notifyBidWon(
   acceptDeadlineAt?: Date | null,
 ) {
   const by = acceptDeadlineAt
-    ? ` Accept it by ${acceptDeadlineAt.toLocaleTimeString('en-NG', { hour: '2-digit', minute: '2-digit', hour12: false, timeZone: 'Africa/Lagos' })} or it passes to the next supplier.`
+    ? ` Accept it by ${formatLagosClock(acceptDeadlineAt)} or it passes to the next supplier.`
     : '';
   await createNotification(
     sellerId,

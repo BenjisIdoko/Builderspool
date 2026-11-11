@@ -377,6 +377,13 @@ html {
 
 /* Hero entrance: headline, then support line, then the action, 60ms apart.
    CSS-only so the text is in the first paint; the delay comes from --rise-delay. */
+/* The dashed line in "How Pool & Save works": 14 is one dash plus one gap, so the loop is seamless. */
+@keyframes bp-dash-flow {
+  to {
+    stroke-dashoffset: -140;
+  }
+}
+
 @keyframes bp-rise {
   from {
     opacity: 0;

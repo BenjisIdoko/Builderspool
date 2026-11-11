@@ -1,6 +1,7 @@
 import { UsersThreeIcon } from '@phosphor-icons/react/ssr';
 import type { PoolSnapshot } from '@/lib/queries/pool';
 import { refundRuleText, SAVINGS_TIMING_TEXT } from '@/lib/pool-stages';
+import { formatClock } from '@/lib/format';
 
 // The Pool & Save panel on a product page. It states, truthfully for this
 // platform's flow, what happens to an order: the buyer pays the catalogue
@@ -23,12 +24,12 @@ export function ProductPoolPanel({ pool, unit }: { pool: PoolSnapshot; unit: str
         </span>
         <span className="text-body-sm text-slate">
           {pool.tomorrow ? 'Tomorrow’s pool' : 'Today’s pool'} closes{' '}
-          <span className="font-mono text-figure text-ink">{pool.poolCloseTime}</span>
+          <span className="font-mono text-figure text-ink">{formatClock(pool.poolCloseTime)}</span>
         </span>
       </div>
 
       <p className="mt-3 text-pretty text-body-sm text-ink">
-        You pay the catalogue price now. Orders placed before {pool.poolCloseTime} join {day}’s pool, and verified
+        You pay the catalogue price now. Orders placed before {formatClock(pool.poolCloseTime)} join {day}’s pool, and verified
         suppliers then compete to fill the whole pool.
       </p>
 
