@@ -173,7 +173,7 @@ export default async function AdminHaulagePage({
                           name="location"
                           defaultValue={dispatch.currentLocation ?? ''}
                           placeholder="Not logged"
-                          className="h-8 w-40 text-xs"
+                          className="h-8 w-40 text-xs no-zoom"
                           disabled={dispatch.status === 'CANCELLED' || dispatch.status === 'DELIVERED'}
                         />
                         {dispatch.status !== 'CANCELLED' && dispatch.status !== 'DELIVERED' && (

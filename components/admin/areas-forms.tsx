@@ -115,7 +115,7 @@ export function LocalityZoneForm({
         name="zoneId"
         defaultValue={zoneId ?? ''}
         aria-label="Delivery zone"
-        className="h-9 max-w-64 min-w-0 rounded-md border border-input bg-surface px-2 text-body-sm text-ink"
+        className="h-9 max-w-64 min-w-0 rounded-md border border-input bg-surface px-2 text-body-sm no-zoom text-ink"
         onChange={() => formRef.current?.requestSubmit()}
         disabled={isPending}
       >
@@ -146,7 +146,7 @@ export function AddLocalityForm({ lgas }: { lgas: { id: string; name: string }[]
         <Label htmlFor="loc-lga" className="mb-1.5 text-body-sm font-medium text-ink">
           Area Council
         </Label>
-        <select id="loc-lga" name="lgaId" required className="h-11 w-full rounded-md border border-input bg-surface px-3 text-body text-ink">
+        <select id="loc-lga" name="lgaId" required className="h-11 w-full rounded-md border border-input bg-surface px-3 text-body no-zoom text-ink">
           {lgas.map((l) => (
             <option key={l.id} value={l.id}>
               {l.name}
@@ -164,7 +164,7 @@ export function AddLocalityForm({ lgas }: { lgas: { id: string; name: string }[]
         <Label htmlFor="loc-kind" className="mb-1.5 text-body-sm font-medium text-ink">
           Type
         </Label>
-        <select id="loc-kind" name="kind" defaultValue="DISTRICT" className="h-11 w-full rounded-md border border-input bg-surface px-3 text-body text-ink">
+        <select id="loc-kind" name="kind" defaultValue="DISTRICT" className="h-11 w-full rounded-md border border-input bg-surface px-3 text-body no-zoom text-ink">
           <option value="DISTRICT">District</option>
           <option value="TOWN">Town</option>
           <option value="CITY">City</option>

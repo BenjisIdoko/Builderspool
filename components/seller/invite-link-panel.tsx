@@ -34,7 +34,7 @@ export function InviteLinkPanel({ name, inviteUrl, onDismiss }: { name: string; 
           readOnly
           value={inviteUrl}
           onFocus={(e) => e.currentTarget.select()}
-          className="h-11 min-w-0 flex-1 rounded-md border border-input bg-surface px-3 font-mono text-caption text-ink"
+          className="h-11 min-w-0 flex-1 rounded-md border border-input bg-surface px-3 font-mono text-caption no-zoom text-ink"
           aria-label={`Invite link for ${name}`}
         />
         <Button type="button" variant="outline" onClick={copy} className="shrink-0 gap-1.5">

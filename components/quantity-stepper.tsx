@@ -34,7 +34,7 @@ export function QuantityStepper({
       >
         <MinusIcon className="size-4" />
       </button>
-      <QuantityInput value={value} onChange={onChange} label={label} className="h-11 w-12 text-body font-bold tabular-nums text-ink" />
+      <QuantityInput value={value} onChange={onChange} label={label} className="h-11 w-12 text-body no-zoom font-bold tabular-nums text-ink" />
       <button type="button" onClick={() => onChange(value + 1)} aria-label={`Increase quantity of ${label}`} className={stepClass}>
         <PlusIcon className="size-4" />
       </button>

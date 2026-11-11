@@ -326,6 +326,14 @@ html {
   scroll-padding-top: 10.5rem;
 }
 
+/* iOS Safari zooms the page when a form control under 16px gets focus. On touch devices every
+   control is 16px; on mouse devices each control keeps its own size. */
+@utility no-zoom {
+  @media (pointer: coarse) {
+    font-size: 16px !important;
+  }
+}
+
 @utility max-w-section {
   max-width: min(1280px, 100% - 2 * var(--page-margin));
 }

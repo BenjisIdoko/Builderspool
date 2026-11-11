@@ -137,7 +137,7 @@ export function ReferenceProductActions({ product, categories }: { product: Refe
                 id={`categoryId-${product.id}`}
                 name="categoryId"
                 defaultValue={product.categoryId}
-                className="h-8 w-full rounded-md border border-input bg-transparent px-2.5 text-sm outline-none focus-visible:border-ring focus-visible:ring-3 focus-visible:ring-ring/50"
+                className="h-8 w-full rounded-md border border-input bg-transparent px-2.5 text-sm no-zoom outline-none focus-visible:border-ring focus-visible:ring-3 focus-visible:ring-ring/50"
               >
                 {categories.map((c) => (
                   <option key={c.id} value={c.id}>
@@ -180,7 +180,7 @@ export function ReferenceProductActions({ product, categories }: { product: Refe
                   id={`projectScale-${product.id}`}
                   name="projectScale"
                   defaultValue={product.projectScale}
-                  className="h-8 w-full rounded-md border border-input bg-transparent px-2.5 text-sm outline-none focus-visible:border-ring focus-visible:ring-3 focus-visible:ring-ring/50"
+                  className="h-8 w-full rounded-md border border-input bg-transparent px-2.5 text-sm no-zoom outline-none focus-visible:border-ring focus-visible:ring-3 focus-visible:ring-ring/50"
                 >
                   <option value="SMALL">Small</option>
                   <option value="MEGA">Mega</option>
@@ -195,7 +195,7 @@ export function ReferenceProductActions({ product, categories }: { product: Refe
                   id={`sourcingModel-${product.id}`}
                   name="sourcingModel"
                   defaultValue={product.sourcingModel}
-                  className="h-8 w-full rounded-md border border-input bg-transparent px-2.5 text-sm outline-none focus-visible:border-ring focus-visible:ring-3 focus-visible:ring-ring/50"
+                  className="h-8 w-full rounded-md border border-input bg-transparent px-2.5 text-sm no-zoom outline-none focus-visible:border-ring focus-visible:ring-3 focus-visible:ring-ring/50"
                 >
                   <option value="NATIONAL">National</option>
                   <option value="REGIONAL">Regional</option>

@@ -34,7 +34,7 @@ export function CatalogueFilterBar({
       <select
         value={category ?? ''}
         onChange={handleCategoryChange}
-        className="h-8 min-w-52 rounded-md border border-input bg-transparent px-2.5 text-sm outline-none focus-visible:border-ring focus-visible:ring-3 focus-visible:ring-ring/50"
+        className="h-8 min-w-52 rounded-md border border-input bg-transparent px-2.5 text-sm no-zoom outline-none focus-visible:border-ring focus-visible:ring-3 focus-visible:ring-ring/50"
       >
         <option value="">All categories</option>
         {categories.map((c) => (

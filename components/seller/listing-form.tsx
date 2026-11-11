@@ -80,7 +80,7 @@ export function ListingForm({
             required
             value={materialId}
             onChange={(e) => setMaterialId(e.target.value)}
-            className="h-11 w-full rounded-md border border-input-border bg-surface px-3 text-base text-ink outline-none sm:text-body transition-colors duration-150 hover:bg-well focus-visible:border-ring focus-visible:ring-3 focus-visible:ring-ring/50"
+            className="h-11 w-full rounded-md border border-input-border bg-surface px-3 text-body text-ink no-zoom outline-none transition-colors duration-150 hover:bg-well focus-visible:border-ring focus-visible:ring-3 focus-visible:ring-ring/50"
           >
             <option value="">Choose a product</option>
             {materials.map((m) => (
@@ -119,19 +119,19 @@ export function ListingForm({
             Your price (₦)
             {selected && <span className="font-normal text-muted-foreground">per {selected.unit}</span>}
           </Label>
-          <Input id={`price-${values?.id ?? 'new'}`} name="price" className="text-base! sm:text-body!" inputMode="decimal" autoComplete="off" required defaultValue={values?.price} />
+          <Input id={`price-${values?.id ?? 'new'}`} name="price" inputMode="decimal" autoComplete="off" required defaultValue={values?.price} />
         </div>
         <div className="space-y-1.5">
           <Label htmlFor={`stock-${values?.id ?? 'new'}`}>Stock on hand</Label>
-          <Input id={`stock-${values?.id ?? 'new'}`} name="stockQty" className="text-base! sm:text-body!" inputMode="numeric" autoComplete="off" required defaultValue={values?.stockQty ?? '0'} />
+          <Input id={`stock-${values?.id ?? 'new'}`} name="stockQty" inputMode="numeric" autoComplete="off" required defaultValue={values?.stockQty ?? '0'} />
         </div>
         <div className="space-y-1.5">
           <Label htmlFor={`lead-${values?.id ?? 'new'}`}>Lead time (days)</Label>
-          <Input id={`lead-${values?.id ?? 'new'}`} name="leadTimeDays" className="text-base! sm:text-body!" inputMode="numeric" autoComplete="off" required defaultValue={values?.leadTimeDays ?? '1'} />
+          <Input id={`lead-${values?.id ?? 'new'}`} name="leadTimeDays" inputMode="numeric" autoComplete="off" required defaultValue={values?.leadTimeDays ?? '1'} />
         </div>
         <div className="space-y-1.5">
           <Label htmlFor={`shelf-${values?.id ?? 'new'}`}>Shelf life (days){selected?.perishable ? '' : ', if it applies'}</Label>
-          <Input id={`shelf-${values?.id ?? 'new'}`} name="shelfLifeDays" className="text-base! sm:text-body!" inputMode="numeric" autoComplete="off" required={selected?.perishable} defaultValue={values?.shelfLifeDays} />
+          <Input id={`shelf-${values?.id ?? 'new'}`} name="shelfLifeDays" inputMode="numeric" autoComplete="off" required={selected?.perishable} defaultValue={values?.shelfLifeDays} />
         </div>
       </div>
 

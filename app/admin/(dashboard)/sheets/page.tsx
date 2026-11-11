@@ -126,13 +126,13 @@ export default async function AdminSheetsPage() {
                       )}
                       <form action={holdSheetFulfilmentAction} className="flex items-center gap-1.5">
                         <input type="hidden" name="id" value={f.id} />
-                        {f.payoutStatus !== 'ON_HOLD' && <input name="note" placeholder="Hold reason" aria-label="Hold reason" maxLength={200} className="h-8 w-32 rounded-md border border-input bg-transparent px-2 text-caption" />}
+                        {f.payoutStatus !== 'ON_HOLD' && <input name="note" placeholder="Hold reason" aria-label="Hold reason" maxLength={200} className="h-8 w-32 rounded-md border border-input bg-transparent px-2 text-caption no-zoom" />}
                         <Button type="submit" size="sm" variant="ghost">{f.payoutStatus === 'ON_HOLD' ? 'Release hold' : 'Hold payout'}</Button>
                       </form>
                       {f.status === 'PENDING' && (
                         <form action={failSheetFulfilmentAction} className="flex items-center gap-1.5">
                           <input type="hidden" name="id" value={f.id} />
-                          <input name="reason" required placeholder="Why not supplied?" aria-label="Why the vendor did not supply this line" maxLength={300} className="h-8 w-36 rounded-md border border-input bg-transparent px-2 text-caption" />
+                          <input name="reason" required placeholder="Why not supplied?" aria-label="Why the vendor did not supply this line" maxLength={300} className="h-8 w-36 rounded-md border border-input bg-transparent px-2 text-caption no-zoom" />
                           <Button type="submit" size="sm" variant="ghost">Not supplied</Button>
                         </form>
                       )}

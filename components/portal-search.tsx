@@ -91,7 +91,7 @@ export function SearchProvider({ portal, children }: { portal: 'admin' | 'seller
                 value={query}
                 onChange={(e) => setQuery(e.target.value)}
                 placeholder="Search orders, sellers, materials…"
-                className="w-full bg-transparent text-sm text-ink outline-none placeholder:text-muted-foreground"
+                className="w-full bg-transparent text-sm no-zoom text-ink outline-none placeholder:text-muted-foreground"
               />
             </div>
             <div className="max-h-80 overflow-y-auto">

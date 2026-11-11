@@ -108,7 +108,7 @@ export function CartSheet() {
                           value={line.quantity}
                           onChange={(next) => updateQuantity(line.materialId, next)}
                           label={line.name}
-                          className="w-7 text-sm tabular-nums text-ink"
+                          className="w-7 text-sm no-zoom tabular-nums text-ink"
                         />
                         <Button
                           type="button"

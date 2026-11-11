@@ -44,7 +44,7 @@ export function CheckoutLocalityPicker({
           id="locality"
           value={value}
           onChange={(e) => onChange(e.target.value)}
-          className="h-11 w-full rounded-md border border-input-border bg-surface px-3 text-body text-ink"
+          className="h-11 w-full rounded-md border border-input-border bg-surface px-3 text-body no-zoom text-ink"
         >
           <option value="">Choose your area</option>
           {areas.lgas.map((lga) => (
