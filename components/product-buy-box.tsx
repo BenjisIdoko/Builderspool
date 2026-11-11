@@ -12,6 +12,7 @@ import { useOfferSelection } from "@/components/offer-selection";
 import { formatNaira } from "@/lib/format";
 import type { BuyerMaterial } from "@/lib/queries/materials";
 import { Button } from "@/components/ui/button";
+import { IconSwap } from "@/components/icon-swap";
 import { QuantityStepper } from "@/components/quantity-stepper";
 import {
   Sheet,
@@ -19,20 +20,6 @@ import {
   SheetDescription,
   SheetTitle,
 } from "@/components/ui/sheet";
-
-// Plus turns into a check once the item is added. Both icons stay mounted and cross-fade (scale
-// 0.25 to 1, opacity, 4px blur, 300ms, no overshoot), so it only animates when `added` changes.
-function AddIcon({ added }: { added: boolean }) {
-  const swap = "absolute inset-0 size-4 transition-[opacity,filter,scale] duration-300 [transition-timing-function:cubic-bezier(0.2,0,0,1)] motion-reduce:transition-none";
-  const on = "scale-100 opacity-100 blur-0";
-  const off = "scale-[0.25] opacity-0 blur-[4px]";
-  return (
-    <span aria-hidden className="relative size-4 shrink-0">
-      <PlusIcon className={`${swap} ${added ? off : on}`} />
-      <CheckIcon weight="bold" className={`${swap} ${added ? on : off}`} />
-    </span>
-  );
-}
 
 // The compact purchase card — split out from ProductDetailPanel (which now
 // only carries the title/tabs for the left column) to match the Fable
@@ -102,7 +89,7 @@ export function ProductBuyBox({ material }: { material: BuyerMaterial }) {
           size="lg"
           onClick={handleAdd}
         >
-          <AddIcon added={added} />
+          <IconSwap swapped={added} from={<PlusIcon className="size-full" />} to={<CheckIcon weight="bold" className="size-full" />} />
           {added ? "Added" : "Add to cart"}
         </Button>
         <p className="flex items-start gap-1.5 text-xs text-muted-foreground">
@@ -131,7 +118,7 @@ export function ProductBuyBox({ material }: { material: BuyerMaterial }) {
           className="flex-1 gap-2"
           onClick={handleAdd}
         >
-          <AddIcon added={added} />
+          <IconSwap swapped={added} from={<PlusIcon className="size-full" />} to={<CheckIcon weight="bold" className="size-full" />} />
           {added
             ? "Added"
             : `Add to cart · ${formatNaira(price * quantity)}`}

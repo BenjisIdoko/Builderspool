@@ -103,8 +103,8 @@ export default async function OrderConfirmationPage({
             {order.status === 'PENDING_PAYMENT' ? <ClockIcon className="size-5" /> : <CheckCircleIcon className="size-5" />}
           </span>
           <div>
-            <div className="flex items-center gap-2">
-              <h1 className="text-heading-lg text-ink">{order.status === 'PENDING_PAYMENT' ? 'Order placed' : 'Order confirmed'}</h1>
+            <div className="flex flex-wrap items-center gap-2">
+              <h1 className="text-balance text-heading-lg text-ink">{order.status === 'PENDING_PAYMENT' ? 'Order placed' : 'Order confirmed'}</h1>
               <Badge variant="outline" className={pillClass(orderStatusTone(order.status))}>
                 {STATUS_LABEL[order.status] ?? order.status}
               </Badge>
@@ -122,7 +122,7 @@ export default async function OrderConfirmationPage({
               </span>
               {order.status === 'PENDING_PAYMENT' && ' — payment is still outstanding.'}
             </p>
-            <p className="mt-1 flex items-center gap-1.5 text-xs text-muted-foreground">
+            <p className="mt-1 flex items-center gap-1.5 text-xs tabular-nums text-muted-foreground">
               <ClockIcon className="size-3.5" />
               {elapsed} since order placed
             </p>
@@ -277,7 +277,7 @@ export default async function OrderConfirmationPage({
             <TruckIcon className="size-4.5 text-slate" />
             <h2 className="text-heading-sm text-ink">Delivery tracking</h2>
           </div>
-          <p className="mb-5 text-xs text-muted-foreground">
+          <p className="mb-5 text-pretty text-xs text-muted-foreground">
             No live GPS yet — status reflects what our fulfillment team last logged.
           </p>
           <div className="divide-y divide-border">
@@ -306,7 +306,7 @@ export default async function OrderConfirmationPage({
             Items ({order.items.length})
           </h2>
         </div>
-        <div className="grid grid-cols-[1fr_auto_auto] gap-4 px-5 py-3 text-[11px] font-semibold text-muted-foreground uppercase">
+        <div className="hidden grid-cols-[1fr_auto_auto] gap-4 px-5 py-3 text-[11px] font-semibold text-muted-foreground uppercase sm:grid">
           <div>Item</div>
           <div>Qty × unit price</div>
           <div className="text-right">Total</div>
@@ -315,13 +315,13 @@ export default async function OrderConfirmationPage({
           {order.items.map((item) => {
             const line = describeLine(item, order.status === 'PAID');
             return (
-            <div key={item.id} className="grid grid-cols-[1fr_auto_auto] items-center gap-4 px-5 py-4">
+            <div key={item.id} className="grid grid-cols-[1fr_auto] items-center gap-x-4 gap-y-1 px-5 py-4 sm:grid-cols-[1fr_auto_auto]">
               <div className="flex items-center gap-3">
                 <MaterialImage
                   imageUrl={item.material.imageUrl}
                   category={item.material.category}
                   alt={item.material.name}
-                  className="size-12 shrink-0 rounded-md border border-border"
+                  className="size-12 shrink-0 rounded-md outline outline-1 -outline-offset-1 outline-black/10 dark:outline-white/10"
                   sizes="48px"
                 />
                 <div>
@@ -339,10 +339,10 @@ export default async function OrderConfirmationPage({
                   )}
                 </div>
               </div>
-              <div className="text-sm text-muted-foreground">
+              <div className="col-start-1 row-start-2 pl-[60px] text-sm tabular-nums text-muted-foreground sm:col-start-auto sm:row-start-auto sm:pl-0">
                 {item.quantity} × {formatNaira(item.priceLocked)}
               </div>
-              <div className="text-right font-bold tabular-nums text-ink">
+              <div className="col-start-2 row-start-1 text-right font-bold tabular-nums text-ink sm:col-start-auto sm:row-start-auto">
                 {formatNaira(item.priceLocked * item.quantity)}
               </div>
             </div>

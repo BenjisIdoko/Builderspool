@@ -3,9 +3,9 @@ import Image from 'next/image';
 import Link from 'next/link';
 import {
   CertificateIcon,
-  KeyIcon,
   LockKeyIcon,
-  ScalesIcon,
+  PackageIcon,
+  TruckIcon,
 } from '@phosphor-icons/react/ssr';
 import { getMaterials, getCategories } from '@/lib/queries/materials';
 import { HeroPoolBar } from '@/components/hero-pool-bar';
@@ -27,9 +27,9 @@ const DELIVERY_ZONES = [
 
 const TRUST = [
   { icon: CertificateIcon, title: 'Verified suppliers', sub: 'CAC, ID and address checked' },
-  { icon: LockKeyIcon, title: 'Secure payment', sub: 'Sellers paid after delivery' },
-  { icon: KeyIcon, title: 'Delivery code', sub: 'Share it only when goods arrive' },
-  { icon: ScalesIcon, title: 'Fair disputes', sub: 'Report within 3 days' },
+  { icon: LockKeyIcon, title: 'Secure payment', sub: 'Suppliers paid after we receive your goods' },
+  { icon: PackageIcon, title: 'Received at our centre', sub: 'Every order reaches us before it reaches you' },
+  { icon: TruckIcon, title: 'Pickup or delivery', sub: 'Collect free, or delivered to site' },
 ];
 
 export default async function Home() {
@@ -68,15 +68,15 @@ export default async function Home() {
         <div className="mx-auto flex min-h-[clamp(34rem,85svh,60rem)] w-full max-w-section flex-col justify-center pt-14 pb-28 lg:pt-16 lg:pb-28">
           <div>
             <p className="bp-rise text-label uppercase text-cyan">Pool &amp; Save · Abuja</p>
-            <h1 className="bp-rise mt-4 max-w-[12ch] text-display-xl text-white">
+            <h1 className="bp-rise mt-4 max-w-[12ch] text-balance text-display-xl text-white">
               Build smarter. <span className="text-cyan">Save more.</span>
             </h1>
-            <p className="bp-rise mt-5 max-w-[34ch] text-body-lg text-white/85" style={{ '--rise-delay': '60ms' } as React.CSSProperties}>
+            <p className="bp-rise mt-5 max-w-[34ch] text-pretty text-body-lg text-white/85" style={{ '--rise-delay': '60ms' } as React.CSSProperties}>
               Join the pool with other builders. Verified suppliers compete for the combined order.
             </p>
             <p className="bp-rise mt-4 text-body-sm text-white/85" style={{ '--rise-delay': '60ms' } as React.CSSProperties}>
               <span className="font-mono font-medium text-cyan">50%</span> of the verified saving comes back to you.{' '}
-              <Link href="#how" className="text-white underline underline-offset-2">
+              <Link href="#how" className="rounded-sm text-white underline underline-offset-2 outline-none focus-visible:ring-2 focus-visible:ring-white/70">
                 How it’s calculated
               </Link>
             </p>
@@ -84,7 +84,7 @@ export default async function Home() {
               <Button asChild variant="cta" size="lg" className="h-12 px-7 text-base">
                 <Link href="#join">Join {poolDay} pool</Link>
               </Button>
-              <Link href="/catalog" className="text-body font-bold underline-offset-4 hover:underline">
+              <Link href="/catalog" className="inline-flex min-h-11 items-center rounded-sm text-body font-bold underline-offset-4 outline-none hover:underline focus-visible:ring-2 focus-visible:ring-white/70">
                 Shop materials →
               </Link>
             </div>
@@ -147,10 +147,7 @@ export default async function Home() {
       <Reveal>
         <section id="delivery" className="mx-auto w-full max-w-section scroll-mt-40 pt-section">
           <div className="grid-12 gap-y-4">
-            <Link
-              href="#delivery"
-              className="col-span-12 flex flex-col overflow-hidden rounded-panel bg-ink text-white lg:col-span-7 lg:min-h-[360px]"
-            >
+            <div className="col-span-12 flex flex-col overflow-hidden rounded-panel bg-ink text-white lg:col-span-7 lg:min-h-[360px]">
               <span className="relative block h-[200px] shrink-0 sm:h-[240px] lg:h-[250px]">
                 <Image
                   src="/hero/ushafa.webp"
@@ -165,10 +162,10 @@ export default async function Home() {
                 <span className="mt-2 text-heading-xl">Collect free. ₦0 delivery.</span>
                 <span className="mt-2 text-body-sm text-on-navy-muted">Mon–Sat, 8am–6pm · Bwari Area Council</span>
               </span>
-            </Link>
+            </div>
             <Link
               href="/seller/signup"
-              className="col-span-12 flex min-h-[260px] flex-col justify-end rounded-panel bg-pale-blue p-6 text-ink lg:col-span-5 lg:min-h-[360px] lg:p-8"
+              className="group col-span-12 flex min-h-[260px] flex-col justify-end rounded-panel bg-pale-blue p-6 text-ink outline-none transition-colors duration-150 hover:bg-pale-blue/70 focus-visible:ring-2 focus-visible:ring-ring lg:col-span-5 lg:min-h-[360px] lg:p-8"
             >
               <span className="text-label uppercase text-cyan-text">For suppliers</span>
               <span className="mt-2 text-display-lg">
@@ -176,13 +173,13 @@ export default async function Home() {
                 <br />
                 builders.
               </span>
-              <span className="mt-5 inline-flex h-12 w-fit items-center rounded-md bg-cta px-7 text-base font-bold text-white">
+              <span className="mt-5 inline-flex h-12 w-fit items-center rounded-md bg-cta px-7 text-base font-bold text-white transition-colors duration-150 group-hover:bg-cta-hover">
                 Become a supplier
               </span>
             </Link>
           </div>
-          <p className="mt-6 max-w-[72ch] text-caption text-slate">
-            Delivery: one flat fee per seller, shown before you pay, across {DELIVERY_ZONES.join(', ')}. Or collect free
+          <p className="mt-6 max-w-[72ch] text-pretty text-caption text-slate">
+            Delivery is a flat fee for your area, shown before you pay, across {DELIVERY_ZONES.join(', ')}. Or collect free
             at the Ushafa Fulfilment Centre, Monday to Saturday, 8am – 6pm.
           </p>
         </section>
@@ -198,7 +195,7 @@ export default async function Home() {
                 <li key={cat.name}>
                   <Link
                     href={`/catalog?category=${encodeURIComponent(cat.name)}`}
-                    className={`group relative block aspect-[4/3] overflow-hidden rounded-card ${photo ? 'bg-surface' : 'bg-navy-raised'}`}
+                    className={`group relative block aspect-[4/3] overflow-hidden rounded-card outline-none focus-visible:ring-2 focus-visible:ring-ring ${photo ? 'bg-surface' : 'bg-navy-raised'}`}
                   >
                     {photo && (
                       <Image
@@ -206,7 +203,7 @@ export default async function Home() {
                         alt=""
                         fill
                         sizes="(min-width: 1024px) 200px, (min-width: 640px) 33vw, 50vw"
-                        className="object-cover transition-transform duration-300 group-hover:scale-105 motion-reduce:transition-none"
+                        className="object-cover transition-transform duration-300 motion-reduce:transition-none [@media(hover:hover)]:group-hover:scale-105"
                       />
                     )}
                     {photo && (

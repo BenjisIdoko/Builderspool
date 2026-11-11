@@ -65,7 +65,7 @@ export default function CartPage() {
               />
 
               <div className="min-w-0 flex-1 max-sm:basis-[calc(100%-9rem)]">
-                <Link href={`/catalog/${line.materialId}`} className="text-pretty rounded-sm font-semibold text-ink outline-none hover:underline focus-visible:ring-2 focus-visible:ring-ring">
+                <Link href={`/catalog/${line.materialId}`} className="-my-3 inline-block py-3 text-pretty rounded-sm font-semibold text-ink outline-none hover:underline focus-visible:ring-2 focus-visible:ring-ring">
                   {line.name}
                 </Link>
                 <div className="text-sm text-muted-foreground">

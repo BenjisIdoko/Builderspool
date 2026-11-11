@@ -110,7 +110,7 @@ export function HeaderSearch() {
           autoComplete="off"
           className="h-full min-w-0 flex-1 bg-transparent text-base text-text-storefront outline-none placeholder:text-muted-foreground lg:text-[17px]"
         />
-        <Button type="submit" variant="cta" className="h-9 rounded-full px-5 text-sm">
+        <Button type="submit" variant="cta" className="relative h-9 rounded-full px-5 text-sm after:absolute after:inset-x-0 after:-inset-y-1">
           Search
         </Button>
       </form>

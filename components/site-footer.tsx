@@ -22,25 +22,25 @@ export function SiteFooter() {
         </div>
         <div className="col-span-6 md:col-span-4 lg:col-span-2">
           <div className="mb-2.5 text-label text-white/60 uppercase">Buy</div>
-          <div className="flex flex-col gap-1.5 text-[13px]">
-            <Link href="/catalog" className="text-white/85 hover:text-white">
+          <div className="flex flex-col items-start text-[13px]">
+            <Link href="/catalog" className="text-white/85 inline-flex min-h-11 items-center rounded-sm outline-none hover:text-white focus-visible:ring-2 focus-visible:ring-white/70 lg:min-h-8">
               Browse materials
             </Link>
-            <Link href="/#how" className="text-white/85 hover:text-white">
+            <Link href="/#how" className="text-white/85 inline-flex min-h-11 items-center rounded-sm outline-none hover:text-white focus-visible:ring-2 focus-visible:ring-white/70 lg:min-h-8">
               Pool &amp; Save
             </Link>
-            <Link href="/#how" className="text-white/60 hover:text-white">
+            <Link href="/#how" className="text-white/60 inline-flex min-h-11 items-center rounded-sm outline-none hover:text-white focus-visible:ring-2 focus-visible:ring-white/70 lg:min-h-8">
               How it works
             </Link>
           </div>
         </div>
         <div className="col-span-6 md:col-span-4 lg:col-span-2">
           <div className="mb-2.5 text-label text-white/60 uppercase">Sell</div>
-          <div className="flex flex-col gap-1.5 text-[13px]">
-            <Link href="/seller/signup" className="text-white/85 hover:text-white">
+          <div className="flex flex-col items-start text-[13px]">
+            <Link href="/seller/signup" className="text-white/85 inline-flex min-h-11 items-center rounded-sm outline-none hover:text-white focus-visible:ring-2 focus-visible:ring-white/70 lg:min-h-8">
               Become a supplier
             </Link>
-            <Link href="/seller/login" className="text-white/85 hover:text-white">
+            <Link href="/seller/login" className="text-white/85 inline-flex min-h-11 items-center rounded-sm outline-none hover:text-white focus-visible:ring-2 focus-visible:ring-white/70 lg:min-h-8">
               Supplier log in
             </Link>
           </div>
@@ -49,17 +49,17 @@ export function SiteFooter() {
           <div className="mb-2.5 text-label text-white/60 uppercase">
             Contact
           </div>
-          <div className="flex flex-col gap-1.5 text-[13px]">
-            <a href="tel:+2348054207559" className="text-white/85 hover:text-white">
+          <div className="flex flex-col items-start text-[13px]">
+            <a href="tel:+2348054207559" className="text-white/85 inline-flex min-h-11 items-center rounded-sm outline-none hover:text-white focus-visible:ring-2 focus-visible:ring-white/70 lg:min-h-8">
               +234 805 420 7559
             </a>
-            <a href={WHATSAPP_HREF} className="text-white/85 hover:text-white">
+            <a href={WHATSAPP_HREF} className="text-white/85 inline-flex min-h-11 items-center rounded-sm outline-none hover:text-white focus-visible:ring-2 focus-visible:ring-white/70 lg:min-h-8">
               WhatsApp us
             </a>
-            <a href="mailto:info@builderspool.net" className="text-white/85 hover:text-white">
+            <a href="mailto:info@builderspool.net" className="text-white/85 inline-flex min-h-11 items-center rounded-sm outline-none hover:text-white focus-visible:ring-2 focus-visible:ring-white/70 lg:min-h-8">
               info@builderspool.net
             </a>
-            <span className="text-white/60">Monday to Saturday, 8am – 6pm</span>
+            <span className="mt-1.5 text-white/60">Monday to Saturday, 8am – 6pm</span>
           </div>
         </div>
       </div>

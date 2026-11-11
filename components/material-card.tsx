@@ -9,7 +9,7 @@ import { Badge } from '@/components/ui/badge';
 export function MaterialCard({ material, showScope = false }: { material: BuyerMaterial; showScope?: boolean }) {
   return (
     <Card className="h-full gap-2 rounded-md border-0 p-2 shadow-none transition-shadow duration-150 hover:shadow-card-hover">
-      <Link href={`/catalog/${material.id}`} className="relative block overflow-hidden rounded-sm bg-canvas">
+      <Link href={`/catalog/${material.id}`} className="relative block overflow-hidden rounded-sm bg-canvas outline outline-1 -outline-offset-1 outline-black/10 dark:outline-white/10 outline-offset-0 focus-visible:ring-2 focus-visible:ring-ring">
         <MaterialImage
           imageUrl={material.imageUrl}
           category={material.category}
@@ -22,7 +22,7 @@ export function MaterialCard({ material, showScope = false }: { material: BuyerM
       </Link>
 
       <CardContent className="flex flex-1 flex-col gap-1 p-0">
-        <Link href={`/catalog/${material.id}`}>
+        <Link href={`/catalog/${material.id}`} className="rounded-sm outline-none focus-visible:ring-2 focus-visible:ring-ring">
           <span className="line-clamp-2 text-sm leading-snug text-text-storefront">{material.name}</span>
         </Link>
         {material.spec && <p className="line-clamp-2 text-sm text-slate">{material.spec}</p>}

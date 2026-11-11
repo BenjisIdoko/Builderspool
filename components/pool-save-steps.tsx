@@ -21,7 +21,7 @@ const STEP_CROPS = [
 function StepPhoto({ index }: { index: number }) {
   const crop = STEP_CROPS[index];
   return (
-    <div className="relative mb-4 aspect-[4/3] overflow-hidden rounded-card bg-well">
+    <div className="relative mb-4 aspect-[4/3] overflow-hidden rounded-card bg-well outline outline-1 -outline-offset-1 outline-black/10 dark:outline-white/10">
       <Image
         src="/hero/warehouse.webp"
         alt=""
@@ -68,7 +68,7 @@ export function PoolSaveSteps({ times }: { times: CycleTimes }) {
               <div className="border-t-2 border-cyan-text pt-4">
               <span className="font-mono text-figure-lg text-cyan-text">{String(i + 1).padStart(2, '0')}</span>
               <h3 className="mt-3 text-heading-sm text-ink">{step.title}</h3>
-              <p className="mt-2 max-w-[34ch] text-body-sm text-slate">{step.body}</p>
+              <p className="mt-2 max-w-[34ch] text-pretty text-body-sm text-slate">{step.body}</p>
               </div>
             </Reveal>
           </li>

@@ -26,19 +26,19 @@ export async function SiteHeader() {
           </Link>
           {buyer ? (
             <div className="flex items-center gap-5 text-slate">
-              <Link href="/orders" className="hover:text-orange-text">
+              <Link href="/orders" className="inline-flex min-h-8 items-center rounded-sm outline-none hover:text-orange-text focus-visible:ring-2 focus-visible:ring-ring">
                 Orders
               </Link>
-              <Link href="/account" className="hover:text-orange-text">
+              <Link href="/account" className="inline-flex min-h-8 items-center rounded-sm outline-none hover:text-orange-text focus-visible:ring-2 focus-visible:ring-ring">
                 {buyer.name}
               </Link>
             </div>
           ) : (
             <div className="flex items-center gap-5 text-slate">
-              <Link href="/login" className="hover:text-orange-text">
+              <Link href="/login" className="inline-flex min-h-8 items-center rounded-sm outline-none hover:text-orange-text focus-visible:ring-2 focus-visible:ring-ring">
                 Log in
               </Link>
-              <Link href="/signup" className="hover:text-orange-text">
+              <Link href="/signup" className="inline-flex min-h-8 items-center rounded-sm outline-none hover:text-orange-text focus-visible:ring-2 focus-visible:ring-ring">
                 Create account
               </Link>
             </div>
@@ -48,7 +48,7 @@ export async function SiteHeader() {
 
       <header className="mx-auto max-w-section">
         <div className="flex h-14 items-center gap-3 lg:h-16 lg:gap-6">
-          <Link href="/" className="flex shrink-0 items-center gap-2" aria-label="BuildersPool home">
+          <Link href="/" className="flex min-h-11 shrink-0 items-center gap-2 rounded-sm outline-none focus-visible:ring-2 focus-visible:ring-ring" aria-label="BuildersPool home">
             <LogoMark className="size-9 shrink-0 lg:size-12" />
             <Wordmark className="text-[20px] leading-none lg:text-[26px]" />
           </Link>

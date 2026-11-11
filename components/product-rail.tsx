@@ -22,7 +22,7 @@ export function ProductRail({
       <div className="flex items-center justify-between gap-3 border-b border-hairline px-5 py-4 lg:px-6 lg:py-5">
         <div className="min-w-0">
           <h2 className="text-heading-lg text-ink">{title}</h2>
-          {subtitle && <p className="text-[13px] text-slate">{subtitle}</p>}
+          {subtitle && <p className="text-pretty text-[13px] text-slate">{subtitle}</p>}
         </div>
         <Link href={href} className="inline-flex min-h-11 shrink-0 items-center text-sm font-bold text-orange-text hover:underline">
           SEE ALL

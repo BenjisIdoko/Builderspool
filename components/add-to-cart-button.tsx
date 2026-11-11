@@ -5,6 +5,7 @@ import { CheckIcon, ShoppingCartIcon } from '@phosphor-icons/react/ssr';
 import { useCart } from '@/lib/cart/CartContext';
 import type { BuyerMaterial } from '@/lib/queries/materials';
 import { Button } from '@/components/ui/button';
+import { IconSwap } from '@/components/icon-swap';
 
 // Card-level add: one tap adds a single unit (quantity is changed in the cart
 // or on the product page). Outline until hovered, so a rail of cards doesn't
@@ -34,17 +35,8 @@ export function AddToCartButton({ material }: { material: BuyerMaterial }) {
         setTimeout(() => setAdded(false), 1200);
       }}
     >
-      {added ? (
-        <>
-          <CheckIcon className="size-4" />
-          Added
-        </>
-      ) : (
-        <>
-          <ShoppingCartIcon className="size-4" />
-          Add to cart
-        </>
-      )}
+      <IconSwap swapped={added} from={<ShoppingCartIcon className="size-full" />} to={<CheckIcon className="size-full" />} />
+      {added ? 'Added' : 'Add to cart'}
     </Button>
   );
 }

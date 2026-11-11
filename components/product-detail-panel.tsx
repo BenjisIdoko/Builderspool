@@ -54,16 +54,16 @@ export function ProductDetailPanel({
       <Tabs defaultValue={defaultTab}>
         <TabsList variant="line" className="mb-6 h-auto w-full justify-start gap-6 border-b border-border pb-0">
           {material.spec && (
-            <TabsTrigger value="description" className="flex-none text-sm">
+            <TabsTrigger value="description" className="min-h-11 flex-none text-sm">
               Description
             </TabsTrigger>
           )}
           {hasDetails && (
-            <TabsTrigger value="details" className="flex-none text-sm">
+            <TabsTrigger value="details" className="min-h-11 flex-none text-sm">
               Details
             </TabsTrigger>
           )}
-          <TabsTrigger value="pricing" className="flex-none text-sm">
+          <TabsTrigger value="pricing" className="min-h-11 flex-none text-sm">
             Pricing &amp; delivery
           </TabsTrigger>
         </TabsList>

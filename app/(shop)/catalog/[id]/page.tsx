@@ -51,12 +51,12 @@ export default async function MaterialPage({ params }: { params: Promise<{ id: s
 
   return (
     <div className="mx-auto w-full max-w-section pt-6 pb-28 lg:pb-10">
-      <nav aria-label="Breadcrumb" className="mb-6 flex flex-wrap items-center gap-1.5 text-sm text-muted-foreground">
-        <Link href="/catalog" className="rounded-sm outline-none transition-colors hover:text-ink focus-visible:ring-2 focus-visible:ring-ring">
+      <nav aria-label="Breadcrumb" className="mb-4 flex flex-wrap items-center gap-x-1.5 text-sm text-muted-foreground lg:mb-6">
+        <Link href="/catalog" className="inline-flex min-h-11 items-center rounded-sm outline-none transition-colors hover:text-ink focus-visible:ring-2 focus-visible:ring-ring lg:min-h-8">
           Catalogue
         </Link>
         <CaretRightIcon className="size-3.5" />
-        <Link href={`/catalog?category=${encodeURIComponent(material.category)}`} className="rounded-sm outline-none transition-colors hover:text-ink focus-visible:ring-2 focus-visible:ring-ring">
+        <Link href={`/catalog?category=${encodeURIComponent(material.category)}`} className="inline-flex min-h-11 items-center rounded-sm outline-none transition-colors hover:text-ink focus-visible:ring-2 focus-visible:ring-ring lg:min-h-8">
           {material.category}
         </Link>
         <CaretRightIcon className="size-3.5" />
