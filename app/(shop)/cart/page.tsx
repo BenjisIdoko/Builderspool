@@ -38,22 +38,19 @@ export default function CartPage() {
   return (
     <div className="mx-auto w-full max-w-section pt-6 pb-24 lg:pb-10">
       <CheckoutSteps current={0} />
-      <h1 className="mb-6 text-ink">
-        Cart <span className="font-normal text-muted-foreground">({itemCount} {itemCount === 1 ? 'item' : 'items'})</span>
+      <h1 className="mb-3 text-balance text-ink">
+        Cart <span className="font-normal tabular-nums text-muted-foreground">({itemCount} {itemCount === 1 ? 'item' : 'items'})</span>
       </h1>
 
-      <div className="mb-6 flex items-start gap-2.5 rounded-lg bg-success-soft px-4 py-3.5 text-sm text-success">
-        <LockKeyIcon className="mt-0.5 size-4 shrink-0" />
-        <span>
-          <strong>Escrow protected.</strong> Funds stay held by Builders Pool and release to the fulfilling
-          supplier only after your fulfillment center confirms receipt.
-        </span>
-      </div>
+      <p className="mb-6 flex items-center gap-2 text-xs text-slate">
+        <LockKeyIcon className="size-4 shrink-0" />
+        Suppliers are paid only after we receive your goods.
+      </p>
 
       <div className="grid grid-cols-1 gap-8 lg:grid-cols-[1fr_340px]">
         <div>
           <h2 className="mb-3 text-label text-slate uppercase">
-            Materials · {lines.length} line {lines.length === 1 ? 'item' : 'items'}
+            Materials · <span className="tabular-nums">{lines.length}</span> line {lines.length === 1 ? 'item' : 'items'}
           </h2>
           <div className="divide-y divide-border rounded-lg bg-surface">
           {lines.map((line) => (
@@ -63,12 +60,12 @@ export default function CartPage() {
                 imageUrl={line.imageUrl}
                 category={line.category}
                 alt={line.name}
-                className="size-16 shrink-0 rounded-md border border-border"
+                className="size-16 shrink-0 rounded-md outline outline-1 -outline-offset-1 outline-black/10 dark:outline-white/10"
                 sizes="64px"
               />
 
               <div className="min-w-0 flex-1 max-sm:basis-[calc(100%-9rem)]">
-                <Link href={`/catalog/${line.materialId}`} className="font-semibold text-ink hover:underline">
+                <Link href={`/catalog/${line.materialId}`} className="text-pretty rounded-sm font-semibold text-ink outline-none hover:underline focus-visible:ring-2 focus-visible:ring-ring">
                   {line.name}
                 </Link>
                 <div className="text-sm text-muted-foreground">
@@ -91,7 +88,7 @@ export default function CartPage() {
               <Button
                 type="button"
                 variant="ghost"
-                size="icon-sm"
+                size="icon"
                 onClick={() => removeItem(line.materialId)}
                 aria-label={`Remove ${line.name}`}
               >

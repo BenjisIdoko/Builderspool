@@ -44,7 +44,7 @@ export function SwipeToDelete({
         onClick={onDelete}
         aria-label={label}
         tabIndex={offset === 0 ? -1 : 0}
-        className="absolute inset-y-0 right-0 flex w-[76px] items-center justify-center bg-danger text-white"
+        className={`absolute inset-y-0 right-0 flex w-[76px] items-center justify-center bg-danger text-white transition-[visibility] duration-0 ${offset === 0 ? 'invisible delay-200' : 'visible delay-0'}`}
       >
         <TrashIcon className="size-5" />
       </button>
