@@ -4,7 +4,9 @@ import Link from 'next/link';
 import { LockKeyIcon, TrashIcon } from '@phosphor-icons/react/ssr';
 import { useCart } from '@/lib/cart/CartContext';
 import { linePrice } from '@/lib/cart/types';
+import { AnimatePresence, LazyMotion, MotionConfig, domMax, m } from 'motion/react';
 import { formatNaira } from '@/lib/format';
+import { AnimatedCount, AnimatedNaira } from '@/components/ui/animated-number';
 import { EmptyState } from '@/components/empty-state/empty-state';
 import { EmptyCartIllustration } from '@/components/empty-state/illustrations';
 import { Button } from '@/components/ui/button';
@@ -39,7 +41,7 @@ export default function CartPage() {
     <div className="mx-auto w-full max-w-section pt-6 pb-24 lg:pb-10">
       <CheckoutSteps current={0} />
       <h1 className="mb-3 text-balance text-ink">
-        Cart <span className="font-normal tabular-nums text-muted-foreground">({itemCount} {itemCount === 1 ? 'item' : 'items'})</span>
+        Cart <span className="font-normal text-muted-foreground">(<AnimatedCount value={itemCount} /> {itemCount === 1 ? 'item' : 'items'})</span>
       </h1>
 
       <p className="mb-6 flex items-center gap-2 text-xs text-slate">
@@ -52,9 +54,21 @@ export default function CartPage() {
           <h2 className="mb-3 text-label text-slate uppercase">
             Materials · <span className="tabular-nums">{lines.length}</span> line {lines.length === 1 ? 'item' : 'items'}
           </h2>
-          <div className="divide-y divide-border rounded-lg bg-surface">
+          <LazyMotion features={domMax} strict>
+          <MotionConfig reducedMotion="user">
+          <ul className="relative divide-y divide-border overflow-hidden rounded-lg bg-surface">
+          <AnimatePresence initial={false} mode="popLayout">
           {lines.map((line) => (
-            <SwipeToDelete key={line.materialId} onDelete={() => removeItem(line.materialId)} label={`Remove ${line.name}`}>
+            <m.li
+              key={line.materialId}
+              layout
+              initial={{ opacity: 0, scale: 0.98 }}
+              animate={{ opacity: 1, scale: 1 }}
+              exit={{ opacity: 0, scale: 0.96 }}
+              transition={{ duration: 0.2, ease: [0.16, 1, 0.3, 1] }}
+              className="bg-surface"
+            >
+            <SwipeToDelete onDelete={() => removeItem(line.materialId)} label={`Remove ${line.name}`}>
             <div className="flex flex-wrap items-center gap-x-4 gap-y-3 p-4 sm:flex-nowrap">
               <MaterialImage
                 imageUrl={line.imageUrl}
@@ -82,7 +96,7 @@ export default function CartPage() {
               />
 
               <div className="w-28 text-right text-price-sm tabular-nums text-ink max-sm:order-2 max-sm:ml-auto max-sm:w-auto">
-                {formatNaira(linePrice(line) * line.quantity)}
+                <AnimatedNaira value={linePrice(line) * line.quantity} />
               </div>
 
               <Button
@@ -96,8 +110,12 @@ export default function CartPage() {
               </Button>
             </div>
             </SwipeToDelete>
+            </m.li>
           ))}
-          </div>
+          </AnimatePresence>
+          </ul>
+          </MotionConfig>
+          </LazyMotion>
         </div>
 
         <div className="h-fit">
@@ -105,7 +123,7 @@ export default function CartPage() {
           <div className="rounded-lg bg-surface p-5 lg:sticky lg:top-24">
           <div className="flex items-center justify-between text-sm">
             <span className="text-slate">Subtotal</span>
-            <span className="text-price-sm tabular-nums text-ink">{formatNaira(subtotal)}</span>
+            <AnimatedNaira value={subtotal} className="text-price-sm text-ink" />
           </div>
           <p className="mt-1 text-xs text-muted-foreground">Delivery calculated at checkout.</p>
 
@@ -121,7 +139,7 @@ export default function CartPage() {
       <div className="fixed inset-x-0 bottom-[calc(61px+env(safe-area-inset-bottom))] z-30 flex items-center gap-3 border-t border-border bg-surface/95 px-4 py-3 backdrop-blur-[10px] lg:hidden">
         <div className="min-w-0">
           <div className="text-xs text-muted-foreground">Subtotal</div>
-          <div className="text-price-sm tabular-nums text-ink">{formatNaira(subtotal)}</div>
+          <AnimatedNaira value={subtotal} className="text-price-sm text-ink" />
         </div>
         <Button asChild variant="cta" size="lg" className="flex-1">
           <Link href="/checkout">Checkout</Link>

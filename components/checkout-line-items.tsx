@@ -20,7 +20,7 @@ export function CheckoutLineItems() {
   return (
     <LazyMotion features={domMax} strict>
       <MotionConfig reducedMotion="user">
-        <ul className="divide-y divide-border rounded-lg bg-surface">
+        <ul className="relative divide-y divide-border overflow-hidden rounded-lg bg-surface">
           <AnimatePresence initial={false} mode="popLayout">
             {lines.map((line) => (
               <m.li
