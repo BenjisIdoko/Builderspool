@@ -80,7 +80,7 @@ export function ListingForm({
             required
             value={materialId}
             onChange={(e) => setMaterialId(e.target.value)}
-            className="h-11 w-full rounded-md border border-input-border bg-surface px-3 text-body text-ink"
+            className="h-11 w-full rounded-md border border-input-border bg-surface px-3 text-base text-ink outline-none sm:text-body transition-colors duration-150 hover:bg-well focus-visible:border-ring focus-visible:ring-3 focus-visible:ring-ring/50"
           >
             <option value="">Choose a product</option>
             {materials.map((m) => (
@@ -93,7 +93,7 @@ export function ListingForm({
       )}
 
       {values?.reviewNote && (
-        <p className="rounded-md bg-card-alt px-4 py-3 text-sm text-ink">
+        <p className="text-pretty rounded-md bg-card-alt px-4 py-3 text-sm text-ink">
           <span className="font-medium">Note from BuildersPool:</span> {values.reviewNote}
         </p>
       )}
@@ -115,20 +115,23 @@ export function ListingForm({
 
       <div className="grid gap-4 sm:grid-cols-2">
         <div className="space-y-1.5">
-          <Label htmlFor={`price-${values?.id ?? 'new'}`}>Your price{selected ? ` per ${selected.unit}` : ''} (₦)</Label>
-          <Input id={`price-${values?.id ?? 'new'}`} name="price" inputMode="decimal" required defaultValue={values?.price} />
+          <Label htmlFor={`price-${values?.id ?? 'new'}`} className="flex-wrap gap-x-1.5 gap-y-1">
+            Your price (₦)
+            {selected && <span className="font-normal text-muted-foreground">per {selected.unit}</span>}
+          </Label>
+          <Input id={`price-${values?.id ?? 'new'}`} name="price" className="text-base! sm:text-body!" inputMode="decimal" autoComplete="off" required defaultValue={values?.price} />
         </div>
         <div className="space-y-1.5">
           <Label htmlFor={`stock-${values?.id ?? 'new'}`}>Stock on hand</Label>
-          <Input id={`stock-${values?.id ?? 'new'}`} name="stockQty" inputMode="numeric" required defaultValue={values?.stockQty ?? '0'} />
+          <Input id={`stock-${values?.id ?? 'new'}`} name="stockQty" className="text-base! sm:text-body!" inputMode="numeric" autoComplete="off" required defaultValue={values?.stockQty ?? '0'} />
         </div>
         <div className="space-y-1.5">
           <Label htmlFor={`lead-${values?.id ?? 'new'}`}>Lead time (days)</Label>
-          <Input id={`lead-${values?.id ?? 'new'}`} name="leadTimeDays" inputMode="numeric" required defaultValue={values?.leadTimeDays ?? '1'} />
+          <Input id={`lead-${values?.id ?? 'new'}`} name="leadTimeDays" className="text-base! sm:text-body!" inputMode="numeric" autoComplete="off" required defaultValue={values?.leadTimeDays ?? '1'} />
         </div>
         <div className="space-y-1.5">
           <Label htmlFor={`shelf-${values?.id ?? 'new'}`}>Shelf life (days){selected?.perishable ? '' : ', if it applies'}</Label>
-          <Input id={`shelf-${values?.id ?? 'new'}`} name="shelfLifeDays" inputMode="numeric" required={selected?.perishable} defaultValue={values?.shelfLifeDays} />
+          <Input id={`shelf-${values?.id ?? 'new'}`} name="shelfLifeDays" className="text-base! sm:text-body!" inputMode="numeric" autoComplete="off" required={selected?.perishable} defaultValue={values?.shelfLifeDays} />
         </div>
       </div>
 
@@ -137,11 +140,11 @@ export function ListingForm({
           {values.photos.map((p) => (
             <li key={p.id} className="w-28 space-y-1">
               {/* eslint-disable-next-line @next/next/no-img-element */}
-              <img src={p.url} alt="" className="aspect-square w-full rounded-md bg-well object-cover" />
-              <div className="text-caption text-muted-foreground">
+              <img src={p.url} alt="" className="aspect-square w-full rounded-md bg-well object-cover outline outline-1 -outline-offset-1 outline-black/10 dark:outline-white/10" />
+              <div className="text-caption tabular-nums text-muted-foreground">
                 {p.widthPx}×{p.heightPx}px
               </div>
-              <button type="button" disabled={isPending} onClick={() => run(() => removeListingPhotoAction(p.id))} className="text-caption text-danger underline">
+              <button type="button" disabled={isPending} onClick={() => run(() => removeListingPhotoAction(p.id))} aria-label={`Remove photo ${p.widthPx} by ${p.heightPx}`} className="inline-flex min-h-11 items-center rounded-sm text-caption text-danger underline outline-none transition-opacity duration-150 focus-visible:ring-2 focus-visible:ring-ring disabled:opacity-50">
                 Remove
               </button>
             </li>
@@ -153,11 +156,11 @@ export function ListingForm({
         <Label htmlFor={`photos-${values?.id ?? 'new'}`}>Photos</Label>
         {uploadsEnabled ? (
           <>
-            <Input id={`photos-${values?.id ?? 'new'}`} name="photos" type="file" accept="image/jpeg,image/png" multiple />
-            <p className="text-caption text-muted-foreground">JPEG or PNG, at least 1000px on the shorter side, 4 MB or smaller each.</p>
+            <Input id={`photos-${values?.id ?? 'new'}`} name="photos" type="file" accept="image/jpeg,image/png" multiple className="cursor-pointer py-0 pl-1.5 text-sm text-muted-foreground file:mr-3 file:h-8 file:cursor-pointer file:rounded-md file:bg-well file:px-3 file:text-sm file:font-medium file:text-ink file:transition-colors hover:file:bg-border-strong/40" />
+            <p className="text-pretty text-caption text-muted-foreground">JPEG or PNG, at least 1000px on the shorter side, 4 MB or smaller each.</p>
           </>
         ) : (
-          <p className="text-sm text-muted-foreground">Photo upload is not switched on yet, so listings cannot go live. The BuildersPool team is setting it up.</p>
+          <p className="text-sm text-muted-foreground">Photo upload isn&apos;t switched on yet, so listings can&apos;t go live. The BuildersPool team is setting it up.</p>
         )}
       </div>
 

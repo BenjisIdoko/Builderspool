@@ -46,7 +46,7 @@ export default async function SellerListingsPage() {
     <div className="mx-auto w-full max-w-7xl px-4 pt-6 pb-16 sm:px-8 sm:pt-8 sm:pb-20 [&>*]:max-w-3xl">
       <div className="mb-1 text-xs text-muted-foreground">Merchant · listings</div>
       <h1 className="mb-1 text-heading-lg text-ink">My listings</h1>
-      <p className="mb-6 text-sm text-muted-foreground">
+      <p className="mb-6 text-pretty text-sm text-muted-foreground">
         Set your own price, stock, lead time and photos for each product you sell. Listings that pass our checks go live on
         their own; only flagged ones are reviewed by our team.
       </p>
@@ -66,7 +66,7 @@ export default async function SellerListingsPage() {
 
       <div className="overflow-hidden rounded-lg bg-card-alt">
         <div className="border-b border-border px-5 py-4">
-          <h2 className="text-heading-sm text-ink">Your listings ({listings.length})</h2>
+          <h2 className="text-heading-sm text-ink">Your listings (<span className="tabular-nums">{listings.length}</span>)</h2>
         </div>
         {listings.length === 0 ? (
           <p className="px-5 py-4 text-sm text-muted-foreground">No listings yet. Add your first one above.</p>
