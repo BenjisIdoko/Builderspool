@@ -4,7 +4,10 @@ const PAYSTACK_BASE_URL = 'https://api.paystack.co';
 
 function getSecretKey(): string {
   const key = process.env.PAYSTACK_SECRET_KEY;
-  if (!key) throw new Error('PAYSTACK_SECRET_KEY is not set — payments are not configured yet.');
+  if (!key) {
+    console.error('PAYSTACK_SECRET_KEY is not set: payments are not configured.');
+    throw new Error("Payments aren't available right now. Please try again shortly.");
+  }
   return key;
 }
 

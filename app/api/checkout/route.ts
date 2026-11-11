@@ -18,7 +18,7 @@ export async function POST(request: NextRequest) {
     const body = (await request.json()) as Omit<CheckoutInput, 'buyerId'>;
     order = await createOrder({ ...body, buyerId: buyer.id });
   } catch (error: unknown) {
-    return NextResponse.json({ error: errorMessage(error, 'Checkout failed') }, { status: 400 });
+    return NextResponse.json({ error: errorMessage(error, "We couldn't place your order. Check your details and try again. If it keeps happening, contact us.") }, { status: 400 });
   }
 
   // The order is committed above regardless of payment outcome — a payment

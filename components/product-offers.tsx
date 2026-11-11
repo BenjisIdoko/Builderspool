@@ -20,7 +20,7 @@ export function ProductOffers({ unit }: { unit: string }) {
           Buy Direct
         </h2>
         <p className="mt-1 text-pretty text-body-sm text-slate">
-          No seller has listed this product yet, so Buy Direct is not available for it. Pool &amp; Save works now, and Buy Direct appears here as soon as a verified seller lists it.
+          No seller has listed this product yet, so Buy Direct isn&apos;t available for it. Pool &amp; Save works now, and Buy Direct appears here as soon as a verified seller lists it.
         </p>
       </section>
     );

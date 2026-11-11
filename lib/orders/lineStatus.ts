@@ -35,8 +35,8 @@ export function describeLine(item: LineStatusInput, orderPaid: boolean): LineSta
 
   if (isRefundedLine(item)) {
     const why =
-      direct?.status === 'DECLINED' ? 'The seller you picked declined this line.' : direct?.status === 'EXPIRED' ? 'The seller you picked did not accept in time.' : direct ? 'The seller you picked could not supply it.' : revertedFromSheet ? 'No supplier could supply it.' : undefined;
-    return { tone: 'danger', label: 'Not supplied: refund due', detail: [sentBack && direct ? sentBack.trim() : '', why].filter(Boolean).join(' ') || undefined };
+      direct?.status === 'DECLINED' ? 'The seller you picked declined this line.' : direct?.status === 'EXPIRED' ? 'The seller you picked didn’t accept in time.' : direct ? 'The seller you picked couldn’t supply it.' : revertedFromSheet ? 'No supplier could supply it.' : undefined;
+    return { tone: 'danger', label: 'Not supplied', detail: [sentBack && direct ? sentBack.trim() : '', why, "You'll be refunded."].filter(Boolean).join(' ') };
   }
 
   if (sheetFulfilment && sheetFulfilment.status !== 'FAILED') {
@@ -50,7 +50,7 @@ export function describeLine(item: LineStatusInput, orderPaid: boolean): LineSta
   if (direct) {
     switch (direct.status) {
       case 'AWAITING_ACCEPT':
-        return { tone: 'warning', label: 'Waiting for the seller to accept', detail: `${sentBack}They have until ${dateTime(direct.acceptDeadlineAt)}; if they cannot supply it you are refunded.` };
+        return { tone: 'warning', label: 'Waiting for the seller to accept', detail: `${sentBack}They have until ${dateTime(direct.acceptDeadlineAt)}; if they can't supply it, you'll be refunded.` };
       case 'ACCEPTED':
         return { tone: 'info', label: 'Seller accepted', detail: `${sentBack}They are preparing your goods for the fulfilment centre.` };
       case 'FULFILLED':

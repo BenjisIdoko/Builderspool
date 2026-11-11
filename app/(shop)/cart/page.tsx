@@ -23,10 +23,10 @@ export default function CartPage() {
           illustration={EmptyCartIllustration}
           as="h1"
           title="Your cart is empty"
-          description="Add materials from the catalog to get started."
+          description="Nothing here yet. Browse the catalogue and add what you need."
         >
           <Button asChild size="lg">
-            <Link href="/catalog">Browse the catalog</Link>
+            <Link href="/catalog">Browse materials</Link>
           </Button>
         </EmptyState>
       </div>

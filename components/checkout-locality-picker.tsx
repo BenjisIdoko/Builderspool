@@ -63,7 +63,7 @@ export function CheckoutLocalityPicker({
         <p className="rounded-md bg-pale-blue px-4 py-3 text-body-sm text-ink" role="status">
           <span className="font-semibold">{zone.name}</span>
           <br />
-          {zone.fee === null ? 'Delivery is not available here yet. Pickup only.' : `Delivery to site: ${formatNaira(zone.fee)}.`}
+          {zone.fee === null ? "Delivery isn't available here yet. Pickup only." : `Delivery to site: ${formatNaira(zone.fee)}.`}
         </p>
       )}
 
@@ -81,13 +81,13 @@ function RequestDelivery({ localityId, localityName, defaultPhone }: { localityI
     setMessage(null);
     startTransition(async () => {
       const r = await requestDeliveryAction(localityId, phone);
-      setMessage('error' in r ? { tone: 'error', text: r.error } : { tone: 'ok', text: 'Thanks. We will contact you when we deliver to this area.' });
+      setMessage('error' in r ? { tone: 'error', text: r.error } : { tone: 'ok', text: "Thanks. We'll contact you when we deliver to this area." });
     });
   }
 
   return (
     <div className="space-y-2 rounded-md bg-card-alt px-4 py-3">
-      <p className="text-body-sm text-slate">We do not deliver to {localityName} yet. Leave your number and we will tell you when we do.</p>
+      <p className="text-body-sm text-slate">We don&apos;t deliver to {localityName} yet. Leave your number and we&apos;ll tell you when we do.</p>
       <div className="flex flex-wrap items-center gap-2">
         <Input value={phone} onChange={(e) => setPhone(e.target.value)} inputMode="tel" aria-label="Phone number" placeholder="0803 123 4567" className="h-9 w-48" />
         <Button type="button" size="sm" variant="outline" disabled={isPending} onClick={send}>

@@ -13,7 +13,7 @@ export async function requestDeliveryAction(localityId: string, phone: string): 
   if (!/^\+?\d{10,15}$/.test(cleaned)) return { error: 'Enter a phone number we can reach, for example 0803 123 4567.' };
 
   const locality = await prisma.locality.findFirst({ where: { id: localityId, active: true }, select: { id: true } });
-  if (!locality) return { error: 'That area is not available.' };
+  if (!locality) return { error: "That area isn't available." };
 
   await prisma.deliveryRequest.upsert({
     where: { phone_localityId: { phone: cleaned, localityId } },

@@ -67,7 +67,7 @@ export default async function AccountPage() {
           </h2>
           <p className="mt-1 text-xs text-muted-foreground">
             Your share of every real saving between what you paid and what a material actually cost to
-            procure — credited here once the fulfillment center confirms receipt.
+            procure — credited here once we receive and check your order at our fulfilment centre.
           </p>
         </div>
         <div className="grid grid-cols-1 gap-4 border-b border-border p-5 sm:grid-cols-3">
@@ -177,7 +177,7 @@ export default async function AccountPage() {
             description="Your orders will show up here once you place your first one."
           >
             <Button asChild variant="outline">
-              <Link href="/catalog">Browse the catalog</Link>
+              <Link href="/catalog">Browse materials</Link>
             </Button>
           </EmptyState>
         ) : (

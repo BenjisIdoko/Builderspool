@@ -39,12 +39,12 @@ function validateItems(items: CheckoutInput['items']) {
   const seen = new Set<string>();
   for (const item of items) {
     if (!item || typeof item.materialId !== 'string' || !item.materialId) {
-      throw new Error('Invalid cart item.');
+      throw new Error("One of the items in your cart isn't valid any more. Remove it and try again.");
     }
     if (!Number.isInteger(item.quantity) || item.quantity < 1 || item.quantity > MAX_LINE_QUANTITY) {
       throw new Error(`Quantity must be a whole number between 1 and ${MAX_LINE_QUANTITY.toLocaleString('en-NG')}.`);
     }
-    if (seen.has(item.materialId)) throw new Error('Each material can only appear once per order.');
+    if (seen.has(item.materialId)) throw new Error('An item is in your cart twice. Combine the quantities.');
     seen.add(item.materialId);
   }
 }
@@ -62,7 +62,7 @@ function requiredField(value: string | undefined, label: string): string {
  */
 export async function createOrder(input: CheckoutInput) {
   if (!Array.isArray(input.items) || input.items.length === 0) {
-    throw new Error('Cannot checkout an empty cart.');
+    throw new Error('Your cart is empty. Add something to check out.');
   }
   validateItems(input.items);
 
@@ -118,21 +118,21 @@ export async function createOrder(input: CheckoutInput) {
       where: { id: input.localityId },
       include: { zone: true, lga: { include: { state: true } } },
     });
-    if (!locality || !locality.active) throw new Error('That area is not available. Choose another.');
-    if (!locality.zone || !locality.zone.active) throw new Error(`We do not deliver to ${locality.name} yet.`);
+    if (!locality || !locality.active) throw new Error("That area isn't available. Choose another.");
+    if (!locality.zone || !locality.zone.active) throw new Error(`We don't deliver to ${locality.name} yet. Choose pickup, or leave your number and we'll tell you when we do.`);
     const zoneRegion = regionForState(locality.lga.state.name);
-    if (!zoneRegion) throw new Error(`We do not serve ${locality.lga.state.name} yet.`);
+    if (!zoneRegion) throw new Error(`We don't serve ${locality.lga.state.name} yet. Choose another area.`);
     region = zoneRegion;
     area = { localityId: locality.id, zoneId: locality.zone.id };
     zoneFee = locality.zone.deliveryFee === null ? null : Number(locality.zone.deliveryFee);
     if (input.fulfillmentMethod === 'DELIVERY' && zoneFee === null) {
-      throw new Error(`Delivery to ${locality.name} is not available yet. Choose pickup instead.`);
+      throw new Error(`Delivery to ${locality.name} isn't available yet. Choose pickup instead.`);
     }
   }
 
   const center = await findServingCenter(region);
   if (!center) {
-    throw new Error(`No fulfillment center serves region ${region}.`);
+    throw new Error(`We can't serve ${region.charAt(0)}${region.slice(1).toLowerCase()} yet. Choose another area.`);
   }
 
   const deliveryCost = area
@@ -171,7 +171,7 @@ export async function createOrder(input: CheckoutInput) {
 
     for (const item of input.items) {
       const material = materialById.get(item.materialId);
-      if (!material) throw new Error(`Unknown material ${item.materialId}.`);
+      if (!material) throw new Error('An item in your cart is no longer in the catalogue. Remove it and try again.');
 
       const pick = picks.get(material.id);
       await tx.orderItem.create({

@@ -65,7 +65,7 @@ export async function resendVerificationEmailAction(): Promise<{ message: string
     const buyerId = await getBuyerIdFromSession();
     const sellerUserId = (await getSellerActor())?.userId ?? null;
     const userId = buyerId ?? sellerUserId;
-    if (!userId) throw new Error('You must be signed in to resend a verification email.');
+    if (!userId) throw new Error('Log in to resend the verification email.');
 
     const user = await prisma.user.findUnique({ where: { id: userId } });
     if (!user) throw new Error('Account not found.');

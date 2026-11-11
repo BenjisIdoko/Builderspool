@@ -278,7 +278,7 @@ export default async function OrderConfirmationPage({
             <h2 className="text-heading-sm text-ink">Delivery tracking</h2>
           </div>
           <p className="mb-5 text-pretty text-xs text-muted-foreground">
-            No live GPS yet — status reflects what our fulfillment team last logged.
+            No live GPS yet — status reflects what our fulfilment team last logged.
           </p>
           <div className="divide-y divide-border">
             {dispatchItems.map((item) => (
@@ -334,7 +334,7 @@ export default async function OrderConfirmationPage({
                   )}
                   {item.unfilledQuantity > 0 && !line && (
                     <div className="mt-0.5 text-xs font-medium text-danger">
-                      No winning supplier for {item.unfilledQuantity} of {item.quantity} — not charged, refund due
+                      No supplier could fill {item.unfilledQuantity} of {item.quantity}. You&apos;ll be refunded.
                     </div>
                   )}
                 </div>
@@ -364,7 +364,7 @@ export default async function OrderConfirmationPage({
           </div>
           {refundDue > 0 && (
             <div className="flex justify-between text-sm font-bold text-danger">
-              <span>Refund due (units no supplier took)</span>
+              <span>Refund for items no supplier filled</span>
               <span className="tabular-nums">{formatNaira(refundDue)}</span>
             </div>
           )}

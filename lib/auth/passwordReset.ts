@@ -62,7 +62,7 @@ export async function resetPassword(formData: FormData): Promise<{ error: string
     const confirmPassword = requiredText(formData, 'confirmPassword');
 
     if (password.length < 8) throw new Error('Password must be at least 8 characters.');
-    if (password !== confirmPassword) throw new Error('Passwords do not match.');
+    if (password !== confirmPassword) throw new Error("Passwords don't match.");
 
     const tokenHash = hashToken(token);
     const record = await prisma.passwordResetToken.findUnique({ where: { tokenHash } });

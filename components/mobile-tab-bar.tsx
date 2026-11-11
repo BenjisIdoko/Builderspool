@@ -20,7 +20,7 @@ const TABS = [
   },
   {
     href: "/catalog",
-    label: "Catalog",
+    label: "Catalogue",
     icon: SquaresFourIcon,
     match: (p: string) => p.startsWith("/catalog"),
   },

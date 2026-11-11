@@ -129,7 +129,7 @@ export function CheckoutForm({
       <div className="rounded-lg bg-surface p-8 text-center text-sm text-slate">
         Your cart is empty.{' '}
         <Link href="/catalog" className="text-brand hover:underline">
-          Browse the catalog
+          Browse materials
         </Link>
         .
       </div>
@@ -183,9 +183,9 @@ export function CheckoutForm({
         return;
       }
 
-      setState({ status: 'error', message: body.error || 'Checkout failed.' });
+      setState({ status: 'error', message: body.error || "We couldn't place your order. Check your details and try again. If it keeps happening, contact us." });
     } catch {
-      setState({ status: 'error', message: 'Could not reach the server. Try again.' });
+      setState({ status: 'error', message: "We couldn't connect. Check your internet and try again." });
     }
   }
 
@@ -499,7 +499,7 @@ export function CheckoutForm({
           className="mt-5 w-full"
           disabled={state.status === 'submitting' || missing !== null}
         >
-          {state.status === 'submitting' ? 'Processing…' : `Pay ${formatNaira(total)} securely`}
+          {state.status === 'submitting' ? 'Opening secure payment…' : `Pay ${formatNaira(total)} securely`}
         </Button>
         {missing && (
           <p className="mt-2 text-center text-caption text-slate" role="status">

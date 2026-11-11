@@ -60,7 +60,7 @@ export function CartSheet() {
             >
               <SheetClose asChild>
                 <Button asChild size="lg">
-                  <Link href="/catalog">Browse the catalog</Link>
+                  <Link href="/catalog">Browse materials</Link>
                 </Button>
               </SheetClose>
             </EmptyState>

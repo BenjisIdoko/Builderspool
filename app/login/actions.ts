@@ -68,7 +68,7 @@ export async function signUpBuyer(formData: FormData): Promise<{ error: string }
     if (password.length < 8) throw new Error('Password must be at least 8 characters.');
     // The sign-up form no longer asks for a confirmation (it has a show-password
     // toggle); if a client still sends one, it must match.
-    if (typeof confirmRaw === 'string' && confirmRaw !== '' && confirmRaw !== password) throw new Error('Passwords do not match.');
+    if (typeof confirmRaw === 'string' && confirmRaw !== '' && confirmRaw !== password) throw new Error("Passwords don't match.");
 
     const existing = await prisma.user.findUnique({ where: { email } });
     if (existing) throw new Error('An account with that email already exists.');
