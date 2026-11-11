@@ -1,72 +1,57 @@
 import { getSellerIdFromSession } from '@/lib/seller/session';
-import { getSellerAllocations } from '@/lib/queries/sellerPortal';
-import { Money } from '@/components/money';
+import { getSellerPayouts } from '@/lib/queries/sellerPortal';
+import { AnimatedNaira } from '@/components/ui/animated-number';
 import { PayoutTable, type PayoutRow } from '@/components/seller/payout-table';
+
+export const metadata = { title: 'Payouts' };
+
+const DATE = { dateStyle: 'medium', timeZone: 'Africa/Lagos' } as const;
 
 export default async function SellerPayoutsPage() {
   const sellerId = (await getSellerIdFromSession())!;
-  const allocations = await getSellerAllocations(sellerId);
+  const all = await getSellerPayouts(sellerId);
 
-  const amountOf = (a: (typeof allocations)[number]) => Number(a.bid.unitPrice) * a.quantityFilled;
+  const paid = all.filter((p) => p.status === 'PAID');
+  const pending = all.filter((p) => p.status === 'PENDING_GRN' || p.status === 'PROCESSED');
+  const onHold = all.filter((p) => p.status === 'ON_HOLD');
+  const sum = (rows: typeof all) => rows.reduce((total, p) => total + p.amount, 0);
 
-  const paid = allocations.filter((a) => a.payoutStatus === 'PAID');
-  const pending = allocations.filter((a) => a.payoutStatus === 'PENDING_GRN' || a.payoutStatus === 'PROCESSED');
-  const onHold = allocations.filter((a) => a.payoutStatus === 'ON_HOLD');
-
-  const paidTotal = paid.reduce((sum, a) => sum + amountOf(a), 0);
-  const pendingTotal = pending.reduce((sum, a) => sum + amountOf(a), 0);
-  const onHoldTotal = onHold.reduce((sum, a) => sum + amountOf(a), 0);
-
-  const payouts: PayoutRow[] = allocations.map((a) => ({
-    id: a.id,
-    materialName: a.bid.material.name,
-    amount: amountOf(a),
-    status: a.payoutStatus,
-    reference: a.payoutReference,
-    date: a.paidAt ? a.paidAt.toLocaleDateString('en-NG', { dateStyle: 'medium' }) : null,
+  const payouts: PayoutRow[] = all.map((p) => ({
+    id: p.id,
+    source: p.source,
+    materialName: p.materialName,
+    amount: p.amount,
+    status: p.status,
+    reference: p.reference,
+    date: p.paidAt ? p.paidAt.toLocaleDateString('en-NG', DATE) : null,
   }));
+
+  const cards = [
+    { label: 'Paid out', amount: sum(paid), note: `${paid.length} paid`, tone: 'text-ink' },
+    { label: 'On its way', amount: sum(pending), note: `${pending.length} awaiting receipt or payment`, tone: 'text-ink' },
+    { label: 'On hold', amount: sum(onHold), note: `${onHold.length} paused by our team`, tone: onHold.length > 0 ? 'text-danger' : 'text-ink' },
+  ];
 
   return (
     <div className="mx-auto w-full max-w-7xl px-4 pt-6 pb-16 sm:px-8 sm:pt-8 sm:pb-20">
       <div className="mb-1 text-xs text-muted-foreground">Merchant · settlements</div>
       <h1 className="mb-1 text-heading-lg text-ink">Payouts</h1>
-      <p className="mb-6 text-sm text-muted-foreground">
-        Escrow releases to you — real allocation data, the same figures admin sees on the Escrow
-        settlement desk. Payouts are disbursed by ops once a fulfillment center confirms receipt (GRN);
-        there&apos;s no self-service withdrawal yet.
+      <p className="mb-6 max-w-[64ch] text-pretty text-sm text-muted-foreground">
+        Money from every order you&apos;ve won, whether by bid, RFQ or Buy Direct. We pay you once the fulfilment centre confirms it has received your goods.
+        Our team sends the payment, so there&apos;s no withdraw button yet.
       </p>
 
-      {/* Design's 3 cards are Available balance / Pending escrow release / Lifetime
-          earnings. "Available balance" assumes self-service withdrawal, which
-          doesn't exist here — "On hold" (real, ops-flagged) takes that slot
-          instead. "Paid out" is literally the same real figure as "Lifetime
-          earnings" (all-time payoutStatus=PAID total), just relabeled to match;
-          no fabricated quarter-over-quarter trend added under it. */}
-      <div className="mb-8 grid grid-cols-1 gap-3.5 sm:grid-cols-3">
-        <div className="rounded-card bg-card-alt p-5">
-          <div className="mb-1.5 text-label text-muted-foreground uppercase">On hold</div>
-          <div className={`font-mono text-figure-lg tabular-nums ${onHoldTotal > 0 ? 'text-danger' : 'text-ink'}`}>
-            <Money amount={onHoldTotal} />
+      <dl className="mb-8 grid grid-cols-1 gap-3.5 sm:grid-cols-3">
+        {cards.map((c) => (
+          <div key={c.label} className="rounded-card bg-card-alt p-5 shadow-[0_0_0_1px_var(--color-hairline)]">
+            <dt className="mb-1.5 text-label text-muted-foreground uppercase">{c.label}</dt>
+            <dd className={`font-mono text-figure-lg tabular-nums ${c.tone}`}>
+              <AnimatedNaira value={c.amount} />
+            </dd>
+            <dd className="mt-1 text-pretty text-xs text-muted-foreground">{c.note}</dd>
           </div>
-          <div className="mt-1 text-xs text-muted-foreground">{onHold.length} flagged by ops</div>
-        </div>
-        <div className="rounded-card bg-card-alt p-5">
-          <div className="mb-1.5 text-label text-muted-foreground uppercase">
-            Pending escrow release
-          </div>
-          <div className="font-mono text-figure-lg tabular-nums text-ink">
-            <Money amount={pendingTotal} />
-          </div>
-          <div className="mt-1 text-xs text-muted-foreground">{pending.length} awaiting GRN / processing</div>
-        </div>
-        <div className="rounded-card bg-card-alt p-5">
-          <div className="mb-1.5 text-label text-muted-foreground uppercase">Lifetime earnings</div>
-          <div className="font-mono text-figure-lg tabular-nums text-ink">
-            <Money amount={paidTotal} />
-          </div>
-          <div className="mt-1 text-xs text-muted-foreground">{paid.length} settled</div>
-        </div>
-      </div>
+        ))}
+      </dl>
 
       <PayoutTable payouts={payouts} />
     </div>
