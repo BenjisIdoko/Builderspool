@@ -1,14 +1,12 @@
 import Link from 'next/link';
-import { ClockIcon, StackIcon, TruckIcon } from '@phosphor-icons/react/ssr';
 import { getSellerIdFromSession } from '@/lib/seller/session';
 import { getSellerBids } from '@/lib/queries/sellerPortal';
-import { Money } from '@/components/money';
-import { bidStatusTone, pillClass } from '@/lib/statusColors';
-import { withdrawBid } from '../../actions';
-import { MaterialImage } from '@/components/material-image';
+import { EmptyState } from '@/components/empty-state/empty-state';
+import { EmptyListIllustration } from '@/components/empty-state/illustrations';
+import { SellerBidList } from '@/components/seller/bid-list';
 import { Button } from '@/components/ui/button';
-import { Badge } from '@/components/ui/badge';
-import { formatLagosDateTime } from '@/lib/format';
+
+export const metadata = { title: 'My bids' };
 
 export default async function SellerBidsPage() {
   const sellerId = (await getSellerIdFromSession())!;
@@ -18,66 +16,30 @@ export default async function SellerBidsPage() {
     <div className="mx-auto w-full max-w-7xl px-4 pt-6 pb-16 sm:px-8 sm:pt-8 sm:pb-20 [&>*]:max-w-5xl">
       <div className="mb-1 text-xs text-muted-foreground">Merchant · bidding</div>
       <h1 className="mb-1 text-heading-lg text-ink">My bids</h1>
-      <p className="mb-6 text-sm text-muted-foreground">
-        Every bid you&apos;ve submitted, across every cycle — withdraw one while it&apos;s still open. Bidding on a whole category in one
-        go? Open <Link href="/seller/rfqs" className="font-semibold text-brand hover:underline">RFQs</Link>.
+      <p className="mb-6 max-w-[64ch] text-pretty text-sm text-muted-foreground">
+        Every bid you&apos;ve submitted. You can withdraw one while its pool is still open. To bid on a whole category at once, open{' '}
+        <Link href="/seller/rfqs" className="rounded-sm font-semibold text-brand outline-none hover:underline focus-visible:ring-2 focus-visible:ring-ring">
+          RFQs
+        </Link>
+        .
       </p>
 
       {bids.length === 0 ? (
-        <div className="rounded-lg bg-card-alt px-6 py-16 text-center">
-          <StackIcon className="mx-auto mb-3 size-8 text-muted-foreground" />
-          <p className="text-sm text-muted-foreground">You haven&apos;t submitted any bids yet.</p>
+        <div className="rounded-lg bg-card-alt">
+          <EmptyState
+            illustration={EmptyListIllustration}
+            variant="inline"
+            as="p"
+            title="No bids yet"
+            description="Bids you submit on open pools and RFQs appear here."
+          >
+            <Button asChild variant="outline">
+              <Link href="/seller/rfqs">Open RFQs</Link>
+            </Button>
+          </EmptyState>
         </div>
       ) : (
-        <div className="overflow-hidden rounded-lg bg-card-alt">
-          <div className="divide-y divide-border">
-            {bids.map((bid) => (
-              <div key={bid.id} className="flex flex-wrap items-center gap-4 px-5 py-4">
-                <MaterialImage
-                  imageUrl={bid.material.imageUrl}
-                  category={bid.material.category}
-                  alt={bid.material.name}
-                  className="size-12 shrink-0 rounded-md border border-border"
-                  sizes="48px"
-                />
-
-                <div className="min-w-0 flex-1">
-                  <div className="flex items-center gap-2">
-                    <span className="font-bold text-ink">{bid.material.name}</span>
-                    <Badge variant="outline" className={pillClass(bidStatusTone(bid.status))}>
-                      {bid.status.replace('_', ' ').toLowerCase()}
-                    </Badge>
-                  </div>
-                  <div className="mt-1 flex flex-wrap items-center gap-x-4 gap-y-1 text-sm text-muted-foreground">
-                    <span className="flex items-center gap-1.5">
-                      <StackIcon className="size-3.5" />
-                      {bid.quantityOffered} {bid.material.unit}
-                    </span>
-                    <span className="flex items-center gap-1.5">
-                      <TruckIcon className="size-3.5" />
-                      {bid.estimatedDeliveryDays}-day delivery
-                    </span>
-                    <span className="flex items-center gap-1.5">
-                      <ClockIcon className="size-3.5" />
-                      {formatLagosDateTime(bid.submittedAt)}
-                    </span>
-                  </div>
-                </div>
-
-                <div className="font-mono font-medium tabular-nums text-ink"><Money amount={bid.unitPrice} /></div>
-
-                {bid.status === 'SUBMITTED' && (
-                  <form action={withdrawBid}>
-                    <input type="hidden" name="bidId" value={bid.id} />
-                    <Button type="submit" variant="ghost" size="sm">
-                      Withdraw
-                    </Button>
-                  </form>
-                )}
-              </div>
-            ))}
-          </div>
-        </div>
+        <SellerBidList bids={bids} />
       )}
     </div>
   );

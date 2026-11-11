@@ -164,25 +164,25 @@ export async function submitBid(formData: FormData) {
   revalidatePath('/seller/bids');
 }
 
-export async function withdrawBid(formData: FormData) {
+// Returns what went wrong as text (not a thrown error), so the bids page can show it beside the bid.
+export async function withdrawBid(formData: FormData): Promise<{ error: string } | { ok: true }> {
   const sellerId = await getSellerIdFromSession();
   const bidId = formData.get('bidId');
-  if (!sellerId) throw new Error('Log in as a seller to withdraw a bid.');
-  if (typeof bidId !== 'string') {
-    throw new Error('Missing bid id.');
-  }
+  if (!sellerId) return { error: 'Log in again to withdraw this bid.' };
+  if (typeof bidId !== 'string') return { error: 'We couldn’t tell which bid to withdraw. Refresh the page and try again.' };
 
-  const bid = await prisma.bid.findUniqueOrThrow({ where: { id: bidId }, include: { cycle: true } });
-  if (bid.sellerId !== sellerId) throw new Error('Not your bid.');
-  if (bid.status !== BidStatus.SUBMITTED) throw new Error('Only a submitted bid can be withdrawn.');
+  const bid = await prisma.bid.findUnique({ where: { id: bidId }, include: { cycle: true } });
+  if (!bid || bid.sellerId !== sellerId) return { error: 'We couldn’t find that bid.' };
+  if (bid.status !== BidStatus.SUBMITTED) return { error: 'This bid can’t be withdrawn any more.' };
   if (bid.cycle.status !== CycleStatus.BIDDING || isPastCutoff(bid.cycle.bidsCloseAt ?? bid.cycle.cutoffAt)) {
-    throw new Error('This cycle has passed its cutoff — bids can no longer be withdrawn.');
+    return { error: 'Bidding has closed for this pool, so the bid can’t be withdrawn.' };
   }
 
   await prisma.bid.update({ where: { id: bidId }, data: { status: BidStatus.WITHDRAWN } });
 
   revalidatePath('/seller');
   revalidatePath('/seller/bids');
+  return { ok: true };
 }
 
 // Accepting or declining an award (Transfer File 5.4). Both return their
