@@ -32,7 +32,7 @@ export function BuyerSignUpForm() {
 
   return (
     <>
-      <h2 className="mb-1 text-2xl font-bold tracking-tight text-ink">Create your account</h2>
+      <h1 className="mb-1 text-2xl font-bold tracking-tight text-ink">Create your account</h1>
       <p className="mb-7 text-sm text-muted-foreground">Buy materials at a fixed price, pooled with other buyers. Takes under a minute.</p>
 
       <form onSubmit={handleSubmit} className="space-y-5">

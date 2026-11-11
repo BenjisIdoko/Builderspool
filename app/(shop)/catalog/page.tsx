@@ -2,7 +2,7 @@ import { Button } from '@/components/ui/button';
 import { EmptyState } from '@/components/empty-state/empty-state';
 import { NoResultsIllustration } from '@/components/empty-state/illustrations';
 import Link from 'next/link';
-import { TruckIcon } from '@phosphor-icons/react/ssr';
+import { CaretLeftIcon, CaretRightIcon, TruckIcon } from '@phosphor-icons/react/ssr';
 import { getMaterials, getCategories, getFulfillmentCenters, MATERIAL_SORT_VALUES, type MaterialSort } from '@/lib/queries/materials';
 import { MaterialCard } from '@/components/material-card';
 import { CatalogSortSelect } from '@/components/catalog-sort-select';
@@ -54,11 +54,11 @@ export default async function CatalogPage({
     <>
           <div>
             <h2 className="mb-3 text-label text-slate uppercase">Category</h2>
-            <div className="flex flex-col gap-2.5">
+            <div className="flex flex-col">
               <Link
                 href={urlFor({ category: '', page: 1 })}
                 aria-current={!category ? 'true' : undefined}
-                className="flex cursor-pointer items-center gap-2 text-sm text-ink"
+                className="-mx-2 flex min-h-11 cursor-pointer items-center gap-2 rounded-md px-2 text-sm text-ink outline-none transition-colors duration-150 hover:bg-well/60 focus-visible:ring-2 focus-visible:ring-ring aria-[current=true]:font-semibold lg:min-h-8"
               >
                 <input type="radio" readOnly aria-hidden="true" tabIndex={-1} checked={!category} className="size-3.5 accent-brand" />
                 All materials
@@ -68,11 +68,11 @@ export default async function CatalogPage({
                   key={c.name}
                   href={urlFor({ category: c.name, page: 1 })}
                   aria-current={category === c.name ? 'true' : undefined}
-                  className="flex cursor-pointer items-center gap-2 text-sm text-ink"
+                  className="-mx-2 flex min-h-11 cursor-pointer items-center gap-2 rounded-md px-2 text-sm text-ink outline-none transition-colors duration-150 hover:bg-well/60 focus-visible:ring-2 focus-visible:ring-ring aria-[current=true]:font-semibold lg:min-h-8"
                 >
                   <input type="radio" readOnly aria-hidden="true" tabIndex={-1} checked={category === c.name} className="size-3.5 accent-brand" />
                   <span className="truncate">{c.name}</span>
-                  <span className="ml-auto text-[11.5px] text-muted-foreground/70">{c.count}</span>
+                  <span className="ml-auto text-[11.5px] tabular-nums text-muted-foreground">{c.count}</span>
                 </Link>
               ))}
             </div>
@@ -80,13 +80,13 @@ export default async function CatalogPage({
 
           <div>
             <h2 className="mb-3 text-label text-slate uppercase">Sourcing</h2>
-            <div className="flex flex-col gap-2.5">
+            <div className="flex flex-col">
               {SCOPE_OPTIONS.map((opt) => (
                 <Link
                   key={opt.label}
                   href={urlFor({ scope: opt.value ?? '', page: 1 })}
                   aria-current={sourcingScope === opt.value ? 'true' : undefined}
-                  className="flex cursor-pointer items-center gap-2 text-sm text-ink"
+                  className="-mx-2 flex min-h-11 cursor-pointer items-center gap-2 rounded-md px-2 text-sm text-ink outline-none transition-colors duration-150 hover:bg-well/60 focus-visible:ring-2 focus-visible:ring-ring aria-[current=true]:font-semibold lg:min-h-8"
                 >
                   <input type="radio" readOnly aria-hidden="true" tabIndex={-1} checked={sourcingScope === opt.value} className="size-3.5 accent-brand" />
                   {opt.label}
@@ -103,7 +103,7 @@ export default async function CatalogPage({
       <div className="mb-3 flex flex-wrap items-start justify-between gap-3">
         <div>
           <div className="mb-1 text-label text-slate uppercase">Catalogue</div>
-          <h1 className="text-ink">
+          <h1 className="text-balance text-ink">
             {q ? `Results for "${q}"` : category ? category : 'Building materials'}
           </h1>
         </div>
@@ -114,7 +114,7 @@ export default async function CatalogPage({
           </span>
         )}
       </div>
-      <p className="mb-8 text-body-sm text-slate">Fixed catalogue price, {total} materials.</p>
+      <p className="mb-8 text-body-sm text-slate">Fixed catalogue price, <span className="tabular-nums">{total}</span> materials.</p>
 
       <div className="grid grid-cols-1 gap-7 lg:grid-cols-[240px_1fr]">
         <aside className="hidden flex-col gap-8 rounded-card bg-surface p-5 lg:sticky lg:top-44 lg:flex lg:self-start">
@@ -128,8 +128,9 @@ export default async function CatalogPage({
               <Link
                 key={c.label}
                 href={urlFor({ category: c.name, page: 1 })}
-                className={`inline-flex min-h-11 shrink-0 items-center rounded-full border px-4 text-body-sm font-medium whitespace-nowrap ${
-                  (category ?? '') === c.name ? 'border-brand bg-brand text-brand-ink' : 'border-input bg-surface text-ink'
+                aria-current={(category ?? '') === c.name ? 'true' : undefined}
+                className={`inline-flex min-h-11 shrink-0 items-center rounded-full border px-4 text-body-sm font-medium whitespace-nowrap outline-none transition-[background-color,border-color,scale] duration-150 focus-visible:ring-2 focus-visible:ring-ring active:scale-[0.96] ${
+                  (category ?? '') === c.name ? 'border-brand bg-brand text-brand-ink' : 'border-input bg-surface text-ink hover:bg-well'
                 }`}
               >
                 {c.label}
@@ -137,7 +138,7 @@ export default async function CatalogPage({
             ))}
           </div>
           <div className="mb-5 flex flex-wrap items-center justify-between gap-3 border-b border-border pb-4">
-            <span className="text-label text-muted-foreground uppercase">
+            <span className="text-label tabular-nums text-muted-foreground uppercase">
               {total} {total === 1 ? 'result' : 'results'}
             </span>
             <div className="flex items-center gap-2">
@@ -168,14 +169,14 @@ export default async function CatalogPage({
           )}
 
           {pageCount > 1 && (
-            <div className="mt-8 flex items-center justify-center gap-1.5">
+            <nav aria-label="Pagination" className="mt-8 flex items-center justify-center gap-1.5">
               {page > 1 && (
                 <Link
                   href={urlFor({ page: page - 1 })}
                   aria-label="Previous page"
-                  className="flex size-8 items-center justify-center rounded-lg bg-surface text-ink hover:bg-well"
+                  className="flex size-11 items-center justify-center rounded-md border border-input bg-surface text-ink outline-none transition-[background-color,scale] duration-150 hover:bg-well focus-visible:ring-2 focus-visible:ring-ring active:scale-[0.96]"
                 >
-                  ‹
+                  <CaretLeftIcon className="size-4" />
                 </Link>
               )}
               {Array.from({ length: pageCount }, (_, i) => i + 1)
@@ -186,7 +187,7 @@ export default async function CatalogPage({
                     <Link
                       href={urlFor({ page: p })}
                       aria-current={p === page ? 'page' : undefined}
-                      className={`flex size-11 items-center justify-center rounded-md border text-body-sm font-bold ${
+                      className={`flex size-11 items-center justify-center rounded-md border text-body-sm font-bold tabular-nums outline-none transition-[background-color,scale] duration-150 focus-visible:ring-2 focus-visible:ring-ring active:scale-[0.96] ${
                         p === page
                           ? 'border-brand bg-brand text-brand-ink'
                           : 'border-input bg-surface text-ink hover:bg-well'
@@ -200,12 +201,12 @@ export default async function CatalogPage({
                 <Link
                   href={urlFor({ page: page + 1 })}
                   aria-label="Next page"
-                  className="flex size-8 items-center justify-center rounded-lg bg-surface text-ink hover:bg-well"
+                  className="flex size-11 items-center justify-center rounded-md border border-input bg-surface text-ink outline-none transition-[background-color,scale] duration-150 hover:bg-well focus-visible:ring-2 focus-visible:ring-ring active:scale-[0.96]"
                 >
-                  ›
+                  <CaretRightIcon className="size-4" />
                 </Link>
               )}
-            </div>
+            </nav>
           )}
         </div>
       </div>

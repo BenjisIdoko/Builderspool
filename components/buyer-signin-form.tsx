@@ -32,7 +32,7 @@ export function BuyerSignInForm() {
 
   return (
     <>
-      <h2 className="mb-1 text-2xl font-bold tracking-tight text-ink">Login</h2>
+      <h1 className="mb-1 text-2xl font-bold tracking-tight text-ink">Log in</h1>
       <p className="mb-7 text-sm text-muted-foreground">Sign in to your Builders Pool account.</p>
 
       <form onSubmit={handleSubmit} className="space-y-5">
@@ -47,28 +47,28 @@ export function BuyerSignInForm() {
             <Label htmlFor="password" className="text-sm font-medium text-slate">
               Password
             </Label>
-            <Link href="/forgot-password?role=buyer" className="text-sm font-medium text-brand hover:underline">
+            <Link href="/forgot-password?role=buyer" className="-my-3 inline-block rounded-sm py-3 text-sm font-medium text-brand outline-none hover:underline focus-visible:ring-2 focus-visible:ring-ring">
               Forgot password?
             </Link>
           </div>
           <PasswordInput className={AUTH_INPUT} id="password" name="password" required autoComplete="current-password" />
         </div>
 
-        <label className="flex items-center gap-2.5 py-1 text-sm text-slate">
+        <label className="flex min-h-11 cursor-pointer items-center gap-2.5 text-sm text-slate">
           <input type="checkbox" name="remember" className="size-5 rounded border-input accent-brand" />
           Remember me
         </label>
 
-        {error && <p className="text-sm text-danger">{error}</p>}
+        {error && <p role="alert" className="text-sm text-danger">{error}</p>}
 
-        <Button type="submit" size="lg" className={AUTH_BUTTON} disabled={isPending}>
+        <Button type="submit" size="lg" className={AUTH_BUTTON} disabled={isPending} aria-busy={isPending}>
           {isPending ? 'Signing in…' : 'Sign in'}
         </Button>
       </form>
 
       <p className="mt-6 text-sm text-muted-foreground">
         Don&apos;t have an account?{' '}
-        <Link href="/signup" className="font-medium text-brand hover:underline">
+        <Link href="/signup" className="rounded-sm font-medium text-brand outline-none hover:underline focus-visible:ring-2 focus-visible:ring-ring">
           Join Builders Pool
         </Link>
       </p>

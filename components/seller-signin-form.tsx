@@ -32,7 +32,7 @@ export function SellerSignInForm() {
 
   return (
     <>
-      <h2 className="mb-1 text-2xl font-bold tracking-tight text-ink">Seller login</h2>
+      <h1 className="mb-1 text-2xl font-bold tracking-tight text-ink">Seller login</h1>
       <p className="mb-7 text-sm text-muted-foreground">Sign in to submit bids and manage allocations.</p>
 
       <form onSubmit={handleSubmit} className="space-y-5">

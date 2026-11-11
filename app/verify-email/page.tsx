@@ -20,13 +20,13 @@ export default async function VerifyEmailPage({
       {'success' in result ? (
         <>
           <CheckCircleIcon className="mb-3 size-8 text-success" />
-          <h2 className="mb-1 text-2xl font-bold tracking-tight text-ink">Email verified</h2>
+          <h1 className="mb-1 text-2xl font-bold tracking-tight text-ink">Email verified</h1>
           <p className="mb-7 text-sm text-muted-foreground">Thanks — your email address is confirmed.</p>
         </>
       ) : (
         <>
           <XCircleIcon className="mb-3 size-8 text-danger" />
-          <h2 className="mb-1 text-2xl font-bold tracking-tight text-ink">Couldn&apos;t verify</h2>
+          <h1 className="mb-1 text-2xl font-bold tracking-tight text-ink">Couldn&apos;t verify</h1>
           <p className="mb-7 text-sm text-danger">{result.error}</p>
         </>
       )}

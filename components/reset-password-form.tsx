@@ -35,7 +35,7 @@ export function ResetPasswordForm({ token, role }: { token: string; role: string
   if (success) {
     return (
       <>
-        <h2 className="mb-1 text-2xl font-bold tracking-tight text-ink">Password reset</h2>
+        <h1 className="mb-1 text-2xl font-bold tracking-tight text-ink">Password reset</h1>
         <p className="mb-7 text-sm text-muted-foreground">Your password has been updated.</p>
         <Link href={loginPath}>
           <Button size="lg" className={AUTH_BUTTON}>
@@ -48,7 +48,7 @@ export function ResetPasswordForm({ token, role }: { token: string; role: string
 
   return (
     <>
-      <h2 className="mb-1 text-2xl font-bold tracking-tight text-ink">Choose a new password</h2>
+      <h1 className="mb-1 text-2xl font-bold tracking-tight text-ink">Choose a new password</h1>
       <p className="mb-7 text-sm text-muted-foreground">Must be at least 8 characters.</p>
 
       <form onSubmit={handleSubmit} className="space-y-5">

@@ -31,7 +31,7 @@ export function SellerSignUpForm() {
 
   return (
     <>
-      <h2 className="mb-1 text-2xl font-bold tracking-tight text-ink">Register as a seller</h2>
+      <h1 className="mb-1 text-2xl font-bold tracking-tight text-ink">Register as a seller</h1>
       <p className="mb-7 text-sm text-muted-foreground">
         Bid on pooled demand from buyers across Nigeria. KYC verification is required before payouts.
       </p>

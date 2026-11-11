@@ -20,7 +20,7 @@ export function AuthSplitScreen({
   children: React.ReactNode;
 }) {
   return (
-    <div className="flex min-h-full flex-1">
+    <main className="flex min-h-full flex-1">
       <div className="relative hidden w-1/2 overflow-hidden lg:block">
         <Image
           src="/materials/cement.jpg"
@@ -33,21 +33,21 @@ export function AuthSplitScreen({
         <div className="absolute inset-0 bg-gradient-to-br from-brand via-brand-deep to-brand-warm mix-blend-color" />
         <div className="absolute inset-0 bg-gradient-to-br from-ink/90 via-ink/65 to-ink/30" />
         <div className="relative flex h-full flex-col justify-center px-14 py-16">
-          <div className="mb-6 text-xs tracking-wide text-white/60">{eyebrow}</div>
-          <h1 className="max-w-md text-4xl leading-[1.1] font-extrabold tracking-[-0.02em] text-white">
+          <div className="mb-6 text-xs tracking-wide text-white/75">{eyebrow}</div>
+          <p className="max-w-md text-balance text-4xl leading-[1.1] font-extrabold tracking-[-0.02em] text-white">
             {headline}
-          </h1>
-          <p className="mt-5 max-w-sm text-white/80">{body}</p>
+          </p>
+          <p className="mt-5 max-w-sm text-pretty text-white/80">{body}</p>
         </div>
       </div>
 
       <div className="flex w-full flex-col justify-center px-6 py-16 sm:px-12 lg:w-1/2 lg:px-20">
-        <Link href="/" className="mb-10 flex items-center gap-2">
+        <Link href="/" className="mb-8 flex min-h-11 w-fit items-center gap-2 rounded-sm outline-none focus-visible:ring-2 focus-visible:ring-ring">
           <LogoMark className="size-8" />
           <span className="text-[15px] font-medium tracking-tight text-ink">Builders Pool</span>
         </Link>
         <div className="w-full max-w-sm">{children}</div>
       </div>
-    </div>
+    </main>
   );
 }

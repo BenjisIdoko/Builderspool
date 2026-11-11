@@ -27,12 +27,12 @@ export function CatalogFilterSheet({
       <SheetTrigger asChild>
         <button
           type="button"
-          className="flex h-10 items-center gap-1.5 rounded-lg border border-border-strong bg-surface px-3.5 text-[13px] font-semibold text-ink lg:hidden"
+          className="flex h-11 items-center gap-1.5 rounded-md border border-border-strong bg-surface px-3.5 text-[13px] font-semibold text-ink outline-none transition-[background-color,scale] duration-150 hover:bg-well focus-visible:ring-2 focus-visible:ring-ring active:scale-[0.96] lg:hidden"
         >
           <FunnelIcon className="size-4" />
           Filters
           {activeCount > 0 && (
-            <span className="flex size-[18px] items-center justify-center rounded-full bg-brand text-[10.5px] font-bold text-white">
+            <span className="flex size-[18px] items-center justify-center rounded-full bg-brand text-[10.5px] font-bold tabular-nums text-white">
               {activeCount}
             </span>
           )}
@@ -47,7 +47,7 @@ export function CatalogFilterSheet({
           Filter the catalogue by category and sourcing.
         </SheetDescription>
         <div
-          className="flex flex-col gap-7 [&_a]:py-1.5"
+          className="flex flex-col gap-7 [&_a]:py-0"
           onClick={(e) => {
             if ((e.target as HTMLElement).closest("a")) setOpen(false);
           }}

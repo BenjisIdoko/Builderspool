@@ -17,7 +17,7 @@ export function PasswordInput({ className, ...props }: Omit<React.ComponentProps
         onClick={() => setShow((s) => !s)}
         aria-label={show ? 'Hide password' : 'Show password'}
         aria-pressed={show}
-        className="absolute inset-y-0 right-0 flex w-12 items-center justify-center rounded-r-lg text-muted-foreground transition-colors hover:text-ink focus-visible:text-ink"
+        className="absolute inset-y-0 right-0 flex w-12 items-center justify-center rounded-r-lg text-muted-foreground outline-none transition-colors duration-150 hover:text-ink focus-visible:text-ink focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-ring"
       >
         {show ? <EyeSlashIcon className="size-5" /> : <EyeIcon className="size-5" />}
       </button>
