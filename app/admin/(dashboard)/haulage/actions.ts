@@ -4,8 +4,9 @@ import { revalidatePath } from 'next/cache';
 import { advanceDispatch, cancelDispatch, updateDispatchLocation } from '@/lib/fulfillment';
 import { requireAdminUser } from '@/lib/admin/session';
 import { recordAudit } from '@/lib/audit';
+import { safeAction } from '@/lib/actions/safe';
 
-export async function advanceDispatchAction(formData: FormData) {
+async function advanceDispatchActionImpl(formData: FormData) {
   const admin = await requireAdminUser();
 
   const dispatchId = formData.get('dispatchId');
@@ -19,7 +20,7 @@ export async function advanceDispatchAction(formData: FormData) {
   revalidatePath('/admin/orders');
 }
 
-export async function cancelDispatchAction(formData: FormData) {
+async function cancelDispatchActionImpl(formData: FormData) {
   const admin = await requireAdminUser();
 
   const dispatchId = formData.get('dispatchId');
@@ -32,7 +33,7 @@ export async function cancelDispatchAction(formData: FormData) {
   revalidatePath('/admin/orders');
 }
 
-export async function updateDispatchLocationAction(formData: FormData) {
+async function updateDispatchLocationActionImpl(formData: FormData) {
   const admin = await requireAdminUser();
 
   const dispatchId = formData.get('dispatchId');
@@ -47,3 +48,9 @@ export async function updateDispatchLocationAction(formData: FormData) {
   revalidatePath('/admin/haulage');
   revalidatePath('/admin/orders');
 }
+
+export const updateDispatchLocationAction = safeAction(updateDispatchLocationActionImpl);
+
+export const advanceDispatchAction = safeAction(advanceDispatchActionImpl);
+
+export const cancelDispatchAction = safeAction(cancelDispatchActionImpl);

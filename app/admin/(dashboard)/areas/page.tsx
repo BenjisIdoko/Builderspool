@@ -6,6 +6,7 @@ import { Button } from '@/components/ui/button';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import { AddLocalityForm, AddZoneForm, LocalityZoneForm, ZoneFeeForm } from '@/components/admin/areas-forms';
 import { decideCoverageAction, setNationalSupplyAction, setZoneActiveAction } from './actions';
+import { ActionForm } from '@/components/ui/action-form';
 
 export const metadata = { title: 'Service areas' };
 
@@ -89,13 +90,20 @@ export default async function AdminAreasPage() {
                     ) : (
                       <Badge variant="success">Delivery on</Badge>
                     )}
-                    <form action={setZoneActiveAction}>
+                    <ActionForm
+                      action={setZoneActiveAction}
+                      confirm={
+                        z.active
+                          ? { title: `Deactivate ${z.name}?`, description: 'Buyers there can’t order, and sellers can’t be approved for it, until you activate it again.', confirmLabel: 'Deactivate', destructive: true }
+                          : undefined
+                      }
+                    >
                       <input type="hidden" name="zoneId" value={z.id} />
                       <input type="hidden" name="active" value={String(!z.active)} />
                       <Button type="submit" size="sm" variant="ghost">
                         {z.active ? 'Deactivate' : 'Activate'}
                       </Button>
-                    </form>
+                    </ActionForm>
                   </div>
                 </TableCell>
               </TableRow>
@@ -157,13 +165,23 @@ export default async function AdminAreasPage() {
                   {s.nationalSupply ? 'Every zone' : s.zones.length > 0 ? s.zones.join(', ') : 'None yet'}
                 </TableCell>
                 <TableCell className="text-right">
-                  <form action={setNationalSupplyAction} className="inline">
+                  <ActionForm
+                    action={setNationalSupplyAction}
+                    className="inline"
+                    confirm={{
+                      title: s.nationalSupply ? 'Turn national supply off?' : 'Turn national supply on?',
+                      description: s.nationalSupply
+                        ? 'This seller will only receive requests for the zones you approved for them.'
+                        : 'This seller will receive requests for every delivery zone.',
+                      confirmLabel: s.nationalSupply ? 'Turn off' : 'Turn on',
+                    }}
+                  >
                     <input type="hidden" name="sellerId" value={s.id} />
                     <input type="hidden" name="national" value={String(!s.nationalSupply)} />
                     <Button type="submit" size="sm" variant={s.nationalSupply ? 'default' : 'outline'}>
                       {s.nationalSupply ? 'On' : 'Off'}
                     </Button>
-                  </form>
+                  </ActionForm>
                 </TableCell>
               </TableRow>
             ))}

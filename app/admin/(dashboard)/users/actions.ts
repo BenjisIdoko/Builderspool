@@ -6,8 +6,9 @@ import { KycStatus } from '@prisma/client';
 import { requireAdminUser } from '@/lib/admin/session';
 import { recordAudit } from '@/lib/audit';
 import { releasePendingAllocationsForSeller } from '@/lib/bidding/fallback';
+import { safeAction } from '@/lib/actions/safe';
 
-export async function approveKycAction(formData: FormData) {
+async function approveKycActionImpl(formData: FormData) {
   const admin = await requireAdminUser();
 
   const userId = formData.get('userId');
@@ -27,7 +28,7 @@ export async function approveKycAction(formData: FormData) {
   revalidatePath('/admin/sellers');
 }
 
-export async function rejectKycAction(formData: FormData) {
+async function rejectKycActionImpl(formData: FormData) {
   const admin = await requireAdminUser();
 
   const userId = formData.get('userId');
@@ -49,7 +50,7 @@ export async function rejectKycAction(formData: FormData) {
 // Pauses an approved seller: they keep their login but can no longer bid or be
 // awarded (isSellerEligible requires APPROVED), including bids already placed
 // in a cycle that hasn't been awarded yet.
-export async function suspendSellerAction(formData: FormData) {
+async function suspendSellerActionImpl(formData: FormData) {
   const admin = await requireAdminUser();
 
   const userId = formData.get('userId');
@@ -79,7 +80,7 @@ export async function suspendSellerAction(formData: FormData) {
   revalidatePath('/seller', 'layout');
 }
 
-export async function reactivateSellerAction(formData: FormData) {
+async function reactivateSellerActionImpl(formData: FormData) {
   const admin = await requireAdminUser();
 
   const userId = formData.get('userId');
@@ -97,3 +98,11 @@ export async function reactivateSellerAction(formData: FormData) {
   revalidatePath('/admin/sellers');
   revalidatePath('/seller', 'layout');
 }
+
+export const approveKycAction = safeAction(approveKycActionImpl);
+
+export const rejectKycAction = safeAction(rejectKycActionImpl);
+
+export const suspendSellerAction = safeAction(suspendSellerActionImpl);
+
+export const reactivateSellerAction = safeAction(reactivateSellerActionImpl);

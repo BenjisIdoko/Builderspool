@@ -5,19 +5,13 @@ import type { AllocationStatus } from '@prisma/client';
 import { Badge } from '@/components/ui/badge';
 import { TableCell, TableRow } from '@/components/ui/table';
 import { pillClass, allocationStatusTone } from '@/lib/statusColors';
+import { PAYOUT_LABEL } from '@/lib/labels';
 
 export const STATUS_LABEL: Record<string, string> = {
   PENDING: 'Pending',
   CONFIRMED: 'Confirmed',
   FULFILLED: 'Fulfilled',
   CANCELLED: 'Cancelled',
-};
-
-export const PAYOUT_LABEL: Record<string, string> = {
-  PENDING_GRN: 'Payout pending GRN',
-  PROCESSED: 'Payout cleared',
-  PAID: 'Payout sent',
-  ON_HOLD: 'Payout on hold',
 };
 
 export function SellerOrderTableRow({
@@ -93,3 +87,5 @@ export function SellerOrderTableRow({
     </TableRow>
   );
 }
+
+export { PAYOUT_LABEL };

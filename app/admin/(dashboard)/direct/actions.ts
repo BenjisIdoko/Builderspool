@@ -4,6 +4,7 @@ import { revalidatePath } from 'next/cache';
 import { requireAdminUser } from '@/lib/admin/session';
 import { recordAudit } from '@/lib/audit';
 import { disburseDirectPayout, issueDirectGrn } from '@/lib/direct';
+import { safeAction } from '@/lib/actions/safe';
 
 function lineId(formData: FormData): string {
   const id = formData.get('id');
@@ -18,7 +19,7 @@ function refresh() {
 }
 
 // The fulfilment centre has received the goods and the quality check passed.
-export async function issueDirectGrnAction(formData: FormData) {
+async function issueDirectGrnActionImpl(formData: FormData) {
   const admin = await requireAdminUser();
   const id = lineId(formData);
   await issueDirectGrn(id);
@@ -26,10 +27,14 @@ export async function issueDirectGrnAction(formData: FormData) {
   refresh();
 }
 
-export async function disburseDirectPayoutAction(formData: FormData) {
+async function disburseDirectPayoutActionImpl(formData: FormData) {
   const admin = await requireAdminUser();
   const id = lineId(formData);
   await disburseDirectPayout(id);
   await recordAudit({ actor: { id: admin.id, role: admin.role }, action: 'direct.payout_disbursed', entityType: 'DirectFulfilment', entityId: id, summary: 'Disbursed a Buy Direct seller payout' });
   refresh();
 }
+
+export const issueDirectGrnAction = safeAction(issueDirectGrnActionImpl);
+
+export const disburseDirectPayoutAction = safeAction(disburseDirectPayoutActionImpl);

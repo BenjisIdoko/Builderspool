@@ -8,6 +8,7 @@ import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { KpiCard } from '@/components/kpi-card';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
+import { ActionForm } from '@/components/ui/action-form';
 
 const WALLET_LABEL: Record<string, string> = {
   AVAILABLE: 'Available',
@@ -155,12 +156,12 @@ export default async function AdminSavingsPage({
                   </TableCell>
                   <TableCell className="py-3 text-right">
                     {entry.state === 'WITHDRAWAL_REQUESTED' && (
-                      <form action={markWithdrawalPaidAction}>
+                      <ActionForm action={markWithdrawalPaidAction} confirm={{ title: 'Mark this withdrawal as paid?', description: 'Only do this once you have sent the money. It can’t be undone.', confirmLabel: 'Mark paid' }}>
                         <input type="hidden" name="entryId" value={entry.id} />
                         <Button type="submit" size="sm">
                           Mark paid
                         </Button>
-                      </form>
+                      </ActionForm>
                     )}
                   </TableCell>
                 </TableRow>

@@ -12,6 +12,7 @@ import { Input } from '@/components/ui/input';
 import { KpiCard } from '@/components/kpi-card';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import type { DispatchStatus } from '@prisma/client';
+import { ActionForm } from '@/components/ui/action-form';
 
 const DISPATCH_LABEL: Record<DispatchStatus, string> = {
   ASSIGNED: 'Assigned',
@@ -166,7 +167,7 @@ export default async function AdminHaulagePage({
                       )}
                     </TableCell>
                     <TableCell className="py-3">
-                      <form action={updateDispatchLocationAction} className="flex items-center gap-1.5">
+                      <ActionForm action={updateDispatchLocationAction} className="flex items-center gap-1.5">
                         <input type="hidden" name="dispatchId" value={dispatch.id} />
                         <MapPinIcon className="size-3.5 shrink-0 text-muted-foreground" />
                         <Input
@@ -181,7 +182,7 @@ export default async function AdminHaulagePage({
                             Save
                           </Button>
                         )}
-                      </form>
+                      </ActionForm>
                     </TableCell>
                     <TableCell className="py-3">
                       <Badge variant="outline" className={pillClass(dispatchStatusTone(dispatch.status))}>
@@ -191,20 +192,20 @@ export default async function AdminHaulagePage({
                     <TableCell className="py-3 text-right">
                       <div className="flex justify-end gap-1.5">
                         {next && (
-                          <form action={advanceDispatchAction}>
+                          <ActionForm action={advanceDispatchAction}>
                             <input type="hidden" name="dispatchId" value={dispatch.id} />
                             <Button type="submit" size="sm">
                               Advance to {DISPATCH_LABEL[next]}
                             </Button>
-                          </form>
+                          </ActionForm>
                         )}
                         {dispatch.status !== 'DELIVERED' && dispatch.status !== 'CANCELLED' && (
-                          <form action={cancelDispatchAction}>
+                          <ActionForm action={cancelDispatchAction} confirm={{ title: 'Cancel this dispatch?', description: 'The delivery is cancelled. It can’t be undone.', confirmLabel: 'Cancel dispatch', destructive: true }}>
                             <input type="hidden" name="dispatchId" value={dispatch.id} />
                             <Button type="submit" variant="ghost" size="sm">
                               Cancel
                             </Button>
-                          </form>
+                          </ActionForm>
                         )}
                       </div>
                     </TableCell>

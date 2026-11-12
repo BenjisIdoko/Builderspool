@@ -7,13 +7,7 @@ import { MaterialImage } from '@/components/material-image';
 import { AwardResponse } from '@/components/seller/award-response';
 import { formatLagosTime } from '@/lib/bidding/schedule';
 import { formatLagosDateTime } from '@/lib/format';
-
-const PAYOUT_STATUS_LABEL: Record<string, string> = {
-  PENDING_GRN: 'Payout pending GRN',
-  PROCESSED: 'Payout cleared',
-  PAID: 'Payout sent',
-  ON_HOLD: 'Payout on hold',
-};
+import { PAYOUT_LABEL as PAYOUT_STATUS_LABEL } from '@/lib/labels';
 
 const CANCEL_LABEL: Record<string, string> = {
   DECLINED: 'You declined this award',

@@ -8,6 +8,7 @@ import { cycleStatusTone, pillClass } from '@/lib/statusColors';
 import { Badge } from '@/components/ui/badge';
 import { Input } from '@/components/ui/input';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
+import { formatLagosDateTime } from '@/lib/format';
 
 export function CyclesTable({ cycles }: { cycles: AdminCycleSummary[] }) {
   const [query, setQuery] = useState('');
@@ -72,7 +73,7 @@ export function CyclesTable({ cycles }: { cycles: AdminCycleSummary[] }) {
                   </TableCell>
                   <TableCell className="text-ink">{cycle.region ?? 'National'}</TableCell>
                   <TableCell className="text-ink">
-                    {cycle.cutoffAt.toLocaleString('en-NG', { dateStyle: 'medium', timeStyle: 'short' })}
+                    {formatLagosDateTime(cycle.cutoffAt)}
                   </TableCell>
                   <TableCell className="text-ink">
                     {cycle.totalQuantityRequested} {cycle.material.unit}

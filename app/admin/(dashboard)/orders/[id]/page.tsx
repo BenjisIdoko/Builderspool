@@ -19,19 +19,13 @@ import {
 } from '@phosphor-icons/react/ssr';
 import { getOrderById, getOrderTrackingStages } from '@/lib/queries/orders';
 import { getEscrowStatus, ESCROW_STATUS_LABEL } from '@/lib/queries/escrow';
-import { formatNaira } from '@/lib/format';
+import { formatLagosDateTime, formatNaira } from '@/lib/format';
 import { Money } from '@/components/money';
 import { orderStatusTone, pillClass, payoutStatusTone, escrowStatusTone, dispatchStatusTone } from '@/lib/statusColors';
 import { Badge } from '@/components/ui/badge';
 import { Avatar } from '@/components/avatar';
 import { MaterialImage } from '@/components/material-image';
-
-const PAYOUT_LABEL: Record<string, string> = {
-  PENDING_GRN: 'Awaiting GRN',
-  PROCESSED: 'Cleared for payout',
-  PAID: 'Disbursed',
-  ON_HOLD: 'On hold',
-};
+import { PAYOUT_LABEL_OPS as PAYOUT_LABEL } from '@/lib/labels';
 
 const DISPATCH_LABEL: Record<string, string> = {
   ASSIGNED: 'Assigned',
@@ -109,7 +103,7 @@ export default async function AdminOrderDetailPage({ params }: { params: Promise
   auditEvents.sort((a, b) => a.at.getTime() - b.at.getTime());
 
   return (
-    <div className="mx-auto w-full max-w-[1180px] px-8 pt-8 pb-20">
+    <div className="mx-auto w-full max-w-7xl px-4 pt-6 pb-16 sm:px-8 sm:pt-8 sm:pb-20">
       <Link
         href="/admin/orders"
         className="mb-4 inline-flex items-center gap-1 text-sm text-muted-foreground transition-colors hover:text-ink"
@@ -131,7 +125,7 @@ export default async function AdminOrderDetailPage({ params }: { params: Promise
             </Badge>
           </div>
           <div className="mt-1 text-sm text-muted-foreground">
-            Placed {order.createdAt.toLocaleString('en-NG', { dateStyle: 'medium', timeStyle: 'short' })} ·{' '}
+            Placed {formatLagosDateTime(order.createdAt)} ·{' '}
             {order.region}
             {order.paymentMethod && ` · ${order.paymentMethod.replace('_', ' ').toLowerCase()}`}
           </div>
@@ -245,7 +239,7 @@ export default async function AdminOrderDetailPage({ params }: { params: Promise
                     </span>
                     {stage.at && (
                       <div className="mt-0.5 text-xs text-muted-foreground">
-                        {stage.at.toLocaleString('en-NG', { dateStyle: 'medium', timeStyle: 'short' })}
+                        {formatLagosDateTime(stage.at)}
                       </div>
                     )}
                   </div>
@@ -348,7 +342,7 @@ export default async function AdminOrderDetailPage({ params }: { params: Promise
                   {event.detail && <span className="ml-1.5 text-xs text-muted-foreground">({event.detail})</span>}
                 </div>
                 <span className="shrink-0 text-xs text-muted-foreground">
-                  {event.at.toLocaleString('en-NG', { dateStyle: 'medium', timeStyle: 'short' })}
+                  {formatLagosDateTime(event.at)}
                 </span>
               </div>
             ))}

@@ -4,6 +4,7 @@ import { Button } from '@/components/ui/button';
 import { Money } from '@/components/money';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import { disburseDirectPayoutAction, issueDirectGrnAction } from './actions';
+import { ActionForm } from '@/components/ui/action-form';
 
 export const metadata = { title: 'Buy Direct orders' };
 
@@ -59,16 +60,16 @@ export default async function AdminDirectPage() {
                   </TableCell>
                   <TableCell>
                     {l.status === 'ACCEPTED' && (
-                      <form action={issueDirectGrnAction}>
+                      <ActionForm action={issueDirectGrnAction}>
                         <input type="hidden" name="id" value={l.id} />
                         <Button type="submit" size="sm">Issue GRN</Button>
-                      </form>
+                      </ActionForm>
                     )}
                     {l.status === 'FULFILLED' && l.payoutStatus === 'PROCESSED' && (
-                      <form action={disburseDirectPayoutAction}>
+                      <ActionForm action={disburseDirectPayoutAction} confirm={{ title: 'Disburse this payout?', description: 'This marks the payout as sent to the seller. It can’t be undone.', confirmLabel: 'Disburse' }}>
                         <input type="hidden" name="id" value={l.id} />
                         <Button type="submit" size="sm" variant="outline">Pay seller</Button>
-                      </form>
+                      </ActionForm>
                     )}
                     {l.payoutStatus === 'PAID' && <span className="font-mono text-caption text-slate">{l.payoutReference}</span>}
                   </TableCell>

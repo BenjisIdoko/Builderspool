@@ -3,7 +3,7 @@ import { FormSkeleton, TableSkeleton } from '@/components/skeletons';
 
 export default function AccountLoading() {
   return (
-    <div className="mx-auto w-full max-w-3xl px-6 py-10">
+    <div className="mx-auto w-full max-w-3xl px-6 pt-6 pb-12">
       <Skeleton className="mb-1 h-6 w-56" />
       <Skeleton className="mb-8 h-4 w-32" />
       <div className="mb-8">

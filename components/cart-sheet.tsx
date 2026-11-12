@@ -9,7 +9,6 @@ import { formatNaira, formatBadgeCount } from '@/lib/format';
 import { EmptyState } from '@/components/empty-state/empty-state';
 import { EmptyCartIllustration } from '@/components/empty-state/illustrations';
 import { Button } from '@/components/ui/button';
-import { Badge } from '@/components/ui/badge';
 import { MaterialImage } from '@/components/material-image';
 import { QuantityInput } from '@/components/quantity-input';
 import {

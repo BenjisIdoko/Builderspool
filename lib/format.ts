@@ -54,3 +54,9 @@ export function formatLagosClock(date: Date): string {
 export function formatLagosDateTime(date: Date): string {
   return `${date.toLocaleDateString('en-NG', { dateStyle: 'medium', timeZone: LAGOS })}, ${formatLagosClock(date)}`;
 }
+
+/** "10 Nov 2026" in Lagos time (never the server's own time zone). */
+export function formatLagosDate(date: Date | null | undefined): string {
+  if (!date) return '';
+  return date.toLocaleDateString('en-NG', { dateStyle: 'medium', timeZone: LAGOS });
+}

@@ -9,13 +9,8 @@ import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { KpiCard } from '@/components/kpi-card';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
-
-const PAYOUT_LABEL: Record<string, string> = {
-  PENDING_GRN: 'Awaiting GRN',
-  PROCESSED: 'Cleared for payout',
-  PAID: 'Disbursed',
-  ON_HOLD: 'On hold',
-};
+import { PAYOUT_LABEL_OPS as PAYOUT_LABEL } from '@/lib/labels';
+import { ActionForm } from '@/components/ui/action-form';
 
 const QUEUE_FILTERS = [
   { value: 'needs-grn', label: 'Needs GRN' },
@@ -191,31 +186,31 @@ export default async function AdminEscrowPage({
                   <TableCell className="py-3 text-right">
                     <div className="flex flex-wrap justify-end gap-1.5">
                       {allocation.status !== 'CANCELLED' && !allocation.receivedAt && (
-                        <form action={issueGrnAction}>
+                        <ActionForm action={issueGrnAction}>
                           <input type="hidden" name="allocationId" value={allocation.id} />
                           <input type="hidden" name="cycleId" value={allocation.bid.cycleId} />
                           <Button type="submit" variant="outline" size="sm">
                             Issue GRN
                           </Button>
-                        </form>
+                        </ActionForm>
                       )}
                       {allocation.payoutStatus === 'PROCESSED' && payoutsEnabled && (
-                        <form action={disbursePayoutAction}>
+                        <ActionForm action={disbursePayoutAction} confirm={{ title: 'Disburse this payout?', description: 'This marks the payout as sent to the seller. It can’t be undone.', confirmLabel: 'Disburse' }}>
                           <input type="hidden" name="allocationId" value={allocation.id} />
                           <input type="hidden" name="cycleId" value={allocation.bid.cycleId} />
                           <Button type="submit" size="sm">
                             Disburse
                           </Button>
-                        </form>
+                        </ActionForm>
                       )}
                       {allocation.payoutStatus !== 'PAID' && (
-                        <form action={toggleAllocationHoldAction}>
+                        <ActionForm action={toggleAllocationHoldAction}>
                           <input type="hidden" name="allocationId" value={allocation.id} />
                           <input type="hidden" name="cycleId" value={allocation.bid.cycleId} />
                           <Button type="submit" variant="ghost" size="sm">
                             {allocation.payoutStatus === 'ON_HOLD' ? 'Release hold' : 'Put on hold'}
                           </Button>
-                        </form>
+                        </ActionForm>
                       )}
                     </div>
                   </TableCell>

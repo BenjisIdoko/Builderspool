@@ -6,6 +6,7 @@ import { prisma } from '@/lib/prisma';
 import { requireAdminUser } from '@/lib/admin/session';
 import { recordAudit } from '@/lib/audit';
 import { disburseSheetPayout, failSheetFulfilment, issueSheetGrn, toggleSheetFulfilmentHold } from '@/lib/sheets';
+import { safeAction } from '@/lib/actions/safe';
 
 // Ops approve or decline a vendor's request to bid for a category. Only a
 // request still waiting can be decided, so a double click does nothing twice.
@@ -48,7 +49,7 @@ function refresh() {
 }
 
 // The fulfilment centre has received the goods and the quality check passed.
-export async function issueSheetGrnAction(formData: FormData) {
+async function issueSheetGrnActionImpl(formData: FormData) {
   const admin = await requireAdminUser();
   const id = lineId(formData);
   await issueSheetGrn(id);
@@ -56,7 +57,7 @@ export async function issueSheetGrnAction(formData: FormData) {
   refresh();
 }
 
-export async function disburseSheetPayoutAction(formData: FormData) {
+async function disburseSheetPayoutActionImpl(formData: FormData) {
   const admin = await requireAdminUser();
   const id = lineId(formData);
   await disburseSheetPayout(id);
@@ -64,7 +65,7 @@ export async function disburseSheetPayoutAction(formData: FormData) {
   refresh();
 }
 
-export async function holdSheetFulfilmentAction(formData: FormData) {
+async function holdSheetFulfilmentActionImpl(formData: FormData) {
   const admin = await requireAdminUser();
   const id = lineId(formData);
   const note = String(formData.get('note') ?? '');
@@ -81,7 +82,7 @@ export async function holdSheetFulfilmentAction(formData: FormData) {
 
 // The vendor accepted the sheet but did not supply this line. It goes back to the
 // seller the buyer picked, or is refunded.
-export async function failSheetFulfilmentAction(formData: FormData) {
+async function failSheetFulfilmentActionImpl(formData: FormData) {
   const admin = await requireAdminUser();
   const id = lineId(formData);
   const reason = String(formData.get('reason') ?? '');
@@ -89,3 +90,11 @@ export async function failSheetFulfilmentAction(formData: FormData) {
   await recordAudit({ actor: { id: admin.id, role: admin.role }, action: 'sheet.line_failed', entityType: 'SheetFulfilment', entityId: id, summary: `Marked a sheet line as not supplied: ${reason.trim().slice(0, 200)}` });
   refresh();
 }
+
+export const issueSheetGrnAction = safeAction(issueSheetGrnActionImpl);
+
+export const disburseSheetPayoutAction = safeAction(disburseSheetPayoutActionImpl);
+
+export const holdSheetFulfilmentAction = safeAction(holdSheetFulfilmentActionImpl);
+
+export const failSheetFulfilmentAction = safeAction(failSheetFulfilmentActionImpl);

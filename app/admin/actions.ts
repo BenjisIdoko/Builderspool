@@ -18,6 +18,7 @@ import { assertNotRateLimited, recordLoginAttempt } from '@/lib/auth/rateLimit';
 import { awardCycle, freezeCycle } from '@/lib/bidding';
 import { issueGrn, disbursePayout, toggleAllocationHold } from '@/lib/fulfillment';
 import { markWithdrawalPaid } from '@/lib/wallet';
+import { safeAction } from '@/lib/actions/safe';
 
 // Errors are caught and returned as plain data (not thrown across the
 // server/client boundary) — Next.js redacts a thrown Server Action error's
@@ -65,7 +66,7 @@ export async function signOutAdmin() {
  * closeDueCycles() — this exists for admin intervention (testing, or a
  * cycle that needs resolving before its scheduled cutoff).
  */
-export async function forceAwardCycle(formData: FormData) {
+async function forceAwardCycleImpl(formData: FormData) {
   const admin = await requireAdminUser();
 
   const cycleId = formData.get('cycleId');
@@ -94,7 +95,7 @@ export async function forceAwardCycle(formData: FormData) {
  * Manual ops override: closes an OPEN pool to new demand and opens blind
  * bidding now, instead of waiting for the pool-close time ("run cycle now").
  */
-export async function freezeCycleNowAction(formData: FormData) {
+async function freezeCycleNowActionImpl(formData: FormData) {
   const admin = await requireAdminUser();
 
   const cycleId = formData.get('cycleId');
@@ -116,7 +117,7 @@ function requireAllocationFields(formData: FormData) {
   return { allocationId, cycleId };
 }
 
-export async function issueGrnAction(formData: FormData) {
+async function issueGrnActionImpl(formData: FormData) {
   const admin = await requireAdminUser();
 
   const { allocationId, cycleId } = requireAllocationFields(formData);
@@ -128,7 +129,7 @@ export async function issueGrnAction(formData: FormData) {
   revalidatePath('/seller/allocations');
 }
 
-export async function disbursePayoutAction(formData: FormData) {
+async function disbursePayoutActionImpl(formData: FormData) {
   const admin = await requireAdminUser();
 
   const { allocationId, cycleId } = requireAllocationFields(formData);
@@ -140,7 +141,7 @@ export async function disbursePayoutAction(formData: FormData) {
   revalidatePath('/seller/allocations');
 }
 
-export async function toggleAllocationHoldAction(formData: FormData) {
+async function toggleAllocationHoldActionImpl(formData: FormData) {
   const admin = await requireAdminUser();
 
   const { allocationId, cycleId } = requireAllocationFields(formData);
@@ -154,7 +155,7 @@ export async function toggleAllocationHoldAction(formData: FormData) {
   revalidatePath('/seller/allocations');
 }
 
-export async function markWithdrawalPaidAction(formData: FormData) {
+async function markWithdrawalPaidActionImpl(formData: FormData) {
   const admin = await requireAdminUser();
 
   const entryId = formData.get('entryId');
@@ -166,3 +167,15 @@ export async function markWithdrawalPaidAction(formData: FormData) {
   revalidatePath('/admin/savings');
   revalidatePath('/account');
 }
+
+export const freezeCycleNowAction = safeAction(freezeCycleNowActionImpl);
+
+export const forceAwardCycle = safeAction(forceAwardCycleImpl);
+
+export const issueGrnAction = safeAction(issueGrnActionImpl);
+
+export const disbursePayoutAction = safeAction(disbursePayoutActionImpl);
+
+export const toggleAllocationHoldAction = safeAction(toggleAllocationHoldActionImpl);
+
+export const markWithdrawalPaidAction = safeAction(markWithdrawalPaidActionImpl);

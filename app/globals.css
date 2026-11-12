@@ -267,6 +267,15 @@
     @apply font-sans;
   }
 
+  /* Keyboard focus for links and plain buttons that don't carry their own
+     focus style, so no clickable thing is ever invisible to a keyboard user.
+     Anything with a focus-visible class of its own is left alone. */
+  :where(a, button, summary, [role='button']):focus-visible:not([class*='focus-visible:']) {
+    outline: 2px solid var(--color-ring);
+    outline-offset: 2px;
+    border-radius: var(--radius-sm);
+  }
+
   /* Headings take their size, weight, line height and tracking from the
      scale (DESIGN.md v3.0 section 3.2); components override with a token
      utility when a heading plays a different role. */

@@ -8,13 +8,8 @@ import { pillClass, kycStatusTone } from '@/lib/statusColors';
 import { Money } from '@/components/money';
 import { approveKycAction } from '@/app/admin/(dashboard)/users/actions';
 import type { SellerDirectoryEntry } from '@/lib/queries/adminSellers';
-
-const KYC_LABEL: Record<string, string> = {
-  APPROVED: 'Verified',
-  PENDING: 'Pending review',
-  REJECTED: 'Rejected',
-  NOT_SUBMITTED: 'Not submitted',
-};
+import { KYC_LABEL_OPS as KYC_LABEL } from '@/lib/labels';
+import { ActionForm } from '@/components/ui/action-form';
 
 export function SellerDirectoryRow({ entry }: { entry: SellerDirectoryEntry }) {
   const [expanded, setExpanded] = useState(false);
@@ -51,12 +46,12 @@ export function SellerDirectoryRow({ entry }: { entry: SellerDirectoryEntry }) {
       </TableCell>
       <TableCell className="py-3 text-right whitespace-nowrap">
         {entry.kycStatus === 'PENDING' && (
-          <form action={approveKycAction} className="mr-1.5 inline-block">
+          <ActionForm action={approveKycAction} className="mr-1.5 inline-block">
             <input type="hidden" name="userId" value={entry.id} />
             <Button type="submit" size="sm" className="h-7 px-3 text-xs">
               Approve
             </Button>
-          </form>
+          </ActionForm>
         )}
         <button
           type="button"

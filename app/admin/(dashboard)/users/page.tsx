@@ -10,6 +10,8 @@ import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
 import { Avatar } from '@/components/avatar';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
+import { formatLagosDate } from '@/lib/format';
+import { KYC_LABEL_OPS as KYC_LABEL } from '@/lib/labels';
 
 const ROLE_LABEL: Record<Role, string> = {
   BUYER: 'Buyer',
@@ -29,14 +31,6 @@ const ROLE_TONE: Record<Role, 'info' | 'success' | 'neutral'> = {
   QC_OFFICER: 'neutral',
   FULFILMENT_OPERATOR: 'neutral',
   DELIVERY_PARTNER: 'neutral',
-};
-
-const KYC_LABEL: Record<string, string> = {
-  NOT_SUBMITTED: 'Not submitted',
-  PENDING: 'Pending',
-  APPROVED: 'Verified',
-  REJECTED: 'Rejected',
-  SUSPENDED: 'Suspended',
 };
 
 const ROLE_FILTERS = [
@@ -202,7 +196,7 @@ export default async function AdminUsersPage({
                     )}
                   </TableCell>
                   <TableCell className="py-3 text-muted-foreground">
-                    {u.createdAt.toLocaleDateString('en-NG', { dateStyle: 'medium' })}
+                    {formatLagosDate(u.createdAt)}
                   </TableCell>
                 </TableRow>
               ))}

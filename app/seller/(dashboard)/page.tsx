@@ -24,13 +24,7 @@ import { VerifyEmailBanner } from '@/components/verify-email-banner';
 import { KpiCard } from '@/components/kpi-card';
 import { Badge } from '@/components/ui/badge';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
-
-const PAYOUT_LABEL: Record<string, string> = {
-  PENDING_GRN: 'Awaiting GRN',
-  PROCESSED: 'Cleared',
-  PAID: 'Paid',
-  ON_HOLD: 'On hold',
-};
+import { PAYOUT_LABEL } from '@/lib/labels';
 
 const QUICK_ACTIONS = [
   { href: '/seller/rfqs', label: 'Answer open RFQs' },

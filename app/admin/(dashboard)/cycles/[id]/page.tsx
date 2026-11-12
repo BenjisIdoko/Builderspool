@@ -10,6 +10,8 @@ import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@
 import { forceAwardCycle, freezeCycleNowAction, issueGrnAction, disbursePayoutAction, toggleAllocationHoldAction } from '@/app/admin/actions';
 import { allocationStatusTone, bidStatusTone, cycleStatusTone, payoutStatusTone, pillClass } from '@/lib/statusColors';
 import { formatLagosClock, formatLagosDateTime } from '@/lib/format';
+import { PAYOUT_LABEL_OPS as PAYOUT_STATUS_LABEL } from '@/lib/labels';
+import { ActionForm } from '@/components/ui/action-form';
 
 const REJECTION_LABEL: Record<string, string> = {
   NOT_APPROVED: 'Seller not approved',
@@ -20,13 +22,6 @@ const REJECTION_LABEL: Record<string, string> = {
   AWARD_DECLINED: 'Seller declined the award',
   AWARD_EXPIRED: 'Seller did not accept in time',
   SELLER_SUSPENDED: 'Seller suspended before accepting',
-};
-
-const PAYOUT_STATUS_LABEL: Record<string, string> = {
-  PENDING_GRN: 'Pending GRN',
-  PROCESSED: 'Cleared',
-  PAID: 'Paid',
-  ON_HOLD: 'On hold',
 };
 
 export default async function AdminCycleDetailPage({ params }: { params: Promise<{ id: string }> }) {
@@ -71,19 +66,19 @@ export default async function AdminCycleDetailPage({ params }: { params: Promise
         {(cycle.status === 'OPEN' || cycle.status === 'BIDDING') && (
           <div className="flex flex-wrap gap-2">
             {cycle.status === 'OPEN' && (
-              <form action={freezeCycleNowAction}>
+              <ActionForm action={freezeCycleNowAction} confirm={{ title: 'Freeze this pool now?', description: 'The pool stops collecting orders and blind bidding opens ahead of the pool-close time.', confirmLabel: 'Freeze pool' }}>
                 <input type="hidden" name="cycleId" value={cycle.id} />
                 <Button type="submit" variant="outline">
                   Freeze pool &amp; open bidding now
                 </Button>
-              </form>
+              </ActionForm>
             )}
-            <form action={forceAwardCycle}>
+            <ActionForm action={forceAwardCycle} confirm={{ title: 'Award this pool now?', description: 'Bidding closes straight away and the winning sellers are chosen. It can’t be undone.', confirmLabel: 'Award now' }}>
               <input type="hidden" name="cycleId" value={cycle.id} />
               <Button type="submit" variant="outline">
                 Close &amp; award now
               </Button>
-            </form>
+            </ActionForm>
           </div>
         )}
       </div>
@@ -173,7 +168,7 @@ export default async function AdminCycleDetailPage({ params }: { params: Promise
                         <>
                           <div className="text-xs text-ink">{allocation.grnNumber}</div>
                           <div className="text-xs text-muted-foreground">
-                            {allocation.receivedAt!.toLocaleString('en-NG', { dateStyle: 'medium', timeStyle: 'short' })}
+                            {formatLagosDateTime(allocation.receivedAt!)}
                           </div>
                         </>
                       ) : (
@@ -194,31 +189,31 @@ export default async function AdminCycleDetailPage({ params }: { params: Promise
                     <TableCell>
                       <div className="flex flex-wrap items-center gap-1.5">
                         {allocation.status !== 'CANCELLED' && !allocation.receivedAt && (
-                          <form action={issueGrnAction}>
+                          <ActionForm action={issueGrnAction}>
                             <input type="hidden" name="allocationId" value={allocation.id} />
                             <input type="hidden" name="cycleId" value={cycle.id} />
                             <Button type="submit" variant="outline" size="sm">
                               Issue GRN
                             </Button>
-                          </form>
+                          </ActionForm>
                         )}
                         {allocation.payoutStatus === 'PROCESSED' && payoutsEnabled && (
-                          <form action={disbursePayoutAction}>
+                          <ActionForm action={disbursePayoutAction} confirm={{ title: 'Disburse this payout?', description: 'This marks the payout as sent to the seller. It can’t be undone.', confirmLabel: 'Disburse' }}>
                             <input type="hidden" name="allocationId" value={allocation.id} />
                             <input type="hidden" name="cycleId" value={cycle.id} />
                             <Button type="submit" size="sm">
                               Disburse
                             </Button>
-                          </form>
+                          </ActionForm>
                         )}
                         {allocation.payoutStatus !== 'PAID' && (
-                          <form action={toggleAllocationHoldAction}>
+                          <ActionForm action={toggleAllocationHoldAction}>
                             <input type="hidden" name="allocationId" value={allocation.id} />
                             <input type="hidden" name="cycleId" value={cycle.id} />
                             <Button type="submit" variant="ghost" size="sm">
                               {allocation.payoutStatus === 'ON_HOLD' ? 'Release hold' : 'Put on hold'}
                             </Button>
-                          </form>
+                          </ActionForm>
                         )}
                       </div>
                     </TableCell>

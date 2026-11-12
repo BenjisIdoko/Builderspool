@@ -7,6 +7,7 @@ import { requireAdminUser } from '@/lib/admin/session';
 import { hashPassword } from '@/lib/auth/password';
 import { revokeAllSessions } from '@/lib/auth/sessionStore';
 import { recordAudit } from '@/lib/audit';
+import { safeAction } from '@/lib/actions/safe';
 
 // The internal operations roles an admin can create (Transfer File 5.1).
 // Their sign-in and consoles ship with the catalogue (QC) and fulfilment
@@ -51,7 +52,7 @@ export async function createTeamMemberAction(formData: FormData): Promise<{ erro
   }
 }
 
-export async function setTeamMemberDisabledAction(formData: FormData) {
+async function setTeamMemberDisabledActionImpl(formData: FormData) {
   const admin = await requireAdminUser();
   const userId = text(formData, 'userId');
   const disable = text(formData, 'disable') === 'true';
@@ -74,3 +75,5 @@ export async function setTeamMemberDisabledAction(formData: FormData) {
   });
   revalidatePath('/admin/team');
 }
+
+export const setTeamMemberDisabledAction = safeAction(setTeamMemberDisabledActionImpl);

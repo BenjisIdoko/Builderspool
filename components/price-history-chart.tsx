@@ -7,7 +7,7 @@ const PAD_TOP = 12;
 const PAD_BOTTOM = 28;
 
 function formatDate(date: Date) {
-  return date.toLocaleDateString('en-NG', { day: 'numeric', month: 'short' });
+  return date.toLocaleDateString('en-NG', { day: 'numeric', month: 'short', timeZone: 'Africa/Lagos' });
 }
 
 export function PriceHistoryChart({ points }: { points: { date: Date; price: number }[] }) {

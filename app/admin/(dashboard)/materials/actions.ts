@@ -5,6 +5,7 @@ import { prisma } from '@/lib/prisma';
 import { SourcingScope } from '@prisma/client';
 import { requireAdminUser } from '@/lib/admin/session';
 import { recordAudit } from '@/lib/audit';
+import { safeAction } from '@/lib/actions/safe';
 
 function optionalText(formData: FormData, key: string): string | null {
   const value = formData.get(key);
@@ -18,7 +19,7 @@ function optionalText(formData: FormData, key: string): string | null {
 // change writes a real PriceSnapshot row too, so the buyer-facing price
 // history chart (lib/queries/materials.ts's getPriceHistory) picks it up
 // honestly instead of silently drifting out of sync with catalogPrice.
-export async function updateMaterialAction(formData: FormData) {
+async function updateMaterialActionImpl(formData: FormData) {
   const admin = await requireAdminUser();
 
   const id = formData.get('id');
@@ -81,7 +82,7 @@ export async function updateMaterialAction(formData: FormData) {
 // can't be removed outright. Retiring also clears needsPriceReview: a
 // retired row is never "awaiting a price" (see the schema comment), so it
 // must not sit in that review queue once it's off the catalog either way.
-export async function setMaterialRetiredAction(formData: FormData) {
+async function setMaterialRetiredActionImpl(formData: FormData) {
   const admin = await requireAdminUser();
 
   const id = formData.get('id');
@@ -105,3 +106,7 @@ export async function setMaterialRetiredAction(formData: FormData) {
   revalidatePath('/catalog');
   revalidatePath(`/catalog/${id}`);
 }
+
+export const setMaterialRetiredAction = safeAction(setMaterialRetiredActionImpl);
+
+export const updateMaterialAction = safeAction(updateMaterialActionImpl);

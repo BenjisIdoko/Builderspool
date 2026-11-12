@@ -12,14 +12,8 @@ import { isKycUploadConfigured } from '@/lib/storage/kycDocuments';
 import { KycForm } from '@/components/seller/kyc-form';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
-
-const KYC_LABEL: Record<string, string> = {
-  NOT_SUBMITTED: 'Not started',
-  PENDING: 'Pending review',
-  APPROVED: 'Verified',
-  REJECTED: 'Rejected',
-  SUSPENDED: 'Suspended',
-};
+import { KYC_LABEL } from '@/lib/labels';
+import { ActionForm } from '@/components/ui/action-form';
 
 const DATE = { dateStyle: 'medium', timeZone: 'Africa/Lagos' } as const;
 
@@ -115,7 +109,7 @@ export default async function SellerKycPage() {
       )}
 
       {(termsOutdated || termsMissing) && actor.isOwner && (
-        <form action={acceptCurrentTermsAction} className="mb-6 flex flex-wrap items-center justify-between gap-3 rounded-lg bg-warning-soft px-4 py-3 text-sm text-warning-text">
+        <ActionForm action={acceptCurrentTermsAction} className="mb-6 flex flex-wrap items-center justify-between gap-3 rounded-lg bg-warning-soft px-4 py-3 text-sm text-warning-text">
           <span className="min-w-0 flex-1 basis-56 text-pretty">
             {termsMissing
               ? `You haven't accepted the seller terms (version ${termsVersion}) yet. Please review and accept them.`
@@ -124,7 +118,7 @@ export default async function SellerKycPage() {
           <Button type="submit" size="sm" className="max-sm:h-11">
             Accept terms {termsVersion}
           </Button>
-        </form>
+        </ActionForm>
       )}
 
       {editable ? (

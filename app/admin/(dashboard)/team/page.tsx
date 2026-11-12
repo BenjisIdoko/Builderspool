@@ -7,6 +7,7 @@ import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { pillClass } from '@/lib/statusColors';
 import { setTeamMemberDisabledAction } from './actions';
+import { ActionForm } from '@/components/ui/action-form';
 
 export const metadata = { title: 'Team' };
 
@@ -60,13 +61,20 @@ export default async function AdminTeamPage() {
                     {m.disabledAt ? ` · ${ROLE_LABEL[m.role] ?? m.role}` : ''}
                   </div>
                 </div>
-                <form action={setTeamMemberDisabledAction}>
+                <ActionForm
+                  action={setTeamMemberDisabledAction}
+                  confirm={
+                    m.disabledAt
+                      ? undefined
+                      : { title: `Disable ${m.name}?`, description: 'They are signed out straight away and can’t sign in until you re-enable them.', confirmLabel: 'Disable', destructive: true }
+                  }
+                >
                   <input type="hidden" name="userId" value={m.id} />
                   <input type="hidden" name="disable" value={m.disabledAt ? 'false' : 'true'} />
                   <Button type="submit" variant="outline" size="sm">
                     {m.disabledAt ? 'Re-enable' : 'Disable'}
                   </Button>
-                </form>
+                </ActionForm>
               </li>
             ))}
           </ul>

@@ -16,6 +16,7 @@ import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Textarea } from '@/components/ui/textarea';
 import { Label } from '@/components/ui/label';
+import { formatLagosDate } from '@/lib/format';
 
 type SellerProfile = {
   userId: string;
@@ -90,12 +91,12 @@ export function SellerKycReview({
     const formData = new FormData();
     formData.set('userId', profile.userId);
     startTransition(async () => {
-      try {
-        await approveKycAction(formData);
-        setOpen(false);
-      } catch (err) {
-        setError(err instanceof Error ? err.message : 'Could not approve.');
+      const r = await approveKycAction(formData);
+      if (r && 'error' in r) {
+        setError(r.error);
+        return;
       }
+      setOpen(false);
     });
   }
 
@@ -105,13 +106,13 @@ export function SellerKycReview({
     const formData = new FormData(e.currentTarget);
     formData.set('userId', profile.userId);
     startTransition(async () => {
-      try {
-        await rejectKycAction(formData);
-        setOpen(false);
-        setShowRejectForm(false);
-      } catch (err) {
-        setError(err instanceof Error ? err.message : 'Could not reject.');
+      const r = await rejectKycAction(formData);
+      if (r && 'error' in r) {
+        setError(r.error);
+        return;
       }
+      setOpen(false);
+      setShowRejectForm(false);
     });
   }
 
@@ -121,13 +122,13 @@ export function SellerKycReview({
     const formData = new FormData(e.currentTarget);
     formData.set('userId', profile.userId);
     startTransition(async () => {
-      try {
-        await suspendSellerAction(formData);
-        setOpen(false);
-        setShowSuspendForm(false);
-      } catch (err) {
-        setError(err instanceof Error ? err.message : 'Could not suspend.');
+      const r = await suspendSellerAction(formData);
+      if (r && 'error' in r) {
+        setError(r.error);
+        return;
       }
+      setOpen(false);
+      setShowSuspendForm(false);
     });
   }
 
@@ -136,12 +137,12 @@ export function SellerKycReview({
     const formData = new FormData();
     formData.set('userId', profile.userId);
     startTransition(async () => {
-      try {
-        await reactivateSellerAction(formData);
-        setOpen(false);
-      } catch (err) {
-        setError(err instanceof Error ? err.message : 'Could not reactivate.');
+      const r = await reactivateSellerAction(formData);
+      if (r && 'error' in r) {
+        setError(r.error);
+        return;
       }
+      setOpen(false);
     });
   }
 
@@ -180,7 +181,7 @@ export function SellerKycReview({
           <DialogHeader>
             <DialogTitle>{sellerName} — KYC submission</DialogTitle>
             <DialogDescription>
-              Submitted {profile.kycSubmittedAt?.toLocaleDateString('en-NG', { dateStyle: 'medium' })}.
+              Submitted {formatLagosDate(profile.kycSubmittedAt)}.
             </DialogDescription>
           </DialogHeader>
 
@@ -209,17 +210,17 @@ export function SellerKycReview({
           <div className="space-y-1 text-xs text-muted-foreground">
             {expiry && (
               <p className={expiry.state === 'expired' ? 'text-danger' : expiry.state === 'soon' ? 'text-warning-text' : ''}>
-                Supporting document: {describeExpiry(expiry)} ({profile.documentExpiresAt?.toLocaleDateString('en-NG', { dateStyle: 'medium' })}).
+                Supporting document: {describeExpiry(expiry)} ({formatLagosDate(profile.documentExpiresAt)}).
               </p>
             )}
             <p className={termsAccepted?.version === currentTermsVersion ? '' : 'text-warning-text'}>
               {termsAccepted
-                ? `Seller terms ${termsAccepted.version} accepted ${termsAccepted.at.toLocaleDateString('en-NG', { dateStyle: 'medium' })}${termsAccepted.version === currentTermsVersion ? '.' : ` — current version is ${currentTermsVersion}.`}`
+                ? `Seller terms ${termsAccepted.version} accepted ${formatLagosDate(termsAccepted.at)}${termsAccepted.version === currentTermsVersion ? '.' : ` — current version is ${currentTermsVersion}.`}`
                 : 'Seller terms not yet accepted.'}
             </p>
             {profile.kycStatus === 'SUSPENDED' && (
               <p className="text-danger">
-                Suspended {profile.suspendedAt?.toLocaleDateString('en-NG', { dateStyle: 'medium' })}
+                Suspended {formatLagosDate(profile.suspendedAt)}
                 {profile.suspensionReason ? ` — ${profile.suspensionReason}` : ''}.
               </p>
             )}
@@ -230,7 +231,7 @@ export function SellerKycReview({
               <CheckCircleIcon className="size-3.5 shrink-0 translate-y-0.5" />
               CAC verified against the registry — {profile.cacVerifiedCompanyName} (
               {profile.cacVerifiedEntityType}, {profile.cacVerifiedStatus}) on{' '}
-              {profile.cacVerifiedAt.toLocaleDateString('en-NG', { dateStyle: 'medium' })}.
+              {formatLagosDate(profile.cacVerifiedAt)}.
             </p>
           ) : profile.cacVerificationError ? (
             <p className="flex items-start gap-1.5 text-xs text-danger">

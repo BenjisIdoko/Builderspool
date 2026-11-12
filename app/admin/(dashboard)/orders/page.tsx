@@ -24,7 +24,7 @@ import {
 import { getEscrowInCustody } from '@/lib/queries/adminStats';
 import { getActiveDispatchCount } from '@/lib/queries/adminHaulage';
 import { ESCROW_STATUS_LABEL } from '@/lib/queries/escrow';
-import { formatNaira } from '@/lib/format';
+import { formatLagosClock, formatLagosDate, formatNaira } from '@/lib/format';
 import { orderStatusTone, fulfillmentStageTone, escrowStatusTone, pillClass } from '@/lib/statusColors';
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
@@ -249,8 +249,8 @@ export default async function AdminOrdersPage({
                     key={order.id}
                     orderId={order.id}
                     shortId={shortOrderNumber(order.id)}
-                    date={order.createdAt.toLocaleDateString('en-NG', { dateStyle: 'medium' })}
-                    time={order.createdAt.toLocaleTimeString('en-NG', { timeStyle: 'short' })}
+                    date={formatLagosDate(order.createdAt)}
+                    time={formatLagosClock(order.createdAt)}
                     buyerName={buyerName}
                     buyerEmail={order.buyer.email}
                     total={formatNaira(order.total)}

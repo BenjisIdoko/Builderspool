@@ -9,13 +9,7 @@ import { FilterDropdown, FilterDropdownLabel, FilterCheckboxRow } from '@/compon
 import { pillClass, payoutStatusTone } from '@/lib/statusColors';
 import { formatNaira } from '@/lib/format';
 import type { PayoutStatus } from '@prisma/client';
-
-const PAYOUT_LABEL: Record<PayoutStatus, string> = {
-  PENDING_GRN: 'Awaiting receipt',
-  PROCESSED: 'Being paid',
-  PAID: 'Paid',
-  ON_HOLD: 'On hold',
-};
+import { PAYOUT_LABEL } from '@/lib/labels';
 
 const SOURCE_LABEL = { POOL: 'Pool bid', DIRECT: 'Buy Direct', RFQ: 'RFQ' } as const;
 

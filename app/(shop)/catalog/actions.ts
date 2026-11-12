@@ -3,6 +3,7 @@
 import { revalidatePath } from 'next/cache';
 import { prisma } from '@/lib/prisma';
 import { requireBuyer } from '@/lib/buyer/auth';
+import { safeAction } from '@/lib/actions/safe';
 
 // Stores a "notify me at this price" request — see prisma/schema.prisma's
 // PriceAlert model comment: there's no email/SMS infrastructure yet, so this
@@ -21,7 +22,7 @@ export async function createPriceAlert(materialId: string, targetPrice: number) 
   revalidatePath('/account');
 }
 
-export async function cancelPriceAlert(alertId: string) {
+async function cancelPriceAlertImpl(alertId: string) {
   const buyer = await requireBuyer();
   await prisma.priceAlert.updateMany({
     where: { id: alertId, buyerId: buyer.id },
@@ -30,3 +31,5 @@ export async function cancelPriceAlert(alertId: string) {
 
   revalidatePath('/account');
 }
+
+export const cancelPriceAlert = safeAction(cancelPriceAlertImpl);

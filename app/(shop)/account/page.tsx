@@ -4,7 +4,7 @@ import { getOrdersForBuyer } from '@/lib/queries/orders';
 import { getPriceAlertsForBuyer } from '@/lib/queries/priceAlerts';
 import { getSavingsWalletForBuyer } from '@/lib/wallet';
 import { getSetting } from '@/lib/settings';
-import { formatNaira } from '@/lib/format';
+import { formatLagosDate, formatNaira } from '@/lib/format';
 import { walletEntryTone, pillClass } from '@/lib/statusColors';
 import { updateBuyerProfile, requestWithdrawalAction } from './actions';
 import { cancelPriceAlert } from '../catalog/actions';
@@ -16,6 +16,7 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import Link from 'next/link';
+import { ActionForm } from '@/components/ui/action-form';
 
 export const metadata = { title: 'Your account' };
 
@@ -36,7 +37,7 @@ export default async function AccountPage() {
   const activeOrders = orders.filter((o) => o.status !== 'CANCELLED').length;
 
   return (
-    <div className="mx-auto w-full max-w-3xl px-6 pt-6 pb-10">
+    <div className="mx-auto w-full max-w-3xl px-6 pt-6 pb-12">
       {!buyer.emailVerifiedAt && <VerifyEmailBanner />}
       <div className="mb-8 flex items-start justify-between gap-4">
         <div>
@@ -87,11 +88,11 @@ export default async function AccountPage() {
         </div>
         {withdrawalsEnabled && wallet.available > 0 && (
           <div className="border-b border-border px-5 py-4">
-            <form action={requestWithdrawalAction}>
+            <ActionForm action={requestWithdrawalAction}>
               <Button type="submit" size="sm">
                 Request withdrawal of {formatNaira(wallet.available)}
               </Button>
-            </form>
+            </ActionForm>
           </div>
         )}
         {wallet.entries.length === 0 ? (
@@ -109,7 +110,7 @@ export default async function AccountPage() {
                   </div>
                   <div className="mt-0.5 text-xs text-muted-foreground">
                     {formatNaira(Number(entry.referenceValue))} paid → {formatNaira(Number(entry.actualValue))}{' '}
-                    actual cost · {entry.createdAt.toLocaleDateString('en-NG', { dateStyle: 'medium' })}
+                    actual cost · {formatLagosDate(entry.createdAt)}
                   </div>
                 </div>
                 <div className="flex shrink-0 items-center gap-3">
@@ -126,7 +127,7 @@ export default async function AccountPage() {
 
       <div className="mb-8 rounded-lg bg-surface p-5">
         <h2 className="mb-4 text-heading-sm text-ink">Profile</h2>
-        <form action={updateBuyerProfile} className="grid grid-cols-1 gap-4 sm:grid-cols-2">
+        <ActionForm action={updateBuyerProfile} className="grid grid-cols-1 gap-4 sm:grid-cols-2">
           <div className="flex flex-col gap-1.5 sm:col-span-2">
             <Label htmlFor="email">Email</Label>
             <Input id="email" value={buyer.email} disabled />
@@ -155,7 +156,7 @@ export default async function AccountPage() {
           <div className="sm:col-span-2">
             <Button type="submit">Save changes</Button>
           </div>
-        </form>
+        </ActionForm>
       </div>
 
       <div className="overflow-hidden rounded-lg bg-surface">
@@ -198,11 +199,11 @@ export default async function AccountPage() {
                       Watching
                     </Badge>
                   )}
-                  <form action={cancelPriceAlert.bind(null, alert.id)}>
+                  <ActionForm action={cancelPriceAlert.bind(null, alert.id)}>
                     <Button type="submit" variant="ghost" size="sm">
                       Cancel
                     </Button>
-                  </form>
+                  </ActionForm>
                 </div>
               </div>
             ))}

@@ -5,8 +5,9 @@ import { prisma } from '@/lib/prisma';
 import { requireBuyer } from '@/lib/buyer/auth';
 import { initiateOrderPayment } from '@/lib/payments/initiateOrderPayment';
 import { getRequestOrigin } from '@/lib/http/origin';
+import { safeAction } from '@/lib/actions/safe';
 
-export async function retryPaymentAction(formData: FormData) {
+async function retryPaymentActionImpl(formData: FormData) {
   const orderId = formData.get('orderId');
   if (typeof orderId !== 'string') return;
 
@@ -25,3 +26,5 @@ export async function retryPaymentAction(formData: FormData) {
   // redirect() works by throwing, so it stays outside the try.
   redirect(authorizationUrl ?? `/orders/${orderId}?payment=failed`);
 }
+
+export const retryPaymentAction = safeAction(retryPaymentActionImpl);

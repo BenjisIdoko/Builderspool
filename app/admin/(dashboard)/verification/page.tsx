@@ -10,16 +10,10 @@ import { Avatar } from '@/components/avatar';
 import { KpiCard } from '@/components/kpi-card';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import type { KycStatus } from '@prisma/client';
+import { formatLagosDate } from '@/lib/format';
+import { KYC_LABEL_OPS as STATUS_LABEL } from '@/lib/labels';
 
 const STATUS_FILTERS = ['PENDING', 'APPROVED', 'REJECTED', 'SUSPENDED', 'NOT_SUBMITTED'] as const;
-
-const STATUS_LABEL: Record<KycStatus, string> = {
-  PENDING: 'Pending review',
-  APPROVED: 'Verified',
-  REJECTED: 'Rejected',
-  SUSPENDED: 'Suspended',
-  NOT_SUBMITTED: 'Not submitted',
-};
 
 export default async function AdminVerificationPage({
   searchParams,
@@ -147,7 +141,7 @@ export default async function AdminVerificationPage({
                     <TableCell className="py-3 text-ink">{profile.trustScore.toFixed(0)}</TableCell>
                     <TableCell className="py-3 text-muted-foreground">
                       {profile.kycSubmittedAt
-                        ? profile.kycSubmittedAt.toLocaleDateString('en-NG', { dateStyle: 'medium' })
+                        ? formatLagosDate(profile.kycSubmittedAt)
                         : '—'}
                     </TableCell>
                     <TableCell className="py-3">

@@ -27,6 +27,7 @@ import { OrderActions } from '@/components/order-actions';
 import { PickupLocation } from '@/components/pickup-location';
 import { describeLine, type LineTone } from '@/lib/orders/lineStatus';
 import { retryPaymentAction } from '../actions';
+import { ActionForm } from '@/components/ui/action-form';
 
 const STATUS_LABEL: Record<string, string> = {
   PENDING_PAYMENT: 'Awaiting payment',
@@ -109,7 +110,7 @@ export default async function OrderConfirmationPage({
           </span>
           <div>
             <div className="flex flex-wrap items-center gap-2">
-              <h1 className="text-balance text-heading-lg text-ink">{order.status === 'PENDING_PAYMENT' ? 'Order placed' : 'Order confirmed'}</h1>
+              <h1 className="text-balance text-ink">{order.status === 'PENDING_PAYMENT' ? 'Order placed' : 'Order confirmed'}</h1>
               <Badge variant="outline" className={pillClass(orderStatusTone(order.status))}>
                 {STATUS_LABEL[order.status] ?? order.status}
               </Badge>
@@ -134,12 +135,12 @@ export default async function OrderConfirmationPage({
           </div>
         </div>
         {order.status === 'PENDING_PAYMENT' ? (
-          <form action={retryPaymentAction}>
+          <ActionForm action={retryPaymentAction}>
             <input type="hidden" name="orderId" value={order.id} />
             <Button type="submit" variant="cta" size="lg">
               Pay now — {formatNaira(subtotal + deliveryTotal)}
             </Button>
-          </form>
+          </ActionForm>
         ) : (
           <OrderActions items={order.items} />
         )}

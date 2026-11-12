@@ -9,6 +9,7 @@ import { uploadKycDocument, deleteKycDocument } from '@/lib/storage/kycDocuments
 import { compareBusinessNames } from '@/lib/kyc/nameMatch';
 import { getSetting } from '@/lib/settings';
 import { recordAudit } from '@/lib/audit';
+import { safeAction } from '@/lib/actions/safe';
 
 function requiredText(formData: FormData, key: string, label: string): string {
   const value = formData.get(key);
@@ -150,7 +151,7 @@ export async function submitKyc(formData: FormData): Promise<{ error: string } |
 
 // When admins publish a new terms version (Settings > accounts.termsVersion),
 // the owner of an already-approved seller re-accepts it here.
-export async function acceptCurrentTermsAction() {
+async function acceptCurrentTermsActionImpl() {
   const { sellerId, userId } = await requireSellerOwner();
   const version = await getSetting<string>('accounts.termsVersion');
 
@@ -212,3 +213,5 @@ export async function verifyCacAction(formData: FormData) {
   revalidatePath('/seller/kyc');
   revalidatePath('/admin/verification');
 }
+
+export const acceptCurrentTermsAction = safeAction(acceptCurrentTermsActionImpl);

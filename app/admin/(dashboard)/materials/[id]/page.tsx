@@ -3,12 +3,13 @@ import { notFound } from 'next/navigation';
 import { ArrowLeftIcon, WarningIcon, ArchiveIcon, ArrowCounterClockwiseIcon } from '@phosphor-icons/react/ssr';
 import { getMaterialForAdmin } from '@/lib/queries/adminMaterials';
 import { getPriceHistory } from '@/lib/queries/materials';
-import { formatNaira } from '@/lib/format';
+import { formatLagosDate, formatNaira } from '@/lib/format';
 import { updateMaterialAction, setMaterialRetiredAction } from '../actions';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Button } from '@/components/ui/button';
+import { ActionForm } from '@/components/ui/action-form';
 
 export default async function AdminMaterialEditPage({ params }: { params: Promise<{ id: string }> }) {
   const { id } = await params;
@@ -18,7 +19,7 @@ export default async function AdminMaterialEditPage({ params }: { params: Promis
   const lastSnapshot = priceHistory[priceHistory.length - 1];
 
   return (
-    <div className="mx-auto w-full max-w-3xl px-6 py-10">
+    <div className="mx-auto w-full max-w-7xl px-4 pt-6 pb-16 sm:px-8 sm:pt-8 sm:pb-20 [&>*]:max-w-3xl">
       <Link
         href="/admin/materials"
         className="mb-4 inline-flex items-center gap-1.5 text-sm text-muted-foreground hover:text-ink"
@@ -31,7 +32,14 @@ export default async function AdminMaterialEditPage({ params }: { params: Promis
           <div className="mb-1 text-xs text-muted-foreground">{material.category}</div>
           <h1 className="text-heading-lg text-ink">{material.name}</h1>
         </div>
-        <form action={setMaterialRetiredAction}>
+        <ActionForm
+          action={setMaterialRetiredAction}
+          confirm={
+            material.retired
+              ? undefined
+              : { title: 'Retire this material?', description: 'It leaves the buyer catalogue and sellers can no longer list it. You can restore it later.', confirmLabel: 'Retire material', destructive: true }
+          }
+        >
           <input type="hidden" name="id" value={material.id} />
           <input type="hidden" name="retired" value={(!material.retired).toString()} />
           <Button type="submit" variant="outline" size="sm" className="gap-1.5">
@@ -47,11 +55,11 @@ export default async function AdminMaterialEditPage({ params }: { params: Promis
               </>
             )}
           </Button>
-        </form>
+        </ActionForm>
       </div>
       <p className="mb-8 text-sm text-muted-foreground">
         Current catalog price {formatNaira(material.catalogPrice)}
-        {lastSnapshot && ` · last recorded ${lastSnapshot.date.toLocaleDateString('en-NG', { dateStyle: 'medium' })}`}
+        {lastSnapshot && ` · last recorded ${formatLagosDate(lastSnapshot.date)}`}
         . Saving a new price writes a real price-history point the buyer-facing chart will show.
       </p>
 
@@ -71,7 +79,7 @@ export default async function AdminMaterialEditPage({ params }: { params: Promis
         </div>
       )}
 
-      <form action={updateMaterialAction} className="space-y-8">
+      <ActionForm action={updateMaterialAction} className="space-y-8">
         <input type="hidden" name="id" value={material.id} />
 
         <div className="rounded-lg bg-card-alt p-6">
@@ -158,7 +166,7 @@ export default async function AdminMaterialEditPage({ params }: { params: Promis
           </Button>
           <Button type="submit">Save changes</Button>
         </div>
-      </form>
+      </ActionForm>
     </div>
   );
 }

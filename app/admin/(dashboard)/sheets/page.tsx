@@ -7,6 +7,8 @@ import { Button } from '@/components/ui/button';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import { Money } from '@/components/money';
 import { decideCategoryAction, disburseSheetPayoutAction, failSheetFulfilmentAction, holdSheetFulfilmentAction, issueSheetGrnAction } from './actions';
+import { ActionForm } from '@/components/ui/action-form';
+import { Input } from '@/components/ui/input';
 
 export const metadata = { title: 'Pool sheets' };
 
@@ -113,28 +115,28 @@ export default async function AdminSheetsPage() {
                   <TableCell>
                     <div className="flex flex-wrap items-start gap-2">
                       {f.status === 'PENDING' && (
-                        <form action={issueSheetGrnAction}>
+                        <ActionForm action={issueSheetGrnAction}>
                           <input type="hidden" name="id" value={f.id} />
                           <Button type="submit" size="sm">Issue GRN</Button>
-                        </form>
+                        </ActionForm>
                       )}
                       {f.status === 'FULFILLED' && f.payoutStatus === 'PROCESSED' && (
-                        <form action={disburseSheetPayoutAction}>
+                        <ActionForm action={disburseSheetPayoutAction} confirm={{ title: 'Disburse this payout?', description: 'This marks the payout as sent to the seller. It can’t be undone.', confirmLabel: 'Disburse' }}>
                           <input type="hidden" name="id" value={f.id} />
                           <Button type="submit" size="sm" variant="outline">Pay vendor</Button>
-                        </form>
+                        </ActionForm>
                       )}
-                      <form action={holdSheetFulfilmentAction} className="flex items-center gap-1.5">
+                      <ActionForm action={holdSheetFulfilmentAction} className="flex items-center gap-1.5">
                         <input type="hidden" name="id" value={f.id} />
-                        {f.payoutStatus !== 'ON_HOLD' && <input name="note" placeholder="Hold reason" aria-label="Hold reason" maxLength={200} className="h-8 w-32 rounded-md border border-input bg-transparent px-2 text-caption no-zoom" />}
+                        {f.payoutStatus !== 'ON_HOLD' && <Input name="note" placeholder="Hold reason" aria-label="Hold reason" maxLength={200} className="h-8 w-32 px-2 text-caption" />}
                         <Button type="submit" size="sm" variant="ghost">{f.payoutStatus === 'ON_HOLD' ? 'Release hold' : 'Hold payout'}</Button>
-                      </form>
+                      </ActionForm>
                       {f.status === 'PENDING' && (
-                        <form action={failSheetFulfilmentAction} className="flex items-center gap-1.5">
+                        <ActionForm action={failSheetFulfilmentAction} confirm={{ title: 'Mark this line as not supplied?', description: 'The line is sent back or refunded. It can’t be undone.', confirmLabel: 'Mark not supplied', destructive: true }} className="flex items-center gap-1.5">
                           <input type="hidden" name="id" value={f.id} />
-                          <input name="reason" required placeholder="Why not supplied?" aria-label="Why the vendor did not supply this line" maxLength={300} className="h-8 w-36 rounded-md border border-input bg-transparent px-2 text-caption no-zoom" />
+                          <Input name="reason" required placeholder="Why not supplied?" aria-label="Why the vendor did not supply this line" maxLength={300} className="h-8 w-36 px-2 text-caption" />
                           <Button type="submit" size="sm" variant="ghost">Not supplied</Button>
-                        </form>
+                        </ActionForm>
                       )}
                     </div>
                   </TableCell>

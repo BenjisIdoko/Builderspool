@@ -23,7 +23,7 @@ import { getVerifiedSellerCount } from '@/lib/queries/adminSellers';
 import { getCurrentAdmin } from '@/lib/admin/session';
 import { getGoLiveReadiness } from '@/lib/onboarding/goLive';
 import { ChecklistCard } from '@/components/checklist-card';
-import { formatNaira } from '@/lib/format';
+import { formatLagosDateTime, formatNaira } from '@/lib/format';
 import { orderStatusTone, cycleStatusTone, pillClass } from '@/lib/statusColors';
 import { Badge } from '@/components/ui/badge';
 import { KpiCard } from '@/components/kpi-card';
@@ -161,7 +161,7 @@ export default async function AdminDashboardPage() {
   return (
     <div className="mx-auto w-full max-w-7xl px-4 pt-6 pb-16 sm:px-8 sm:pt-8 sm:pb-20">
       <div className="mb-1 text-xs text-muted-foreground">Admin · platform overview</div>
-      <h1 className="mb-1.5 text-heading-lg text-ink">
+      <h1 className="mb-1 text-heading-lg text-ink">
         {greeting((new Date().getUTCHours() + 1) % 24)}, {(admin?.name ?? 'there').split(' ')[0]}
       </h1>
       <p className="mb-6 text-sm text-muted-foreground">
@@ -373,7 +373,7 @@ export default async function AdminDashboardPage() {
                     </TableCell>
                     <TableCell className="py-3 text-ink">{cycle.region ?? 'National'}</TableCell>
                     <TableCell className="py-3 text-ink">
-                      {cycle.cutoffAt.toLocaleString('en-NG', { dateStyle: 'medium', timeStyle: 'short' })}
+                      {formatLagosDateTime(cycle.cutoffAt)}
                     </TableCell>
                     <TableCell className="py-3 text-ink">
                       {cycle.totalQuantityRequested} {cycle.material.unit}

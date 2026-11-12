@@ -10,14 +10,7 @@ import { getSellerCoverage } from '@/lib/queries/areas';
 import { ZoneCoverageForm } from '@/components/seller/zone-coverage-form';
 import { CategoryRegistrationForm } from '@/components/seller/category-registration-form';
 import { getSellerCategories } from '@/lib/queries/sheets';
-
-const KYC_LABEL: Record<string, string> = {
-  NOT_SUBMITTED: 'Not started',
-  PENDING: 'Pending review',
-  APPROVED: 'Verified',
-  REJECTED: 'Rejected',
-  SUSPENDED: 'Suspended',
-};
+import { KYC_LABEL } from '@/lib/labels';
 
 const KYC_ACTION: Record<string, string> = {
   NOT_SUBMITTED: 'Start verification',

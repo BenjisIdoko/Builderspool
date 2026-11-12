@@ -5,6 +5,7 @@ import { CoverageStatus, LocalityKind } from '@prisma/client';
 import { prisma } from '@/lib/prisma';
 import { requireAdminUser } from '@/lib/admin/session';
 import { recordAudit } from '@/lib/audit';
+import { safeAction } from '@/lib/actions/safe';
 
 function text(formData: FormData, key: string): string {
   const v = formData.get(key);
@@ -45,7 +46,7 @@ export async function setZoneFeeAction(formData: FormData): Promise<Result> {
   }
 }
 
-export async function setZoneActiveAction(formData: FormData) {
+async function setZoneActiveActionImpl(formData: FormData) {
   const admin = await requireAdminUser();
   const zoneId = text(formData, 'zoneId');
   const active = text(formData, 'active') === 'true';
@@ -164,7 +165,7 @@ export async function decideCoverageAction(formData: FormData) {
   revalidatePath('/admin/areas');
 }
 
-export async function setNationalSupplyAction(formData: FormData) {
+async function setNationalSupplyActionImpl(formData: FormData) {
   const admin = await requireAdminUser();
   const sellerId = text(formData, 'sellerId');
   const national = text(formData, 'national') === 'true';
@@ -180,3 +181,7 @@ export async function setNationalSupplyAction(formData: FormData) {
   });
   revalidatePath('/admin/areas');
 }
+
+export const setZoneActiveAction = safeAction(setZoneActiveActionImpl);
+
+export const setNationalSupplyAction = safeAction(setNationalSupplyActionImpl);
