@@ -22,11 +22,17 @@ export function VerifyEmailBanner() {
   }
 
   return (
-    <div className="mb-6 flex items-center justify-between gap-4 rounded-lg border border-warning/30 bg-warning-soft px-4 py-3 text-sm text-warning-text">
-      <div>
+    <div role="status" className="mb-6 flex items-start justify-between gap-2 rounded-lg bg-warning-soft px-4 py-2 text-sm text-warning-text ring-1 ring-warning/30">
+      <div className="min-w-0 flex-1 self-center py-1 text-pretty">
         {message ?? 'Verify your email to help keep your account secure.'}{' '}
         {!message && (
-          <button type="button" onClick={handleResend} disabled={isPending} className="font-semibold underline">
+          <button
+            type="button"
+            onClick={handleResend}
+            disabled={isPending}
+            aria-busy={isPending}
+            className="inline-flex min-h-11 items-center rounded-sm font-semibold underline outline-none focus-visible:ring-2 focus-visible:ring-ring disabled:opacity-60"
+          >
             {isPending ? 'Sending…' : 'Resend verification email'}
           </button>
         )}
@@ -35,9 +41,9 @@ export function VerifyEmailBanner() {
         type="button"
         onClick={() => setDismissed(true)}
         aria-label="Dismiss"
-        className="shrink-0 text-warning-text/70 hover:text-warning-text"
+        className="flex size-11 shrink-0 items-center justify-center rounded-md text-warning-text/70 outline-none transition-colors duration-150 hover:text-warning-text focus-visible:ring-2 focus-visible:ring-ring"
       >
-        <XIcon className="size-4" />
+        <XIcon aria-hidden className="size-4" />
       </button>
     </div>
   );
