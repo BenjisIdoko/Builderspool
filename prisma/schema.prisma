@@ -189,6 +189,8 @@ model User {
   pickupCenterId  String?
 
   pickupCenter            FulfillmentCenter?       @relation("BuyerPickupCenter", fields: [pickupCenterId], references: [id], onDelete: SetNull)
+  addresses               BuyerAddress[]
+  savedStations           BuyerPickupStation[]
   staffMembership         SellerStaff?             @relation("StaffUser")
   staff                   SellerStaff[]            @relation("SellerOwner")
   sellerProfile           SellerProfile?
@@ -438,6 +440,7 @@ model FulfillmentCenter {
   locality   Locality?   @relation(fields: [localityId], references: [id])
   orderItems OrderItem[]
   buyers     User[]      @relation("BuyerPickupCenter")
+  savedBy    BuyerPickupStation[]
 }
 
 model Material {
@@ -906,6 +909,7 @@ model Locality {
   fulfillmentCenters FulfillmentCenter[]
   deliveryRequests   DeliveryRequest[]
   orders             Order[]
+  buyerAddresses     BuyerAddress[]
 
   @@unique([lgaId, name])
   @@index([zoneId])
@@ -1288,4 +1292,39 @@ model SheetFulfilment {
 
   @@index([sellerId, status])
   @@index([sheetId])
+}
+
+// ─── Buyer address book ──────────────────────────────────────────────────────
+// Delivery addresses a buyer saved, with one default that checkout fills in.
+model BuyerAddress {
+  id           String   @id @default(cuid())
+  buyerId      String
+  contactName  String
+  contactPhone String
+  address      String
+  landmark     String?
+  // The area, when the checkout area picker is on; null otherwise.
+  localityId   String?
+  isDefault    Boolean  @default(false)
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+
+  buyer    User      @relation(fields: [buyerId], references: [id], onDelete: Cascade)
+  locality Locality? @relation(fields: [localityId], references: [id], onDelete: SetNull)
+
+  @@index([buyerId])
+}
+
+// The pickup stations a buyer saved. Their default is User.pickupCenterId and is
+// always one of these.
+model BuyerPickupStation {
+  buyerId   String
+  centerId  String
+  createdAt DateTime @default(now())
+
+  buyer  User              @relation(fields: [buyerId], references: [id], onDelete: Cascade)
+  center FulfillmentCenter @relation(fields: [centerId], references: [id], onDelete: Cascade)
+
+  @@id([buyerId, centerId])
+  @@index([centerId])
 }

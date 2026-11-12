@@ -22,6 +22,7 @@ export function ActionForm({
   action,
   confirm,
   successMessage,
+  onSuccess,
   className,
   children,
 }: {
@@ -29,6 +30,8 @@ export function ActionForm({
   confirm?: ActionConfirm;
   /** Shown after the action succeeds. */
   successMessage?: string;
+  /** Called once the action succeeds, for example to close a dialog it sits in. */
+  onSuccess?: () => void;
   className?: string;
   children: React.ReactNode;
 }) {
@@ -44,7 +47,10 @@ export function ActionForm({
     startTransition(async () => {
       const result = (await action(fd)) as { error?: string } | undefined | null;
       if (result && typeof result === 'object' && typeof result.error === 'string') setError(result.error);
-      else setDone(true);
+      else {
+        setDone(true);
+        onSuccess?.();
+      }
       setOpen(false);
     });
   }

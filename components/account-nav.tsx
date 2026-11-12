@@ -10,7 +10,7 @@ const ITEMS = [
   { href: '/account', label: 'Overview', icon: SquaresFourIcon, exact: true },
   { href: '/orders', label: 'Orders', icon: ReceiptIcon },
   { href: '/account/savings', label: 'Savings credit', icon: WalletIcon },
-  { href: '/account/pickup', label: 'Pickup station', icon: MapPinIcon },
+  { href: '/account/addresses', label: 'Address book', icon: MapPinIcon },
   { href: '/account/alerts', label: 'Price alerts', icon: BellIcon },
   { href: '/account/profile', label: 'Profile', icon: IdentificationCardIcon },
 ];

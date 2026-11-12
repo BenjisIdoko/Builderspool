@@ -10,7 +10,7 @@ const LINKS = [
   { href: '/account', label: 'My account', icon: UserIcon },
   { href: '/orders', label: 'Orders', icon: ReceiptIcon },
   { href: '/account/savings', label: 'Savings credit', icon: WalletIcon },
-  { href: '/account/pickup', label: 'Pickup station', icon: MapPinIcon },
+  { href: '/account/addresses', label: 'Address book', icon: MapPinIcon },
   { href: '/account/alerts', label: 'Price alerts', icon: BellIcon },
 ];
 

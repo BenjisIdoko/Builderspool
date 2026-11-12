@@ -60,12 +60,24 @@ function RadioDot({ selected, className = '' }: { selected: boolean; className?:
   );
 }
 
+export type SavedCheckoutAddress = {
+  id: string;
+  contactName: string;
+  contactPhone: string;
+  address: string;
+  landmark: string | null;
+  localityId: string | null;
+  isDefault: boolean;
+};
+
 type SubmitState = { status: 'idle' } | { status: 'submitting' } | { status: 'error'; message: string };
 
 export function CheckoutForm({
   areas,
   centers,
   savedCenterId,
+  savedCenterIds,
+  savedAddresses,
   defaultContactName,
   defaultContactPhone,
   poolDay,
@@ -77,8 +89,12 @@ export function CheckoutForm({
   areas: CheckoutAreas;
   /** Every pickup station; the ones in the order's region are offered. */
   centers: PickupCenter[];
-  /** The station the buyer saved on their account page, if any. */
+  /** The buyer's default pickup station, if any. */
   savedCenterId: string | null;
+  /** Every station the buyer saved, listed first. */
+  savedCenterIds: string[];
+  /** The buyer's saved delivery addresses; the default one fills the form in. */
+  savedAddresses: SavedCheckoutAddress[];
   defaultContactName: string;
   defaultContactPhone: string;
   /** Which pool an order placed now joins. */
@@ -93,14 +109,17 @@ export function CheckoutForm({
   const [region, setRegion] = useState(REGIONS[0]);
   const [fulfillmentMethod, setFulfillmentMethod] = useState<FulfillmentMethod>('DELIVERY');
   const [paymentMethod, setPaymentMethod] = useState<PaymentMethod>('BANK_TRANSFER');
-  const [deliveryAddress, setDeliveryAddress] = useState('');
-  const [deliveryContactName, setDeliveryContactName] = useState(defaultContactName);
-  const [deliveryContactPhone, setDeliveryContactPhone] = useState(defaultContactPhone);
-  const [landmark, setLandmark] = useState('');
+  // The default saved address fills the form in; the buyer can pick another or type a new one.
+  const initialAddress = savedAddresses.find((a) => a.isDefault) ?? savedAddresses[0] ?? null;
+  const [addressChoice, setAddressChoice] = useState(initialAddress?.id ?? '');
+  const [deliveryAddress, setDeliveryAddress] = useState(initialAddress?.address ?? '');
+  const [deliveryContactName, setDeliveryContactName] = useState(initialAddress?.contactName ?? defaultContactName);
+  const [deliveryContactPhone, setDeliveryContactPhone] = useState(initialAddress?.contactPhone ?? defaultContactPhone);
+  const [landmark, setLandmark] = useState(initialAddress?.landmark ?? '');
   const [neededBy, setNeededBy] = useState('');
   const [deliveryWindow, setDeliveryWindow] = useState('');
   const [deliveryNotes, setDeliveryNotes] = useState('');
-  const [localityId, setLocalityId] = useState('');
+  const [localityId, setLocalityId] = useState(areas.enabled && initialAddress?.localityId && findLocality(areas, initialAddress.localityId) ? initialAddress.localityId : '');
   const zone = areas.enabled && localityId ? (findLocality(areas, localityId)?.zone ?? null) : null;
   // With the picker on, delivery needs a zone that has a fee; otherwise pickup only.
   const deliveryAvailable = !areas.enabled || (zone !== null && zone.fee !== null);
@@ -113,7 +132,9 @@ export function CheckoutForm({
   const noSellerText = `${noSeller.slice(0, 2).join(', ')}${noSeller.length > 2 ? ` and ${noSeller.length - 2} more` : ''}`;
   // Stations in the order's region: this order's own pick, else the buyer's saved
   // station if it is here, else the region's first.
-  const regionCenters = centers.filter((c) => c.region === region);
+  const regionCenters = centers
+    .filter((c) => c.region === region)
+    .sort((a, b) => Number(savedCenterIds.includes(b.id)) - Number(savedCenterIds.includes(a.id)));
   const [pickedCenterId, setPickedCenterId] = useState('');
   const center =
     regionCenters.find((c) => c.id === pickedCenterId) ?? regionCenters.find((c) => c.id === savedCenterId) ?? regionCenters[0] ?? null;
@@ -256,7 +277,7 @@ export function CheckoutForm({
                 <PickupStationList centers={regionCenters} value={center.id} onChange={setPickedCenterId} label="Pickup station for this order" />
                 <p className="mt-2 text-caption text-muted-foreground">
                   Save a default on your{' '}
-                  <Link href="/account/pickup" className="rounded-sm font-medium text-brand outline-none hover:underline focus-visible:ring-2 focus-visible:ring-ring">
+                  <Link href="/account/addresses" className="rounded-sm font-medium text-brand outline-none hover:underline focus-visible:ring-2 focus-visible:ring-ring">
                     account page
                   </Link>
                   .
@@ -271,6 +292,60 @@ export function CheckoutForm({
           <>
             <div className="mt-10 mb-3.5 text-label text-slate uppercase">03 · Delivery details</div>
             <div className="flex flex-col gap-8 rounded-card bg-surface p-5">
+              {savedAddresses.length > 0 && (
+                <fieldset className="flex flex-col gap-3">
+                  <legend className="mb-1 text-heading-sm text-ink">Deliver to</legend>
+                  <div className="flex flex-col gap-2">
+                    {[...savedAddresses, null].map((a) => {
+                      const id = a?.id ?? '';
+                      const selected = addressChoice === id;
+                      return (
+                        <label
+                          key={id || 'new'}
+                          className={`flex cursor-pointer items-start gap-3 rounded-md p-3 shadow-[0_0_0_1px_var(--color-hairline)] transition-[box-shadow,background-color] duration-150 has-focus-visible:ring-2 has-focus-visible:ring-ring ${
+                            selected ? 'bg-info-soft shadow-[0_0_0_2px_var(--color-brand)]' : 'hover:bg-well/60'
+                          }`}
+                        >
+                          <input
+                            type="radio"
+                            name="savedAddress"
+                            checked={selected}
+                            onChange={() => {
+                              setAddressChoice(id);
+                              setDeliveryAddress(a?.address ?? '');
+                              setLandmark(a?.landmark ?? '');
+                              if (a) {
+                                setDeliveryContactName(a.contactName);
+                                setDeliveryContactPhone(a.contactPhone);
+                                if (areas.enabled && a.localityId && findLocality(areas, a.localityId)) setLocalityId(a.localityId);
+                              }
+                            }}
+                            className="mt-1 size-4 shrink-0 accent-brand outline-none"
+                          />
+                          <span className="min-w-0 flex-1 text-pretty text-sm">
+                            {a ? (
+                              <>
+                                <span className="block font-semibold text-ink">
+                                  {a.contactName}
+                                  {a.isDefault && <span className="ml-2 text-caption font-normal text-success">Default</span>}
+                                </span>
+                                <span className="block text-muted-foreground">{a.address}</span>
+                              </>
+                            ) : (
+                              <span className="font-semibold text-ink">A different address</span>
+                            )}
+                          </span>
+                        </label>
+                      );
+                    })}
+                  </div>
+                  <p className="text-caption text-muted-foreground">
+                    <Link href="/account/addresses?tab=delivery" className="rounded-sm font-medium text-brand outline-none hover:underline focus-visible:ring-2 focus-visible:ring-ring">
+                      Manage your saved addresses
+                    </Link>
+                  </p>
+                </fieldset>
+              )}
               <fieldset className="flex flex-col gap-4">
                 <legend className="mb-1 text-heading-sm text-ink">Site</legend>
                 <div>

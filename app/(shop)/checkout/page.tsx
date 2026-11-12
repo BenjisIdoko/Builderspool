@@ -8,15 +8,18 @@ import { addDaysYmd, lagosYmd } from '@/lib/bidding/schedule';
 import { isPoolClosedForToday } from '@/lib/pool-stages';
 import { getCheckoutAreas } from '@/lib/queries/checkoutAreas';
 import { getPickupCenters } from '@/lib/queries/pickupCenters';
+import { prisma } from '@/lib/prisma';
 
 export const metadata = { title: 'Checkout' };
 
 export default async function CheckoutPage() {
   const buyer = await requireBuyer();
-  const [{ times }, areas, centers] = await Promise.all([
+  const [{ times }, areas, centers, addressRows, stationRows] = await Promise.all([
     getBuyerFacingTimes(),
     getCheckoutAreas(),
     getPickupCenters(),
+    prisma.buyerAddress.findMany({ where: { buyerId: buyer.id }, orderBy: [{ isDefault: 'desc' }, { createdAt: 'asc' }] }),
+    prisma.buyerPickupStation.findMany({ where: { buyerId: buyer.id }, select: { centerId: true } }),
   ]);
 
   return (
@@ -41,6 +44,8 @@ export default async function CheckoutPage() {
         areas={areas}
         centers={centers}
         savedCenterId={buyer.pickupCenterId}
+        savedCenterIds={stationRows.map((r) => r.centerId)}
+        savedAddresses={addressRows.map((a) => ({ id: a.id, contactName: a.contactName, contactPhone: a.contactPhone, address: a.address, landmark: a.landmark, localityId: a.localityId, isDefault: a.isDefault }))}
         poolDay={isPoolClosedForToday(times) ? 'tomorrow' : 'today'}
         poolCloseTime={times.poolCloseTime}
         // Earliest on-site date a buyer can ask for: tomorrow, Lagos time.

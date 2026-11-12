@@ -16,10 +16,10 @@ export const metadata = { title: 'Pickup stations' };
 export default async function AdminPickupStationsPage() {
   const stations = await prisma.fulfillmentCenter.findMany({
     orderBy: [{ region: 'asc' }, { name: 'asc' }],
-    include: { _count: { select: { orderItems: true, buyers: true } } },
+    include: { _count: { select: { orderItems: true, savedBy: true } } },
   });
   const regions = new Set(stations.map((s) => s.region)).size;
-  const savedBy = stations.reduce((sum, s) => sum + s._count.buyers, 0);
+  const savedBy = stations.reduce((sum, s) => sum + s._count.savedBy, 0);
 
   return (
     <div className="mx-auto w-full max-w-7xl px-4 pt-6 pb-16 sm:px-8 sm:pt-8 sm:pb-20">
@@ -33,7 +33,7 @@ export default async function AdminPickupStationsPage() {
       <div className="mb-8 grid grid-cols-1 gap-3 sm:grid-cols-3">
         <KpiCard size="compact" label="Pickup stations" value={String(stations.length)} icon={MapPinIcon} tone="neutral" chip="" />
         <KpiCard size="compact" label="Regions covered" value={String(regions)} icon={PackageIcon} tone="neutral" chip="" />
-        <KpiCard size="compact" label="Buyers with a saved station" value={String(savedBy)} icon={UsersIcon} tone="neutral" chip="" />
+        <KpiCard size="compact" label="Stations saved by buyers" value={String(savedBy)} icon={UsersIcon} tone="neutral" chip="" />
       </div>
 
       <section aria-labelledby="add-station-heading" className="mb-8 max-w-3xl rounded-card bg-card-alt p-5 sm:p-6">
@@ -78,7 +78,7 @@ export default async function AdminPickupStationsPage() {
                     </a>
                   </TableCell>
                   <TableCell className="py-3">{regionLabel(s.region)}</TableCell>
-                  <TableCell className="py-3 text-right tabular-nums">{s._count.buyers}</TableCell>
+                  <TableCell className="py-3 text-right tabular-nums">{s._count.savedBy}</TableCell>
                   <TableCell className="py-3 text-right tabular-nums">{s._count.orderItems}</TableCell>
                   <TableCell className="py-3">
                     <div className="flex flex-wrap items-start justify-end gap-2">
@@ -88,8 +88,8 @@ export default async function AdminPickupStationsPage() {
                         confirm={{
                           title: `Delete ${s.name}?`,
                           description:
-                            s._count.buyers > 0
-                              ? `${s._count.buyers} ${s._count.buyers === 1 ? 'buyer has' : 'buyers have'} saved it and will fall back to their region’s default station. You can’t undo this.`
+                            s._count.savedBy > 0
+                              ? `${s._count.savedBy} ${s._count.savedBy === 1 ? 'buyer has' : 'buyers have'} saved it. It’s removed from their address book. You can’t undo this.`
                               : 'Buyers will no longer see it. You can’t undo this.',
                           confirmLabel: 'Delete station',
                           destructive: true,

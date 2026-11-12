@@ -4,6 +4,7 @@ import { getOrdersForBuyer } from '@/lib/queries/orders';
 import { getPriceAlertsForBuyer } from '@/lib/queries/priceAlerts';
 import { getSavingsWalletForBuyer } from '@/lib/wallet';
 import { getPickupCenters } from '@/lib/queries/pickupCenters';
+import { prisma } from '@/lib/prisma';
 import { formatNaira } from '@/lib/format';
 import { AccountShell, ACCOUNT_CARD, ACCOUNT_LINK } from '@/components/account-shell';
 import { OrderHistoryList } from '@/components/order-history-list';
@@ -34,11 +35,12 @@ function OverviewCard({ id, title, href, action, children }: { id: string; title
 
 export default async function AccountPage() {
   const buyer = await requireBuyer();
-  const [orders, priceAlerts, wallet, pickupCenters] = await Promise.all([
+  const [orders, priceAlerts, wallet, pickupCenters, defaultAddress] = await Promise.all([
     getOrdersForBuyer(buyer.id),
     getPriceAlertsForBuyer(buyer.id),
     getSavingsWalletForBuyer(buyer.id),
     getPickupCenters(),
+    prisma.buyerAddress.findFirst({ where: { buyerId: buyer.id, isDefault: true } }),
   ]);
   const activeOrders = orders.filter((o) => o.status !== 'CANCELLED').length;
   const station = pickupCenters.find((c) => c.id === buyer.pickupCenterId) ?? null;
@@ -72,15 +74,25 @@ export default async function AccountPage() {
           {buyer.location && <div className="text-sm text-muted-foreground">{buyer.location}</div>}
         </OverviewCard>
 
-        <OverviewCard id="pickup-heading" title="Pickup station" href="/account/pickup" action={station ? 'Change' : 'Choose'}>
-          {station ? (
-            <>
-              <div className="text-pretty font-semibold text-ink">{station.name}</div>
-              <div className="text-pretty text-sm text-muted-foreground">{station.address}</div>
-            </>
-          ) : (
-            <p className="max-w-[40ch] text-pretty text-sm text-muted-foreground">Not chosen yet. We use the default station for your region until you pick one.</p>
-          )}
+        <OverviewCard id="address-heading" title="Address book" href="/account/addresses" action={station || defaultAddress ? 'Manage' : 'Add'}>
+          <div className="space-y-3">
+            <div>
+              <div className="text-caption text-muted-foreground">Default pickup station</div>
+              {station ? (
+                <div className="text-pretty text-sm font-semibold text-ink">{station.name}</div>
+              ) : (
+                <div className="text-pretty text-sm text-muted-foreground">None saved yet</div>
+              )}
+            </div>
+            <div>
+              <div className="text-caption text-muted-foreground">Default delivery address</div>
+              {defaultAddress ? (
+                <div className="text-pretty text-sm font-semibold text-ink">{defaultAddress.address}</div>
+              ) : (
+                <div className="text-pretty text-sm text-muted-foreground">None saved yet</div>
+              )}
+            </div>
+          </div>
         </OverviewCard>
 
         <OverviewCard id="savings-heading" title="Savings credit" href="/account/savings" action="Details">
