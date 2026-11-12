@@ -15,6 +15,7 @@ import { getDeliveryCost, type FulfillmentMethod } from '@/lib/checkout/delivery
 import { checkoutFallbackText } from '@/lib/pool-stages';
 import { DatePicker } from '@/components/ui/date-picker';
 import { PickupLocation } from '@/components/pickup-location';
+import { STATION_REGIONS } from '@/lib/areas/region';
 import { PickupStationList } from '@/components/pickup-station-list';
 import type { PickupCenter } from '@/lib/queries/pickupCenters';
 import { Badge } from '@/components/ui/badge';
@@ -35,7 +36,7 @@ const PAYMENT_OPTIONS: { method: PaymentMethod; label: string; icon: typeof Bank
   { method: 'USSD', label: 'USSD', icon: DeviceMobileIcon },
 ];
 
-const REGIONS = ['ABUJA', 'LAGOS', 'KANO'];
+const REGIONS: readonly string[] = STATION_REGIONS;
 // Delivery windows a buyer can ask for, inside our Monday to Saturday, 8am to 6pm hours.
 const DELIVERY_WINDOWS = ['Morning (8am–12pm)', 'Afternoon (12pm–4pm)', 'Late afternoon (4pm–6pm)'];
 const AREA_MISSING = 'Choose an area we deliver to.';

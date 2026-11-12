@@ -4,3 +4,6 @@
 export function regionForState(stateName: string): string | null {
   return /^(fct|federal capital territory)$/i.test(stateName.trim()) ? 'ABUJA' : null;
 }
+
+/** The regions a pickup station can be in. A station's region decides which buyers it serves. */
+export const STATION_REGIONS = ['ABUJA', 'LAGOS', 'KANO'] as const;
