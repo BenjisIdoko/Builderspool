@@ -21,24 +21,30 @@ type ActionResult = { error?: string } | void | null | undefined | { ok?: boolea
 export function ActionForm({
   action,
   confirm,
+  successMessage,
   className,
   children,
 }: {
   action: (formData: FormData) => Promise<ActionResult | unknown>;
   confirm?: ActionConfirm;
+  /** Shown after the action succeeds. */
+  successMessage?: string;
   className?: string;
   children: React.ReactNode;
 }) {
   const [isPending, startTransition] = useTransition();
   const [error, setError] = useState<string | null>(null);
+  const [done, setDone] = useState(false);
   const [open, setOpen] = useState(false);
   const held = useRef<FormData | null>(null);
 
   function run(fd: FormData) {
     setError(null);
+    setDone(false);
     startTransition(async () => {
       const result = (await action(fd)) as { error?: string } | undefined | null;
       if (result && typeof result === 'object' && typeof result.error === 'string') setError(result.error);
+      else setDone(true);
       setOpen(false);
     });
   }
@@ -62,6 +68,11 @@ export function ActionForm({
       {error && !open && (
         <p role="alert" className="mt-1 basis-full text-pretty text-caption text-danger">
           {error}
+        </p>
+      )}
+      {done && !error && successMessage && (
+        <p role="status" className="mt-1 basis-full text-pretty text-caption text-success">
+          {successMessage}
         </p>
       )}
       {confirm && (

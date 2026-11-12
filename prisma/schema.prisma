@@ -184,7 +184,11 @@ model User {
   // Set by an admin (internal staff) or the seller owner (their staff) to stop
   // an account signing in; sessions are revoked at the same moment.
   disabledAt      DateTime?
+  // The pickup station a buyer chose on their account page. Checkout uses it
+  // for pickup orders in that station's region; null means "no preference".
+  pickupCenterId  String?
 
+  pickupCenter            FulfillmentCenter?       @relation("BuyerPickupCenter", fields: [pickupCenterId], references: [id], onDelete: SetNull)
   staffMembership         SellerStaff?             @relation("StaffUser")
   staff                   SellerStaff[]            @relation("SellerOwner")
   sellerProfile           SellerProfile?
@@ -433,6 +437,7 @@ model FulfillmentCenter {
 
   locality   Locality?   @relation(fields: [localityId], references: [id])
   orderItems OrderItem[]
+  buyers     User[]      @relation("BuyerPickupCenter")
 }
 
 model Material {

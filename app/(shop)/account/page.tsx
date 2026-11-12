@@ -17,6 +17,8 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import Link from 'next/link';
 import { ActionForm } from '@/components/ui/action-form';
+import { PickupStationPicker } from '@/components/pickup-station-picker';
+import { getPickupCenters } from '@/lib/queries/pickupCenters';
 
 export const metadata = { title: 'Your account' };
 
@@ -28,11 +30,12 @@ const WALLET_LABEL: Record<string, string> = {
 
 export default async function AccountPage() {
   const buyer = await requireBuyer();
-  const [orders, priceAlerts, wallet, withdrawalsEnabled] = await Promise.all([
+  const [orders, priceAlerts, wallet, withdrawalsEnabled, pickupCenters] = await Promise.all([
     getOrdersForBuyer(buyer.id),
     getPriceAlertsForBuyer(buyer.id),
     getSavingsWalletForBuyer(buyer.id),
     getSetting<boolean>('money.walletWithdrawalsEnabled'),
+    getPickupCenters(),
   ]);
   const activeOrders = orders.filter((o) => o.status !== 'CANCELLED').length;
 
@@ -123,6 +126,14 @@ export default async function AccountPage() {
             ))}
           </div>
         )}
+      </div>
+
+      <div id="pickup" className="mb-8 scroll-mt-24 rounded-lg bg-surface p-5">
+        <h2 className="text-heading-sm text-ink">Pickup station</h2>
+        <p className="mb-4 mt-1 max-w-[64ch] text-pretty text-sm text-muted-foreground">
+          Choose where you collect your orders. Checkout uses it whenever you pick Pickup, and you can still change it for a single order.
+        </p>
+        <PickupStationPicker centers={pickupCenters} savedId={buyer.pickupCenterId} />
       </div>
 
       <div className="mb-8 rounded-lg bg-surface p-5">

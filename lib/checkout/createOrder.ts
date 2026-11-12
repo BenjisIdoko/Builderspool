@@ -13,6 +13,9 @@ export interface CheckoutInput {
   // which case it decides the region, the zone and the delivery fee.
   localityId?: string | null;
   fulfillmentMethod: FulfillmentMethod;
+  // The pickup station the buyer chose, for PICKUP orders. It must serve the
+  // order's region; without one, the region's default station is used.
+  pickupCenterId?: string | null;
   paymentMethod: PaymentMethod;
   // How the whole cart is bought. DIRECT needs a picked seller on every line.
   mode?: 'POOL' | 'DIRECT';
@@ -130,7 +133,12 @@ export async function createOrder(input: CheckoutInput) {
     }
   }
 
-  const center = await findServingCenter(region);
+  let center = null;
+  if (input.fulfillmentMethod === 'PICKUP' && input.pickupCenterId) {
+    center = await prisma.fulfillmentCenter.findFirst({ where: { id: input.pickupCenterId, region } });
+    if (!center) throw new Error('That pickup station is not available for your area. Choose another.');
+  }
+  center ??= await findServingCenter(region);
   if (!center) {
     throw new Error(`We can't serve ${region.charAt(0)}${region.slice(1).toLowerCase()} yet. Choose another area.`);
   }

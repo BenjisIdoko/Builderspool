@@ -15,6 +15,8 @@ import { getDeliveryCost, type FulfillmentMethod } from '@/lib/checkout/delivery
 import { checkoutFallbackText } from '@/lib/pool-stages';
 import { DatePicker } from '@/components/ui/date-picker';
 import { PickupLocation } from '@/components/pickup-location';
+import { PickupStationList } from '@/components/pickup-station-list';
+import type { PickupCenter } from '@/lib/queries/pickupCenters';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -62,6 +64,7 @@ type SubmitState = { status: 'idle' } | { status: 'submitting' } | { status: 'er
 export function CheckoutForm({
   areas,
   centers,
+  savedCenterId,
   defaultContactName,
   defaultContactPhone,
   poolDay,
@@ -71,8 +74,10 @@ export function CheckoutForm({
 }: {
   /** The locality picker's data; `enabled` is false until the setting is switched on. */
   areas: CheckoutAreas;
-  /** Pickup centre by region, so "Pickup from" names the real place. */
-  centers: Record<string, { name: string; address: string }>;
+  /** Every pickup station; the ones in the order's region are offered. */
+  centers: PickupCenter[];
+  /** The station the buyer saved on their account page, if any. */
+  savedCenterId: string | null;
   defaultContactName: string;
   defaultContactPhone: string;
   /** Which pool an order placed now joins. */
@@ -105,7 +110,12 @@ export function CheckoutForm({
   const canBuyDirect = lines.length > 0 && lines.every((l) => l.listingId);
   const noSeller = lines.filter((l) => !l.listingId).map((l) => l.name);
   const noSellerText = `${noSeller.slice(0, 2).join(', ')}${noSeller.length > 2 ? ` and ${noSeller.length - 2} more` : ''}`;
-  const center = centers[region] ?? null;
+  // Stations in the order's region: this order's own pick, else the buyer's saved
+  // station if it is here, else the region's first.
+  const regionCenters = centers.filter((c) => c.region === region);
+  const [pickedCenterId, setPickedCenterId] = useState('');
+  const center =
+    regionCenters.find((c) => c.id === pickedCenterId) ?? regionCenters.find((c) => c.id === savedCenterId) ?? regionCenters[0] ?? null;
   const effectiveMode = mode === 'DIRECT' && canBuyDirect ? 'DIRECT' : 'POOL';
   const [state, setState] = useState<SubmitState>({ status: 'idle' });
 
@@ -151,6 +161,7 @@ export function CheckoutForm({
           region,
           localityId: areas.enabled ? localityId : null,
           fulfillmentMethod,
+          pickupCenterId: fulfillmentMethod === 'PICKUP' ? (center?.id ?? null) : null,
           paymentMethod,
           mode: effectiveMode,
           items: lines.map((l) => ({ materialId: l.materialId, quantity: l.quantity, listingId: l.listingId ?? null })),
@@ -239,6 +250,18 @@ export function CheckoutForm({
         {fulfillmentMethod === 'PICKUP' && center && (
           <>
             <div className="mt-10 mb-3.5 text-label text-slate uppercase">03 · Collect your order</div>
+            {regionCenters.length > 1 && (
+              <div className="mb-4">
+                <PickupStationList centers={regionCenters} value={center.id} onChange={setPickedCenterId} label="Pickup station for this order" />
+                <p className="mt-2 text-caption text-muted-foreground">
+                  Save a default on your{' '}
+                  <Link href="/account#pickup" className="rounded-sm font-medium text-brand outline-none hover:underline focus-visible:ring-2 focus-visible:ring-ring">
+                    account page
+                  </Link>
+                  .
+                </p>
+              </div>
+            )}
             <PickupLocation name={center.name} address={center.address} />
           </>
         )}

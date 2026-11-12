@@ -39,3 +39,21 @@ async function requestWithdrawalActionImpl() {
 export const requestWithdrawalAction = safeAction(requestWithdrawalActionImpl);
 
 export const updateBuyerProfile = safeAction(updateBuyerProfileImpl);
+
+// The buyer's saved pickup station. An empty id clears it. The station must exist,
+// so a stale page can't save a station that has since gone.
+async function setPickupCenterImpl(formData: FormData) {
+  const buyer = await requireBuyer();
+  const raw = formData.get('centerId');
+  const centerId = typeof raw === 'string' ? raw.trim() : '';
+
+  if (centerId) {
+    const center = await prisma.fulfillmentCenter.findUnique({ where: { id: centerId }, select: { id: true } });
+    if (!center) throw new Error('That pickup station is no longer available. Refresh the page and choose another.');
+  }
+  await prisma.user.update({ where: { id: buyer.id }, data: { pickupCenterId: centerId || null } });
+  revalidatePath('/account');
+  revalidatePath('/checkout');
+}
+
+export const setPickupCenterAction = safeAction(setPickupCenterImpl);
