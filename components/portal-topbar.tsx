@@ -57,10 +57,13 @@ export function PortalTopbar({
   portal,
   name,
   bellSlot,
+  accountSlot,
 }: {
   portal: 'admin' | 'seller';
   name: string;
   bellSlot: React.ReactNode;
+  /** Replaces the plain avatar, for a portal that has an account menu. */
+  accountSlot?: React.ReactNode;
 }) {
   const pathname = usePathname();
   const { parent, label, showSearch } = getBreadcrumb(portal, pathname);
@@ -81,7 +84,7 @@ export function PortalTopbar({
       <div className="flex items-center gap-4">
         {showSearch && <TopbarSearchTrigger width={portal === 'admin' ? 240 : 220} />}
         {bellSlot}
-        <Avatar name={name} className="size-[30px] text-xs" />
+        {accountSlot ?? <Avatar name={name} className="size-[30px] text-xs" />}
       </div>
     </div>
   );

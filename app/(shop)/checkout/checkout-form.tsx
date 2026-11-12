@@ -256,7 +256,7 @@ export function CheckoutForm({
                 <PickupStationList centers={regionCenters} value={center.id} onChange={setPickedCenterId} label="Pickup station for this order" />
                 <p className="mt-2 text-caption text-muted-foreground">
                   Save a default on your{' '}
-                  <Link href="/account#pickup" className="rounded-sm font-medium text-brand outline-none hover:underline focus-visible:ring-2 focus-visible:ring-ring">
+                  <Link href="/account/pickup" className="rounded-sm font-medium text-brand outline-none hover:underline focus-visible:ring-2 focus-visible:ring-ring">
                     account page
                   </Link>
                   .

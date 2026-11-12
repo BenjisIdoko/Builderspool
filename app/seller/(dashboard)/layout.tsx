@@ -10,6 +10,7 @@ import { kycStatusTone, pillClass } from '@/lib/statusColors';
 import { SellerSidebar } from '@/components/seller/seller-sidebar';
 import { NotificationBell } from '@/components/seller/notification-bell';
 import { MobileNav } from '@/components/mobile-nav';
+import { SellerAccountMenu } from '@/components/seller/seller-account-menu';
 import { LogoMark } from '@/components/logo';
 import { Avatar } from '@/components/avatar';
 import { SellerTabBar } from '@/components/seller/seller-tab-bar';
@@ -93,6 +94,7 @@ export default async function SellerDashboardLayout({ children }: { children: Re
             portal="seller"
             name={profile.user.businessName ?? profile.user.name}
             bellSlot={<NotificationBell notifications={notifications} unreadCount={unreadCount} />}
+            accountSlot={<SellerAccountMenu name={profile.user.businessName ?? profile.user.name} isOwner={actor.isOwner} />}
           />
           <main className="flex flex-1 flex-col">{children}</main>
           <SellerTabBar />

@@ -2,23 +2,19 @@ import { Skeleton } from '@/components/ui/skeleton';
 
 export default function AccountLoading() {
   return (
-    <div className="mx-auto w-full max-w-3xl px-6 pt-6 pb-12">
-      <Skeleton className="mb-2 h-9 w-64" />
-      <Skeleton className="mb-8 h-4 w-28" />
-      <div className="flex flex-col gap-8">
-        <div className="divide-y divide-border overflow-hidden rounded-card bg-surface">
-          {Array.from({ length: 3 }).map((_, i) => (
-            <div key={i} className="flex items-center justify-between gap-4 px-5 py-4">
-              <div className="space-y-2">
-                <Skeleton className="h-4 w-40" />
-                <Skeleton className="h-3 w-56" />
-              </div>
-              <Skeleton className="h-5 w-20" />
-            </div>
-          ))}
+    <div className="mx-auto w-full max-w-section pt-6 pb-12">
+      <div className="grid grid-cols-[minmax(0,1fr)] gap-6 lg:grid-cols-[15rem_minmax(0,1fr)] lg:items-start lg:gap-8">
+        <Skeleton className="h-11 lg:h-80 lg:rounded-card" />
+        <div>
+          <Skeleton className="mb-2 h-9 w-64" />
+          <Skeleton className="mb-6 h-4 w-28" />
+          <div className="grid gap-4 sm:grid-cols-2">
+            {Array.from({ length: 4 }).map((_, i) => (
+              <Skeleton key={i} className="h-32 rounded-card" />
+            ))}
+          </div>
+          <Skeleton className="mt-4 h-56 rounded-card" />
         </div>
-        <Skeleton className="h-52 rounded-card" />
-        <Skeleton className="h-64 rounded-card" />
       </div>
     </div>
   );

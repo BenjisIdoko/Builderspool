@@ -1,17 +1,19 @@
 import Link from 'next/link';
 import { StorefrontIcon, UserIcon } from '@phosphor-icons/react/ssr';
 import { getCurrentBuyer } from '@/lib/buyer/auth';
-import { getCategories } from '@/lib/queries/materials';
+import { getCategoryMenu } from '@/lib/queries/materials';
 import { CartSheet } from './cart-sheet';
 import { HeaderSearch } from './header-search';
 import { CategoryStrip } from './category-strip';
+import { AccountMenu } from './account-menu';
+import { CategoryMegaMenu } from './category-mega-menu';
 import { LogoMark, Wordmark } from './logo';
 
 // Jumia-style storefront shell: utility strip (desktop), sticky white header
 // with a pill search, then a scrollable category strip. On phones the search
 // moves to its own row under the header and the utility strip hides.
 export async function SiteHeader() {
-  const [buyer, categories] = await Promise.all([getCurrentBuyer(), getCategories()]);
+  const [buyer, menu] = await Promise.all([getCurrentBuyer(), getCategoryMenu()]);
 
   return (
     <div className="sticky top-0 z-20 bg-surface shadow-[0_1px_0_var(--color-hairline)]">
@@ -24,16 +26,7 @@ export async function SiteHeader() {
             <StorefrontIcon className="size-4" />
             Sell on BuildersPool
           </Link>
-          {buyer ? (
-            <div className="flex items-center gap-5 text-slate">
-              <Link href="/orders" className="inline-flex min-h-8 items-center rounded-sm outline-none hover:text-orange-text focus-visible:ring-2 focus-visible:ring-ring">
-                Orders
-              </Link>
-              <Link href="/account" className="inline-flex min-h-8 items-center rounded-sm outline-none hover:text-orange-text focus-visible:ring-2 focus-visible:ring-ring">
-                {buyer.name}
-              </Link>
-            </div>
-          ) : (
+          {buyer ? null : (
             <div className="flex items-center gap-5 text-slate">
               <Link href="/login" className="inline-flex min-h-8 items-center rounded-sm outline-none hover:text-orange-text focus-visible:ring-2 focus-visible:ring-ring">
                 Log in
@@ -47,7 +40,8 @@ export async function SiteHeader() {
       </div>
 
       <header className="mx-auto max-w-section">
-        <div className="flex h-14 items-center gap-3 lg:h-16 lg:gap-6">
+        <div className="flex h-14 items-center gap-1 lg:h-16 lg:gap-3">
+          <CategoryMegaMenu menu={menu} />
           <Link href="/" className="flex min-h-11 shrink-0 items-center gap-2 rounded-sm outline-none focus-visible:ring-2 focus-visible:ring-ring" aria-label="BuildersPool home">
             <LogoMark className="size-9 shrink-0 lg:size-12" />
             <Wordmark className="text-[20px] leading-none lg:text-[26px]" />
@@ -58,13 +52,17 @@ export async function SiteHeader() {
           </div>
 
           <div className="ml-auto flex shrink-0 items-center gap-1 lg:ml-0 lg:gap-3">
-            <Link
-              href={buyer ? '/account' : '/login'}
-              className="hidden min-h-11 items-center gap-1.5 rounded-md px-2 text-[15px] font-medium text-text-storefront hover:text-orange-text md:inline-flex"
-            >
-              <UserIcon className="size-5" />
-              {buyer ? 'Account' : 'Log in'}
-            </Link>
+            {buyer ? (
+              <AccountMenu firstName={buyer.name.trim().split(/\s+/)[0]} />
+            ) : (
+              <Link
+                href="/login"
+                className="hidden min-h-11 items-center gap-1.5 rounded-md px-2 text-[15px] font-medium text-text-storefront outline-none hover:text-orange-text focus-visible:ring-2 focus-visible:ring-ring md:inline-flex"
+              >
+                <UserIcon className="size-5" />
+                Log in
+              </Link>
+            )}
             <CartSheet />
           </div>
         </div>
@@ -73,7 +71,7 @@ export async function SiteHeader() {
         </div>
       </header>
 
-      <CategoryStrip categories={categories.map((c) => c.name)} />
+      <CategoryStrip categories={menu.map((c) => c.name)} />
     </div>
   );
 }

@@ -196,6 +196,17 @@ export async function getCategories() {
   return rows.map((r) => ({ name: r.category, count: r._count._all }));
 }
 
+// Every category with a few of its products, for the header's mega menu.
+export async function getCategoryMenu() {
+  const [categories, materials] = await Promise.all([
+    getCategories(),
+    prisma.material.findMany({ where: BUYER_VISIBLE, select: { id: true, name: true, category: true }, orderBy: { name: 'asc' } }),
+  ]);
+  const byCategory = new Map<string, { id: string; name: string }[]>();
+  for (const m of materials) byCategory.set(m.category, [...(byCategory.get(m.category) ?? []), { id: m.id, name: m.name }]);
+  return categories.map((c) => ({ name: c.name, count: c.count, products: (byCategory.get(c.name) ?? []).slice(0, 8) }));
+}
+
 function toPlainMaterial<T extends { catalogPrice: unknown }>(material: T) {
   return { ...material, catalogPrice: Number(material.catalogPrice) };
 }

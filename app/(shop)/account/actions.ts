@@ -27,13 +27,13 @@ async function updateBuyerProfileImpl(formData: FormData) {
     },
   });
 
-  revalidatePath('/account');
+  revalidatePath('/account', 'layout');
 }
 
 async function requestWithdrawalActionImpl() {
   const buyer = await requireBuyer();
   await requestWithdrawal(buyer.id);
-  revalidatePath('/account');
+  revalidatePath('/account', 'layout');
 }
 
 export const requestWithdrawalAction = safeAction(requestWithdrawalActionImpl);
@@ -52,7 +52,7 @@ async function setPickupCenterImpl(formData: FormData) {
     if (!center) throw new Error('That pickup station is no longer available. Refresh the page and choose another.');
   }
   await prisma.user.update({ where: { id: buyer.id }, data: { pickupCenterId: centerId || null } });
-  revalidatePath('/account');
+  revalidatePath('/account', 'layout');
   revalidatePath('/checkout');
 }
 

@@ -19,7 +19,7 @@ export async function createPriceAlert(materialId: string, targetPrice: number) 
     data: { materialId, buyerId: buyer.id, targetPrice },
   });
 
-  revalidatePath('/account');
+  revalidatePath('/account', 'layout');
 }
 
 async function cancelPriceAlertImpl(alertId: string) {
@@ -29,7 +29,7 @@ async function cancelPriceAlertImpl(alertId: string) {
     data: { active: false },
   });
 
-  revalidatePath('/account');
+  revalidatePath('/account', 'layout');
 }
 
 export const cancelPriceAlert = safeAction(cancelPriceAlertImpl);
