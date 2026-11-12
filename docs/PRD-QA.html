@@ -1,0 +1,607 @@
+<!doctype html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>BuildersPool PRD for QA</title><style>
+:root{--ink:#0b1f3a;--muted:#5b6b7f;--line:#d9e0e8;--brand:#1f5d9a;--bg:#fff;--soft:#f4f7fa}
+@media (prefers-color-scheme:dark){:root{--ink:#e8eef5;--muted:#9fb0c3;--line:#2a3a4d;--brand:#7db4ee;--bg:#0f1b2a;--soft:#16263a}}
+*{box-sizing:border-box}body{margin:0;background:var(--bg);color:var(--ink);font:16px/1.6 -apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,sans-serif}
+main{max-width:980px;margin:0 auto;padding:32px 20px 80px}h1{font-size:2rem;line-height:1.2;margin:.2em 0 .6em}h2{font-size:1.5rem;margin:2.2em 0 .6em;padding-top:.4em;border-top:1px solid var(--line)}h3{font-size:1.2rem;margin:1.8em 0 .5em}h4{margin:1.4em 0 .4em}
+p,li{max-width:75ch}a{color:var(--brand)}code{background:var(--soft);padding:.1em .35em;border-radius:4px;font:0.88em ui-monospace,Menlo,Consolas,monospace}
+table{width:100%;border-collapse:collapse;margin:1em 0;font-size:.92rem;display:block;overflow-x:auto}th,td{border:1px solid var(--line);padding:8px 10px;text-align:left;vertical-align:top}th{background:var(--soft)}
+nav{background:var(--soft);border:1px solid var(--line);border-radius:8px;padding:12px 18px;margin:1.4em 0}nav ol{columns:2;margin:.4em 0 0;padding-left:1.2em}
+hr{border:0;border-top:1px solid var(--line);margin:2em 0}@media print{nav{display:none}h2{break-after:avoid}table,tr{break-inside:avoid}body{font-size:12px}}
+@media (max-width:640px){nav ol{columns:1}}
+</style></head><body><main><h1 id="builderspool-product-requirements-document-for-qa">BuildersPool: Product Requirements Document for QA</h1><nav><strong>Contents</strong><ol><li><a href="#1-how-to-use-this-document">1. How to use this document</a></li><li><a href="#2-product-overview">2. Product overview</a></li><li><a href="#3-scope-for-qa">3. Scope for QA</a></li><li><a href="#4-environments-accounts-and-test-safety">4. Environments, accounts and test safety</a></li><li><a href="#5-roles-access-and-navigation">5. Roles, access and navigation</a></li><li><a href="#6-pooling-concepts-you-must-understand">6. Pooling concepts you must understand</a></li><li><a href="#7-functional-requirements-by-module">7. Functional requirements by module</a></li><li><a href="#8-business-rules-and-calculations">8. Business rules and calculations</a></li><li><a href="#9-test-scenarios">9. Test scenarios</a></li><li><a href="#10-non-functional-requirements">10. Non-functional requirements</a></li><li><a href="#11-reporting-bugs">11. Reporting bugs</a></li><li><a href="#12-open-questions-and-assumptions">12. Open questions and assumptions</a></li><li><a href="#appendix-a-route-map">Appendix A. Route map</a></li><li><a href="#appendix-b-status-glossary">Appendix B. Status glossary</a></li><li><a href="#appendix-c-recent-changes-worth-regression-testing">Appendix C. Recent changes worth regression-testing</a></li></ol></nav>
+<table><thead><tr><th></th><th></th></tr></thead><tbody>
+<tr><td><strong>Product</strong></td><td>BuildersPool, collaborative procurement for construction materials in Abuja (FCT), Nigeria</td></tr>
+<tr><td><strong>Document type</strong></td><td>Product requirements and test guide, written for a QA tester</td></tr>
+<tr><td><strong>Version</strong></td><td>1.0</td></tr>
+<tr><td><strong>Date</strong></td><td>12 November 2026</td></tr>
+<tr><td><strong>Live site</strong></td><td><a href="https://builderspool.vercel.app">https://builderspool.vercel.app</a></td></tr>
+<tr><td><strong>Source of truth</strong></td><td><code>docs/floot-port-notes.md</code> (business rules), <code>docs/user-journeys.md</code> (journeys), <code>DESIGN.md</code> (design system). Where the code and the rulebook disagree, the rulebook wins and the code is the bug.</td></tr>
+</tbody></table>
+<hr>
+<h2 id="1-how-to-use-this-document">1. How to use this document</h2>
+<p>You do not need prior knowledge of the product. Read sections 2 to 5 first, then test one module at a time from section 7.</p>
+<ul>
+<li><strong>Section 3</strong> tells you what is in and out of scope, and which things are known gaps and <strong>not bugs</strong>. Read it before you file anything.</li>
+<li><strong>Section 4</strong> tells you how to set up safely. The test database is the live database. Read it twice.</li>
+<li><strong>Section 7</strong> lists the requirements by module. Each has an ID (for example <code>BUY-CHK-3</code>) and acceptance criteria you can test directly. Please quote the ID in every bug report.</li>
+<li><strong>Section 8</strong> is the money and pooling rulebook with exact numbers. Use it to check calculations.</li>
+<li><strong>Section 9</strong> gives end-to-end scenarios and a smoke test to run after every deployment.</li>
+<li><strong>Section 11</strong> says how to report a bug.</li>
+</ul>
+<hr>
+<h2 id="2-product-overview">2. Product overview</h2>
+<h3 id="2-1-what-it-is">2.1 What it is</h3>
+<p>BuildersPool helps builders buy construction materials (cement, blocks, rebar, roofing, fittings, paint) in Abuja. A buyer can order in one of two ways:</p>
+<ul>
+<li><strong>Buy Direct.</strong> The buyer picks a specific seller's listing and price. The seller has 24 hours to accept.</li>
+<li><strong>Pool &amp; Save.</strong> The buyer's order joins a daily pool with other buyers' orders. Verified suppliers bid blindly for the combined order. The buyer keeps <strong>50% of any verified saving</strong> as a savings credit.</li>
+</ul>
+<p>Goods go to a BuildersPool <strong>fulfilment centre</strong> (also called a pickup station) first. The centre receives and checks them. Buyers then collect them free, or have them delivered to site for a fee per delivery zone. Seller payment follows receipt.</p>
+<h3 id="2-2-who-uses-it">2.2 Who uses it</h3>
+<table><thead><tr><th>Role</th><th>Who</th><th>What they do</th></tr></thead><tbody>
+<tr><td><strong>Buyer</strong></td><td>Contractor or site manager</td><td>Browses, orders, pays, collects or receives, tracks savings credit</td></tr>
+<tr><td><strong>Seller owner</strong></td><td>Supplier, manufacturer or distributor</td><td>Registers, passes KYC, lists products, bids on pools, supplies, gets paid</td></tr>
+<tr><td><strong>Seller staff</strong></td><td>Employee of a seller</td><td>Bids, works orders and allocations. Cannot change KYC, bank details, terms or the team</td></tr>
+<tr><td><strong>Admin</strong></td><td>BuildersPool operations team</td><td>Verifies sellers, sets areas, fees and settings, runs the pool day, receives goods, pays sellers</td></tr>
+<tr><td>Other internal roles</td><td>QC officer, fulfilment operator, delivery partner</td><td>Exist in the data model. Their own consoles are not built yet</td></tr>
+</tbody></table>
+<h3 id="2-3-three-areas-of-the-application">2.3 Three areas of the application</h3>
+<table><thead><tr><th>Area</th><th>Address</th><th>Audience</th></tr></thead><tbody>
+<tr><td>Storefront</td><td><code>/</code> and everything not listed below</td><td>Buyers</td></tr>
+<tr><td>Seller Centre</td><td><code>/seller/...</code></td><td>Sellers and their staff</td></tr>
+<tr><td>Ops admin</td><td><code>/admin/...</code></td><td>BuildersPool staff</td></tr>
+</tbody></table>
+<h3 id="2-4-current-stage">2.4 Current stage</h3>
+<p>The product is live in test mode. In particular:</p>
+<ul>
+<li><strong>Paystack payments run in test mode.</strong> No real money moves. A TEST tag shows at checkout.</li>
+<li><strong>Seller payouts and savings withdrawals are switched off</strong> by design.</li>
+<li><strong>The new category-sheet pooling engine is built but switched off</strong> for buyers. Real orders still use the older per-material pools. See section 6.</li>
+<li>No seller has a live listing yet at the time of writing, so Buy Direct may show as unavailable until test listings exist. Confirm current state with the product owner.</li>
+</ul>
+<hr>
+<h2 id="3-scope-for-qa">3. Scope for QA</h2>
+<h3 id="3-1-in-scope">3.1 In scope</h3>
+<p>All user-facing behaviour of the storefront, Seller Centre and Ops admin; the pooling, bidding, award, fallback and refund rules; money calculations and the ledger; authentication, sessions and access control; responsive layout, accessibility and time zone display.</p>
+<h3 id="3-2-out-of-scope">3.2 Out of scope</h3>
+<p>Real card charging and bank movement (test mode only); load and penetration testing unless agreed; email deliverability (only verification and password-reset emails exist); the internal consoles for QC officer, fulfilment operator and delivery partner (not built).</p>
+<h3 id="3-3-known-gaps-please-do-not-file-these-as-bugs">3.3 Known gaps (please do <strong>not</strong> file these as bugs)</h3>
+<p>These are acknowledged and tracked by the product owner. Report them only if the behaviour differs from what is written here.</p>
+<table><thead><tr><th>#</th><th>Known gap</th></tr></thead><tbody>
+<tr><td>G1</td><td><strong>No delivery code.</strong> The home page promises one ("share it only when goods arrive"). It is not built.</td></tr>
+<tr><td>G2</td><td><strong>No dispute or "Report a problem" flow.</strong> The home page mentions reporting within 3 days. Admin can only hold a payout.</td></tr>
+<tr><td>G3</td><td><strong>Buyers receive no notifications</strong> except the verification and password-reset emails. Sellers have an in-app bell for pools only.</td></tr>
+<tr><td>G4</td><td><strong>Refunds are bookkeeping only.</strong> A refund is recorded as "refund due". No money is returned automatically, and there is no refund payout tool.</td></tr>
+<tr><td>G5</td><td><strong>Seller payouts are off</strong> (<code>money.sellerPayoutsEnabled</code>). Savings withdrawals are off (<code>money.walletWithdrawalsEnabled</code>). The server must refuse both, and the buttons must say why.</td></tr>
+<tr><td>G6</td><td><strong>Eleven Abuja localities have no delivery zone</strong> (Wuse, Garki, Maitama, Asokoro, Gwarinpa, Jabi, Utako, Apo, Kuje, Kwali, Abaji). Buyers there can only pick up.</td></tr>
+<tr><td>G7</td><td><strong>Two bidding models sit side by side in the seller menu.</strong> Open cycles, My bids and Allocations are the older per-material flow. RFQs is the new category flow.</td></tr>
+<tr><td>G8</td><td><strong>Pickup address mismatch.</strong> The home page says Ushafa, Bwari. The database centre is "Abuja Central Fulfillment Centre, Plot 12, Idu Industrial Area". The owner has not yet confirmed which is right.</td></tr>
+<tr><td>G9</td><td><strong>Photo size cap mismatch.</strong> The site rejects photos over 4 MB while the written rule says 5 MB.</td></tr>
+<tr><td>G10</td><td><strong>No live delivery tracking.</strong> Dispatch status is typed in by hand. No GPS.</td></tr>
+<tr><td>G11</td><td><strong>No estimated delivery date</strong> on orders.</td></tr>
+<tr><td>G12</td><td><strong>The seller terms text</strong> says "will be published before the pilot". It is a placeholder.</td></tr>
+<tr><td>G13</td><td><strong>The map on pickup stations is a link</strong> ("View on map") that opens an external map. There is no embedded map, and stations have no opening hours yet.</td></tr>
+<tr><td>G14</td><td><strong>A removed (disabled) staff or admin email cannot be reused</strong> for a new account.</td></tr>
+</tbody></table>
+<hr>
+<h2 id="4-environments-accounts-and-test-safety">4. Environments, accounts and test safety</h2>
+<h3 id="4-1-environment">4.1 Environment</h3>
+<ul>
+<li><strong>One environment</strong>: the production site at <a href="https://builderspool.vercel.app,">https://builderspool.vercel.app,</a> backed by one shared database. <strong>Anything you write is real data in production.</strong></li>
+<li>The cron/clock runs on Vercel plus a per-minute <code>pg_cron</code> ticker (<code>/api/pool/tick</code>). Daily cron endpoints are <code>/api/cron/close-cycles</code> (scheduled 18:05 UTC, which is 19:05 in Lagos) and <code>/api/cron/notify-closing-soon</code> (16:30 UTC, 17:30 in Lagos). Everything the user sees is in <strong>Africa/Lagos time (WAT, UTC+1)</strong>.</li>
+<li>Region: <code>dub1</code> (Dublin). Expect slightly slower responses from Nigeria.</li>
+</ul>
+<h3 id="4-2-accounts">4.2 Accounts</h3>
+<p>Test accounts are issued by the product owner separately. This document does not contain credentials. Ask for at least:</p>
+<ol>
+<li>Two <strong>buyer</strong> accounts (one fresh, one with orders).</li>
+<li>One <strong>seller owner</strong> and one <strong>seller staff</strong> account, ideally one KYC-approved seller and one not yet submitted.</li>
+<li>One <strong>admin</strong> account.</li>
+</ol>
+<p>You can create buyer and seller accounts yourself through sign-up. Admin accounts cannot be self-registered (there is no sign-up route).</p>
+<h3 id="4-3-payments-paystack-test-mode">4.3 Payments (Paystack test mode)</h3>
+<p>At checkout, card payments run against Paystack's <strong>test mode</strong>. Use Paystack's published test card:</p>
+<ul>
+<li>Card: <code>4084 0840 8408 4081</code>, CVV <code>408</code>, any future expiry, PIN <code>0000</code>, OTP <code>123456</code>.</li>
+<li>See Paystack's documentation for failure and decline test cases.</li>
+<li>Bank transfer and USSD also open Paystack. Paystack's test mode shows how each behaves.</li>
+</ul>
+<p>If a payment fails at the start (a Paystack error) the order is still created and the buyer can retry payment from the order page. This is intended.</p>
+<h3 id="4-4-safety-rules-for-testing-on-live-data">4.4 Safety rules for testing on live data</h3>
+<ol>
+<li><strong>Tag your test data.</strong> Prefix names with <code>QA-</code> (for example "QA-Test Cement Listing", "QA Buyer"). Tell the product owner what you created so it can be cleaned up.</li>
+<li><strong>Never test the ledger destructively.</strong> The money ledger is append-only. A test entry is permanent. Do not try to edit or delete ledger rows.</li>
+<li><strong>Do not run "Disburse" or "Mark paid" on real records.</strong> Payouts are switched off. Confirm the refusal and stop.</li>
+<li><strong>Do not change admin Settings</strong> (times, weights, switches) unless a test requires it and the product owner agrees. Restore the original value straight after, and note the time.</li>
+<li><strong>Scope each test to rows you created.</strong> An earlier test once released a real award because it targeted a seller by role. Always act on QA-tagged data.</li>
+<li><strong>Do not remove or edit real pickup stations, zones or materials.</strong></li>
+</ol>
+<h3 id="4-5-switches-that-change-what-you-will-see">4.5 Switches that change what you will see</h3>
+<p>Confirm the current value of each with the product owner before testing, because they change behaviour.</p>
+<table><thead><tr><th>Setting</th><th>Default</th><th>Effect</th></tr></thead><tbody>
+<tr><td><code>sheets.enabled</code></td><td>off</td><td>Off: paid pool orders use the older per-material cycles. On: orders pool onto category sheets and the RFQ flow runs.</td></tr>
+<tr><td><code>areas.checkoutPickerEnabled</code></td><td>off</td><td>On: checkout asks for locality and zone and uses zone delivery fees. Off: older region-based delivery charge.</td></tr>
+<tr><td><code>money.sellerPayoutsEnabled</code></td><td>off</td><td>Seller payouts. Server must refuse when off.</td></tr>
+<tr><td><code>money.walletWithdrawalsEnabled</code></td><td>off</td><td>Savings-credit withdrawals. Server must refuse when off.</td></tr>
+</tbody></table>
+<hr>
+<h2 id="5-roles-access-and-navigation">5. Roles, access and navigation</h2>
+<h3 id="5-1-navigation-map">5.1 Navigation map</h3>
+<p><strong>Storefront.</strong> Header: hamburger mega menu (all categories with products), search, "Hi, Name" account menu (or Log in), cart. Category strip under the header. Footer. On phones a bottom tab bar (Home, Catalogue, Cart, Account).</p>
+<p><strong>Buyer account</strong> (<code>/account</code>, left menu on desktop, tabs on phone): Overview, Orders (<code>/orders</code>), Savings credit, Address book, Price alerts, Profile.</p>
+<p><strong>Seller Centre</strong> sidebar: Dashboard, My listings, RFQs, My bids, Orders, Allocations, Payouts, KYC verification, Team (owner only), Settings. Top bar: notification bell and "Hi, Name" menu (Settings, KYC verification, Payouts, Team for owners, Log out).</p>
+<p><strong>Ops admin</strong> sidebar: Dashboard; Orders, Sellers, Materials, Catalogue reference, Listing review, Buy Direct orders, Service areas, Pickup stations, Pool sheets, Haulage and dispatch, Escrow settlement, Savings settlement; Users, Operations team, Vendor verification; Settings, Audit log.</p>
+<h3 id="5-2-access-rules-to-verify">5.2 Access rules to verify</h3>
+<table><thead><tr><th>Rule</th><th>Expected</th></tr></thead><tbody>
+<tr><td>Signed-out visitor opens <code>/account</code>, <code>/orders</code>, <code>/checkout</code></td><td>Redirected to <code>/login</code></td></tr>
+<tr><td>Signed-out visitor opens <code>/seller/...</code> or <code>/admin/...</code></td><td>Redirected to the matching login</td></tr>
+<tr><td>Buyer opens <code>/seller/...</code> or <code>/admin/...</code></td><td>Refused or redirected. No data shown.</td></tr>
+<tr><td>Seller staff opens KYC, bank details, terms, Team</td><td>Refused or redirected</td></tr>
+<tr><td>Unapproved seller (KYC not approved)</td><td>Cannot see cycles or RFQs, cannot bid or accept awards</td></tr>
+<tr><td>Suspended seller</td><td>Keeps login, cannot bid or be awarded. Unaccepted awards are released</td></tr>
+<tr><td>Disabled user</td><td>Cannot sign in anywhere. Sessions revoked.</td></tr>
+<tr><td>Forged cookie with a real user id</td><td>Rejected</td></tr>
+<tr><td><code>POST /api/checkout</code> with a different <code>buyerId</code> in the body</td><td>Ignored. Order is created for the signed-in buyer only</td></tr>
+<tr><td>Order line quantity of 0, negative, decimal, over 100,000, or a duplicate product in one order</td><td>Rejected by the server</td></tr>
+<tr><td>Cron/tick endpoint without the correct <code>Authorization: Bearer</code> secret</td><td>Rejected. A secret in the query string must not work</td></tr>
+</tbody></table>
+<hr>
+<h2 id="6-pooling-concepts-you-must-understand">6. Pooling concepts you must understand</h2>
+<p>A short glossary first.</p>
+<table><thead><tr><th>Term</th><th>Meaning</th></tr></thead><tbody>
+<tr><td><strong>Pool</strong></td><td>A daily collection of paid orders.</td></tr>
+<tr><td><strong>Sheet / RFQ</strong></td><td>Under the new engine, one request for quotation per <strong>category x delivery zone x day</strong>, listing every item pooled. Vendors bid on the whole sheet.</td></tr>
+<tr><td><strong>Cycle</strong></td><td>The older per-material pool. Still used while <code>sheets.enabled</code> is off.</td></tr>
+<tr><td><strong>Reference price</strong></td><td>The lowest live listing price among sellers who serve the buyer's zone. Freezes at pool close, before bidding.</td></tr>
+<tr><td><strong>Rank 1/2/3</strong></td><td>The top three scored bids. Each is offered the whole sheet in turn.</td></tr>
+<tr><td><strong>Cascade</strong></td><td>If rank 1 declines or times out, rank 2 is offered, then rank 3.</td></tr>
+<tr><td><strong>Revert</strong></td><td>If all three decline, each line reverts to the seller the buyer picked, at the price they picked. If that seller cannot supply, the line is refunded.</td></tr>
+<tr><td><strong>GRN</strong></td><td>Goods Received Note. Issued by the fulfilment centre. Makes the seller payable and credits the buyer's saving.</td></tr>
+<tr><td><strong>Escrow</strong></td><td>The buyer's payment is held until goods are received.</td></tr>
+<tr><td><strong>Savings credit</strong></td><td>The buyer's 50% share of any verified saving. Not cash while withdrawals are off.</td></tr>
+<tr><td><strong>KYC</strong></td><td>Seller identity and business verification, done by Admin.</td></tr>
+<tr><td><strong>Fulfilment centre / pickup station</strong></td><td>A BuildersPool place that receives goods. Buyers can collect there.</td></tr>
+<tr><td><strong>Zone</strong></td><td>A group of localities with one delivery fee. Zones decide pooling, fee and which sellers can supply.</td></tr>
+</tbody></table>
+<h3 id="6-1-the-daily-timeline-new-category-sheet-engine">6.1 The daily timeline (new category-sheet engine)</h3>
+<table><thead><tr><th>Time (Lagos)</th><th>Event</th></tr></thead><tbody>
+<tr><td>Before 12:00</td><td>Buyers order and pay. Paid lines join today's pool. After 12:00 they join tomorrow's.</td></tr>
+<tr><td><strong>12:00</strong></td><td>Pool closes. Sheets freeze. Reference prices fix. RFQs open to approved vendors.</td></tr>
+<tr><td>12:00 to 15:00</td><td>Vendors price every item and send one blind bid.</td></tr>
+<tr><td><strong>15:00</strong></td><td>Bids close. Bids above the reference are ruled out. The rest are scored. Top three ranked.</td></tr>
+<tr><td>15:00 to 16:00</td><td>Rank 1 may accept.</td></tr>
+<tr><td>16:00 to 17:00</td><td>Rank 2 may accept.</td></tr>
+<tr><td>17:00 to 18:00</td><td>Rank 3 may accept.</td></tr>
+<tr><td><strong>18:00</strong></td><td>Final result. No taker: lines revert to the picked seller, or are refunded.</td></tr>
+</tbody></table>
+<p>The older per-material cycles run at 17:00 (pool close), 18:00 (bids close), 19:00 (accept deadline) and 19:50 (final). The settings guard requires that bids close plus three accept windows equals the final time.</p>
+<hr>
+<h2 id="7-functional-requirements-by-module">7. Functional requirements by module</h2>
+<p>Each requirement has an acceptance criterion you can test. "Expected" means the product must behave this way. IDs are stable. Quote them in bug reports.</p>
+<h3 id="7-1-buyer-authentication-buy-auth">7.1 Buyer: authentication (<code>BUY-AUTH</code>)</h3>
+<table><thead><tr><th>ID</th><th>Requirement</th><th>Acceptance criteria</th></tr></thead><tbody>
+<tr><td>BUY-AUTH-1</td><td>Sign up</td><td>Name, email and password (minimum 8 characters) are required. A duplicate email is refused with a clear message. After sign-up the buyer lands on <code>/account</code>.</td></tr>
+<tr><td>BUY-AUTH-2</td><td>Log in and out</td><td>Valid credentials sign in. Wrong credentials show a generic error. "Log out" ends the session server-side. Back button after logout does not show private data.</td></tr>
+<tr><td>BUY-AUTH-3</td><td>Rate limiting</td><td>After 5 failed sign-ins for one identifier within 15 minutes the sixth is locked, with a message that says so.</td></tr>
+<tr><td>BUY-AUTH-4</td><td>Email verification</td><td>A link is emailed. Opening it verifies the account. Until then a dismissible banner shows on <code>/account</code>. It never blocks any action. "Resend verification email" works and shows its result.</td></tr>
+<tr><td>BUY-AUTH-5</td><td>Forgot and reset password</td><td>Request returns the same response for registered and unknown emails. The reset link works once, requires 8+ characters, and <strong>revokes all existing sessions</strong>.</td></tr>
+<tr><td>BUY-AUTH-6</td><td>Remember me</td><td>Session lasts 7 days, or 30 days with "remember me".</td></tr>
+</tbody></table>
+<h3 id="7-2-buyer-browse-product-and-price-alerts-buy-cat">7.2 Buyer: browse, product and price alerts (<code>BUY-CAT</code>)</h3>
+<table><thead><tr><th>ID</th><th>Requirement</th><th>Acceptance criteria</th></tr></thead><tbody>
+<tr><td>BUY-CAT-1</td><td>Home page</td><td>Hero promise, live pool countdown, four-step "How Pool &amp; Save works", category strip. Countdown matches the next pool close in Lagos time.</td></tr>
+<tr><td>BUY-CAT-2</td><td>Category mega menu</td><td>The hamburger before the logo opens all categories. Pointing at or focusing a category shows up to 8 of its products and a "Shop all in..." link. On phones only the category list shows. Escape closes it. Every item is reachable by keyboard.</td></tr>
+<tr><td>BUY-CAT-3</td><td>Catalogue</td><td>Filters by category and sourcing scope, sorting, pagination, text search. Only non-retired materials with a reviewed price appear. Empty results show a helpful message.</td></tr>
+<tr><td>BUY-CAT-4</td><td>Search</td><td>Header search suggests materials and goes to results. Special characters do not break it.</td></tr>
+<tr><td>BUY-CAT-5</td><td>Product page</td><td>Shows spec, unit, price per unit, gallery, the Pool &amp; Save panel (when the pool closes, units pooled today, 50% savings share) with only real figures.</td></tr>
+<tr><td>BUY-CAT-6</td><td>Seller offers</td><td>When sellers have live listings, offers show cheapest first with seller name, verified badge, price per unit, lead time and shelf life. Selecting an offer changes the displayed price. With no listings, a clear "Buy Direct isn't available" message shows.</td></tr>
+<tr><td>BUY-CAT-7</td><td>Price alerts</td><td>A buyer can set a target price from a product page. It appears under Account &gt; Price alerts as "Watching", or "Target reached" when the catalogue price is at or below target. "Cancel alert" removes it. A target must be a valid price.</td></tr>
+</tbody></table>
+<h3 id="7-3-buyer-cart-buy-cart">7.3 Buyer: cart (<code>BUY-CART</code>)</h3>
+<table><thead><tr><th>ID</th><th>Requirement</th><th>Acceptance criteria</th></tr></thead><tbody>
+<tr><td>BUY-CART-1</td><td>Add, edit, remove</td><td>Quantities are whole numbers from 1 to 100,000. Totals update with rolling numbers. Removing a line works, including by swipe on touch devices.</td></tr>
+<tr><td>BUY-CART-2</td><td>Persistence</td><td>A signed-in cart follows the account across devices and browsers.</td></tr>
+<tr><td>BUY-CART-3</td><td>Seller choice</td><td>If sellers have listed, the cheapest offer is the default. A quick-add with no seller adds at the catalogue price.</td></tr>
+<tr><td>BUY-CART-4</td><td>Reorder</td><td>"Reorder" on a past order re-adds its items at <strong>today's</strong> catalogue price.</td></tr>
+<tr><td>BUY-CART-5</td><td>Empty state</td><td>An empty cart shows an empty state with a way back to the catalogue.</td></tr>
+</tbody></table>
+<h3 id="7-4-buyer-checkout-and-payment-buy-chk">7.4 Buyer: checkout and payment (<code>BUY-CHK</code>)</h3>
+<table><thead><tr><th>ID</th><th>Requirement</th><th>Acceptance criteria</th></tr></thead><tbody>
+<tr><td>BUY-CHK-1</td><td>Sign-in required</td><td>A signed-out visitor is sent to log in and returns to checkout.</td></tr>
+<tr><td>BUY-CHK-2</td><td>Area and zone</td><td>With <code>areas.checkoutPickerEnabled</code> on, the buyer picks a locality. The zone, seller count and delivery fee are shown. A locality with no zone or no fee shows "tell us you want delivery" and forces pickup. The request stores once per phone and locality.</td></tr>
+<tr><td>BUY-CHK-3</td><td>How to buy</td><td><strong>Buy Direct</strong> needs a picked seller on every line, otherwise it is disabled with the reason. <strong>Pool &amp; Save</strong> works for any cart.</td></tr>
+<tr><td>BUY-CHK-4</td><td>Delivery or pickup</td><td>Delivery needs site address, contact name, contact phone. Needed-by date is tomorrow or later in Lagos time. Delivery fee equals the zone fee (default seeded fee is N15,000 per zone). Pickup is free.</td></tr>
+<tr><td>BUY-CHK-5</td><td>Saved addresses</td><td>The default saved delivery address fills the site, landmark, contact and area. A "Deliver to" list switches between saved addresses or "A different address". "Manage your saved addresses" links to the address book.</td></tr>
+<tr><td>BUY-CHK-6</td><td>Pickup station</td><td>Pickup shows the chosen station's name, address and directions. The buyer's default station is preselected and their saved stations are listed first. If the region has more than one station the buyer can choose for this order. The order records the chosen station. A station from another region is refused by the server.</td></tr>
+<tr><td>BUY-CHK-7</td><td>Disabled pay button</td><td>The pay button names the first missing required field. It enables only when valid.</td></tr>
+<tr><td>BUY-CHK-8</td><td>Payment</td><td>Bank transfer, card or USSD through Paystack. A TEST tag shows in test mode. After payment the buyer lands on the order page.</td></tr>
+<tr><td>BUY-CHK-9</td><td>Payment start failure</td><td>If Paystack cannot start, the order still exists as "Awaiting payment". The order page offers a retry. No error page appears.</td></tr>
+<tr><td>BUY-CHK-10</td><td>Webhook</td><td>A successful payment webhook marks the order paid exactly once and joins the right pool (see BUY-ORD-4). A repeated webhook changes nothing. A webhook with a bad signature is rejected.</td></tr>
+<tr><td>BUY-CHK-11</td><td>After-pool-close payment</td><td>A payment confirmed after the pool close joins the <strong>next day's</strong> pool.</td></tr>
+</tbody></table>
+<h3 id="7-5-buyer-orders-buy-ord">7.5 Buyer: orders (<code>BUY-ORD</code>)</h3>
+<table><thead><tr><th>ID</th><th>Requirement</th><th>Acceptance criteria</th></tr></thead><tbody>
+<tr><td>BUY-ORD-1</td><td>Order list</td><td><code>/orders</code> lists orders newest first with number, status, date, item count and total, inside the account menu.</td></tr>
+<tr><td>BUY-ORD-2</td><td>Order detail</td><td>Shows a progress tracker, line items, fulfilment details and a plain-language status per line.</td></tr>
+<tr><td>BUY-ORD-3</td><td>Line statuses</td><td>Pool &amp; Save: "In today's pool", "Suppliers are bidding", "Choosing a supplier", "Supplier confirmed". Buy Direct: "Waiting for the seller to accept" with the deadline.</td></tr>
+<tr><td>BUY-ORD-4</td><td>Pool membership</td><td>A paid Pool &amp; Save line joins the pool for its category and zone for the day. Two orders from different localities in the same zone join one sheet.</td></tr>
+<tr><td>BUY-ORD-5</td><td>Fallback wording</td><td>When no supplier takes a pooled line the buyer is told plainly what happened. The accepted wording is: if no supplier takes the pool, the order goes to the seller the buyer chose at the price they paid. Only if that seller cannot supply is the line refunded. The old wording "the unfilled amount is refunded" must not appear for the new engine.</td></tr>
+<tr><td>BUY-ORD-6</td><td>Refund due</td><td>A refund due shows the amount and reason. It is recorded only.</td></tr>
+<tr><td>BUY-ORD-7</td><td>Receipt</td><td>When the fulfilment centre issues the GRN, the receipt number shows on the tracker.</td></tr>
+<tr><td>BUY-ORD-8</td><td>Ownership</td><td>A buyer can only open their own orders. Another buyer's order id returns not found.</td></tr>
+</tbody></table>
+<h3 id="7-6-buyer-account-buy-acc">7.6 Buyer: account (<code>BUY-ACC</code>)</h3>
+<table><thead><tr><th>ID</th><th>Requirement</th><th>Acceptance criteria</th></tr></thead><tbody>
+<tr><td>BUY-ACC-1</td><td>Overview</td><td>Cards for account details, address book (default pickup station and delivery address), savings credit balance, price alerts count, and the 5 most recent orders with "View all".</td></tr>
+<tr><td>BUY-ACC-2</td><td>Left menu</td><td>Overview, Orders, Savings credit, Address book, Price alerts, Profile, Log out. The current page is marked. On phones the menu is a scrollable row of tabs and the page has no horizontal scroll.</td></tr>
+<tr><td>BUY-ACC-3</td><td>Account menu (header)</td><td>"Hi, FirstName" opens My account, Orders, Savings credit, Address book, Price alerts, Log out. Works by mouse and keyboard. Shown from the tablet width up.</td></tr>
+<tr><td>BUY-ACC-4</td><td>Profile</td><td>Name (required), phone, business name, job-site location are editable. Email is read-only. "Saved." shows on success. An empty name shows "Name is required." beside the button, not an error page.</td></tr>
+<tr><td>BUY-ACC-5</td><td>Savings credit</td><td>Shows Available, Withdrawal requested, Paid out so far (when withdrawals are enabled) or one balance plus "Withdrawals aren't available yet" (when disabled). Entries show "You paid X, actual cost Y" and the buyer's share.</td></tr>
+<tr><td>BUY-ACC-6</td><td>Withdrawal</td><td>Only offered when enabled and the balance is above zero. It asks for confirmation first. When disabled, the server refuses even if called directly.</td></tr>
+<tr><td>BUY-ACC-7</td><td>Price alerts page</td><td>Lists alerts with target, current price, status and "Cancel alert". Empty state links to the catalogue.</td></tr>
+</tbody></table>
+<h3 id="7-7-buyer-address-book-buy-addr">7.7 Buyer: address book (<code>BUY-ADDR</code>)</h3>
+<p>Two tabs: <strong>Pickup station</strong> and <strong>Door delivery</strong>.</p>
+<table><thead><tr><th>ID</th><th>Requirement</th><th>Acceptance criteria</th></tr></thead><tbody>
+<tr><td>BUY-ADDR-1</td><td>Save a pickup station</td><td>"Add pickup station" lists stations the buyer has not saved, filterable by region. A buyer can only save stations the company runs. The first saved station becomes the default.</td></tr>
+<tr><td>BUY-ADDR-2</td><td>Default and remove</td><td>"Set as default" changes the default (only among saved stations). "Remove" asks first. Removing the default makes the next saved station the default, or none.</td></tr>
+<tr><td>BUY-ADDR-3</td><td>Add a delivery address</td><td>Fields: receiver name (2 to 80 characters), phone (10 to 15 digits, optional +), address (8 to 200 characters), landmark (optional, up to 120), area (when the area picker is on). Name and phone are prefilled from the profile. Errors appear inside the dialog.</td></tr>
+<tr><td>BUY-ADDR-4</td><td>Limits and defaults</td><td>At most 10 addresses. The first address is the default. "Set as default" moves the default. Edit and Delete work. Deleting the default makes the oldest remaining address the default. Delete asks first.</td></tr>
+<tr><td>BUY-ADDR-5</td><td>Empty states</td><td>Each tab shows an empty state with a button when nothing is saved.</td></tr>
+<tr><td>BUY-ADDR-6</td><td>Ownership</td><td>A buyer cannot edit or delete another buyer's address or station by changing an id.</td></tr>
+<tr><td>BUY-ADDR-7</td><td>Old link</td><td><code>/account/pickup</code> redirects to <code>/account/addresses</code>.</td></tr>
+</tbody></table>
+<h3 id="7-8-seller-join-and-verification-sel-kyc">7.8 Seller: join and verification (<code>SEL-KYC</code>)</h3>
+<table><thead><tr><th>ID</th><th>Requirement</th><th>Acceptance criteria</th></tr></thead><tbody>
+<tr><td>SEL-KYC-1</td><td>Sign-up</td><td>Business name, owner name, email, password (8+) required. Email verification link works. Seller sign-up is separate from buyer sign-up.</td></tr>
+<tr><td>SEL-KYC-2</td><td>Submit KYC</td><td>The form has sections Business, Identity, Bank account for payouts and Supporting document, plus the terms checkbox. Required: business registration number, TIN (6 to 20 letters, digits or hyphens), business address (10+ characters), CAC number, ID type and number, bank name, 10-digit account number, account name. Document: PDF, JPEG or PNG up to 4 MB, optional expiry date (today or later).</td></tr>
+<tr><td>SEL-KYC-3</td><td>Validation keeps answers</td><td>A validation failure (for example a 9-digit account number) shows a message beside Submit and <strong>keeps every typed answer</strong>. Clicking "Verify CAC number" also keeps the other fields.</td></tr>
+<tr><td>SEL-KYC-4</td><td>CAC check</td><td>"Verify CAC number" checks the number against the registry when keys are configured. Success shows the company name. A failure shows the reason. Changing the number clears the old result.</td></tr>
+<tr><td>SEL-KYC-5</td><td>Statuses</td><td>Not started, Pending review, Verified, Rejected (with reason and "Fix them below and resubmit"), Suspended (with reason). After submission the form becomes a read-only "Your details" summary.</td></tr>
+<tr><td>SEL-KYC-6</td><td>Terms</td><td>Accepting terms is part of submission and is recorded by version. If the terms version changes, an owner sees a banner and re-accepts.</td></tr>
+<tr><td>SEL-KYC-7</td><td>Staff</td><td>Seller staff cannot submit or change KYC. They see "Only the account owner can submit these details" or the read-only summary.</td></tr>
+<tr><td>SEL-KYC-8</td><td>Expiry warning</td><td>A supporting document near or past its expiry shows a warning on the page.</td></tr>
+</tbody></table>
+<h3 id="7-9-seller-settings-zones-and-categories-sel-set">7.9 Seller: settings, zones and categories (<code>SEL-SET</code>)</h3>
+<table><thead><tr><th>ID</th><th>Requirement</th><th>Acceptance criteria</th></tr></thead><tbody>
+<tr><td>SEL-SET-1</td><td>Business profile</td><td>Shows business name, registration number, location, "Category you bid in most", regions served, contact email.</td></tr>
+<tr><td>SEL-SET-2</td><td>Request zones and categories</td><td>The owner ticks delivery zones and product categories. New ticks become "Waiting for approval". Approved rows are locked and stay ticked ("Approved rows stay ticked"). Unticking a pending request withdraws it. Staff see the lists read-only.</td></tr>
+<tr><td>SEL-SET-3</td><td>National supply</td><td>A seller flagged national supply sees "supplies every delivery zone" and nothing to choose.</td></tr>
+<tr><td>SEL-SET-4</td><td>Verification card</td><td>Shows the status badge (including Suspended) and a link whose text follows the status (Start verification, View your submission, Resubmit your documents, View your details).</td></tr>
+</tbody></table>
+<h3 id="7-10-seller-listings-sel-lst">7.10 Seller: listings (<code>SEL-LST</code>)</h3>
+<table><thead><tr><th>ID</th><th>Requirement</th><th>Acceptance criteria</th></tr></thead><tbody>
+<tr><td>SEL-LST-1</td><td>Add a listing</td><td>Choose a product (grouped by category), price, stock, lead time, shelf life (required for perishables), photos. The chosen category shows under the picker. One listing per seller and product.</td></tr>
+<tr><td>SEL-LST-2</td><td>Upload checks</td><td>Outcome is Pass (goes live if the seller is KYC-approved), Needs review (held for admin), or Reject (with reason). Rules: no photo rejects; a photo under 1000 px on the shorter side rejects; a price outside 50% to 150% of other sellers' median goes to review; perishable items need a shelf life of at least 30 days; a duplicate goes to review. The seller sees the reasons.</td></tr>
+<tr><td>SEL-LST-3</td><td>Unapproved seller</td><td>A listing that passes but belongs to a seller without KYC approval stays <strong>Draft</strong> with the note "It goes live once your KYC is verified".</td></tr>
+<tr><td>SEL-LST-4</td><td>Draft explanation</td><td>A Draft with no reasons says "Not live yet. Save changes to run the checks and put it live."</td></tr>
+<tr><td>SEL-LST-5</td><td>Photo removal</td><td>Removing a photo re-runs the checks. A live listing that still has a good photo <strong>stays live</strong>. A listing left with none says what to fix. Paused, flagged and admin-decided listings keep their status.</td></tr>
+<tr><td>SEL-LST-6</td><td>Pause and resume</td><td>A live listing can be paused and resumed. Only a live listing can be paused.</td></tr>
+<tr><td>SEL-LST-7</td><td>Buyer visibility</td><td>A listing appears to buyers only when it is Live, in stock (stock above zero) and its seller is KYC-approved, active and not suspended.</td></tr>
+<tr><td>SEL-LST-8</td><td>Reference price</td><td>Sellers never see the reference price on listing screens.</td></tr>
+</tbody></table>
+<h3 id="7-11-seller-rfqs-and-bids-sel-rfq">7.11 Seller: RFQs and bids (<code>SEL-RFQ</code>)</h3>
+<table><thead><tr><th>ID</th><th>Requirement</th><th>Acceptance criteria</th></tr></thead><tbody>
+<tr><td>SEL-RFQ-1</td><td>RFQ list</td><td>Shows only RFQs for categories and zones the seller is approved for (or all zones for national supply), plus any they have bid on. Rows show category, zone, item count, close time and one badge for the seller's own position (Bid sent, Ruled out, Offer waiting for you, Waiting your turn (rank N), You won this RFQ).</td></tr>
+<tr><td>SEL-RFQ-2</td><td>Blind bidding</td><td>A seller never sees another seller's price, identity, rank or bid count. A buyer never sees bids before the award.</td></tr>
+<tr><td>SEL-RFQ-3</td><td>Bid form</td><td>The seller prices <strong>every</strong> item, reviews, then sends <strong>one</strong> bid. It cannot be edited. A price above an item's limit warns, and any price above its limit rules out the whole bid at bids close.</td></tr>
+<tr><td>SEL-RFQ-4</td><td>Scoring</td><td>See 8.3. A winner's page shows points and a one-line reason for each of six criteria.</td></tr>
+<tr><td>SEL-RFQ-5</td><td>Offers</td><td>The ranked vendors are offered the whole sheet one hour each. Accept or decline. A waiting vendor sees their rank.</td></tr>
+<tr><td>SEL-RFQ-6</td><td>Supply</td><td>A winner sees each line at their bid price, the quantity and the fulfilment centre address. No buyer identity is shown.</td></tr>
+<tr><td>SEL-RFQ-7</td><td>Bid timing</td><td>A bid cannot be submitted after bids close.</td></tr>
+</tbody></table>
+<h3 id="7-12-seller-older-per-material-bids-and-allocations-sel-bid-sel-alc">7.12 Seller: older per-material bids and allocations (<code>SEL-BID</code>, <code>SEL-ALC</code>)</h3>
+<table><thead><tr><th>ID</th><th>Requirement</th><th>Acceptance criteria</th></tr></thead><tbody>
+<tr><td>SEL-BID-1</td><td>My bids</td><td>Lists bids with status Open, Partly awarded, Awarded, Not awarded, Withdrawn, quantity, delivery days, time and price per unit.</td></tr>
+<tr><td>SEL-BID-2</td><td>Withdraw</td><td>An open bid can be withdrawn after a confirmation. A closed pool or a bid that is not open returns a message inside the dialog ("Bidding has closed for this pool, so the bid can't be withdrawn.").</td></tr>
+<tr><td>SEL-ALC-1</td><td>Allocations list</td><td>Shows material, status (Awaiting your reply, Accepted, Delivered, Cancelled), quantity, "Accept by" date and time in Lagos time, the fulfilment centre to deliver to, and payout status.</td></tr>
+<tr><td>SEL-ALC-2</td><td>Accept</td><td>Accept works only before the deadline and only for a KYC-approved seller. Accepting twice does nothing the second time.</td></tr>
+<tr><td>SEL-ALC-3</td><td>Decline</td><td>"Decline" asks "Decline this award? It goes to the next supplier and you can't undo this." The award then passes <strong>once</strong> to the next-ranked bid. A passed award that is not accepted is final and does not pass again.</td></tr>
+<tr><td>SEL-ALC-4</td><td>Release reasons</td><td>Cancelled awards say why: declined, not accepted in time, or released because the account was suspended.</td></tr>
+</tbody></table>
+<h3 id="7-13-seller-buy-direct-orders-sel-dir">7.13 Seller: Buy Direct orders (<code>SEL-DIR</code>)</h3>
+<table><thead><tr><th>ID</th><th>Requirement</th><th>Acceptance criteria</th></tr></thead><tbody>
+<tr><td>SEL-DIR-1</td><td>Incoming order</td><td>A Buy Direct line arrives with a 24-hour accept window (<code>direct.acceptWindowHours</code>). Stock is reserved while it waits.</td></tr>
+<tr><td>SEL-DIR-2</td><td>Accept or decline</td><td>Accept and decline are available with a visible deadline. A decline or a timeout <strong>refunds the buyer</strong> in the ledger.</td></tr>
+<tr><td>SEL-DIR-3</td><td>Commission</td><td>Buy Direct commission is 3% (<code>fees.buyDirectCommissionPct</code>). The seller's payable is the line value less that commission.</td></tr>
+</tbody></table>
+<h3 id="7-14-seller-payouts-sel-pay">7.14 Seller: payouts (<code>SEL-PAY</code>)</h3>
+<table><thead><tr><th>ID</th><th>Requirement</th><th>Acceptance criteria</th></tr></thead><tbody>
+<tr><td>SEL-PAY-1</td><td>All sources</td><td>The payouts page counts payouts from the older bids, Buy Direct lines and RFQ awards. Lines the seller declined, let lapse, or that ops marked not supplied are excluded.</td></tr>
+<tr><td>SEL-PAY-2</td><td>Cards</td><td>Paid out, On its way (awaiting receipt or payment), On hold. Amounts are exact to the kobo.</td></tr>
+<tr><td>SEL-PAY-3</td><td>Status wording</td><td>Seller wording is Awaiting receipt, Being paid, Paid, On hold. Ops wording is Awaiting GRN, Cleared for payout, Disbursed, On hold.</td></tr>
+<tr><td>SEL-PAY-4</td><td>History</td><td>A filterable list with source (Pool bid, Buy Direct, RFQ), amount, status, paid-on date and reference. An empty state when there is nothing.</td></tr>
+<tr><td>SEL-PAY-5</td><td>Switch</td><td>With payouts disabled, no payout can be disbursed.</td></tr>
+</tbody></table>
+<h3 id="7-15-seller-team-sel-team">7.15 Seller: team (<code>SEL-TEAM</code>)</h3>
+<table><thead><tr><th>ID</th><th>Requirement</th><th>Acceptance criteria</th></tr></thead><tbody>
+<tr><td>SEL-TEAM-1</td><td>Add staff</td><td>Owner adds a staff member (name, valid email). Up to 10 staff. An existing email is refused. A one-time invite link is shown <strong>once</strong>, with a copy button, valid for 72 hours. It lets the staff member choose their own password.</td></tr>
+<tr><td>SEL-TEAM-2</td><td>New invite link</td><td>For a staff member who has not used their invite, "New invite link" issues a fresh link and the old one stops working. Refused once they have a password.</td></tr>
+<tr><td>SEL-TEAM-3</td><td>Remove</td><td>Removal asks first. The person is signed out immediately and cannot sign in again.</td></tr>
+<tr><td>SEL-TEAM-4</td><td>Permissions</td><td>Staff can bid, manage listings and work orders and allocations. They cannot change KYC, bank details, terms or the team, and they cannot open the Team page.</td></tr>
+</tbody></table>
+<h3 id="7-16-seller-account-menu-and-notifications-sel-ui">7.16 Seller: account menu and notifications (<code>SEL-UI</code>)</h3>
+<table><thead><tr><th>ID</th><th>Requirement</th><th>Acceptance criteria</th></tr></thead><tbody>
+<tr><td>SEL-UI-1</td><td>Top-bar menu</td><td>On large screens the avatar becomes "Hi, Name" with Settings, KYC verification, Payouts, Team (owner only) and Log out.</td></tr>
+<tr><td>SEL-UI-2</td><td>Bell</td><td>The in-app bell lists pool notifications and marks them read.</td></tr>
+</tbody></table>
+<h3 id="7-17-admin-vendor-verification-and-sellers-adm-ver">7.17 Admin: vendor verification and sellers (<code>ADM-VER</code>)</h3>
+<table><thead><tr><th>ID</th><th>Requirement</th><th>Acceptance criteria</th></tr></thead><tbody>
+<tr><td>ADM-VER-1</td><td>Review KYC</td><td>Approve, reject (reason required) or suspend (reason required) a seller. Approve and reject act only on a pending submission. Suspend and reactivate are reversible and audited.</td></tr>
+<tr><td>ADM-VER-2</td><td>Reviewer aids</td><td>The reviewer sees the bank-account-name match against the registry or business name, the CAC result and the document.</td></tr>
+<tr><td>ADM-VER-3</td><td>Errors</td><td>A failed decision shows its message inside the dialog.</td></tr>
+<tr><td>ADM-VER-4</td><td>Coverage</td><td>Admin approves or revokes each zone request and each category request. National supply can be switched on or off (asks first).</td></tr>
+</tbody></table>
+<h3 id="7-18-admin-listings-materials-areas-pickup-stations-adm-cat">7.18 Admin: listings, materials, areas, pickup stations (<code>ADM-CAT</code>)</h3>
+<table><thead><tr><th>ID</th><th>Requirement</th><th>Acceptance criteria</th></tr></thead><tbody>
+<tr><td>ADM-CAT-1</td><td>Listing review</td><td>Only flagged listings wait here. Approve or reject with a note. Decisions are audited.</td></tr>
+<tr><td>ADM-CAT-2</td><td>Materials</td><td>Edit catalogue materials and prices. "Retire" asks first and removes the material from the buyer catalogue. "Restore to catalog" reverses it.</td></tr>
+<tr><td>ADM-CAT-3</td><td>Zones and localities</td><td>Create a zone, set its delivery fee (blank means no fee, so pickup only), activate or deactivate (deactivate asks first), assign a locality to at most one zone. Moving a locality never changes paid orders or open pools.</td></tr>
+<tr><td>ADM-CAT-4</td><td>Pickup stations</td><td>Add, edit and delete stations (name 3 to 80 characters, region Abuja, Lagos or Kano, address 8 to 200 characters). A duplicate name in a region is refused. A station used by an order can be edited but not deleted. The last station in a region cannot be deleted. A station cannot move region once orders exist. Deleting asks first and states how many buyers saved it.</td></tr>
+<tr><td>ADM-CAT-5</td><td>Visibility</td><td>A new station appears on buyers' address book and checkout straight away.</td></tr>
+</tbody></table>
+<h3 id="7-19-admin-running-the-pool-and-paying-out-adm-ops">7.19 Admin: running the pool and paying out (<code>ADM-OPS</code>)</h3>
+<table><thead><tr><th>ID</th><th>Requirement</th><th>Acceptance criteria</th></tr></thead><tbody>
+<tr><td>ADM-OPS-1</td><td>Pool sheets</td><td>See sheets freeze, take bids, score, offer and settle. Every step is audited and safe to repeat.</td></tr>
+<tr><td>ADM-OPS-2</td><td>Freeze and award now</td><td>"Freeze pool now" and "Award this pool now" ask first. They run once even if triggered together with the scheduled job.</td></tr>
+<tr><td>ADM-OPS-3</td><td>GRN</td><td>Issuing a goods received note makes the seller payable and credits the buyer's saving in the same transaction.</td></tr>
+<tr><td>ADM-OPS-4</td><td>Hold and not supplied</td><td>Hold or release a payout. "Mark this line as not supplied" asks first and sends the line back or refunds it.</td></tr>
+<tr><td>ADM-OPS-5</td><td>Disburse</td><td>"Disburse" asks first. With payouts disabled it is refused.</td></tr>
+<tr><td>ADM-OPS-6</td><td>Savings settlement</td><td>"Mark this withdrawal as paid" asks first.</td></tr>
+<tr><td>ADM-OPS-7</td><td>Haulage</td><td>Assign, advance and cancel dispatch (cancel asks first). Status runs assigned, at pickup, in transit, delivered.</td></tr>
+<tr><td>ADM-OPS-8</td><td>Orders</td><td>List and detail views and a CSV export. Dates show Lagos time.</td></tr>
+<tr><td>ADM-OPS-9</td><td>Error handling</td><td>Any failed action shows its message beside the button. No raw error page. Database errors show a generic message, never raw text.</td></tr>
+</tbody></table>
+<h3 id="7-20-admin-settings-users-audit-adm-sys">7.20 Admin: settings, users, audit (<code>ADM-SYS</code>)</h3>
+<table><thead><tr><th>ID</th><th>Requirement</th><th>Acceptance criteria</th></tr></thead><tbody>
+<tr><td>ADM-SYS-1</td><td>Settings validation</td><td>Scoring weights must sum to 100. Times must be in order. Bids close plus three accept windows must equal the final time, or the save is refused with a clear message.</td></tr>
+<tr><td>ADM-SYS-2</td><td>Users and team</td><td>View users, disable or re-enable, manage the operations team. Disabling signs the person out immediately. Re-enable and disable ask first where destructive.</td></tr>
+<tr><td>ADM-SYS-3</td><td>Audit log</td><td>Append-only. Every important admin action records who, when and what. A failed audit write must not block the action.</td></tr>
+<tr><td>ADM-SYS-4</td><td>Closed system</td><td>Admin has no public sign-up. Admin passwords are 12+ characters.</td></tr>
+</tbody></table>
+<hr>
+<h2 id="8-business-rules-and-calculations">8. Business rules and calculations</h2>
+<h3 id="8-1-money">8.1 Money</h3>
+<ul>
+<li><strong>Whole kobo only.</strong> Amounts are integers. Check that totals, splits and refunds add up exactly.</li>
+<li><strong>Ledger is append-only and idempotent.</strong> Each posting has a unique key. Posting the same event twice makes one row. Updates and deletes are refused. Corrections are new opposite entries.</li>
+<li><strong>Savings split.</strong> Buyer share is <code>fees.poolSavingsBuyerSharePct</code> (default 50%). BuildersPool keeps the rest. <strong>Any odd kobo goes to the buyer</strong>, so the two shares always sum exactly to the saving.</li>
+<li><strong>Buy Direct commission</strong> is 3% of the line value.</li>
+<li><strong>Seller payable.</strong> Pool: bid price x quantity. Buy Direct: line value less 3%.</li>
+<li><strong>Refund (whole kobo)</strong> for unfilled quantity:</li>
+</ul>
+<p>  <code>refund = locked unit price x unfilled units + round(delivery cost x unfilled units / ordered units)</code></p>
+<ul>
+<li><strong>Delivery fee</strong> is a flat fee per zone (seeded at N15,000 in each of five zones). A zone with no fee offers pickup only.</li>
+</ul>
+<h3 id="8-2-reference-price-and-eligibility">8.2 Reference price and eligibility</h3>
+<ol>
+<li>Reference price per item = lowest live listing price among sellers who serve the buyer's zone. It freezes at pool close.</li>
+<li>A vendor must bid <strong>every</strong> item on a sheet.</li>
+<li>A bid above the reference price on <strong>any</strong> line rules out the whole bid (reason code recorded).</li>
+<li>Only KYC-approved, non-suspended vendors registered for the category and zone can bid. A seller approved for Zone A only cannot see or bid in Zone B. National-supply sellers can bid in any zone.</li>
+<li>Reason codes on ineligible or excluded bids include <code>NOT_APPROVED</code>, <code>OUTSIDE_SERVICE_AREA</code>, <code>INVALID_BID</code>, <code>OVER_WINNER_CAP</code>, <code>BELOW_MIN_BIDS</code>, <code>AWARD_DECLINED</code>, <code>AWARD_EXPIRED</code>, <code>SELLER_SUSPENDED</code>.</li>
+</ol>
+<h3 id="8-3-scoring">8.3 Scoring</h3>
+<p>Six criteria, weights editable by admin and always summing to 100. Defaults:</p>
+<table><thead><tr><th>Criterion</th><th>Weight</th></tr></thead><tbody>
+<tr><td>Competitive landed price (unit plus delivery)</td><td>30</td></tr>
+<tr><td>Historical performance</td><td>20</td></tr>
+<tr><td>Quantity and capacity</td><td>20</td></tr>
+<tr><td>Delivery speed and SLA</td><td>15</td></tr>
+<tr><td>Geographic suitability</td><td>10</td></tr>
+<tr><td>Bid responsiveness and completeness</td><td>5</td></tr>
+</tbody></table>
+<ul>
+<li>A new supplier scores a neutral <strong>50 out of 100</strong> on performance until <strong>5 completed orders</strong>.</li>
+<li><strong>Ties</strong> break by lowest price, then better performance, then earliest submission.</li>
+<li>Every award stores points and a one-line reason per criterion. Changing a weight changes <strong>only future awards</strong>.</li>
+<li>Known placeholders: geography is 100 if the seller serves the region, and responsiveness is 100 for every complete bid.</li>
+</ul>
+<h3 id="8-4-cascade-and-fallback">8.4 Cascade and fallback</h3>
+<ul>
+<li>The top three eligible sheets are offered in rank order, one hour each.</li>
+<li>Decline or timeout offers the next rank immediately. After rank 3, <strong>the RFQ cancels once</strong>.</li>
+<li>Every line then reverts to the seller the buyer picked at the price the buyer picked. If that seller is out of stock or suspended, <strong>only that line</strong> is refunded.</li>
+<li>Fallback processing runs once. Running the job twice produces one refund entry, not two.</li>
+<li>The system never buys from a supplier the buyer did not authorise.</li>
+</ul>
+<h3 id="8-5-order-and-quantity-rules">8.5 Order and quantity rules</h3>
+<ul>
+<li>Line quantity is a whole number from 1 to 100,000. No duplicate product in one order.</li>
+<li>A paid pooled line joins the pool for its category and zone for that day. Paid after pool close joins the next day.</li>
+<li>A delivery order with no locality is refused when the area picker is on.</li>
+</ul>
+<h3 id="8-6-seller-upload-checks-listings">8.6 Seller upload checks (listings)</h3>
+<p>See SEL-LST-2. Additional rule: sellers never see the reference price on listing screens.</p>
+<h3 id="8-7-settings-reference-defaults">8.7 Settings reference (defaults)</h3>
+<table><thead><tr><th>Area</th><th>Setting</th><th>Default</th></tr></thead><tbody>
+<tr><td>Older cycles</td><td>pool close / bids close / accept deadline / final</td><td>17:00 / 18:00 / 19:00 / 19:50</td></tr>
+<tr><td>Sheets</td><td><code>sheets.enabled</code></td><td>off</td></tr>
+<tr><td>Sheets</td><td>pool close / bids close / accept window / final</td><td>12:00 / 15:00 / 60 minutes / 18:00</td></tr>
+<tr><td>Pool</td><td>max winners per category per zone</td><td>5</td></tr>
+<tr><td>Pool</td><td>minimum eligible bids per line</td><td>1 (open business decision: 1 or 2)</td></tr>
+<tr><td>Direct</td><td>seller accept window</td><td>24 hours</td></tr>
+<tr><td>Fees</td><td>Buy Direct commission</td><td>3%</td></tr>
+<tr><td>Fees</td><td>buyer's savings share</td><td>50%</td></tr>
+<tr><td>Money</td><td>seller payouts / withdrawals</td><td>off / off</td></tr>
+<tr><td>Accounts</td><td>terms version / document expiry warning</td><td>v1 / 30 days</td></tr>
+</tbody></table>
+<hr>
+<h2 id="9-test-scenarios">9. Test scenarios</h2>
+<h3 id="9-1-smoke-test-run-after-every-deployment-about-15-minutes">9.1 Smoke test (run after every deployment, about 15 minutes)</h3>
+<ol>
+<li>Home page loads with a real countdown. Hamburger menu opens and shows categories and products.</li>
+<li>Sign up a new buyer (<code>QA-Buyer-&lt;date&gt;</code>), log out, log in.</li>
+<li>Add two items to the cart. Totals are correct.</li>
+<li>Checkout with Pickup. Place the order. Complete payment with the Paystack test card. The order shows as paid.</li>
+<li>Open Account &gt; Address book. Add a delivery address. Return to checkout with Delivery: the address prefills.</li>
+<li>Log in as the seller. Open Listings, RFQs, Allocations, Payouts, Settings. Each loads without errors and shows sensible empty states.</li>
+<li>Log in as admin. Open Dashboard, Orders, Pickup stations, Settings. Each loads. Open the audit log: your actions appear.</li>
+<li>Confirm a signed-out visitor is redirected away from <code>/account</code>, <code>/seller</code>, <code>/admin</code>.</li>
+</ol>
+<h3 id="9-2-end-to-end-scenarios">9.2 End-to-end scenarios</h3>
+<table><thead><tr><th>#</th><th>Scenario</th><th>Key checks</th></tr></thead><tbody>
+<tr><td>E1</td><td><strong>Buyer, Pool &amp; Save, pickup.</strong> Order, pay, wait for the pool, collect.</td><td>Line status progression, GRN receipt number, savings credit equals 50% of the verified saving, correct kobo.</td></tr>
+<tr><td>E2</td><td><strong>Buyer, Buy Direct, delivery.</strong> Pick a seller listing, choose delivery, fill site, pay.</td><td>Delivery fee equals zone fee. Seller sees a 24-hour accept window. Buyer sees "Waiting for the seller to accept".</td></tr>
+<tr><td>E3</td><td><strong>Seller declines Buy Direct line.</strong></td><td>Buyer is refunded in the ledger. Order page shows the refund due with the reason.</td></tr>
+<tr><td>E4</td><td><strong>Seller does not respond in 24 hours.</strong></td><td>Line times out and is refunded.</td></tr>
+<tr><td>E5</td><td><strong>New seller onboarding.</strong> Sign up, verify email, submit KYC, admin approves, request a zone and category, admin approves both, add a listing with a 1000 px+ photo.</td><td>Each step shows its status. The listing goes live. A buyer then sees it on the product page.</td></tr>
+<tr><td>E6</td><td><strong>Listing check outcomes.</strong> Add listings that (a) have no photo, (b) have a 500 px photo, (c) price 10 times the median, (d) perishable with 20 days of life, (e) duplicate an existing listing.</td><td>Rejected, rejected, needs review, rejected, needs review. Reasons shown.</td></tr>
+<tr><td>E7</td><td><strong>RFQ end to end</strong> (only when <code>sheets.enabled</code> is on; ask the product owner). Two pooled orders in one category and zone. Two vendors bid.</td><td>One sheet per category and zone. Bid above the reference is ruled out. Winner chosen by score with reasons. Rank 1 declines, rank 2 is offered.</td></tr>
+<tr><td>E8</td><td><strong>Cascade exhausted.</strong> Rank 1 declines, rank 2 lapses, rank 3 declines.</td><td>RFQ cancels once. Lines revert to the picked seller at the picked price. If that seller is unavailable, only that line refunds.</td></tr>
+<tr><td>E9</td><td><strong>Late payment.</strong> Confirm a payment after pool close.</td><td>Order joins tomorrow's pool.</td></tr>
+<tr><td>E10</td><td><strong>Receive and pay.</strong> Admin issues a GRN on an accepted allocation.</td><td>Seller becomes payable. Buyer savings credit posts in the same moment. Disburse is refused because payouts are off, with a visible reason.</td></tr>
+<tr><td>E11</td><td><strong>Hold and not supplied.</strong> Hold a payout. Mark a line not supplied.</td><td>Both ask first (not-supplied), both are audited, and the line reverts or refunds.</td></tr>
+<tr><td>E12</td><td><strong>Suspend a seller.</strong> Suspend a seller holding one pending and one accepted award.</td><td>Only the pending award is released. The seller cannot bid.</td></tr>
+<tr><td>E13</td><td><strong>Address book to checkout.</strong> Save two pickup stations and three delivery addresses, change defaults, delete the default.</td><td>Defaults update correctly and checkout reflects them.</td></tr>
+<tr><td>E14</td><td><strong>Admin adds a pickup station.</strong></td><td>It appears for buyers at once. Deleting it after an order used it is refused.</td></tr>
+<tr><td>E15</td><td><strong>Staff permissions.</strong> Invite a staff member, use the link, sign in as staff.</td><td>Staff can bid and work orders. Staff cannot open KYC or Team. Removing staff signs them out.</td></tr>
+</tbody></table>
+<h3 id="9-3-business-rule-scenarios-from-the-rulebook-abridged">9.3 Business-rule scenarios (from the rulebook, abridged)</h3>
+<p>These come from the 26 acceptance scenarios in <code>docs/floot-port-notes.md</code> section 4. Run them with the product owner present for any that need the clock or admin settings.</p>
+<ol>
+<li><strong>Idempotent stages.</strong> Trigger the tick twice at once and press Award now. Awarded once, no duplicates.</li>
+<li><strong>Late payment.</strong> Joins the next day.</li>
+<li><strong>Eligibility.</strong> An unapproved seller's bid is excluded with <code>NOT_APPROVED</code>.</li>
+<li><strong>Blind bidding.</strong> No seller sees another's price, rank or bid count.</li>
+<li><strong>Decline cascade.</strong> A declines, B is offered, B lapses, no third award.</li>
+<li><strong>One-shot accept.</strong> Accept twice: the second does nothing. Accept after the deadline: refused.</li>
+<li><strong>Suspension.</strong> Only unaccepted awards release.</li>
+<li><strong>Fallback.</strong> One refund entry, correct kobo, buyer message shown, even if the job runs twice.</li>
+<li><strong>Ledger.</strong> Update or delete of a ledger row fails. The same key twice gives one row. An odd-kobo saving splits exactly.</li>
+<li><strong>Switches.</strong> With withdrawals and payouts off, the server refuses both and the buttons are hidden.</li>
+<li><strong>Security.</strong> Forged cookie, spoofed buyer id, negative or duplicate quantities, wrong cron secret, sixth failed sign-in.</li>
+<li><strong>Money check.</strong> The trial balance sums to zero after everything above.</li>
+<li><strong>Address rules.</strong> A delivery order with no locality is refused. A locality with no active zone offers pickup only.</li>
+<li><strong>Zone move.</strong> Moving a locality mid-day changes nothing for paid orders and open pools. Tomorrow's order uses the new zone. An audit entry exists.</li>
+<li><strong>Coverage and pooling.</strong> A seller covering Zone A only cannot see Zone B. Two localities in one zone share a sheet.</li>
+<li><strong>Three-rank cascade.</strong> See E8.</li>
+<li><strong>Reference price.</strong> A cheaper listing added while the pool is open lowers the reference. After pool close it no longer changes.</li>
+<li><strong>Pooled by category.</strong> PPR pipes and cement produce two RFQs, each sent only to vendors registered for that category.</li>
+<li><strong>Beat the reference.</strong> A bid above the reference is excluded with a reason. A bid at or below is scored.</li>
+<li><strong>Timeline guard.</strong> Settings where bids close plus three windows does not equal the final time are refused.</li>
+<li><strong>Revert.</strong> After rank 3 declines, lines go to the picked seller at the picked price.</li>
+<li><strong>Upload checks.</strong> See E6.</li>
+<li><strong>No fee, no delivery.</strong> A zone without a fee offers pickup only. Entering a fee enables delivery from the next page load. No paid order changes.</li>
+<li><strong>National supply.</strong> A national-supply seller appears in every zone's count and can bid anywhere.</li>
+<li><strong>Sheet award.</strong> A vendor who bids only some lines is ineligible. The best complete bid wins the whole sheet.</li>
+<li><strong>Explainable score.</strong> Every award shows points and a reason per criterion. Changing a weight affects only future awards.</li>
+</ol>
+<hr>
+<h2 id="10-non-functional-requirements">10. Non-functional requirements</h2>
+<h3 id="10-1-responsive-layout">10.1 Responsive layout</h3>
+<p>Test at <strong>375 px (phone), 768 px (tablet), 1280 px (desktop)</strong>. Requirements:</p>
+<ul>
+<li>No horizontal page scroll at any width. (Tab rows and tables that scroll inside their own box are fine.)</li>
+<li>Phone: bottom tab bar on the storefront, tab row for the account menu, sidebar becomes a menu button in the Seller Centre and admin.</li>
+<li>Dialogs fit the screen and scroll inside themselves.</li>
+</ul>
+<h3 id="10-2-accessibility-target-wcag-2-2-aa">10.2 Accessibility (target WCAG 2.2 AA)</h3>
+<table><thead><tr><th>Check</th><th>Expected</th></tr></thead><tbody>
+<tr><td>Touch targets</td><td>At least <strong>44 px</strong> high on phones for buttons, links in lists and form controls. Dense desktop tables may use smaller (never below 24 px).</td></tr>
+<tr><td>Keyboard</td><td>Every interactive element is reachable and operable by keyboard. Menus, dialogs and the mega menu open and close with keys. Escape closes dialogs and menus.</td></tr>
+<tr><td>Focus</td><td>A <strong>visible focus ring</strong> on every focusable element, including links and plain buttons.</td></tr>
+<tr><td>Dialogs</td><td>Focus moves into the dialog and returns to the trigger on close.</td></tr>
+<tr><td>Forms</td><td>Every field has a visible label. Errors are announced (<code>role="alert"</code>) and name the problem and the fix. Success messages use <code>role="status"</code>.</td></tr>
+<tr><td>Contrast</td><td>Text 4.5:1 or better, large text and UI components 3:1 or better, in light and dark mode.</td></tr>
+<tr><td>Images</td><td>Product images have meaningful alt text, decorative icons are hidden from assistive technology.</td></tr>
+<tr><td>Motion</td><td>Respects <code>prefers-reduced-motion</code>.</td></tr>
+<tr><td>Inputs on phones</td><td>Text inputs are 16 px so iOS does not zoom on focus.</td></tr>
+</tbody></table>
+<h3 id="10-3-localisation-and-formatting">10.3 Localisation and formatting</h3>
+<ul>
+<li>Currency is Naira with no decimals in the UI (for example <code>N1,650,000</code>). Check thousands separators and that rolling number animations settle on the exact value.</li>
+<li><strong>All times and dates display in Lagos time</strong> (for example "10 Nov 2026, 5pm"). Verify with the device clock set to another time zone.</li>
+<li>Times use the short form "5pm", "7:50pm", "12pm".</li>
+</ul>
+<h3 id="10-4-error-handling">10.4 Error handling</h3>
+<ul>
+<li>No raw error page for a user-correctable problem. Failures appear as a message beside the control or inside its dialog.</li>
+<li>Database or framework errors show a generic line ("Something went wrong. Try again...") and never raw text.</li>
+<li>Destructive or money-moving actions ask for confirmation first (see the list in ADM-OPS, SEL-TEAM-3, BUY-ADDR-2).</li>
+<li>Network loss: the offline page appears for navigations. Forms keep what was typed after a failed submit.</li>
+</ul>
+<h3 id="10-5-security-summary-of-what-to-verify">10.5 Security (summary of what to verify)</h3>
+<p>Server-side sessions with httpOnly, sameSite=lax and Secure cookies. Sessions revoke on logout and on password reset. Sign-in rate limit. Server-side validation of every input and id (never trust ids from the browser). Security headers (no framing, nosniff, strict referrer policy). Cron endpoints fail closed without the bearer secret. Seller and admin data is never shown to buyers. Another user's ids in URLs or forms never expose or change their data.</p>
+<h3 id="10-6-browsers-and-devices">10.6 Browsers and devices</h3>
+<p>Latest Chrome and Safari on desktop and mobile (iOS Safari and Android Chrome) as the minimum. Also check Firefox and Edge on desktop.</p>
+<h3 id="10-7-performance-indicative">10.7 Performance (indicative)</h3>
+<p>Pages should become usable within a few seconds on a mid-range phone over 4G. Report anything that feels stuck, and note the connection used.</p>
+<hr>
+<h2 id="11-reporting-bugs">11. Reporting bugs</h2>
+<h3 id="11-1-what-to-include">11.1 What to include</h3>
+<ol>
+<li><strong>Title</strong> in one line.</li>
+<li><strong>Requirement ID</strong> (for example <code>BUY-CHK-6</code>) or "no matching requirement".</li>
+<li><strong>Environment</strong>: URL, role and account used, device, browser and version, viewport width.</li>
+<li><strong>Steps to reproduce</strong>, numbered, starting from a known state.</li>
+<li><strong>Expected result</strong> and <strong>actual result</strong>.</li>
+<li><strong>Evidence</strong>: screenshot or screen recording. For API issues, the request and response.</li>
+<li><strong>Frequency</strong> (always, sometimes, once) and the time of the occurrence in Lagos time.</li>
+<li><strong>Data created</strong> (the QA-tagged records involved).</li>
+</ol>
+<h3 id="11-2-severity">11.2 Severity</h3>
+<table><thead><tr><th>Severity</th><th>Meaning</th><th>Examples</th></tr></thead><tbody>
+<tr><td><strong>S1 Blocker</strong></td><td>Money or data is wrong, security is broken, or a core flow cannot be completed.</td><td>A buyer charged the wrong amount. A buyer can open another buyer's order. Checkout cannot complete.</td></tr>
+<tr><td><strong>S2 Major</strong></td><td>A feature is broken or a rule is wrongly applied, with no reasonable workaround.</td><td>Refund amount off by a kobo. An award passes twice. A required validation is missing.</td></tr>
+<tr><td><strong>S3 Minor</strong></td><td>A feature works but with a defect or a poor experience.</td><td>Wrong wording, a missing empty state, a focus ring missing.</td></tr>
+<tr><td><strong>S4 Cosmetic</strong></td><td>Visual only.</td><td>Misalignment, spacing, a typo.</td></tr>
+</tbody></table>
+<h3 id="11-3-priorities-for-testing-time">11.3 Priorities for testing time</h3>
+<ol>
+<li>Money, ledger and refund calculations.</li>
+<li>Access control and the security items in section 5.2.</li>
+<li>Checkout, payment and order creation.</li>
+<li>Pooling, bidding, awards and fallback.</li>
+<li>Seller and admin workflows.</li>
+<li>Layout, accessibility and wording.</li>
+</ol>
+<hr>
+<h2 id="12-open-questions-and-assumptions">12. Open questions and assumptions</h2>
+<p>These are undecided by the business. Do not file them as bugs. If your test depends on one, ask the product owner.</p>
+<ol>
+<li>Which pickup address is correct for Abuja (Ushafa, Bwari or Idu)?</li>
+<li>Minimum eligible bids per line: 1 or 2?</li>
+<li>Final seller commission and fee decisions. Pricing and fees are owned by the business, not engineering.</li>
+<li>The date the category-sheet engine (<code>sheets.enabled</code>) goes live for buyers.</li>
+<li>Whether and when seller payouts and savings withdrawals are switched on.</li>
+<li>How long KYC review is expected to take (not stated in the product).</li>
+<li>Whether an approved seller may edit bank details (today they cannot).</li>
+</ol>
+<hr>
+<h2 id="appendix-a-route-map">Appendix A. Route map</h2>
+<p><strong>Storefront:</strong> <code>/</code>, <code>/catalog</code>, <code>/catalog/[id]</code>, <code>/cart</code>, <code>/checkout</code>, <code>/orders</code>, <code>/orders/[id]</code>, <code>/account</code>, <code>/account/addresses</code>, <code>/account/savings</code>, <code>/account/alerts</code>, <code>/account/profile</code>, <code>/login</code>, <code>/signup</code>, <code>/verify-email</code>, <code>/forgot-password</code>, <code>/reset-password</code>, <code>/offline</code>.</p>
+<p><strong>Seller Centre:</strong> <code>/seller/login</code>, <code>/seller/signup</code>, <code>/seller</code> (dashboard), <code>/seller/listings</code>, <code>/seller/rfqs</code>, <code>/seller/rfqs/[sheetId]</code>, <code>/seller/bids</code>, <code>/seller/orders</code>, <code>/seller/allocations</code>, <code>/seller/payouts</code>, <code>/seller/kyc</code>, <code>/seller/settings</code>, <code>/seller/team</code>.</p>
+<p><strong>Ops admin:</strong> <code>/admin/login</code>, <code>/admin</code>, <code>/admin/orders</code>, <code>/admin/orders/[id]</code>, <code>/admin/sellers</code>, <code>/admin/materials</code>, <code>/admin/materials/[id]</code>, <code>/admin/catalogue-reference</code>, <code>/admin/listings</code>, <code>/admin/direct</code>, <code>/admin/areas</code>, <code>/admin/pickup-stations</code>, <code>/admin/sheets</code>, <code>/admin/cycles/[id]</code>, <code>/admin/haulage</code>, <code>/admin/escrow</code>, <code>/admin/savings</code>, <code>/admin/users</code>, <code>/admin/team</code>, <code>/admin/verification</code>, <code>/admin/settings</code>, <code>/admin/audit-log</code>.</p>
+<p><strong>API and system:</strong> <code>POST /api/checkout</code>, <code>POST /api/webhooks/payment</code>, <code>/api/pool/tick</code>, <code>/api/cron/close-cycles</code>, <code>/api/cron/cycle-tick</code>, <code>/api/cron/notify-closing-soon</code>, <code>/api/materials/search</code>, <code>/api/seller/search</code>, <code>/api/admin/search</code>, <code>/api/admin/orders</code>.</p>
+<h2 id="appendix-b-status-glossary">Appendix B. Status glossary</h2>
+<table><thead><tr><th>Where</th><th>Status</th><th>Meaning</th></tr></thead><tbody>
+<tr><td>Order</td><td>Awaiting payment</td><td>Created, payment not confirmed</td></tr>
+<tr><td>Order</td><td>Paid</td><td>Payment confirmed</td></tr>
+<tr><td>Order</td><td>Cancelled</td><td>Cancelled</td></tr>
+<tr><td>Buyer line</td><td>In today's pool</td><td>Paid and waiting for pool close</td></tr>
+<tr><td>Buyer line</td><td>Suppliers are bidding</td><td>Pool closed, bids open</td></tr>
+<tr><td>Buyer line</td><td>Choosing a supplier</td><td>Bids closed, offers going out</td></tr>
+<tr><td>Buyer line</td><td>Supplier confirmed</td><td>A vendor accepted</td></tr>
+<tr><td>Allocation</td><td>Awaiting your reply / Accepted / Delivered / Cancelled</td><td>Seller's view of an award</td></tr>
+<tr><td>Bid (older flow)</td><td>Open / Partly awarded / Awarded / Not awarded / Withdrawn</td><td>Seller's view of a per-material bid</td></tr>
+<tr><td>Sheet</td><td>Collecting orders / Open for bids / Bids closed / Awarded / Cancelled</td><td>RFQ stage</td></tr>
+<tr><td>Seller bid on a sheet</td><td>Bid sent / Ruled out / Offer waiting / Waiting your turn / You won</td><td>Seller's position</td></tr>
+<tr><td>Listing</td><td>Draft / Being checked / Live / Paused / Needs a fix</td><td>Seller listing state</td></tr>
+<tr><td>KYC</td><td>Not started / Pending review / Verified / Rejected / Suspended</td><td>Seller verification</td></tr>
+<tr><td>Payout (seller wording)</td><td>Awaiting receipt / Being paid / Paid / On hold</td><td>Money due to the seller</td></tr>
+<tr><td>Payout (ops wording)</td><td>Awaiting GRN / Cleared for payout / Disbursed / On hold</td><td>Same, in warehouse terms</td></tr>
+<tr><td>Savings entry</td><td>Available / Withdrawal requested / Paid out</td><td>Buyer's savings credit</td></tr>
+<tr><td>Coverage request</td><td>Waiting for approval / Approved / Not approved</td><td>Zone or category request</td></tr>
+</tbody></table>
+<h2 id="appendix-c-recent-changes-worth-regression-testing">Appendix C. Recent changes worth regression-testing</h2>
+<p>These areas changed most recently and deserve extra attention:</p>
+<ul>
+<li>Category <strong>mega menu</strong> and the header <strong>account menu</strong> (buyer) and <strong>top-bar menu</strong> (seller).</li>
+<li>Buyer <strong>account area</strong> with left menu, and the new <strong>address book</strong> (saved pickup stations and delivery addresses) with checkout prefill.</li>
+<li>Admin <strong>Pickup stations</strong> screen and the buyer's pickup choice at checkout.</li>
+<li>Error handling: failures now return a message beside the control, with confirmation dialogs on risky admin actions.</li>
+<li><strong>Lagos-time dates</strong> everywhere.</li>
+<li><strong>Seller KYC form</strong> that keeps answers on errors, <strong>listing</strong> re-check after photo removal, <strong>payouts</strong> from all three sources, <strong>allocations</strong> decline confirmation.</li>
+</ul></main></body></html>
