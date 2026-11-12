@@ -1,19 +1,12 @@
-import { StackIcon, TruckIcon } from '@phosphor-icons/react/ssr';
+import Link from 'next/link';
 import { getSellerIdFromSession } from '@/lib/seller/session';
 import { getSellerAllocations } from '@/lib/queries/sellerPortal';
-import { allocationStatusTone, payoutStatusTone, pillClass } from '@/lib/statusColors';
-import { Badge } from '@/components/ui/badge';
-import { MaterialImage } from '@/components/material-image';
-import { AwardResponse } from '@/components/seller/award-response';
-import { formatLagosTime } from '@/lib/bidding/schedule';
-import { formatLagosDateTime } from '@/lib/format';
-import { PAYOUT_LABEL as PAYOUT_STATUS_LABEL } from '@/lib/labels';
+import { EmptyState } from '@/components/empty-state/empty-state';
+import { EmptyListIllustration } from '@/components/empty-state/illustrations';
+import { SellerAllocationList } from '@/components/seller/allocation-list';
+import { Button } from '@/components/ui/button';
 
-const CANCEL_LABEL: Record<string, string> = {
-  DECLINED: 'You declined this award',
-  EXPIRED: "Not accepted in time — passed to the next supplier",
-  SELLER_SUSPENDED: 'Released because your account was suspended',
-};
+export const metadata = { title: 'Allocations' };
 
 export default async function SellerAllocationsPage() {
   const sellerId = (await getSellerIdFromSession())!;
@@ -23,110 +16,27 @@ export default async function SellerAllocationsPage() {
     <div className="mx-auto w-full max-w-7xl px-4 pt-6 pb-16 sm:px-8 sm:pt-8 sm:pb-20">
       <div className="mb-1 text-xs text-muted-foreground">Merchant · awards</div>
       <h1 className="mb-1 text-heading-lg text-ink">Allocations</h1>
-      <p className="mb-6 text-sm text-muted-foreground">
-        Materials awarded to you. Accept an award before its deadline or it passes to the next supplier.
-        Once accepted, drop off at the fulfillment center listed — it confirms receipt (GRN), which is what
-        triggers your payout.
+      <p className="mb-6 max-w-[64ch] text-pretty text-sm text-muted-foreground">
+        Materials awarded to you. Accept each award before its deadline, or it passes to the next supplier. After you accept, deliver to the
+        fulfilment centre shown. We confirm receipt, then pay you.
       </p>
 
       {allocations.length === 0 ? (
-        <div className="rounded-lg bg-card-alt px-6 py-16 text-center">
-          <StackIcon className="mx-auto mb-3 size-8 text-muted-foreground" />
-          <p className="text-sm text-muted-foreground">Nothing awarded to you yet.</p>
+        <div className="rounded-lg bg-card-alt">
+          <EmptyState
+            illustration={EmptyListIllustration}
+            variant="inline"
+            as="p"
+            title="Nothing awarded to you yet"
+            description="Awards appear here when one of your bids or RFQ prices wins."
+          >
+            <Button asChild variant="outline">
+              <Link href="/seller/rfqs">Open RFQs</Link>
+            </Button>
+          </EmptyState>
         </div>
       ) : (
-        <div>
-          <div className="hidden gap-4 border-b border-ink pb-3 text-[12.5px] font-semibold text-slate sm:grid sm:grid-cols-[2fr_1fr_2fr_1.2fr]">
-            <div>Allocation</div>
-            <div>Quantity</div>
-            <div>Drop-off center</div>
-            <div>Payout status</div>
-          </div>
-          {allocations.map((allocation) => (
-            <div
-              key={allocation.id}
-              className="flex flex-col gap-3 border-b border-border py-4 text-sm sm:grid sm:grid-cols-[2fr_1fr_2fr_1.2fr] sm:items-center sm:gap-4"
-            >
-              <div className="flex items-center gap-3">
-                <MaterialImage
-                  imageUrl={allocation.bid.material.imageUrl}
-                  category={allocation.bid.material.category}
-                  alt={allocation.bid.material.name}
-                  className="size-11 shrink-0 rounded-md border border-border"
-                />
-                <div>
-                  <div className="font-semibold text-ink">{allocation.bid.material.name}</div>
-                  <Badge variant="outline" className={`${pillClass(allocationStatusTone(allocation.status))} mt-0.5`}>
-                    {allocation.status === 'PENDING' && allocation.acceptDeadlineAt
-                      ? 'awaiting your acceptance'
-                      : allocation.status === 'CONFIRMED'
-                        ? 'accepted'
-                        : allocation.status.toLowerCase()}
-                  </Badge>
-                  {allocation.cascadeRound > 0 && allocation.status !== 'CANCELLED' && (
-                    <div className="mt-1 text-xs text-muted-foreground">Passed to you from another supplier</div>
-                  )}
-                </div>
-              </div>
-
-              <div className="text-ink">
-                <span className="mr-1 text-xs text-muted-foreground sm:hidden">Quantity:</span>
-                {allocation.quantityFilled} {allocation.bid.material.unit}
-                {allocation.status === 'PENDING' && allocation.acceptDeadlineAt && (
-                  <div className="mt-1 text-xs font-medium text-warning-text">
-                    Accept by {formatLagosTime(allocation.acceptDeadlineAt)}
-                  </div>
-                )}
-              </div>
-
-              <div>
-                <span className="mb-1 block text-xs font-semibold text-muted-foreground sm:hidden">
-                  Drop-off center
-                </span>
-                {allocation.orderItem.fulfillmentCenter ? (
-                  <>
-                    <div className="flex items-center gap-1.5 font-medium text-ink">
-                      <TruckIcon className="size-3.5 shrink-0 text-brand" />
-                      {allocation.orderItem.fulfillmentCenter.name}
-                    </div>
-                    <div className="text-xs text-slate">{allocation.orderItem.fulfillmentCenter.address}</div>
-                  </>
-                ) : (
-                  <span className="text-xs text-muted-foreground">No fulfillment center on record.</span>
-                )}
-                {allocation.receivedAt && (
-                  <div className="mt-1 text-xs text-brand">
-                    Received {formatLagosDateTime(allocation.receivedAt)}
-                    {allocation.grnNumber && <span className="ml-1 text-muted-foreground">{allocation.grnNumber}</span>}
-                  </div>
-                )}
-              </div>
-
-              {allocation.status === 'PENDING' && allocation.acceptDeadlineAt ? (
-                <AwardResponse allocationId={allocation.id} />
-              ) : allocation.status === 'CANCELLED' ? (
-                <div className="text-xs text-muted-foreground">
-                  {CANCEL_LABEL[allocation.cancelReason ?? ''] ?? 'This award was withdrawn'}
-                </div>
-              ) : (
-              <div>
-                <span className="mb-1 block text-xs font-semibold text-muted-foreground sm:hidden">
-                  Payout status
-                </span>
-                <Badge variant="outline" className={pillClass(payoutStatusTone(allocation.payoutStatus))}>
-                  {PAYOUT_STATUS_LABEL[allocation.payoutStatus]}
-                </Badge>
-                {allocation.payoutStatus === 'PAID' && allocation.payoutReference && (
-                  <div className="mt-1 text-xs text-muted-foreground">{allocation.payoutReference}</div>
-                )}
-                {allocation.payoutStatus === 'ON_HOLD' && allocation.holdReason && (
-                  <div className="mt-1 text-xs text-danger">{allocation.holdReason}</div>
-                )}
-              </div>
-              )}
-            </div>
-          ))}
-        </div>
+        <SellerAllocationList allocations={allocations} />
       )}
     </div>
   );

@@ -4,6 +4,8 @@ import { useState, useTransition } from 'react';
 import { acceptAllocation, declineAllocation } from '@/app/seller/actions';
 import { Button } from '@/components/ui/button';
 
+// Accept or decline one award. Declining asks first, in place, because the award then passes to the
+// next supplier and cannot be taken back.
 export function AwardResponse({ allocationId }: { allocationId: string }) {
   const [isPending, startTransition] = useTransition();
   const [error, setError] = useState<string | null>(null);
@@ -21,26 +23,33 @@ export function AwardResponse({ allocationId }: { allocationId: string }) {
 
   return (
     <div className="space-y-1.5">
-      <div className="flex gap-2">
-        <Button size="sm" disabled={isPending} onClick={() => respond(acceptAllocation)}>
-          Accept
-        </Button>
-        {confirmingDecline ? (
-          <>
-            <Button size="sm" variant="destructive" disabled={isPending} onClick={() => respond(declineAllocation)}>
-              Confirm decline
+      {confirmingDecline ? (
+        <div className="space-y-2">
+          <p className="text-pretty text-sm text-ink">Decline this award? It goes to the next supplier and you can&apos;t undo this.</p>
+          <div className="flex flex-wrap gap-2">
+            <Button size="sm" variant="destructive" className="max-sm:h-11" disabled={isPending} aria-busy={isPending} onClick={() => respond(declineAllocation)}>
+              {isPending ? 'Declining…' : 'Decline award'}
             </Button>
-            <Button size="sm" variant="ghost" disabled={isPending} onClick={() => setConfirmingDecline(false)}>
-              Keep
+            <Button size="sm" variant="outline" className="max-sm:h-11" disabled={isPending} onClick={() => setConfirmingDecline(false)}>
+              Keep award
             </Button>
-          </>
-        ) : (
-          <Button size="sm" variant="outline" disabled={isPending} onClick={() => setConfirmingDecline(true)}>
+          </div>
+        </div>
+      ) : (
+        <div className="flex flex-wrap gap-2">
+          <Button size="sm" className="max-sm:h-11" disabled={isPending} aria-busy={isPending} onClick={() => respond(acceptAllocation)}>
+            {isPending ? 'Accepting…' : 'Accept'}
+          </Button>
+          <Button size="sm" variant="outline" className="max-sm:h-11" disabled={isPending} onClick={() => setConfirmingDecline(true)}>
             Decline
           </Button>
-        )}
-      </div>
-      {error && <p className="text-xs text-danger">{error}</p>}
+        </div>
+      )}
+      {error && (
+        <p role="alert" className="text-pretty text-caption text-danger">
+          {error}
+        </p>
+      )}
     </div>
   );
 }
