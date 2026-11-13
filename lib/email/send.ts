@@ -49,3 +49,37 @@ export async function sendVerificationEmail(to: string, verifyUrl: string): Prom
     `),
   });
 }
+
+export async function sendBankChangeOtpEmail(to: string, code: string): Promise<void> {
+  await sendEmail({
+    to,
+    subject: 'Your Builders Pool bank-detail code',
+    html: shell(`
+      <h1 style="font-size:20px;margin:0 0 12px;">Confirm your bank-detail change</h1>
+      <p style="font-size:14px;line-height:1.6;color:#5b6068;">
+        Enter this code on the Builders Pool KYC page to confirm the change. It expires in 10 minutes. Never share it with anyone, including our staff.
+      </p>
+      <p style="margin:16px 0;font-size:32px;font-weight:800;letter-spacing:8px;">${code}</p>
+      <p style="font-size:13px;line-height:1.6;color:#5b6068;">
+        If you did not ask to change your bank details, do not enter the code. Your payouts are safe, and you should change your password.
+      </p>
+    `),
+  });
+}
+
+export async function sendBankChangeDecisionEmail(to: string, approved: boolean, note?: string | null): Promise<void> {
+  await sendEmail({
+    to,
+    subject: approved ? 'Your bank details were updated: Builders Pool' : 'Your bank-detail change was not approved: Builders Pool',
+    html: shell(`
+      <h1 style="font-size:20px;margin:0 0 12px;">${approved ? 'Bank details updated' : 'Bank-detail change not approved'}</h1>
+      <p style="font-size:14px;line-height:1.6;color:#5b6068;">
+        ${
+          approved
+            ? 'Our team approved your change. Payouts now go to the new account.'
+            : `Our team could not approve your change${note ? `: ${note.replace(/</g, '&lt;')}` : '.'} Your payouts continue to the account already on file. You can submit a new request from the KYC page.`
+        }
+      </p>
+    `),
+  });
+}

@@ -3,6 +3,7 @@ import { PayoutStatus } from '@prisma/client';
 import { getSetting } from '../settings';
 import { nairaToKobo } from '../money';
 import { postLedgerEntry } from '../ledger';
+import { assertNoBankChangeUnderReview } from '../bank/hold';
 
 function generatePayoutReference(date = new Date()) {
   const datePart = date.toISOString().slice(0, 10).replace(/-/g, '');
@@ -16,6 +17,7 @@ export async function disbursePayout(allocationId: string) {
     throw new Error('Seller payouts are switched off in Settings until Paystack is live and reviewed.');
   }
   const allocation = await prisma.allocation.findUniqueOrThrow({ where: { id: allocationId }, include: { bid: true } });
+  await assertNoBankChangeUnderReview(allocation.bid.sellerId);
 
   if (allocation.payoutStatus !== PayoutStatus.PROCESSED) {
     throw new Error('Only a payout cleared by GRN (PROCESSED) can be disbursed.');

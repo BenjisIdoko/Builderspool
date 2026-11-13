@@ -318,6 +318,7 @@ Two tabs: **Pickup station** and **Door delivery**.
 | SEL-KYC-6 | Terms | Accepting terms is part of submission and is recorded by version. If the terms version changes, an owner sees a banner and re-accepts. |
 | SEL-KYC-7 | Staff | Seller staff cannot submit or change KYC. They see "Only the account owner can submit these details" or the read-only summary. |
 | SEL-KYC-8 | Expiry warning | A supporting document near or past its expiry shows a warning on the page. |
+| SEL-KYC-9 | Change bank details | An approved owner sees "Payout bank account" (account number masked) with "Change bank details". Submitting a bank, a 10-digit account number and an account name sends a 6-digit code to the owner's email. The code works for 10 minutes, allows 5 wrong tries (then the request cancels), and at most 3 codes per request (60 seconds apart). Entering it moves the request to "Your change is under review". Staff cannot see or use this. Only one request can be open at a time. The owner can cancel. A rejected change shows its reason for 14 days and payouts stay with the old account. |
 
 ### 7.9 Seller: settings, zones and categories (`SEL-SET`)
 
@@ -405,6 +406,7 @@ Two tabs: **Pickup station** and **Door delivery**.
 | ADM-VER-1 | Review KYC | Approve, reject (reason required) or suspend (reason required) a seller. Approve and reject act only on a pending submission. Suspend and reactivate are reversible and audited. |
 | ADM-VER-2 | Reviewer aids | The reviewer sees the bank-account-name match against the registry or business name, the CAC result and the document. |
 | ADM-VER-3 | Errors | A failed decision shows its message inside the dialog. |
+| ADM-VER-5 | Bank-detail changes | `/admin/verification` lists changes waiting for review, oldest first, with old and requested details side by side, the name-match result and when the code was confirmed. Ops can require a confirmation call (the owner's phone number is shown). A required call must be logged with a note (10+ characters) before **Approve** works. Approve asks first, replaces the details, and emails the seller. Reject needs a reason (5+ characters), keeps the old account and emails the seller. While a request is waiting for review, any payout to that seller is refused with a clear message. Everything is audited. |
 | ADM-VER-4 | Coverage | Admin approves or revokes each zone request and each category request. National supply can be switched on or off (asks first). |
 
 ### 7.18 Admin: listings, materials, areas, pickup stations (`ADM-CAT`)
@@ -676,7 +678,7 @@ See `docs/decisions.md` for decisions made. Still open or not yet built:
 2. The date of the supervised test day, after which the category-sheet engine (`sheets.enabled`) goes live.
 3. Seller payouts and savings withdrawals stay off until Paystack is live and reviewed.
 4. How long KYC review is expected to take (not stated in the product).
-5. Decided but **not built yet**: an approved seller may edit bank details, which triggers a re-check. Today they cannot, so test that they cannot.
+5. Bank-detail changes (OTP, ops review, optional call) are built. The OTP email needs a verified Resend sending domain to reach every seller, so ask the product owner whether it is set before testing SEL-KYC-9.
 6. The seller terms text is a draft (`docs/seller-terms-draft.md`). The app still shows the placeholder line.
 7. Minimum eligible bids per line is settled at 1.
 

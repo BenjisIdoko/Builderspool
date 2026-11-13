@@ -60,3 +60,8 @@ export function formatLagosDate(date: Date | null | undefined): string {
   if (!date) return '';
   return date.toLocaleDateString('en-NG', { dateStyle: 'medium', timeZone: LAGOS });
 }
+
+/** True when `date` is within the last `days` days. Lives here so pages don't call Date.now() themselves. */
+export function isWithinDays(date: Date | null | undefined, days: number): boolean {
+  return !!date && Date.now() - date.getTime() < days * 24 * 60 * 60 * 1000;
+}

@@ -6,6 +6,8 @@ import { getSellersForVerification } from '@/lib/queries/adminVerification';
 import { getSettings } from '@/lib/settings';
 import { prisma } from '@/lib/prisma';
 import { SellerKycReview } from '@/components/admin/seller-kyc-review';
+import { BankChangeReviewCard } from '@/components/admin/bank-change-review';
+import { getBankChangeQueue } from '@/lib/queries/adminBank';
 import { Avatar } from '@/components/avatar';
 import { KpiCard } from '@/components/kpi-card';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
@@ -23,10 +25,11 @@ export default async function AdminVerificationPage({
   const { status } = await searchParams;
   const validStatus = status && (STATUS_FILTERS as readonly string[]).includes(status) ? (status as KycStatus) : undefined;
 
-  const [allSellers, settings, acceptances] = await Promise.all([
+  const [allSellers, settings, acceptances, bankQueue] = await Promise.all([
     getSellersForVerification(),
     getSettings(),
     prisma.sellerTermsAcceptance.findMany({ orderBy: { acceptedAt: 'desc' } }),
+    getBankChangeQueue(),
   ]);
   const currentTermsVersion = String(settings['accounts.termsVersion']);
   const expiryWarnDays = Number(settings['accounts.documentExpiryWarnDays']);
@@ -81,6 +84,25 @@ export default async function AdminVerificationPage({
           <KpiCard key={kpi.label} {...kpi} size="compact" />
         ))}
       </div>
+
+      <section aria-labelledby="bank-queue-heading" className="mb-8">
+        <h2 id="bank-queue-heading" className="mb-1 text-heading-sm text-ink">
+          Bank-detail changes <span className="font-normal text-muted-foreground tabular-nums">({bankQueue.waiting.length} waiting)</span>
+        </h2>
+        <p className="mb-3 max-w-[64ch] text-pretty text-sm text-muted-foreground">
+          An approved seller asked to change where payouts go and confirmed the emailed code. Payouts to that seller are held until you decide. You can require a confirmation call first.
+          {bankQueue.openCodes > 0 && ` ${bankQueue.openCodes} more ${bankQueue.openCodes === 1 ? 'is' : 'are'} waiting for the seller to enter the code.`}
+        </p>
+        {bankQueue.waiting.length === 0 ? (
+          <p className="rounded-md bg-card-alt px-4 py-3 text-sm text-muted-foreground">Nothing waiting for review.</p>
+        ) : (
+          <ul className="space-y-4">
+            {bankQueue.waiting.map((r) => (
+              <BankChangeReviewCard key={r.id} request={r} />
+            ))}
+          </ul>
+        )}
+      </section>
 
       <div className="mb-6 flex flex-wrap gap-1">
         <Link href="/admin/verification">

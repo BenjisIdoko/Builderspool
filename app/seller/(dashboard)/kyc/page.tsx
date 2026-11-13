@@ -10,6 +10,9 @@ import { lagosYmd } from '@/lib/bidding/schedule';
 import { describeExpiry, documentExpiryState } from '@/lib/kyc/expiry';
 import { isKycUploadConfigured } from '@/lib/storage/kycDocuments';
 import { KycForm } from '@/components/seller/kyc-form';
+import { BankChangePanel } from '@/components/seller/bank-change-panel';
+import { maskAccount } from '@/lib/bank/hold';
+import { isWithinDays } from '@/lib/format';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { KYC_LABEL } from '@/lib/labels';
@@ -44,6 +47,18 @@ export default async function SellerKycPage() {
     prisma.sellerTermsAcceptance.findFirst({ where: { sellerUserId: actor.sellerId }, orderBy: { acceptedAt: 'desc' } }),
   ]);
   const termsVersion = String(settings['accounts.termsVersion']);
+  // An approved owner can ask to change where payouts go. Show the change in progress, or why the last one failed.
+  const showBankPanel = actor.isOwner && profile.kycStatus === 'APPROVED';
+  const bankRequests = showBankPanel
+    ? await prisma.bankChangeRequest.findMany({
+        where: { sellerId: actor.sellerId, status: { in: ['OTP_PENDING', 'PENDING_REVIEW', 'REJECTED'] } },
+        orderBy: { createdAt: 'desc' },
+        take: 3,
+      })
+    : [];
+  const openBank = bankRequests.find((r) => r.status === 'OTP_PENDING' || r.status === 'PENDING_REVIEW') ?? null;
+  const lastRejected = bankRequests.find((r) => r.status === 'REJECTED' && isWithinDays(r.reviewedAt, 14));
+  const maskedEmail = profile.user.email.replace(/^(.).*(@.*)$/, '$1***$2');
   const termsOutdated = !!acceptedTerms && acceptedTerms.version !== termsVersion;
   // A seller an admin approved without a KYC submission (a legacy or seeded
   // account) has no acceptance on record, so it never saw the banner below.
@@ -119,6 +134,26 @@ export default async function SellerKycPage() {
             Accept terms {termsVersion}
           </Button>
         </ActionForm>
+      )}
+
+      {showBankPanel && (
+        <BankChangePanel
+          current={{ bankName: profile.bankName, accountMasked: maskAccount(profile.bankAccountNumber), accountName: profile.bankAccountName }}
+          request={
+            openBank
+              ? {
+                  id: openBank.id,
+                  status: openBank.status as 'OTP_PENDING' | 'PENDING_REVIEW',
+                  newBankName: openBank.newBankName,
+                  newAccountMasked: maskAccount(openBank.newAccountNumber),
+                  newAccountName: openBank.newAccountName,
+                  codesLeft: Math.max(0, 3 - openBank.otpSentCount),
+                }
+              : null
+          }
+          maskedEmail={maskedEmail}
+          lastRejection={lastRejected?.reviewNote ?? null}
+        />
       )}
 
       {editable ? (

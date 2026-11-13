@@ -12,7 +12,7 @@ Business decisions made by the founder, newest first. Pricing and fees are the b
 | D4 | Category-sheet engine go-live | **After one supervised test day.** | `sheets.enabled` stays off. Plan: a full pool day end to end with test orders and QA, with at least two vendors holding live listings, then switch on. |
 | D5 | Seller payouts and savings withdrawals | **After Paystack is live and reviewed.** | `money.sellerPayoutsEnabled` and `money.walletWithdrawalsEnabled` stay off. |
 | D6 | Seller terms text | **Claude drafts it for founder review.** | First draft in `docs/seller-terms-draft.md`. It is a plain-language draft, not legal advice. It is not published until reviewed. |
-| D7 | Bank details after approval | **An approved seller may edit them, and the change triggers a re-check.** | Not built yet. Proposed design: the change is held as a pending bank-detail review; selling continues, and payouts to the new details are held until ops confirm the account-name match. See "To build" below. |
+| D7 | Bank details after approval | **An approved seller may edit them. A change needs a one-time code (OTP) to the owner's email, then an operations review, and a confirmation call when ops want one** (clarified by the founder, 13 Nov). | Built 13 Nov. The owner starts a change on `/seller/kyc`, confirms a 6-digit emailed code (10 minutes, 5 tries, 3 codes), and the request goes to ops on `/admin/verification`. Ops can require a call and must log it before approving. Selling continues. Payouts to that seller are held while a request is waiting for review. The new details replace the old only when ops approve. The seller is emailed the decision. |
 
 ## Still open
 
@@ -22,6 +22,10 @@ Business decisions made by the founder, newest first. Pricing and fees are the b
 
 ## To build from these decisions
 
-1. **Bank-detail change with re-check (D7).** Owner-only form for an approved seller. A change creates a pending record (old and new details kept), shows "Bank details under review" to the seller, and blocks any payout to the new details until an admin approves it. A change never takes the seller's account out of selling. Audited. Needs a small additive migration.
+1. ~~Bank-detail change with OTP, ops review and optional call (D7).~~ Built. Needs `RESEND_FROM_EMAIL` on a verified domain so the OTP reaches any seller (see below).
 2. **Seller terms page (D6).** Publish the reviewed text and bump `accounts.termsVersion` so every seller re-accepts.
 3. **Supervised test day (D4).** A runbook and a QA pass using `docs/PRD-QA.md`.
+
+## Email delivery note (for D7)
+
+The app sends email through Resend. Without a verified sending domain (`RESEND_FROM_EMAIL`), Resend's sandbox address can deliver only to the Resend account owner's own email. Before the bank-detail OTP is used by real sellers, verify a domain in Resend and set `RESEND_FROM_EMAIL` in Vercel. If the code cannot be emailed, the request is cancelled and the seller is told so; nothing changes.

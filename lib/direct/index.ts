@@ -4,6 +4,7 @@ import { getSetting } from '../settings';
 import { nairaToKobo } from '../money';
 import { postLedgerEntry } from '../ledger';
 import { refundDueKobo } from '../bidding/refund';
+import { assertNoBankChangeUnderReview } from '../bank/hold';
 
 // Buy Direct fulfilment: a paid line goes straight to the seller whose listing
 // the buyer picked. Every step is a compare-and-swap or an idempotent ledger
@@ -179,6 +180,7 @@ export async function disburseDirectPayout(id: string) {
     throw new Error('Seller payouts are switched off in Settings until Paystack is live and reviewed.');
   }
   const row = await prisma.directFulfilment.findUniqueOrThrow({ where: { id } });
+  await assertNoBankChangeUnderReview(row.sellerId);
   if (row.payoutStatus !== PayoutStatus.PROCESSED) throw new Error('Only a payout cleared by GRN (PROCESSED) can be disbursed.');
 
   // Pay exactly what the GRN made payable, whatever the commission setting is now.

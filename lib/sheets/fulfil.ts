@@ -5,6 +5,7 @@ import { nairaToKobo } from '@/lib/money';
 import { postLedgerEntry } from '@/lib/ledger';
 import { creditSavingsForSheetFulfilment } from '@/lib/wallet';
 import { startDirectFulfilment } from '@/lib/direct';
+import { assertNoBankChangeUnderReview } from '../bank/hold';
 
 function reference(prefix: string, date = new Date()) {
   const datePart = date.toISOString().slice(0, 10).replace(/-/g, '');
@@ -59,6 +60,7 @@ export async function disburseSheetPayout(id: string, now = new Date()) {
     throw new Error('Seller payouts are switched off in Settings until Paystack is live and reviewed.');
   }
   const row = await prisma.sheetFulfilment.findUniqueOrThrow({ where: { id } });
+  await assertNoBankChangeUnderReview(row.sellerId);
   if (row.payoutStatus !== PayoutStatus.PROCESSED) throw new Error('Only a payout cleared by GRN (PROCESSED) can be disbursed.');
   const payable = await prisma.ledgerEntry.findUniqueOrThrow({ where: { entryKey: `sheet-seller-payable:${id}` } });
 

@@ -190,6 +190,7 @@ model User {
 
   pickupCenter            FulfillmentCenter?       @relation("BuyerPickupCenter", fields: [pickupCenterId], references: [id], onDelete: SetNull)
   addresses               BuyerAddress[]
+  bankChangeRequests      BankChangeRequest[]
   savedStations           BuyerPickupStation[]
   staffMembership         SellerStaff?             @relation("StaffUser")
   staff                   SellerStaff[]            @relation("SellerOwner")
@@ -1327,4 +1328,53 @@ model BuyerPickupStation {
 
   @@id([buyerId, centerId])
   @@index([centerId])
+}
+
+// ─── Seller bank-detail changes ──────────────────────────────────────────────
+// An approved seller's request to change where payouts go. It needs a one-time code
+// sent to the owner's email, then an ops review (with a phone call when ops want one).
+// Payouts are held while a request is open, and the new details only replace the old
+// ones when ops approve.
+enum BankChangeStatus {
+  OTP_PENDING // waiting for the owner to enter the emailed code
+  PENDING_REVIEW // code confirmed, waiting for ops
+  APPROVED
+  REJECTED
+  CANCELLED // the owner cancelled, the code expired, or too many wrong codes
+}
+
+model BankChangeRequest {
+  id               String           @id @default(cuid())
+  sellerId         String
+  requestedById    String
+  newBankName      String
+  newAccountNumber String
+  newAccountName   String
+  // What was on file when the request was made, kept for the reviewer.
+  oldBankName      String?
+  oldAccountNumber String?
+  oldAccountName   String?
+  nameMatch        String? // MATCH | PARTIAL | MISMATCH, against the registry or business name
+  status           BankChangeStatus @default(OTP_PENDING)
+  // Only a hash of the code is stored.
+  otpHash          String?
+  otpExpiresAt     DateTime?
+  otpAttempts      Int              @default(0)
+  otpSentCount     Int              @default(1)
+  otpLastSentAt    DateTime?
+  otpVerifiedAt    DateTime?
+  callRequired     Boolean          @default(false)
+  callCompletedAt  DateTime?
+  callNote         String?
+  callById         String?
+  reviewedAt       DateTime?
+  reviewedById     String?
+  reviewNote       String?
+  createdAt        DateTime         @default(now())
+  updatedAt        DateTime         @updatedAt
+
+  seller User @relation(fields: [sellerId], references: [id], onDelete: Cascade)
+
+  @@index([sellerId, status])
+  @@index([status])
 }
