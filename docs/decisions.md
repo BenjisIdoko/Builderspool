@@ -14,11 +14,24 @@ Business decisions made by the founder, newest first. Pricing and fees are the b
 | D6 | Seller terms text | **Claude drafts it for founder review.** | First draft in `docs/seller-terms-draft.md`. It is a plain-language draft, not legal advice. It is not published until reviewed. |
 | D7 | Bank details after approval | **An approved seller may edit them. A change needs a one-time code (OTP) to the owner's email, then an operations review, and a confirmation call when ops want one** (clarified by the founder, 13 Nov). | Built 13 Nov. The owner starts a change on `/seller/kyc`, confirms a 6-digit emailed code (10 minutes, 5 tries, 3 codes), and the request goes to ops on `/admin/verification`. Ops can require a call and must log it before approving. Selling continues. Payouts to that seller are held while a request is waiting for review. The new details replace the old only when ops approve. The seller is emailed the decision. |
 
+## 13 November 2026 (later): service-area zoning
+
+| # | Topic | Decision | Effect |
+| --- | --- | --- | --- |
+| D8 | Zoning the 11 unzoned localities | **Two central zones and one zone per outer area council.** | Created `AMAC – City Centre` (Wuse, Garki, Maitama, Asokoro, Apo), `AMAC – Jabi / Utako / Gwarinpa corridor` (Jabi, Utako, Gwarinpa), `Kuje Area Council`, `Kwali Area Council` and `Abaji Area Council`. Every locality is now in a zone (0 unzoned). Audit entries were written for each change. |
+| D9 | Fees for the new zones | **None yet.** The new zones are active with no fee, so buyers there can pick up but cannot choose delivery until a fee is set. The five original zones keep their N15,000 flat fee. | The founder asked whether delivery could be priced by distance (Google Maps) instead. That is a design question, not decided: see below. |
+
+### Open: distance-based delivery fee
+
+Idea: price delivery by distance from the pickup station (or fulfilment centre) to the buyer's address. Needs: coordinates for stations, an address search with coordinates at checkout (Google Places or similar), a distance lookup (Google Routes or similar, billed per request, with an API key), and a business-set formula (base fee, rate per km, minimum, maximum, rounding). Zones would still decide pooling and which sellers can bid; only the fee would change. Fallback to the zone's flat fee if the lookup fails. Awaiting the founder's decision and formula.
+
 ## Still open
 
 - Commission (D3).
 - The date for the supervised test day (D4).
-- Station coordinates and opening hours, if the "closest station" suggestion is wanted (D1).
+- Station coordinates and opening hours, if the "closest station" suggestion is wanted (D1). The same coordinates would be needed for distance-based delivery fees.
+- Delivery fees for the five new zones, or a distance-based fee model (D9).
+- Approving sellers for the new zones: none has approved coverage there yet, so pooled lines in those zones have no bidders until sellers ask for the zones and ops approve.
 
 ## To build from these decisions
 

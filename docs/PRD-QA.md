@@ -85,7 +85,7 @@ These are acknowledged and tracked by the product owner. Report them only if the
 | G3 | **Buyers receive no notifications** except the verification and password-reset emails. Sellers have an in-app bell for pools only. |
 | G4 | **Refunds are bookkeeping only.** A refund is recorded as "refund due". No money is returned automatically, and there is no refund payout tool. |
 | G5 | **Seller payouts are off** (`money.sellerPayoutsEnabled`). Savings withdrawals are off (`money.walletWithdrawalsEnabled`). The server must refuse both, and the buttons must say why. |
-| G6 | **Eleven Abuja localities have no delivery zone** (Wuse, Garki, Maitama, Asokoro, Gwarinpa, Jabi, Utako, Apo, Kuje, Kwali, Abaji). Buyers there can only pick up. |
+| G6 | **Five zones have no delivery fee yet** (decided 13 Nov): AMAC City Centre, AMAC Jabi / Utako / Gwarinpa corridor, Kuje, Kwali and Abaji. Every locality is now in a zone, but in these five buyers can only pick up until a fee is set. No seller has approved coverage for them either. |
 | G7 | **Two bidding models sit side by side in the seller menu.** Open cycles, My bids and Allocations are the older per-material flow. RFQs is the new category flow. |
 | G8 | **Pickup stations.** Decided 13 Nov 2026: the buyer chooses the station nearest their site, and the home page no longer names one centre. The seeded Abuja station ("Abuja Central, Plot 12, Idu Industrial Area") is seed data until the team replaces it. Only one station per region exists until admin adds more. |
 | G9 | **Photo size cap mismatch.** The site rejects photos over 4 MB while the written rule says 5 MB. |

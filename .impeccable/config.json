@@ -1,0 +1,23 @@
+{
+  "detector": {
+    "ignoreRules": [],
+    "ignoreFiles": [],
+    "ignoreValues": [
+      {
+        "rule": "overused-font",
+        "value": "plus jakarta sans",
+        "createdAt": "2026-11-13T10:11:21.364Z",
+        "reason": "assistant: Plus Jakarta Sans is the product's documented single typeface (DESIGN.md sections 3 and 191); the email shell mirrors it and line 9 predates this session. Not user confirmed."
+      },
+      {
+        "rule": "aphoristic-cadence",
+        "value": "*",
+        "files": [
+          "docs/PRD-QA.html"
+        ],
+        "createdAt": "2026-11-13T10:11:21.389Z",
+        "reason": "assistant: generated copy of the QA test guide (docs/PRD-QA.md), technical documentation with short instructional sentences for scanning, not marketing or interface voice. Not user confirmed."
+      }
+    ]
+  }
+}

@@ -14,6 +14,7 @@ Built and live on 12 November 2026. None of these closes a gap in the promises t
 - **Address book.** A buyer saves pickup stations (from the ones BuildersPool runs) and up to 10 delivery addresses, each with a default. Checkout fills in the default delivery address and lists saved stations first. This eases stage 4 (Checkout).
 - **Pickup stations.** Admin can add, edit and delete stations at `/admin/pickup-stations`. A station that orders used cannot be deleted. Only one station per region exists until the team adds more; the Ushafa-versus-Idu question is still open.
 - **Errors and confirmations.** Failed actions now show a message beside the button instead of an error page. Money-moving and irreversible admin actions ask first.
+- **Zoning.** All 11 previously unzoned places now belong to a zone (two central zones, one each for Kuje, Kwali and Abaji). The five new zones have no delivery fee yet, so those buyers still pick up until a fee is set.
 - **Dates** show in Lagos time everywhere.
 - **Seller pages** (listings, bids, RFQs list, payouts, settings, KYC, team, allocations) were polished. The KYC form no longer loses typed answers on an error. The payouts page now counts Buy Direct and RFQ payouts as well as older bids.
 - **QA guide.** `docs/PRD-QA.md` describes requirements and test scenarios for a QA tester.
