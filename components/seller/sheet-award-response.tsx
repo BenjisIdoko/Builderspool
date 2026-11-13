@@ -27,6 +27,9 @@ export function SheetAwardResponse({ sheetId, awardId }: { sheetId: string; awar
   return (
     <div className="space-y-3">
       {declining && (
+        <p className="max-w-[64ch] text-pretty text-sm text-ink">Decline this offer? It passes to the next ranked vendor and you can&apos;t undo this.</p>
+      )}
+      {declining && (
         <Input
           value={reason}
           onChange={(e) => setReason(e.target.value)}
@@ -39,8 +42,8 @@ export function SheetAwardResponse({ sheetId, awardId }: { sheetId: string; awar
       <div className="flex flex-wrap gap-3">
         {!declining ? (
           <>
-            <Button type="button" disabled={isPending} onClick={() => run(() => acceptSheetAwardAction(sheetId, awardId))}>
-              {isPending ? 'Working…' : 'Accept the whole sheet'}
+            <Button type="button" disabled={isPending} aria-busy={isPending} onClick={() => run(() => acceptSheetAwardAction(sheetId, awardId))}>
+              {isPending ? 'Accepting…' : 'Accept the whole sheet'}
             </Button>
             <Button type="button" variant="outline" disabled={isPending} onClick={() => setDeclining(true)}>
               Decline
@@ -48,17 +51,17 @@ export function SheetAwardResponse({ sheetId, awardId }: { sheetId: string; awar
           </>
         ) : (
           <>
-            <Button type="button" variant="outline" disabled={isPending} onClick={() => run(() => declineSheetAwardAction(sheetId, awardId, reason))}>
-              {isPending ? 'Working…' : 'Confirm decline'}
+            <Button type="button" variant="destructive" disabled={isPending} aria-busy={isPending} onClick={() => run(() => declineSheetAwardAction(sheetId, awardId, reason))}>
+              {isPending ? 'Declining…' : 'Decline offer'}
             </Button>
-            <Button type="button" variant="ghost" disabled={isPending} onClick={() => setDeclining(false)}>
-              Back
+            <Button type="button" variant="outline" disabled={isPending} onClick={() => setDeclining(false)}>
+              Keep offer
             </Button>
           </>
         )}
       </div>
       {error && (
-        <p className="text-caption text-danger" role="alert">
+        <p className="text-pretty text-sm text-danger" role="alert">
           {error}
         </p>
       )}

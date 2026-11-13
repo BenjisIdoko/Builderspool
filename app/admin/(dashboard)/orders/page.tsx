@@ -54,6 +54,10 @@ function shortOrderNumber(id: string) {
   return `#${id.slice(-6).toUpperCase()}`;
 }
 
+export const metadata = { title: 'Orders' };
+
+const PILL = 'inline-flex min-h-9 items-center rounded-full px-3.5 text-xs font-semibold outline-none transition-colors duration-150 focus-visible:ring-2 focus-visible:ring-ring';
+
 export default async function AdminOrdersPage({
   searchParams,
 }: {
@@ -75,16 +79,11 @@ export default async function AdminOrdersPage({
     getActiveDispatchCount(),
   ]);
 
-  // Four cards, matching the design's KPI row: "Escrow locked custody" and
-  // "Active fleet transit" are both real (escrow.ts's held-funds definition;
-  // the real Dispatch/Vehicle haulage tracking already live on /admin/haulage).
-  // The design's fourth card is "Disputed / in review" — no Dispute model
-  // exists anywhere in the schema, so it's replaced with the real
-  // awaiting-payment count, keeping the same "needs a look" warning shape.
+  // Four cards: every order, the money held for them, deliveries on the road, and orders waiting on payment.
   const kpiCards = [
-    { label: 'Total orders fulfilled', value: String(counts.total), icon: ReceiptIcon, tone: 'info' as const, chip: 'All-time' },
-    { label: 'Escrow locked custody', value: formatNaira(escrowInCustody), icon: LockKeyIcon, tone: 'info' as const, chip: 'Held, not yet paid out' },
-    { label: 'Active fleet transit', value: `${activeDispatchCount} convoys`, icon: TruckIcon, tone: 'info' as const, chip: 'Assigned through in-transit' },
+    { label: 'Total orders', value: String(counts.total), icon: ReceiptIcon, tone: 'info' as const, chip: 'All time' },
+    { label: 'Held in escrow', value: formatNaira(escrowInCustody), icon: LockKeyIcon, tone: 'info' as const, chip: 'Not yet paid out' },
+    { label: 'Deliveries in progress', value: String(activeDispatchCount), icon: TruckIcon, tone: 'info' as const, chip: 'Assigned to in transit' },
     {
       label: 'Awaiting payment',
       value: String(counts.pending),
@@ -127,8 +126,8 @@ export default async function AdminOrdersPage({
   function sortableHead(field: OrderSortField, label: string) {
     const active = sort === field;
     return (
-      <TableHead key={field}>
-        <Link href={sortUrlFor(field)} className="inline-flex items-center gap-1 hover:text-ink">
+      <TableHead key={field} aria-sort={active ? (dir === 'asc' ? 'ascending' : 'descending') : 'none'}>
+        <Link href={sortUrlFor(field)} className="inline-flex min-h-9 items-center gap-1 rounded-sm outline-none hover:text-ink focus-visible:ring-2 focus-visible:ring-ring">
           {label}
           {active ? (
             dir === 'asc' ? (
@@ -149,22 +148,22 @@ export default async function AdminOrdersPage({
       <div className="mb-6 flex flex-wrap items-start justify-between gap-4">
         <div>
           <div className="mb-1 text-xs text-muted-foreground">Admin · logistics &amp; settlement</div>
-          <h1 className="mb-1 text-heading-lg text-ink">Marketplace orders &amp; escrow custody</h1>
-          <p className="text-sm text-muted-foreground">
-            Tracking of requisitions, escrow holds, and hub receipt confirmations across every seller.
+          <h1 className="mb-1 text-heading-lg text-ink">Orders &amp; escrow</h1>
+          <p className="max-w-[64ch] text-pretty text-sm text-muted-foreground">
+            Every order placed on BuildersPool, and the money held for it until the goods are received.
           </p>
         </div>
         <div className="flex gap-2">
           <Button asChild variant="outline" className="gap-2">
             <a href={`/api/admin/orders/export?format=csv${validStatus ? `&status=${validStatus}` : ''}${q ? `&q=${encodeURIComponent(q)}` : ''}`}>
-              <DownloadSimpleIcon className="size-4" />
-              CSV
+              <DownloadSimpleIcon aria-hidden className="size-4" />
+              Export CSV
             </a>
           </Button>
           <Button asChild variant="outline" className="gap-2">
             <a href={`/api/admin/orders/export?format=json${validStatus ? `&status=${validStatus}` : ''}${q ? `&q=${encodeURIComponent(q)}` : ''}`}>
-              <DownloadSimpleIcon className="size-4" />
-              JSON
+              <DownloadSimpleIcon aria-hidden className="size-4" />
+              Export JSON
             </a>
           </Button>
         </div>
@@ -176,35 +175,34 @@ export default async function AdminOrdersPage({
         ))}
       </div>
 
-      <h2 className="mb-3 text-label text-slate uppercase">
-        All orders · {total} matching
+      <h2 className="mb-3 text-heading-sm text-ink">
+        Orders <span className="font-normal text-muted-foreground tabular-nums">({total} matching)</span>
       </h2>
       <div className="mb-4 flex flex-wrap items-center justify-between gap-4">
-        <div className="flex flex-wrap gap-1">
+        <nav aria-label="Filter by status" className="flex flex-wrap gap-1.5">
           {STATUS_FILTERS.map((f) => {
             const active = validStatus === f.value;
             return (
-              <Link key={f.label} href={urlFor({ status: f.value ?? '', page: 1 })}>
-                <span
-                  className={`inline-flex items-center rounded-full px-3 py-1.5 text-xs font-semibold transition-colors ${
-                    active ? 'bg-ink text-canvas' : 'bg-well text-slate hover:text-ink'
-                  }`}
-                >
-                  {f.label} ({counts[f.countKey]})
-                </span>
+              <Link
+                key={f.label}
+                href={urlFor({ status: f.value ?? '', page: 1 })}
+                aria-current={active ? 'true' : undefined}
+                className={`${PILL} ${active ? 'bg-ink text-canvas' : 'bg-well text-slate hover:text-ink'}`}
+              >
+                {f.label} (<span className="tabular-nums">{counts[f.countKey]}</span>)
               </Link>
             );
           })}
-        </div>
+        </nav>
 
         <div className="flex flex-wrap items-center gap-2">
           <OrderAmountFilterDropdown current={amount} hrefFor={(a) => urlFor({ amount: a, page: 1 })} />
-          <form className="flex max-w-xs flex-1 items-center gap-2">
+          <form role="search" className="flex max-w-xs flex-1 items-center gap-2">
             {validStatus && <input type="hidden" name="status" value={validStatus} />}
             {amount !== 'any' && <input type="hidden" name="amount" value={amount} />}
             <div className="relative flex-1">
-              <MagnifyingGlassIcon className="pointer-events-none absolute top-1/2 left-3 size-4 -translate-y-1/2 text-muted-foreground" />
-              <Input name="q" defaultValue={q} placeholder="Search order ID or buyer…" className="pl-9" />
+              <MagnifyingGlassIcon aria-hidden className="pointer-events-none absolute top-1/2 left-3 size-4 -translate-y-1/2 text-muted-foreground" />
+              <Input name="q" type="search" defaultValue={q} aria-label="Search by order number or buyer" placeholder="Order number or buyer" className="pl-9" />
             </div>
             <Button type="submit" variant="outline">
               Search
@@ -226,7 +224,14 @@ export default async function AdminOrdersPage({
                   ? `No ${(STATUS_LABEL[validStatus] ?? validStatus).toLowerCase()} orders right now`
                   : 'No orders yet'
             }
-          />
+            description={q || validStatus || amount !== 'any' ? 'Try a different search or clear the filters.' : 'Orders appear here as soon as a buyer places one.'}
+          >
+            {(q || validStatus || amount !== 'any') && (
+              <Button asChild variant="outline">
+                <Link href="/admin/orders">Clear filters</Link>
+              </Button>
+            )}
+          </EmptyState>
         </div>
       ) : (
         <div className="overflow-hidden rounded-lg bg-card-alt">
@@ -270,9 +275,9 @@ export default async function AdminOrdersPage({
       )}
 
       {pageCount > 1 && (
-        <div className="mt-4 flex items-center justify-between text-sm text-muted-foreground">
+        <nav aria-label="Pages" className="mt-4 flex items-center justify-between text-sm tabular-nums text-muted-foreground">
           <span>
-            Showing page {page} of {pageCount}
+            Page {page} of {pageCount}
           </span>
           <div className="flex gap-2">
             {page <= 1 ? (
@@ -294,7 +299,7 @@ export default async function AdminOrdersPage({
               </Button>
             )}
           </div>
-        </div>
+        </nav>
       )}
     </div>
   );

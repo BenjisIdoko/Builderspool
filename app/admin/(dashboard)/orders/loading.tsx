@@ -1,4 +1,5 @@
 import { Skeleton } from '@/components/ui/skeleton';
+import { KpiRowSkeleton } from '@/components/skeletons';
 
 export default function OrdersLoading() {
   return (
@@ -15,6 +16,7 @@ export default function OrdersLoading() {
         </div>
       </div>
 
+      <KpiRowSkeleton count={4} />
       <div className="mb-6 flex flex-wrap items-center justify-between gap-4">
         <div className="flex gap-2">
           {[0, 1, 2, 3].map((i) => (

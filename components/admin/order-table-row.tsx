@@ -2,6 +2,7 @@
 
 import { useState } from 'react';
 import { Badge } from '@/components/ui/badge';
+import { Button } from '@/components/ui/button';
 import { Avatar } from '@/components/avatar';
 import { TableCell, TableRow } from '@/components/ui/table';
 import { OrderRowActions } from './order-row-actions';
@@ -46,8 +47,8 @@ export function OrderTableRow({
   return (
     <TableRow>
       <TableCell className="py-3 font-semibold text-ink" title={orderId}>
-        {shortId}
-        <div className="text-xs font-normal text-muted-foreground">
+        <span className="font-mono">{shortId}</span>
+        <div className="text-xs font-normal tabular-nums text-muted-foreground">
           {date} · {time}
         </div>
       </TableCell>
@@ -58,7 +59,7 @@ export function OrderTableRow({
             <div className="max-w-40 truncate font-medium">{buyerName}</div>
             <div className="max-w-40 truncate text-xs text-muted-foreground">{buyerEmail}</div>
             {expanded && (
-              <div className="mt-1 flex flex-wrap items-center gap-x-2 gap-y-1 text-[11.5px] text-slate">
+              <div className="mt-1 flex flex-wrap items-center gap-x-2 gap-y-1 text-caption text-slate">
                 <span>{itemCount} item{itemCount === 1 ? '' : 's'}</span>
                 <span>·</span>
                 <Badge variant="outline" className={paymentClassName}>
@@ -72,23 +73,19 @@ export function OrderTableRow({
           </div>
         </div>
       </TableCell>
-      <TableCell className="py-3 font-semibold text-ink">{total}</TableCell>
+      <TableCell className="py-3 font-semibold tabular-nums text-ink">{total}</TableCell>
       <TableCell className="py-3">
         <Badge variant="outline" className={escrowClassName}>
           {escrowLabel}
         </Badge>
       </TableCell>
       <TableCell className="py-3 text-right">
-        <button
-          type="button"
-          onClick={() => setExpanded((v) => !v)}
-          className="h-7 rounded-md border border-border-strong bg-surface px-3 text-xs font-bold text-ink hover:bg-well"
-        >
-          {expanded ? 'Hide' : 'View'}
-        </button>
+        <Button type="button" variant="outline" size="sm" aria-expanded={expanded} aria-label={`${expanded ? 'Hide' : 'Show'} details for order ${shortId}`} onClick={() => setExpanded((v) => !v)}>
+          {expanded ? 'Hide' : 'Details'}
+        </Button>
       </TableCell>
       <TableCell className="py-3 text-right">
-        <OrderRowActions orderId={orderId} />
+        <OrderRowActions orderId={orderId} shortId={shortId} />
       </TableCell>
     </TableRow>
   );

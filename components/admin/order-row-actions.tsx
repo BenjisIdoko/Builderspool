@@ -6,7 +6,7 @@ import { CheckIcon, ClipboardTextIcon, DotsThreeVerticalIcon, EyeIcon } from '@p
 import { DropdownMenu, DropdownMenuTrigger, DropdownMenuContent, DropdownMenuItem } from '@/components/ui/dropdown-menu';
 import { Button } from '@/components/ui/button';
 
-export function OrderRowActions({ orderId }: { orderId: string }) {
+export function OrderRowActions({ orderId, shortId }: { orderId: string; shortId: string }) {
   const router = useRouter();
   const [copied, setCopied] = useState(false);
 
@@ -24,18 +24,18 @@ export function OrderRowActions({ orderId }: { orderId: string }) {
   return (
     <DropdownMenu>
       <DropdownMenuTrigger asChild>
-        <Button type="button" variant="ghost" size="icon-sm" aria-label="Order actions">
+        <Button type="button" variant="ghost" size="icon-sm" aria-label={`Actions for order ${shortId}`}>
           <DotsThreeVerticalIcon className="size-4.5" />
         </Button>
       </DropdownMenuTrigger>
       <DropdownMenuContent>
         <DropdownMenuItem onSelect={() => router.push(`/admin/orders/${orderId}`)}>
           <EyeIcon />
-          View escrow dossier
+          Open order
         </DropdownMenuItem>
         <DropdownMenuItem onSelect={(e) => e.preventDefault()} onClick={copyId}>
           {copied ? <CheckIcon className="text-success" /> : <ClipboardTextIcon />}
-          {copied ? 'Copied' : 'Copy order ID'}
+          <span role="status">{copied ? 'Copied' : 'Copy order ID'}</span>
         </DropdownMenuItem>
       </DropdownMenuContent>
     </DropdownMenu>

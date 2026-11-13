@@ -4,6 +4,7 @@ import { EmptyState } from '@/components/empty-state/empty-state';
 import { NoResultsIllustration } from '@/components/empty-state/illustrations';
 import { useMemo, useState } from 'react';
 import { MagnifyingGlassIcon } from '@phosphor-icons/react/ssr';
+import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Table, TableBody, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import { FilterDropdown, FilterDropdownLabel, FilterCheckboxRow } from '@/components/ui/filter-dropdown';
@@ -40,17 +41,18 @@ export function SellerDirectoryTable({ sellers }: { sellers: SellerDirectoryEntr
   return (
     <div>
       <div className="mb-5 flex flex-wrap items-center justify-between gap-4">
-        <div className="flex flex-wrap gap-1">
+        <div role="group" aria-label="Filter by status" className="flex flex-wrap gap-1.5">
           {STATUS_TABS.map((tab) => (
             <button
               key={tab}
               type="button"
+              aria-pressed={status === tab}
               onClick={() => setStatus(tab)}
-              className={`inline-flex items-center rounded-full px-3 py-1.5 text-xs font-semibold transition-colors ${
+              className={`inline-flex min-h-9 items-center rounded-full px-3.5 text-xs font-semibold outline-none transition-colors duration-150 focus-visible:ring-2 focus-visible:ring-ring ${
                 status === tab ? 'bg-ink text-canvas' : 'bg-well text-slate hover:text-ink'
               }`}
             >
-              {tab} ({counts[tab]})
+              {tab} (<span className="tabular-nums">{counts[tab]}</span>)
             </button>
           ))}
         </div>
@@ -72,12 +74,14 @@ export function SellerDirectoryTable({ sellers }: { sellers: SellerDirectoryEntr
               </div>
             </FilterDropdown>
           )}
-          <div className="relative max-w-xs flex-1">
-            <MagnifyingGlassIcon className="pointer-events-none absolute top-1/2 left-3 size-4 -translate-y-1/2 text-muted-foreground" />
+          <div role="search" className="relative max-w-xs flex-1">
+            <MagnifyingGlassIcon aria-hidden className="pointer-events-none absolute top-1/2 left-3 size-4 -translate-y-1/2 text-muted-foreground" />
             <Input
+              type="search"
               value={search}
               onChange={(e) => setSearch(e.target.value)}
-              placeholder="Search seller name…"
+              aria-label="Search sellers by name"
+              placeholder="Seller name"
               className="pl-9"
             />
           </div>
@@ -86,7 +90,19 @@ export function SellerDirectoryTable({ sellers }: { sellers: SellerDirectoryEntr
 
       {filtered.length === 0 ? (
         <div className="rounded-card bg-card-alt">
-          <EmptyState illustration={NoResultsIllustration} variant="inline" as="p" title="No sellers match this filter" />
+          <EmptyState illustration={NoResultsIllustration} variant="inline" as="p" title="No sellers match this filter" description="Try a different search or status.">
+            <Button
+              type="button"
+              variant="outline"
+              onClick={() => {
+                setStatus('All');
+                setSearch('');
+                setCategoryFilter({});
+              }}
+            >
+              Clear filters
+            </Button>
+          </EmptyState>
         </div>
       ) : (
         <div className="overflow-hidden rounded-card bg-card-alt">
@@ -94,8 +110,8 @@ export function SellerDirectoryTable({ sellers }: { sellers: SellerDirectoryEntr
             <TableHeader>
               <TableRow>
                 <TableHead>Merchant</TableHead>
-                <TableHead>Category / depot</TableHead>
-                <TableHead className="text-right">GMV (MTD)</TableHead>
+                <TableHead>Location</TableHead>
+                <TableHead className="text-right">Sales this month</TableHead>
                 <TableHead>Status</TableHead>
                 <TableHead className="text-right">Action</TableHead>
               </TableRow>

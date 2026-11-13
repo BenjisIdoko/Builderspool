@@ -2,9 +2,21 @@
 
 Based on the live product. The category-sheet pooling engine is built and has run twice on production as a test, but it is switched off for buyers. Today real orders still use the older per-material pools.
 
-Last checked against the product on 10 November 2026. Stage feelings (1 frustrating to 5 delighted) are a design judgement from walking the product, not survey data. Everything else was checked in the code or the live database. Where this document and the product disagree, fix whichever is wrong and update the date above.
+Last checked against the product on 10 November 2026. Changes since are listed under [Changes since 10 November](#changes-since-10-november); the stage write-ups below have not been re-walked. Stage feelings (1 frustrating to 5 delighted) are a design judgement from walking the product, not survey data. Everything else was checked in the code or the live database. Where this document and the product disagree, fix whichever is wrong and update the date above.
 
-Contents: [Buyer](#buyer) · [Seller](#seller) · [Operations](#operations) · [A day in the pool](#a-day-in-the-pool) · [What the product says, and what exists](#what-the-product-says-and-what-exists) · [The onboarding helper](#the-onboarding-helper)
+Contents: [Changes since 10 November](#changes-since-10-november) · [Buyer](#buyer) · [Seller](#seller) · [Operations](#operations) · [A day in the pool](#a-day-in-the-pool) · [What the product says, and what exists](#what-the-product-says-and-what-exists) · [The onboarding helper](#the-onboarding-helper)
+
+## Changes since 10 November
+
+Built and live on 12 November 2026. None of these closes a gap in the promises table; they improve the journeys above.
+
+- **Buyer account.** `/account` is now an overview with a left menu: Orders, Savings credit, Address book, Price alerts, Profile. The header has a category mega menu and a "Hi, Name" account menu.
+- **Address book.** A buyer saves pickup stations (from the ones BuildersPool runs) and up to 10 delivery addresses, each with a default. Checkout fills in the default delivery address and lists saved stations first. This eases stage 4 (Checkout).
+- **Pickup stations.** Admin can add, edit and delete stations at `/admin/pickup-stations`. A station that orders used cannot be deleted. Only one station per region exists until the team adds more; the Ushafa-versus-Idu question is still open.
+- **Errors and confirmations.** Failed actions now show a message beside the button instead of an error page. Money-moving and irreversible admin actions ask first.
+- **Dates** show in Lagos time everywhere.
+- **Seller pages** (listings, bids, RFQs list, payouts, settings, KYC, team, allocations) were polished. The KYC form no longer loses typed answers on an error. The payouts page now counts Buy Direct and RFQ payouts as well as older bids.
+- **QA guide.** `docs/PRD-QA.md` describes requirements and test scenarios for a QA tester.
 
 ## Buyer
 

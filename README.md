@@ -14,6 +14,7 @@ keeps half of any verified saving. Live at <https://builderspool.vercel.app>.
 | --- | --- |
 | [`docs/floot-port-notes.md`](docs/floot-port-notes.md) | **The product rulebook.** The founder's own description of pooling and bidding (1b), the resolved rules (1c), the engine rules proven in earlier phases (section 2), service areas (2.11) and 26 acceptance scenarios (section 4). "Floot" in the name means the old prototype. |
 | [`docs/user-journeys.md`](docs/user-journeys.md) | **User journey map.** What a buyer, a seller and the ops team each go through, stage by stage, a day-in-the-pool timeline, what the product promises versus what exists today, and the plan for the onboarding checklists. |
+| [`docs/PRD-QA.md`](docs/PRD-QA.md) | **Product requirements and test guide for QA** (also as `docs/PRD-QA.html`, printable to PDF). Requirement IDs, acceptance criteria, money and pooling rules, test scenarios, known gaps and how to report bugs. |
 | [`DESIGN.md`](DESIGN.md) | Design system v3.0 (typography, layout, colour, motion, imagery, accessibility). |
 | `BUILDERSPOOL_PROJECT_BRIEF.md` | Original project brief. |
 | `docs/floot-prompts.md` | Obsolete: prompts written for a Floot handover. Kept for history. |
@@ -66,9 +67,11 @@ npm run create-admin -- <email> "<Display name>" --reset-password
 
 | Path | What lives there |
 | --- | --- |
-| `app/(shop)` | Storefront: home, catalogue, product, cart, checkout, orders, account |
+| `app/(shop)` | Storefront: home, catalogue, product, cart, checkout, orders, and the account area (overview, address book, savings credit, price alerts, profile) |
 | `app/seller`, `app/admin` | Seller Centre and Ops admin (the control rooms) |
 | `lib/bidding` | Cycle schedule, join, tick, scoring, award, fallback, refund |
+| `lib/actions/safe.ts`, `components/ui/action-form.tsx` | Server actions return a message instead of throwing; forms show it beside the button and can ask first |
+| `lib/labels.ts` | One wording for payout and KYC statuses (seller words and ops words) |
 | `lib/ledger.ts` | Append-only money ledger (idempotent by `entryKey`) |
 | `lib/settings` | Admin-editable settings (cycle times, scoring weights, money switches) |
 | `docs/floot-port-notes.md` | Decisions, rules to port, acceptance scenarios, testing lessons |

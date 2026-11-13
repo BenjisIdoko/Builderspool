@@ -55,9 +55,9 @@ export function RfqBidForm({ sheetId, lines }: { sheetId: string; lines: RfqLine
           const isAbove = l.ceiling !== null && entered(l) > l.ceiling.price;
           return (
             <li key={l.id} className="flex flex-wrap items-center gap-4 px-4 py-4 sm:px-5">
-              <MaterialImage imageUrl={l.imageUrl} category={l.category} alt={l.name} className="size-16 shrink-0 rounded-md border border-border" sizes="64px" />
+              <MaterialImage imageUrl={l.imageUrl} category={l.category} alt={l.name} className="size-16 shrink-0 rounded-md outline outline-1 -outline-offset-1 outline-black/10 dark:outline-white/10" sizes="64px" />
               <div className="min-w-0 flex-1 basis-48">
-                <div className="font-bold text-ink">{l.name}</div>
+                <div className="text-pretty font-bold text-ink">{l.name}</div>
                 <div className="mt-0.5 text-sm text-muted-foreground">
                   {l.quantity.toLocaleString('en-NG')} × {l.unit}
                 </div>
@@ -101,20 +101,20 @@ export function RfqBidForm({ sheetId, lines }: { sheetId: string; lines: RfqLine
       </div>
 
       {above.length > 0 && (
-        <p className="rounded-md border border-danger/25 bg-danger-soft px-4 py-3 text-sm text-danger" role="alert">
+        <p className="max-w-[64ch] text-pretty rounded-md bg-danger-soft px-4 py-3 text-sm text-danger ring-1 ring-danger/25" role="alert">
           {above.length === 1 ? 'One price is' : `${above.length} prices are`} above the limit ({above.map((l) => l.name).join(', ')}). A bid with any price above its
           limit is ruled out as a whole when bids close.
         </p>
       )}
 
       {reviewing && (
-        <p className="rounded-md bg-surface px-4 py-3 text-sm text-ink">
+        <p role="status" className="max-w-[64ch] text-pretty rounded-md bg-surface px-4 py-3 text-sm text-ink">
           You can send <strong>one</strong> bid on this sheet and cannot change it afterwards. Check your prices, then confirm.
         </p>
       )}
 
       {error && (
-        <p className="text-caption text-danger" role="alert">
+        <p className="text-pretty text-sm text-danger" role="alert">
           {error}
         </p>
       )}
@@ -126,7 +126,7 @@ export function RfqBidForm({ sheetId, lines }: { sheetId: string; lines: RfqLine
           </Button>
         ) : (
           <>
-            <Button type="button" disabled={isPending} onClick={submit}>
+            <Button type="button" disabled={isPending} aria-busy={isPending} onClick={submit}>
               {isPending ? 'Sending…' : 'Confirm and send bid'}
             </Button>
             <Button type="button" variant="outline" disabled={isPending} onClick={() => setReviewing(false)}>

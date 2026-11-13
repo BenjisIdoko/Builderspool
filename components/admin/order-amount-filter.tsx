@@ -26,7 +26,8 @@ export function OrderAmountFilterDropdown({
           <Link
             key={opt.value}
             href={hrefFor(opt.value)}
-            className="flex items-center gap-2 py-0.5 text-[13px] text-ink no-underline hover:text-brand"
+            aria-current={current === opt.value ? 'true' : undefined}
+            className="flex min-h-9 items-center gap-2 rounded-sm py-0.5 text-sm text-ink no-underline outline-none hover:text-brand focus-visible:ring-2 focus-visible:ring-ring"
           >
             <span
               className={`flex size-3.5 shrink-0 items-center justify-center rounded-full border ${
