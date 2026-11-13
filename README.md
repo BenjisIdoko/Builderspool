@@ -14,6 +14,7 @@ keeps half of any verified saving. Live at <https://builderspool.vercel.app>.
 | --- | --- |
 | [`docs/floot-port-notes.md`](docs/floot-port-notes.md) | **The product rulebook.** The founder's own description of pooling and bidding (1b), the resolved rules (1c), the engine rules proven in earlier phases (section 2), service areas (2.11) and 26 acceptance scenarios (section 4). "Floot" in the name means the old prototype. |
 | [`docs/user-journeys.md`](docs/user-journeys.md) | **User journey map.** What a buyer, a seller and the ops team each go through, stage by stage, a day-in-the-pool timeline, what the product promises versus what exists today, and the plan for the onboarding checklists. |
+| [`docs/decisions.md`](docs/decisions.md) | **Decisions log.** Founder decisions with dates and what each changes, what is still open, and what to build from them. |
 | [`docs/PRD-QA.md`](docs/PRD-QA.md) | **Product requirements and test guide for QA** (also as `docs/PRD-QA.html`, printable to PDF). Requirement IDs, acceptance criteria, money and pooling rules, test scenarios, known gaps and how to report bugs. |
 | [`DESIGN.md`](DESIGN.md) | Design system v3.0 (typography, layout, colour, motion, imagery, accessibility). |
 | `BUILDERSPOOL_PROJECT_BRIEF.md` | Original project brief. |

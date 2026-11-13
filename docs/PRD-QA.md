@@ -87,7 +87,7 @@ These are acknowledged and tracked by the product owner. Report them only if the
 | G5 | **Seller payouts are off** (`money.sellerPayoutsEnabled`). Savings withdrawals are off (`money.walletWithdrawalsEnabled`). The server must refuse both, and the buttons must say why. |
 | G6 | **Eleven Abuja localities have no delivery zone** (Wuse, Garki, Maitama, Asokoro, Gwarinpa, Jabi, Utako, Apo, Kuje, Kwali, Abaji). Buyers there can only pick up. |
 | G7 | **Two bidding models sit side by side in the seller menu.** Open cycles, My bids and Allocations are the older per-material flow. RFQs is the new category flow. |
-| G8 | **Pickup address mismatch.** The home page says Ushafa, Bwari. The database centre is "Abuja Central Fulfillment Centre, Plot 12, Idu Industrial Area". The owner has not yet confirmed which is right. |
+| G8 | **Pickup stations.** Decided 13 Nov 2026: the buyer chooses the station nearest their site, and the home page no longer names one centre. The seeded Abuja station ("Abuja Central, Plot 12, Idu Industrial Area") is seed data until the team replaces it. Only one station per region exists until admin adds more. |
 | G9 | **Photo size cap mismatch.** The site rejects photos over 4 MB while the written rule says 5 MB. |
 | G10 | **No live delivery tracking.** Dispatch status is typed in by hand. No GPS. |
 | G11 | **No estimated delivery date** on orders. |
@@ -670,13 +670,15 @@ Pages should become usable within a few seconds on a mid-range phone over 4G. Re
 
 These are undecided by the business. Do not file them as bugs. If your test depends on one, ask the product owner.
 
-1. Which pickup address is correct for Abuja (Ushafa, Bwari or Idu)?
-2. Minimum eligible bids per line: 1 or 2?
-3. Final seller commission and fee decisions. Pricing and fees are owned by the business, not engineering.
-4. The date the category-sheet engine (`sheets.enabled`) goes live for buyers.
-5. Whether and when seller payouts and savings withdrawals are switched on.
-6. How long KYC review is expected to take (not stated in the product).
-7. Whether an approved seller may edit bank details (today they cannot).
+See `docs/decisions.md` for decisions made. Still open or not yet built:
+
+1. Final seller commission (3% is in use for testing).
+2. The date of the supervised test day, after which the category-sheet engine (`sheets.enabled`) goes live.
+3. Seller payouts and savings withdrawals stay off until Paystack is live and reviewed.
+4. How long KYC review is expected to take (not stated in the product).
+5. Decided but **not built yet**: an approved seller may edit bank details, which triggers a re-check. Today they cannot, so test that they cannot.
+6. The seller terms text is a draft (`docs/seller-terms-draft.md`). The app still shows the placeholder line.
+7. Minimum eligible bids per line is settled at 1.
 
 ---
 

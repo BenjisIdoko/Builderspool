@@ -152,16 +152,16 @@ export default async function Home() {
               <span className="relative block h-[200px] shrink-0 sm:h-[240px] lg:h-[250px]">
                 <Image
                   src="/hero/ushafa.webp"
-                  alt="Ushafa Fulfilment Centre"
+                  alt="A BuildersPool fulfilment centre with stacked building materials"
                   fill
                   sizes="(min-width: 1024px) 740px, 100vw"
                   className="object-cover object-[50%_30%]"
                 />
               </span>
               <span className="flex flex-1 flex-col justify-end p-6 lg:p-8">
-                <span className="text-label uppercase text-cyan">Ushafa Fulfilment Centre</span>
+                <span className="text-label uppercase text-cyan">Pickup stations</span>
                 <span className="mt-2 text-heading-xl">Collect free. ₦0 delivery.</span>
-                <span className="mt-2 text-body-sm text-on-navy-muted">Mon–Sat, 8am–6pm · Bwari Area Council</span>
+                <span className="mt-2 text-body-sm text-on-navy-muted">Choose the station closest to your site at checkout.</span>
               </span>
             </div>
             <Link
@@ -181,7 +181,7 @@ export default async function Home() {
           </div>
           <p className="mt-6 max-w-[72ch] text-pretty text-caption text-slate">
             Delivery is a flat fee for your area, shown before you pay, across {DELIVERY_ZONES.join(', ')}. Or collect free
-            at the Ushafa Fulfilment Centre, Monday to Saturday, 8am – 6pm.
+            from the pickup station closest to your site.
           </p>
         </section>
       </Reveal>
