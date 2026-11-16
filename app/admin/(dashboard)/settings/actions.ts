@@ -5,6 +5,7 @@ import { prisma } from '@/lib/prisma';
 import { requireAdminUser } from '@/lib/admin/session';
 import { recordAudit } from '@/lib/audit';
 import { SETTING_DEFINITIONS } from '@/lib/settings/definitions';
+import { getDeliveryReadiness } from '@/lib/delivery/readiness';
 import { getSettings, parseSettingValue, validateSettingsSet, type SettingValues } from '@/lib/settings';
 
 // Errors are returned as data (not thrown) so the form can show them — Next
@@ -17,6 +18,15 @@ export async function updateSettingsAction(formData: FormData): Promise<{ error:
     const next: SettingValues = {};
     for (const def of SETTING_DEFINITIONS) next[def.key] = parseSettingValue(def, formData.get(def.key));
     validateSettingsSet(next);
+
+    // Distance pricing cannot go live while an input is missing, or buyers would be quoted from guesses.
+    if (next['delivery.distancePricingEnabled'] && !current['delivery.distancePricingEnabled']) {
+      const { checks, allReady } = await getDeliveryReadiness();
+      if (!allReady) {
+        const missing = checks.filter((c) => !c.ready).map((c) => c.label.toLowerCase());
+        throw new Error(`Delivery pricing is not ready: ${missing.join(', ')}. See the Delivery pricing page.`);
+      }
+    }
 
     const changed = SETTING_DEFINITIONS.filter((d) => next[d.key] !== current[d.key]);
     if (changed.length === 0) return { saved: 0 };

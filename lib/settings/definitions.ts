@@ -15,7 +15,7 @@ export interface SettingDefinition {
   max?: number;
 }
 
-export type SettingGroupId = 'cycle' | 'sheets' | 'scoring' | 'pool' | 'fees' | 'money' | 'accounts';
+export type SettingGroupId = 'cycle' | 'sheets' | 'scoring' | 'pool' | 'fees' | 'money' | 'accounts' | 'delivery';
 
 export const SETTING_GROUPS: { id: SettingGroupId; title: string; description: string }[] = [
   {
@@ -38,6 +38,11 @@ export const SETTING_GROUPS: { id: SettingGroupId; title: string; description: s
   { id: 'fees', title: 'Fees and savings split', description: 'BuildersPool income lines.' },
   { id: 'money', title: 'Money movement', description: 'Switches for payouts and wallet withdrawals.' },
   { id: 'accounts', title: 'Seller accounts', description: 'Onboarding and document rules.' },
+  {
+    id: 'delivery',
+    title: 'Delivery pricing',
+    description: 'Fee from load, vehicle and distance. Vehicle rates and item weights are set under Delivery pricing in the admin menu.',
+  },
 ];
 
 export const SETTING_DEFINITIONS: SettingDefinition[] = [
@@ -74,6 +79,9 @@ export const SETTING_DEFINITIONS: SettingDefinition[] = [
   { key: 'money.sellerPayoutsEnabled', label: 'Allow seller payouts', group: 'money', type: 'bool', default: false, help: 'Disabled in the MVP until Paystack is live and reviewed.' },
 
   { key: 'accounts.termsVersion', label: 'Current seller terms version', group: 'accounts', type: 'text', default: 'v1', help: 'Changing this asks every seller to accept the new terms.' },
+  { key: 'delivery.distancePricingEnabled', label: 'Price delivery by load, vehicle and distance', group: 'delivery', type: 'bool', default: false, help: 'Off: checkout keeps the zone or region flat fee. It cannot be turned on until the Delivery pricing page shows every check as ready.' },
+  { key: 'delivery.baseFare', label: 'Base fare per trip (naira)', group: 'delivery', type: 'int', default: 3000, min: 0, max: 1000000, help: 'Charged once for every vehicle trip, before the per-kilometre rate.' },
+  { key: 'delivery.roundTo', label: 'Round the fee up to the next (naira)', group: 'delivery', type: 'int', default: 50, min: 1, max: 10000 },
   { key: 'accounts.documentExpiryWarnDays', label: 'Warn about expiring documents (days before)', group: 'accounts', type: 'int', default: 30, min: 1, max: 365 },
 ];
 

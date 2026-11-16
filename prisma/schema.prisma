@@ -435,6 +435,9 @@ model FulfillmentCenter {
   region     String
   address    String
   createdAt  DateTime @default(now())
+  // Where it is on the map, for distance-based delivery pricing. Entered by ops.
+  latitude   Float?
+  longitude  Float?
   // The centre's own locality (service areas, docs/floot-port-notes.md 2.11).
   localityId String?
 
@@ -458,6 +461,11 @@ model Material {
   standard         String?
   dimensions       String?
   weight           String?
+  // For delivery pricing: what one unit weighs and the longest side of one unit, so the system can choose a
+  // vehicle that can carry the load and the length. Null means not entered, so delivery falls back to the zone fee.
+  unitWeightKg      Decimal?  @db.Decimal(10, 3)
+  longestSideM      Decimal?  @db.Decimal(6, 2)
+  weightConfirmedAt DateTime? // set when the business has checked the figures; estimates stay unconfirmed
   imageUrl         String? // kept as the single-image fallback everywhere except the PDP gallery
   // Room for a real multi-photo gallery (2026-09-16) — most materials only
   // have zero or one real photo today, so this holds at most `imageUrl`
@@ -538,6 +546,11 @@ model CartItem {
 // so bid-cycle assignment can read it back after payment confirms.
 model Order {
   id               String         @id @default(cuid())
+  // Distance-based delivery pricing: where the buyer's site is on the map, and how the fee was worked out
+  // (the load, the vehicles, the distance), kept so the price can always be explained.
+  deliveryLatitude  Float?
+  deliveryLongitude Float?
+  deliveryQuote     Json?
   buyerId          String
   region           String
   status           OrderStatus    @default(PENDING_PAYMENT)
@@ -1377,4 +1390,18 @@ model BankChangeRequest {
 
   @@index([sellerId, status])
   @@index([status])
+}
+
+// ─── Delivery vehicle classes ────────────────────────────────────────────────
+// The system picks the smallest active class that can carry an order's load and its longest item, and
+// prices each trip as the base fare plus ratePerKm x distance. A class with no rate is not used.
+model VehicleClass {
+  id         String   @id @default(cuid())
+  name       String   @unique
+  maxLoadKg  Int
+  maxLengthM Decimal? @db.Decimal(6, 2) // longest item it can carry; null means no limit
+  ratePerKm  Decimal? @db.Decimal(12, 2) // naira per km; null until the business sets it
+  sortOrder  Int      @default(0)
+  active     Boolean  @default(true)
+  createdAt  DateTime @default(now())
 }

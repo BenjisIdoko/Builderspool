@@ -44,6 +44,7 @@ const LINK_GROUPS = [
       { href: '/admin/areas', label: 'Service areas', icon: MapPinIcon },
       { href: '/admin/pickup-stations', label: 'Pickup stations', icon: StorefrontIcon },
       { href: '/admin/sheets', label: 'Pool sheets', icon: StackIcon },
+      { href: '/admin/delivery-pricing', label: 'Delivery pricing', icon: TruckIcon },
       { href: '/admin/haulage', label: 'Haulage & dispatch', icon: TruckIcon },
       { href: '/admin/escrow', label: 'Escrow settlement', icon: LockKeyIcon },
       { href: '/admin/savings', label: 'Savings settlement', icon: WalletIcon },

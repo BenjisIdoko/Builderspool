@@ -9,7 +9,7 @@ import { Label } from '@/components/ui/label';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { STATION_REGIONS } from '@/lib/areas/region';
 
-export type StationValues = { id: string; name: string; region: string; address: string };
+export type StationValues = { id: string; name: string; region: string; address: string; latitude: number | null; longitude: number | null };
 
 const label = (region: string) => region.charAt(0) + region.slice(1).toLowerCase();
 
@@ -80,6 +80,19 @@ function StationFields({
         <Label htmlFor={`${idPrefix}-address`}>Street address</Label>
         <Input id={`${idPrefix}-address`} name="address" required minLength={8} maxLength={200} autoComplete="off" placeholder="Shop or plot number, street, area, city" defaultValue={values?.address} />
         <p className="text-caption text-muted-foreground">Buyers see this and get a map link from it, so include a landmark if it helps.</p>
+      </div>
+      <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
+        <div className="space-y-1.5">
+          <Label htmlFor={`${idPrefix}-lat`}>Latitude (optional)</Label>
+          <Input id={`${idPrefix}-lat`} name="latitude" inputMode="decimal" autoComplete="off" placeholder="e.g. 9.2836" defaultValue={values?.latitude ?? ''} />
+        </div>
+        <div className="space-y-1.5">
+          <Label htmlFor={`${idPrefix}-lng`}>Longitude (optional)</Label>
+          <Input id={`${idPrefix}-lng`} name="longitude" inputMode="decimal" autoComplete="off" placeholder="e.g. 7.3839" defaultValue={values?.longitude ?? ''} />
+        </div>
+        <p className="text-caption text-muted-foreground sm:col-span-2">
+          Needed to price delivery by distance. In Google Maps, right-click the station and copy the two numbers.
+        </p>
       </div>
       <div className="flex flex-wrap items-center gap-3">
         <Button type="submit" disabled={isPending} aria-busy={isPending}>

@@ -68,6 +68,9 @@ export default async function AdminPickupStationsPage() {
                   <TableCell className="py-3">
                     <div className="font-medium text-ink">{s.name}</div>
                     <div className="max-w-md text-pretty text-caption text-muted-foreground">{s.address}</div>
+                    {(s.latitude === null || s.longitude === null) && (
+                      <div className="text-caption text-warning-text">No map position yet</div>
+                    )}
                     <a
                       href={viewOnMapUrl(s.address)}
                       target="_blank"
@@ -82,7 +85,7 @@ export default async function AdminPickupStationsPage() {
                   <TableCell className="py-3 text-right tabular-nums">{s._count.orderItems}</TableCell>
                   <TableCell className="py-3">
                     <div className="flex flex-wrap items-start justify-end gap-2">
-                      <EditPickupStationButton station={{ id: s.id, name: s.name, region: s.region, address: s.address }} />
+                      <EditPickupStationButton station={{ id: s.id, name: s.name, region: s.region, address: s.address, latitude: s.latitude, longitude: s.longitude }} />
                       <ActionForm
                         action={deletePickupStationAction}
                         confirm={{

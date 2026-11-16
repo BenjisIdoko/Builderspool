@@ -21,7 +21,19 @@ function readStation(formData: FormData) {
   if (name.length < 3 || name.length > 80) throw new Error('Enter a station name of 3 to 80 characters.');
   if (!(STATION_REGIONS as readonly string[]).includes(region)) throw new Error('Choose the region this station is in.');
   if (address.length < 8 || address.length > 200) throw new Error('Enter the full street address, so buyers can find it.');
-  return { name, region, address };
+  const latitude = readCoordinate(formData, 'latitude', 'Latitude', 4, 14);
+  const longitude = readCoordinate(formData, 'longitude', 'Longitude', 2.5, 15);
+  if ((latitude === null) !== (longitude === null)) throw new Error('Enter both latitude and longitude, or leave both empty.');
+  return { name, region, address, latitude, longitude };
+}
+
+// Map position, used to price delivery by distance. Optional; the range check catches the usual slip of swapping the two.
+function readCoordinate(formData: FormData, key: string, label: string, min: number, max: number): number | null {
+  const raw = text(formData, key);
+  if (raw === '') return null;
+  const n = Number(raw);
+  if (!Number.isFinite(n) || n < min || n > max) throw new Error(`${label} must be a number between ${min} and ${max} to fall inside Nigeria. Check the two aren’t swapped.`);
+  return Math.round(n * 1e6) / 1e6;
 }
 
 const label = (region: string) => region.charAt(0) + region.slice(1).toLowerCase();
