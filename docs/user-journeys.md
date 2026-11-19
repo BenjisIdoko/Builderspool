@@ -15,6 +15,7 @@ Built and live on 12 November 2026. None of these closes a gap in the promises t
 - **Pickup stations.** Admin can add, edit and delete stations at `/admin/pickup-stations`. A station that orders used cannot be deleted. Only one station per region exists until the team adds more; the Ushafa-versus-Idu question is still open.
 - **Errors and confirmations.** Failed actions now show a message beside the button instead of an error page. Money-moving and irreversible admin actions ask first.
 - **Zoning.** All 11 previously unzoned places now belong to a zone (two central zones, one each for Kuje, Kwali and Abaji). The five new zones have no delivery fee yet, so those buyers still pick up until a fee is set.
+- **Delivery pricing (16 November, built but switched off).** Admin has a new `/admin/delivery-pricing` page: vehicle classes with a rate per km, an estimated weight for each item with a "Confirmed" tick, and a checklist of what is missing before it can go live. Pickup stations take optional map coordinates. Checkout does not use it yet: buyers still see the zone fee, and the checkout side is not built. See `docs/decisions.md`, D10 to D14.
 - **Dates** show in Lagos time everywhere.
 - **Seller pages** (listings, bids, RFQs list, payouts, settings, KYC, team, allocations) were polished. The KYC form no longer loses typed answers on an error. The payouts page now counts Buy Direct and RFQ payouts as well as older bids.
 - **QA guide.** `docs/PRD-QA.md` describes requirements and test scenarios for a QA tester.
@@ -102,7 +103,7 @@ Screens: `/checkout`
 
 **Friction and gaps**
 - Eleven places, mostly central Abuja (Wuse, Garki, Maitama, Asokoro, Gwarinpa and others), have no zone, so those buyers can only pick up.
-- A flat ₦15,000 delivery is heavy on a small order.
+- A flat ₦15,000 delivery is heavy on a small order. Distance-based pricing (load, vehicle and kilometres) is built behind a switch but not live, and the checkout side is not built.
 - Buy Direct is greyed out until a seller lists.
 - A TEST tag shows because payments are not live.
 
@@ -319,6 +320,7 @@ Screens: `/admin/settings`, `/admin/areas`, `/admin/materials`
 **They do**
 - Sets the daily timelines, scoring weights (they must total 100), fees and the money switches.
 - Creates zones, sets their delivery fees and assigns localities to zones.
+- Sets up distance-based delivery pricing at `/admin/delivery-pricing` (vehicle rates, item weights) and station map positions at `/admin/pickup-stations`. Switched off until the checklist there is complete.
 - Curates the materials and catalogue prices.
 
 **Works today**
@@ -472,8 +474,8 @@ _Home page. Status: Does not match._
 
 _Home page, delivery caption. Status: Does not match._
 
-- **What exists.** Fees are now per delivery zone (₦15,000 in each of the five zones).
-- **Fix.** Reword to a per-zone fee, ideally reading the live fees.
+- **What exists.** Fees are now per delivery zone (₦15,000 in each of the five zones). Distance-based pricing is built but off, and its checkout side is not built.
+- **Fix.** Reword to a per-zone fee, ideally reading the live fees. If distance pricing goes live, reword again to "based on load and distance".
 
 ### Other gaps the map exposes
 
@@ -516,6 +518,7 @@ _Admin dashboard, until everything is green._ The sheet engine is built and test
 6. The area picker is on
 7. Seller payouts: switched on or off, stated clearly
 8. The sheet engine is on
+9. Distance-based delivery pricing, if wanted: Google Maps key set, a rate on every vehicle class, a map position on every station, a confirmed weight on every item. Otherwise it stays off and the zone fees apply. The checklist on `/admin/delivery-pricing` tracks these four.
 
 Computed from the live data. A step that needs a person to judge, such as a test checkout, stays a manual tick.
 

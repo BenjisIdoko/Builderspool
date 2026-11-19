@@ -4,8 +4,8 @@
 | --- | --- |
 | **Product** | BuildersPool, collaborative procurement for construction materials in Abuja (FCT), Nigeria |
 | **Document type** | Product requirements and test guide, written for a QA tester |
-| **Version** | 1.0 |
-| **Date** | 12 November 2026 |
+| **Version** | 1.1 |
+| **Date** | 16 November 2026 |
 | **Live site** | https://builderspool.vercel.app |
 | **Source of truth** | `docs/floot-port-notes.md` (business rules), `docs/user-journeys.md` (journeys), `DESIGN.md` (design system). Where the code and the rulebook disagree, the rulebook wins and the code is the bug. |
 
@@ -94,6 +94,7 @@ These are acknowledged and tracked by the product owner. Report them only if the
 | G12 | **The seller terms text** says "will be published before the pilot". It is a placeholder. |
 | G13 | **The map on pickup stations is a link** ("View on map") that opens an external map. There is no embedded map, and stations have no opening hours yet. |
 | G14 | **A removed (disabled) staff or admin email cannot be reused** for a new account. |
+| G15 | **Distance-based delivery pricing is built but switched off, and checkout does not use it.** The admin page, settings and calculation exist (decided 16 Nov, see `docs/decisions.md` D10 to D14). The Google Maps key, vehicle rates, station coordinates and confirmed item weights do not exist yet, so the switch cannot be turned on. Checkout still charges the zone fee. Test only the admin side (ADM-DLV) and that checkout is unchanged. |
 
 ---
 
@@ -418,6 +419,20 @@ Two tabs: **Pickup station** and **Door delivery**.
 | ADM-CAT-3 | Zones and localities | Create a zone, set its delivery fee (blank means no fee, so pickup only), activate or deactivate (deactivate asks first), assign a locality to at most one zone. Moving a locality never changes paid orders or open pools. |
 | ADM-CAT-4 | Pickup stations | Add, edit and delete stations (name 3 to 80 characters, region Abuja, Lagos or Kano, address 8 to 200 characters). A duplicate name in a region is refused. A station used by an order can be edited but not deleted. The last station in a region cannot be deleted. A station cannot move region once orders exist. Deleting asks first and states how many buyers saved it. |
 | ADM-CAT-5 | Visibility | A new station appears on buyers' address book and checkout straight away. |
+| ADM-CAT-6 | Station map position | Latitude and longitude are optional, but both or neither. Latitude must be 4 to 14 and longitude 2.5 to 15 (Nigeria), or the save is refused with a message. A station without a position shows "No map position yet" in the list. |
+
+### 7.18a Admin: delivery pricing (`ADM-DLV`)
+
+Page: `/admin/delivery-pricing` (sidebar: "Delivery pricing"). Switched off; see known gap G15.
+
+| ID | Requirement | Acceptance criteria |
+| --- | --- | --- |
+| ADM-DLV-1 | Readiness checklist | Shows four checks with a tick or an open circle: Google Maps key set, a rate on every active vehicle class, a map position on every centre, a confirmed weight on every buyer-visible item. Shows "Off: checkout still uses the zone or region fee" while the switch is off. Counts (for example "28 of 28 items still need a confirmed weight") match the data. |
+| ADM-DLV-2 | Vehicle classes | Four classes are listed: Cargo tricycle, Pickup / small van, Dropside truck, Flatbed truck. Each has maximum load (kg), longest item (m), rate per km (naira) and an "In use" tick. A class with no rate is never used. Switching "In use" on without a rate is refused with a message. Saving is audited. |
+| ADM-DLV-3 | Item weights | Every buyer-visible item is listed with weight per unit (kg), longest side (m) and a "Confirmed" tick. Ticking "Confirmed" with no weight is refused. An estimate that is not confirmed never sets a fee. Saving is audited. |
+| ADM-DLV-4 | Switch is guarded | In `/admin/settings`, group "Delivery pricing", turning on `delivery.distancePricingEnabled` is refused with "Delivery pricing is not ready" and the list of missing items until all four checks pass. Turning it off is always allowed. |
+| ADM-DLV-5 | Settings validation | Base fare accepts whole naira from 0 to 1,000,000 (default 3,000). Rounding accepts 1 to 10,000 (default 50). |
+| ADM-DLV-6 | Checkout unchanged | With the switch off, checkout shows the same delivery fees as before (zone fee, or region charge when the area picker is off). |
 
 ### 7.19 Admin: running the pool and paying out (`ADM-OPS`)
 
@@ -455,7 +470,16 @@ Two tabs: **Pickup station** and **Door delivery**.
 - **Seller payable.** Pool: bid price x quantity. Buy Direct: line value less 3%.
 - **Refund (whole kobo)** for unfilled quantity:
   `refund = locked unit price x unfilled units + round(delivery cost x unfilled units / ordered units)`
-- **Delivery fee** is a flat fee per zone (seeded at N15,000 in each of five zones). A zone with no fee offers pickup only.
+- **Delivery fee (today)** is a flat fee per zone (seeded at N15,000 in each of five zones). A zone with no fee offers pickup only.
+- **Delivery fee (distance pricing, built but off, G15).** When switched on and a quote can be worked out:
+  1. Load = sum of (quantity x weight per unit) over the order lines. Only confirmed weights count. A line with no confirmed weight makes the quote fail.
+  2. Pick the smallest active vehicle class with a rate whose maximum load covers the load and whose longest-item limit covers the longest item.
+  3. A load over the biggest class is split into full trips of the biggest class plus the smallest class that fits the remainder.
+  4. Each trip costs base fare (default N3,000) + the class's rate per km x road km from the nearest fulfilment centre to the delivery address (Google Maps).
+  5. Add the trips and round **up** to the next N50.
+  6. The fee is stored as the same amount on every order line, so refunds pro-rate it as before.
+  If the switch is off, the key is missing, a weight is unconfirmed, no centre has a position or the lookup fails, the zone fee applies. No estimated or straight-line fee is ever charged.
+  Worked example (rates are made up for illustration): 20 bags of cement is 1,000 kg, so a Pickup / small van. At N200 per km and 12.3 km: 3,000 + 200 x 12.3 = 5,460, rounded up to N5,500.
 
 ### 8.2 Reference price and eligibility
 
@@ -511,6 +535,8 @@ See SEL-LST-2. Additional rule: sellers never see the reference price on listing
 | Pool | max winners per category per zone | 5 |
 | Pool | minimum eligible bids per line | 1 (open business decision: 1 or 2) |
 | Direct | seller accept window | 24 hours |
+| Delivery | `delivery.distancePricingEnabled` | off (cannot be switched on until ready) |
+| Delivery | `delivery.baseFare` / `delivery.roundTo` | N3,000 / N50 |
 | Fees | Buy Direct commission | 3% |
 | Fees | buyer's savings share | 50% |
 | Money | seller payouts / withdrawals | off / off |
@@ -681,6 +707,7 @@ See `docs/decisions.md` for decisions made. Still open or not yet built:
 5. Bank-detail changes (OTP, ops review, optional call) are built. The OTP email needs a verified Resend sending domain to reach every seller, so ask the product owner whether it is set before testing SEL-KYC-9.
 6. The seller terms text is a draft (`docs/seller-terms-draft.md`). The app still shows the placeholder line.
 7. Minimum eligible bids per line is settled at 1.
+8. Distance-based delivery pricing waits on the founder: per-km rates, confirmed vehicle capacities, the Google Maps key, station coordinates and confirmed item weights (see `docs/decisions.md`). Its checkout side is not built.
 
 ---
 
@@ -690,7 +717,7 @@ See `docs/decisions.md` for decisions made. Still open or not yet built:
 
 **Seller Centre:** `/seller/login`, `/seller/signup`, `/seller` (dashboard), `/seller/listings`, `/seller/rfqs`, `/seller/rfqs/[sheetId]`, `/seller/bids`, `/seller/orders`, `/seller/allocations`, `/seller/payouts`, `/seller/kyc`, `/seller/settings`, `/seller/team`.
 
-**Ops admin:** `/admin/login`, `/admin`, `/admin/orders`, `/admin/orders/[id]`, `/admin/sellers`, `/admin/materials`, `/admin/materials/[id]`, `/admin/catalogue-reference`, `/admin/listings`, `/admin/direct`, `/admin/areas`, `/admin/pickup-stations`, `/admin/sheets`, `/admin/cycles/[id]`, `/admin/haulage`, `/admin/escrow`, `/admin/savings`, `/admin/users`, `/admin/team`, `/admin/verification`, `/admin/settings`, `/admin/audit-log`.
+**Ops admin:** `/admin/login`, `/admin`, `/admin/orders`, `/admin/orders/[id]`, `/admin/sellers`, `/admin/materials`, `/admin/materials/[id]`, `/admin/catalogue-reference`, `/admin/listings`, `/admin/direct`, `/admin/areas`, `/admin/pickup-stations`, `/admin/delivery-pricing`, `/admin/sheets`, `/admin/cycles/[id]`, `/admin/haulage`, `/admin/escrow`, `/admin/savings`, `/admin/users`, `/admin/team`, `/admin/verification`, `/admin/settings`, `/admin/audit-log`.
 
 **API and system:** `POST /api/checkout`, `POST /api/webhooks/payment`, `/api/pool/tick`, `/api/cron/close-cycles`, `/api/cron/cycle-tick`, `/api/cron/notify-closing-soon`, `/api/materials/search`, `/api/seller/search`, `/api/admin/search`, `/api/admin/orders`.
 
@@ -722,7 +749,8 @@ These areas changed most recently and deserve extra attention:
 
 - Category **mega menu** and the header **account menu** (buyer) and **top-bar menu** (seller).
 - Buyer **account area** with left menu, and the new **address book** (saved pickup stations and delivery addresses) with checkout prefill.
-- Admin **Pickup stations** screen and the buyer's pickup choice at checkout.
+- Admin **Pickup stations** screen and the buyer's pickup choice at checkout. Stations now take optional map coordinates (ADM-CAT-6).
+- New admin **Delivery pricing** page and settings group (ADM-DLV). Switched off: confirm that checkout delivery fees did not change.
 - Error handling: failures now return a message beside the control, with confirmation dialogs on risky admin actions.
 - **Lagos-time dates** everywhere.
 - **Seller KYC form** that keeps answers on errors, **listing** re-check after photo removal, **payouts** from all three sources, **allocations** decline confirmation.
