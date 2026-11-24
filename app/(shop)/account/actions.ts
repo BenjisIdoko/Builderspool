@@ -5,6 +5,7 @@ import { prisma } from '@/lib/prisma';
 import { requireBuyer } from '@/lib/buyer/auth';
 import { requestWithdrawal } from '@/lib/wallet';
 import { safeAction } from '@/lib/actions/safe';
+import { markNotificationRead, markAllNotificationsRead } from '@/lib/notifications';
 
 async function updateBuyerProfileImpl(formData: FormData) {
   const name = formData.get('name');
@@ -39,3 +40,17 @@ async function requestWithdrawalActionImpl() {
 export const requestWithdrawalAction = safeAction(requestWithdrawalActionImpl);
 
 export const updateBuyerProfile = safeAction(updateBuyerProfileImpl);
+
+export async function markBuyerNotificationReadAction(formData: FormData) {
+  const buyer = await requireBuyer();
+  const id = formData.get('id');
+  if (typeof id !== 'string') return;
+  await markNotificationRead(id, buyer.id);
+  revalidatePath('/', 'layout');
+}
+
+export async function markAllBuyerNotificationsReadAction() {
+  const buyer = await requireBuyer();
+  await markAllNotificationsRead(buyer.id);
+  revalidatePath('/', 'layout');
+}

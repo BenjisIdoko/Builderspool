@@ -50,6 +50,7 @@ type OrderWithDetails = Prisma.OrderGetPayload<{ include: typeof ORDER_DETAIL_IN
 export function toPlainOrder(order: OrderWithDetails) {
   return {
     ...order,
+    savingsApplied: Number(order.savingsApplied ?? 0),
     items: order.items.map((item) => ({
       ...item,
       priceLocked: Number(item.priceLocked),

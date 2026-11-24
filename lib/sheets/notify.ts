@@ -1,13 +1,25 @@
 import { CoverageStatus, KycStatus, NotificationType } from '@prisma/client';
 import { prisma } from '@/lib/prisma';
 import { formatLagosClock } from '@/lib/format';
+import { notifyUser } from '@/lib/notifications';
 
-// In-app vendor alerts for sheet events. Best effort: a failed alert is logged and
-// never blocks the pooling step it describes.
-async function send(userIds: string[], type: NotificationType, title: string, body: string, link: string) {
+// Multi-channel vendor alerts for sheet events (in-app, email, SMS, WhatsApp).
+// Best effort: a failed alert is logged and never blocks the pooling step it describes.
+async function send(userIds: string[], type: NotificationType, title: string, body: string, link: string, dedupePrefix?: string) {
   if (userIds.length === 0) return;
   try {
-    await prisma.notification.createMany({ data: userIds.map((userId) => ({ userId, type, title, body, link })) });
+    await Promise.all(
+      userIds.map((userId) =>
+        notifyUser({
+          userId,
+          type,
+          title,
+          body,
+          link,
+          dedupeKey: dedupePrefix ? `${dedupePrefix}:${userId}` : undefined,
+        }),
+      ),
+    );
   } catch (err) {
     console.error('Sheet notification failed:', type, err);
   }
@@ -31,11 +43,11 @@ export async function eligibleVendorIds(sheet: { category: string; zoneId: strin
 
 export async function notifySheetOpened(sheet: { id: string; category: string; zoneId: string; bidsCloseAt: Date }, zoneName: string) {
   const ids = await eligibleVendorIds(sheet);
-  await send(ids, NotificationType.SHEET_OPENED, 'New request for quotation', `${sheet.category} for ${zoneName} is open for bids until ${when(sheet.bidsCloseAt)}.`, `/seller/rfqs/${sheet.id}`);
+  await send(ids, NotificationType.SHEET_OPENED, 'New request for quotation', `${sheet.category} for ${zoneName} is open for bids until ${when(sheet.bidsCloseAt)}.`, `/seller/rfqs/${sheet.id}`, `sheet-opened:${sheet.id}`);
 }
 
 export async function notifySheetOffered(sellerId: string, sheet: { id: string; category: string }, rank: number, expiresAt: Date) {
-  await send([sellerId], NotificationType.SHEET_OFFERED, `You are rank ${rank}: accept the sheet`, `${sheet.category} is offered to you. Accept by ${when(expiresAt)} or it passes to the next vendor.`, `/seller/rfqs/${sheet.id}`);
+  await send([sellerId], NotificationType.SHEET_OFFERED, `You are rank ${rank}: accept the sheet`, `${sheet.category} is offered to you. Accept by ${when(expiresAt)} or it passes to the next vendor.`, `/seller/rfqs/${sheet.id}`, `sheet-offered:${sheet.id}:rank${rank}`);
 }
 
 export async function notifySheetNotAwarded(sellerIds: string[], sheet: { id: string; category: string }, reason: 'AWARDED_ELSEWHERE' | 'CANCELLED') {
@@ -45,5 +57,6 @@ export async function notifySheetNotAwarded(sellerIds: string[], sheet: { id: st
     'Sheet not awarded to you',
     reason === 'AWARDED_ELSEWHERE' ? `The ${sheet.category} sheet went to another vendor.` : `The ${sheet.category} sheet was cancelled because no vendor accepted it.`,
     `/seller/rfqs/${sheet.id}`,
+    `sheet-not-awarded:${sheet.id}`,
   );
 }

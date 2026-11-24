@@ -6,6 +6,7 @@ import { postLedgerEntry } from '@/lib/ledger';
 import { creditSavingsForSheetFulfilment } from '@/lib/wallet';
 import { startDirectFulfilment } from '@/lib/direct';
 import { assertNoBankChangeUnderReview } from '../bank/hold';
+import { notifyBuyerOrderUpdate, notifyBuyerSavingsCredited } from '@/lib/notifications';
 
 function reference(prefix: string, date = new Date()) {
   const datePart = date.toISOString().slice(0, 10).replace(/-/g, '');
@@ -19,14 +20,17 @@ function reference(prefix: string, date = new Date()) {
  * finalised, all in one transaction. A hold placed earlier is kept.
  */
 export async function issueSheetGrn(id: string, now = new Date()) {
-  const row = await prisma.sheetFulfilment.findUniqueOrThrow({ where: { id }, include: { orderItem: { include: { order: true } } } });
+  const row = await prisma.sheetFulfilment.findUniqueOrThrow({
+    where: { id },
+    include: { orderItem: { include: { order: true, material: { select: { name: true } } } } },
+  });
   if (row.status === SheetFulfilmentStatus.FAILED) throw new Error('This line was marked as not supplied, so it cannot be received.');
   if (row.status !== SheetFulfilmentStatus.PENDING || row.receivedAt) throw new Error('A GRN has already been issued for this line.');
 
   const payableKobo = nairaToKobo(row.unitPrice) * row.quantity;
   const payoutStatus = row.payoutStatus === PayoutStatus.ON_HOLD ? PayoutStatus.ON_HOLD : PayoutStatus.PROCESSED;
 
-  return prisma.$transaction(
+  const { updated, savingsEntry } = await prisma.$transaction(
     async (tx) => {
       const { count } = await tx.sheetFulfilment.updateMany({
         where: { id, status: SheetFulfilmentStatus.PENDING, receivedAt: null, payoutStatus: row.payoutStatus },
@@ -47,11 +51,31 @@ export async function issueSheetGrn(id: string, now = new Date()) {
         tx,
       );
       const fresh = await tx.sheetFulfilment.findUniqueOrThrow({ where: { id }, include: { orderItem: { include: { order: true } } } });
-      await creditSavingsForSheetFulfilment(fresh, tx);
-      return tx.sheetFulfilment.findUniqueOrThrow({ where: { id } });
+      const savingsEntry = await creditSavingsForSheetFulfilment(fresh, tx);
+      const updated = await tx.sheetFulfilment.findUniqueOrThrow({ where: { id } });
+      return { updated, savingsEntry };
     },
     { timeout: 20_000, maxWait: 10_000 },
   );
+
+  await notifyBuyerOrderUpdate(
+    row.orderItem.order.buyerId,
+    row.orderItem.orderId,
+    `Received at fulfilment centre: ${row.orderItem.material.name}`,
+    `We have received and checked ${row.quantity} units of ${row.orderItem.material.name} (${updated.grnNumber}).`,
+    `sheet-grn:${id}`,
+  );
+  if (savingsEntry) {
+    await notifyBuyerSavingsCredited(
+      row.orderItem.order.buyerId,
+      row.orderItem.orderId,
+      row.orderItem.material.name,
+      Number(savingsEntry.buyerShare),
+      `savings-credited:sheet:${id}`,
+    );
+  }
+
+  return updated;
 }
 
 /** Pays the vendor once the GRN has cleared the line and the payout switch is on. */

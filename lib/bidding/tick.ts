@@ -5,6 +5,7 @@ import { expireOverdueDirect } from '../direct';
 import { advanceSheets, countDueSheets } from '../sheets/tick';
 import { awardCycle } from './award';
 import { expireOverdueAllocations, finalizeCycleFallback, type FallbackReport } from './fallback';
+import { runAutomatedReminders, type ReminderReport } from '../notifications/reminders';
 import type { CycleCloseReport } from './types';
 
 export interface TickReport {
@@ -15,6 +16,7 @@ export interface TickReport {
   fallbacks: FallbackReport[];
   sheetsFrozen: string[];
   sheetsClosed: string[];
+  reminders?: ReminderReport;
 }
 
 // Moves a cycle OPEN -> BIDDING: demand is frozen, the RFQ is issued and
@@ -87,10 +89,14 @@ export async function advanceCycles(now = new Date()): Promise<TickReport> {
   report.sheetsFrozen = sheets.frozen;
   report.sheetsClosed = sheets.closed;
 
+  // Periodic e-commerce reminders (unpaid orders, cart reminders, expiring seller awards, price alerts).
+  report.reminders = await runAutomatedReminders(now);
+
   return report;
 }
 
 let lastNudge = 0;
+let lastReminderCheck = 0;
 
 /**
  * Advances every deadline that has passed, but only if something is due (a few cheap
@@ -114,7 +120,15 @@ export async function advanceIfDue(now = new Date()): Promise<boolean> {
     where: { status: DirectStatus.AWAITING_ACCEPT, acceptDeadlineAt: { lte: now } },
   });
   const dueSheets = await countDueSheets(now);
-  if (due + overdueAwards + overdueDirect + dueSheets === 0) return false;
+  if (due + overdueAwards + overdueDirect + dueSheets === 0) {
+    // Even if no pool stage transition is due right now, sweep reminders every 5 minutes.
+    if (now.getTime() - lastReminderCheck >= 5 * 60_000) {
+      lastReminderCheck = now.getTime();
+      await runAutomatedReminders(now);
+    }
+    return false;
+  }
+  lastReminderCheck = now.getTime();
   await advanceCycles(now);
   return true;
 }

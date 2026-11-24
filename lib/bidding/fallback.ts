@@ -3,7 +3,7 @@ import { AllocationStatus, BidStatus, type Allocation } from '@prisma/client';
 import { getSettings } from '../settings';
 import { refundDueKobo } from './refund';
 import { postLedgerEntry } from '../ledger';
-import { notifyAwardLapsed, notifyBidWon } from '../notifications';
+import { notifyAwardLapsed, notifyBidWon, notifyBuyerOrderUpdate } from '../notifications';
 import { allocateDemand } from './allocate';
 
 // What happens to an award a supplier doesn't take (Transfer File 5.4):
@@ -219,6 +219,7 @@ export async function finalizeCycleFallback(cycleId: string, now = new Date()): 
     where: { bidCycleId: cycleId },
     include: {
       order: { select: { id: true, buyerId: true } },
+      material: { select: { name: true, unit: true } },
       allocations: { where: { status: { not: AllocationStatus.CANCELLED } }, select: { quantityFilled: true } },
     },
   });
@@ -240,6 +241,13 @@ export async function finalizeCycleFallback(cycleId: string, now = new Date()): 
       orderItemId: item.id,
       userId: item.order.buyerId,
     });
+    await notifyBuyerOrderUpdate(
+      item.order.buyerId,
+      item.order.id,
+      `Pool update: ${item.material.name}`,
+      `No supplier covered ${unfilled} of ${item.quantity} ${item.material.unit} of ${item.material.name} in this pool. A refund has been recorded on your order.`,
+      `fallback-refund:${item.id}`,
+    );
     unsuccessfulLines += 1;
     unfilledUnits += unfilled;
   }

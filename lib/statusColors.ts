@@ -147,6 +147,7 @@ export function fulfillmentStageTone(title: string): PillTone {
 export function walletEntryTone(state: WalletEntryState): PillTone {
   switch (state) {
     case WalletEntryState.PAID:
+    case WalletEntryState.APPLIED_TO_ORDER:
       return 'success';
     case WalletEntryState.WITHDRAWAL_REQUESTED:
       return 'info';

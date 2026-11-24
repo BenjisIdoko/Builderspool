@@ -10,6 +10,11 @@ import {
   ClockCountdownIcon,
   TrophyIcon,
   XCircleIcon,
+  ReceiptIcon,
+  WalletIcon,
+  TruckIcon,
+  TagIcon,
+  ShoppingCartIcon,
 } from '@phosphor-icons/react/ssr';
 import { markNotificationReadAction, markAllNotificationsReadAction } from '@/app/seller/actions';
 import { Button } from '@/components/ui/button';
@@ -26,6 +31,16 @@ const TYPE_ICON: Record<NotificationType, React.ComponentType<{ className?: stri
   BID_LOST: XCircleIcon,
   SHEET_OPENED: PackageIcon,
   SHEET_OFFERED: TrophyIcon,
+  DIRECT_ORDER_RECEIVED: PackageIcon,
+  ACCEPT_REMINDER: ClockCountdownIcon,
+  ORDER_PLACED: ReceiptIcon,
+  ORDER_PAID: ReceiptIcon,
+  PAYMENT_REMINDER: ClockCountdownIcon,
+  CART_REMINDER: ShoppingCartIcon,
+  ORDER_UPDATE: PackageIcon,
+  SAVINGS_CREDITED: WalletIcon,
+  DISPATCH_UPDATE: TruckIcon,
+  PRICE_ALERT_REACHED: TagIcon,
 };
 
 const TYPE_TONE: Record<NotificationType, string> = {
@@ -35,6 +50,16 @@ const TYPE_TONE: Record<NotificationType, string> = {
   BID_LOST: 'bg-danger-soft text-danger',
   SHEET_OPENED: 'bg-pale-blue text-cyan-text',
   SHEET_OFFERED: 'bg-success-soft text-success',
+  DIRECT_ORDER_RECEIVED: 'bg-pale-blue text-cyan-text',
+  ACCEPT_REMINDER: 'bg-warning-soft text-warning-text',
+  ORDER_PLACED: 'bg-pale-blue text-cyan-text',
+  ORDER_PAID: 'bg-success-soft text-success',
+  PAYMENT_REMINDER: 'bg-warning-soft text-warning-text',
+  CART_REMINDER: 'bg-warning-soft text-warning-text',
+  ORDER_UPDATE: 'bg-pale-blue text-cyan-text',
+  SAVINGS_CREDITED: 'bg-success-soft text-success',
+  DISPATCH_UPDATE: 'bg-pale-blue text-cyan-text',
+  PRICE_ALERT_REACHED: 'bg-success-soft text-success',
 };
 
 function timeAgo(date: Date) {

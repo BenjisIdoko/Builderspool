@@ -3,7 +3,7 @@
 import { useState } from 'react';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
-import { BankIcon, CheckCircleIcon, CircleIcon, DeviceMobileIcon, MapPinIcon, TruckIcon, CreditCardIcon, LockKeyIcon } from '@phosphor-icons/react/ssr';
+import { BankIcon, CheckCircleIcon, CircleIcon, DeviceMobileIcon, MapPinIcon, TruckIcon, CreditCardIcon, LockKeyIcon, WalletIcon } from '@phosphor-icons/react/ssr';
 import type { PaymentMethod } from '@prisma/client';
 import { useCart } from '@/lib/cart/CartContext';
 import type { CheckoutAreas } from '@/lib/queries/checkoutAreas';
@@ -83,6 +83,7 @@ export function CheckoutForm({
   poolDay,
   poolCloseTime,
   earliestDate,
+  availableSavingsCredit = 0,
   testMode,
 }: {
   /** The locality picker's data; `enabled` is false until the setting is switched on. */
@@ -102,6 +103,8 @@ export function CheckoutForm({
   poolCloseTime: string;
   /** YYYY-MM-DD, tomorrow in Lagos. */
   earliestDate: string;
+  /** Available Savings Wallet credit in Naira that can be applied at checkout. */
+  availableSavingsCredit?: number;
   testMode: boolean;
 }) {
   const router = useRouter();
@@ -125,11 +128,27 @@ export function CheckoutForm({
   const deliveryAvailable = !areas.enabled || (zone !== null && zone.fee !== null);
   const costFor = (method: FulfillmentMethod) =>
     areas.enabled ? (method === 'DELIVERY' ? (zone?.fee ?? 0) : 0) : getDeliveryCost(region, method);
-  // How the whole cart is bought. Buy Direct needs a picked seller on every line.
+  // How the cart is bought. Buyers can set all eligible items to Buy Direct or Pool & Save,
+  // or customize each line item individually when they have a mixed cart.
   const [mode, setMode] = useState<'POOL' | 'DIRECT'>('POOL');
-  const canBuyDirect = lines.length > 0 && lines.every((l) => l.listingId);
+  const [itemModeOverrides, setItemModeOverrides] = useState<Record<string, 'POOL' | 'DIRECT'>>({});
+  const [applySavingsCredit, setApplySavingsCredit] = useState(availableSavingsCredit > 0);
+  const hasAnyPickableSeller = lines.some((l) => Boolean(l.listingId));
+  const canBuyDirectAll = lines.length > 0 && lines.every((l) => Boolean(l.listingId));
   const noSeller = lines.filter((l) => !l.listingId).map((l) => l.name);
   const noSellerText = `${noSeller.slice(0, 2).join(', ')}${noSeller.length > 2 ? ` and ${noSeller.length - 2} more` : ''}`;
+
+  const resolvedItemModes: Record<string, 'POOL' | 'DIRECT'> = {};
+  for (const l of lines) {
+    if (!l.listingId) {
+      resolvedItemModes[l.materialId] = 'POOL';
+    } else {
+      resolvedItemModes[l.materialId] = itemModeOverrides[l.materialId] ?? mode;
+    }
+  }
+  const directCount = lines.filter((l) => resolvedItemModes[l.materialId] === 'DIRECT').length;
+  const poolCount = lines.length - directCount;
+
   // Stations in the order's region: this order's own pick, else the buyer's saved
   // station if it is here, else the region's first.
   const regionCenters = centers
@@ -138,7 +157,7 @@ export function CheckoutForm({
   const [pickedCenterId, setPickedCenterId] = useState('');
   const center =
     regionCenters.find((c) => c.id === pickedCenterId) ?? regionCenters.find((c) => c.id === savedCenterId) ?? regionCenters[0] ?? null;
-  const effectiveMode = mode === 'DIRECT' && canBuyDirect ? 'DIRECT' : 'POOL';
+  const effectiveMode = directCount > 0 && poolCount === 0 ? 'DIRECT' : 'POOL';
   const [state, setState] = useState<SubmitState>({ status: 'idle' });
 
   // The first required field still empty, named beside the pay button so a
@@ -157,7 +176,9 @@ export function CheckoutForm({
       : null;
 
   const deliveryCost = costFor(fulfillmentMethod);
-  const total = subtotal + deliveryCost;
+  const grossTotal = subtotal + deliveryCost;
+  const savingsDiscount = applySavingsCredit ? Math.min(availableSavingsCredit, grossTotal) : 0;
+  const total = Math.max(0, grossTotal - savingsDiscount);
 
   if (lines.length === 0) {
     return (
@@ -186,7 +207,13 @@ export function CheckoutForm({
           pickupCenterId: fulfillmentMethod === 'PICKUP' ? (center?.id ?? null) : null,
           paymentMethod,
           mode: effectiveMode,
-          items: lines.map((l) => ({ materialId: l.materialId, quantity: l.quantity, listingId: l.listingId ?? null })),
+          applySavingsCredit,
+          items: lines.map((l) => ({
+            materialId: l.materialId,
+            quantity: l.quantity,
+            listingId: l.listingId ?? null,
+            mode: resolvedItemModes[l.materialId],
+          })),
           ...(fulfillmentMethod === 'DELIVERY'
             ? {
                 deliveryAddress: landmark.trim() ? `${deliveryAddress.trim()} (Landmark: ${landmark.trim()})` : deliveryAddress,
@@ -266,7 +293,12 @@ export function CheckoutForm({
         <div className="mb-3.5 text-label text-slate uppercase">
           02 · Items (<AnimatedCount value={lines.length} />)
         </div>
-        <CheckoutLineItems />
+        <CheckoutLineItems
+          itemModes={resolvedItemModes}
+          onToggleItemMode={(materialId, lineMode) =>
+            setItemModeOverrides((prev) => ({ ...prev, [materialId]: lineMode }))
+          }
+        />
         <AddMoreMaterials />
 
         {fulfillmentMethod === 'PICKUP' && center && (
@@ -484,17 +516,35 @@ export function CheckoutForm({
         <div className="mb-5 flex flex-col gap-2">
           {(
             [
-              { value: 'DIRECT', label: 'Buy Direct', body: 'From the seller you picked.', disabled: !canBuyDirect },
-              { value: 'POOL', label: 'Pool & Save', body: `Joins ${poolDay === 'today' ? 'today’s' : 'tomorrow’s'} pool, which closes at ${formatClock(poolCloseTime)}. You keep half of any saving.`, disabled: false },
+              {
+                value: 'DIRECT',
+                label: canBuyDirectAll ? 'Buy Direct' : 'Buy Direct (where seller picked)',
+                body: canBuyDirectAll
+                  ? 'From the seller you picked.'
+                  : 'Items with a seller go direct; others join Pool & Save.',
+                disabled: !hasAnyPickableSeller,
+              },
+              {
+                value: 'POOL',
+                label: 'Pool & Save',
+                body: `Joins ${poolDay === 'today' ? 'today’s' : 'tomorrow’s'} pool, which closes at ${formatClock(poolCloseTime)}. You keep half of any saving.`,
+                disabled: false,
+              },
             ] as const
           ).map((opt) => {
-            const selected = effectiveMode === opt.value;
+            const selected =
+              opt.value === 'DIRECT'
+                ? directCount > 0 && (canBuyDirectAll ? poolCount === 0 : mode === 'DIRECT')
+                : directCount === 0;
             return (
               <button
                 key={opt.value}
                 type="button"
                 disabled={opt.disabled}
-                onClick={() => setMode(opt.value)}
+                onClick={() => {
+                  setMode(opt.value);
+                  setItemModeOverrides({});
+                }}
                 className={`flex items-start gap-2.5 rounded-lg border p-3 text-left text-sm transition-[border-color,background-color,scale] duration-150 ease-out outline-none focus-visible:ring-2 focus-visible:ring-ring active:not-disabled:scale-[0.98] disabled:cursor-not-allowed disabled:opacity-60 ${
                   selected ? 'border-brand bg-info-soft' : 'border-input enabled:hover:border-brand'
                 }`}
@@ -508,7 +558,12 @@ export function CheckoutForm({
                   )}
                   {opt.disabled && opt.value === 'DIRECT' && (
                     <span className="mt-1 block text-pretty text-xs text-warning-text">
-                      Needs a seller picked on every item. Missing: {noSellerText}.
+                      Pick a seller offer on any material page to use Buy Direct. Missing: {noSellerText}.
+                    </span>
+                  )}
+                  {!opt.disabled && opt.value === 'DIRECT' && directCount > 0 && poolCount > 0 && (
+                    <span className="mt-1 block text-pretty text-xs text-brand">
+                      {directCount} direct · {poolCount} pooled (you can toggle each item on the left).
                     </span>
                   )}
                 </span>
@@ -567,6 +622,38 @@ export function CheckoutForm({
           })}
         </div>
 
+        {availableSavingsCredit > 0 && (
+          <div className="mb-5">
+            <h2 className="mb-3 text-label text-muted-foreground uppercase">Savings credit</h2>
+            <label
+              className={`flex cursor-pointer items-start justify-between gap-3 rounded-lg border p-3 text-sm transition-colors ${
+                applySavingsCredit ? 'border-brand bg-info-soft' : 'border-input hover:border-brand'
+              }`}
+            >
+              <span className="flex items-start gap-2.5">
+                <input
+                  type="checkbox"
+                  checked={applySavingsCredit}
+                  onChange={(e) => setApplySavingsCredit(e.target.checked)}
+                  className="mt-0.5 size-4 shrink-0 accent-brand"
+                />
+                <span>
+                  <span className="flex items-center gap-1.5 font-semibold text-ink">
+                    <WalletIcon className="size-4 text-brand" />
+                    Apply savings credit
+                  </span>
+                  <span className="block text-xs text-slate">
+                    Available balance: {formatNaira(availableSavingsCredit)}
+                  </span>
+                </span>
+              </span>
+              <span className="font-bold tabular-nums text-success">
+                −{formatNaira(Math.min(availableSavingsCredit, grossTotal))}
+              </span>
+            </label>
+          </div>
+        )}
+
         <p className="mb-5 flex items-center gap-2 text-xs text-slate">
           <LockKeyIcon className="size-4 shrink-0" />
           Suppliers are paid only after we receive your goods.
@@ -581,6 +668,12 @@ export function CheckoutForm({
             <span>{fulfillmentMethod === 'DELIVERY' ? 'Delivery' : 'Pickup'}</span>
             {deliveryCost === 0 ? <span className="font-bold text-ink">Free</span> : <AnimatedNaira value={deliveryCost} className="font-bold text-ink" />}
           </div>
+          {savingsDiscount > 0 && (
+            <div className="flex justify-between text-success">
+              <span>Savings credit applied</span>
+              <span className="font-bold tabular-nums">−{formatNaira(savingsDiscount)}</span>
+            </div>
+          )}
           <div className="flex justify-between border-t border-border pt-2.5 text-base font-bold text-ink">
             <span>Order total</span>
             <AnimatedNaira value={total} />
@@ -594,7 +687,13 @@ export function CheckoutForm({
           className="mt-5 w-full"
           disabled={state.status === 'submitting' || missing !== null}
         >
-          {state.status === 'submitting' ? 'Opening secure payment…' : <>Pay <AnimatedNaira value={total} /> securely</>}
+          {state.status === 'submitting'
+            ? total > 0
+              ? 'Opening secure payment…'
+              : 'Placing order…'
+            : total > 0
+              ? <>Pay <AnimatedNaira value={total} /> securely</>
+              : 'Place order with savings credit'}
         </Button>
         {missing && (
           <p className="mt-2 text-center text-caption text-slate" role="status">

@@ -1,10 +1,13 @@
 import { prisma } from '../prisma';
-import { OrderStatus, PurchaseMode, type PaymentMethod } from '@prisma/client';
+import { OrderStatus, PurchaseMode, WalletEntryState, type PaymentMethod } from '@prisma/client';
 import { getDeliveryCost, type FulfillmentMethod } from './deliveryCost';
 import { getSetting } from '../settings';
 import { regionForState } from '../areas/region';
 import { findServingCenter } from './findServingCenter';
 import { getPickableListing } from '../queries/offers';
+import { koboToNaira, nairaToKobo } from '../money';
+import { postLedgerEntry } from '../ledger';
+import { notifyBuyerOrderPlaced } from '../notifications';
 
 export interface CheckoutInput {
   buyerId: string;
@@ -17,11 +20,13 @@ export interface CheckoutInput {
   // order's region; without one, the region's default station is used.
   pickupCenterId?: string | null;
   paymentMethod: PaymentMethod;
-  // How the whole cart is bought. DIRECT needs a picked seller on every line.
+  // How the whole cart is bought by default (each item can also override its mode).
   mode?: 'POOL' | 'DIRECT';
+  // Whether to apply the buyer's available Savings Wallet balance toward this order.
+  applySavingsCredit?: boolean;
   // listingId is the seller offer the buyer picked; the price is always read
   // from that listing here, never from the client.
-  items: { materialId: string; quantity: number; listingId?: string | null }[];
+  items: { materialId: string; quantity: number; listingId?: string | null; mode?: 'POOL' | 'DIRECT' }[];
   // Required by validation below when fulfillmentMethod is DELIVERY; ignored
   // (and never persisted) for PICKUP, so a pickup order never carries stray
   // delivery-looking data.
@@ -99,13 +104,21 @@ export async function createOrder(input: CheckoutInput) {
     picks.set(item.materialId, { id: listing.id, price: Number(listing.price) });
   }
 
-  const mode = input.mode === 'DIRECT' ? PurchaseMode.DIRECT : PurchaseMode.POOL;
-  if (mode === PurchaseMode.DIRECT) {
-    const unpicked = input.items.find((item) => !picks.has(item.materialId));
-    if (unpicked) {
-      const name = materialById.get(unpicked.materialId)?.name ?? 'an item';
-      throw new Error(`Buy Direct needs a seller for every item. Pick a seller for ${name}, or choose Pool & Save.`);
+  const defaultMode = input.mode === 'DIRECT' ? PurchaseMode.DIRECT : PurchaseMode.POOL;
+  const itemModes = new Map<string, PurchaseMode>();
+  for (const item of input.items) {
+    const requestedMode = item.mode
+      ? item.mode === 'DIRECT'
+        ? PurchaseMode.DIRECT
+        : PurchaseMode.POOL
+      : defaultMode;
+    // If an item requests DIRECT, it must have a picked seller offer; if cart-level
+    // mode was DIRECT and only a subset has a seller, require every DIRECT line to have a seller.
+    if (requestedMode === PurchaseMode.DIRECT && !picks.has(item.materialId)) {
+      const name = materialById.get(item.materialId)?.name ?? 'an item';
+      throw new Error(`Buy Direct needs a seller picked for ${name}. Pick a seller or switch that item to Pool & Save.`);
     }
+    itemModes.set(item.materialId, requestedMode);
   }
 
   // Every order routes through a fulfillment center regardless of method —
@@ -164,7 +177,18 @@ export async function createOrder(input: CheckoutInput) {
       }
     : { deliveryAddress: null, deliveryContactName: null, deliveryContactPhone: null, deliveryWindow: null, deliveryNotes: null };
 
-  return prisma.$transaction(async (tx) => {
+  // Compute gross order total in kobo so we can safely apply available savings credit.
+  let grossSubtotalKobo = 0;
+  for (const item of input.items) {
+    const material = materialById.get(item.materialId);
+    if (!material) throw new Error('An item in your cart is no longer in the catalogue. Remove it and try again.');
+    const pick = picks.get(material.id);
+    const unitKobo = nairaToKobo(pick ? pick.price : material.catalogPrice);
+    grossSubtotalKobo += unitKobo * item.quantity;
+  }
+  const grossTotalKobo = grossSubtotalKobo + nairaToKobo(deliveryCost);
+
+  const createdOrder = await prisma.$transaction(async (tx) => {
     const order = await tx.order.create({
       data: {
         buyerId: input.buyerId,
@@ -173,6 +197,7 @@ export async function createOrder(input: CheckoutInput) {
         zoneId: area?.zoneId ?? null,
         status: OrderStatus.PENDING_PAYMENT,
         paymentMethod: input.paymentMethod,
+        savingsApplied: 0,
         ...delivery,
       },
     });
@@ -182,6 +207,7 @@ export async function createOrder(input: CheckoutInput) {
       if (!material) throw new Error('An item in your cart is no longer in the catalogue. Remove it and try again.');
 
       const pick = picks.get(material.id);
+      const lineMode = itemModes.get(material.id) ?? defaultMode;
       await tx.orderItem.create({
         data: {
           orderId: order.id,
@@ -189,11 +215,83 @@ export async function createOrder(input: CheckoutInput) {
           quantity: item.quantity,
           priceLocked: pick ? pick.price : material.catalogPrice,
           listingId: pick?.id ?? null,
-          mode,
+          mode: lineMode,
           deliveryCost,
           fulfilmentCenterId: center.id,
         },
       });
+    }
+
+    // Apply available Savings Wallet entries (oldest first) when requested by the buyer.
+    let appliedKobo = 0;
+    if (input.applySavingsCredit && grossTotalKobo > 0) {
+      const availableEntries = await tx.savingsWalletEntry.findMany({
+        where: { buyerId: input.buyerId, state: WalletEntryState.AVAILABLE },
+        orderBy: { createdAt: 'asc' },
+      });
+
+      const now = new Date();
+      for (const entry of availableEntries) {
+        if (appliedKobo >= grossTotalKobo) break;
+        const entryKobo = nairaToKobo(entry.buyerShare);
+        if (entryKobo <= 0) continue;
+
+        const remainingKobo = grossTotalKobo - appliedKobo;
+        if (entryKobo <= remainingKobo) {
+          const { count } = await tx.savingsWalletEntry.updateMany({
+            where: { id: entry.id, state: WalletEntryState.AVAILABLE },
+            data: { state: WalletEntryState.APPLIED_TO_ORDER, appliedOrderId: order.id, appliedAt: now },
+          });
+          if (count > 0) {
+            appliedKobo += entryKobo;
+          }
+        } else {
+          // Entry exceeds the remaining order balance: split the entry so the
+          // unused remainder stays AVAILABLE in the buyer's wallet.
+          const usedKobo = remainingKobo;
+          const leftoverKobo = entryKobo - usedKobo;
+          const { count } = await tx.savingsWalletEntry.updateMany({
+            where: { id: entry.id, state: WalletEntryState.AVAILABLE },
+            data: {
+              buyerShare: koboToNaira(usedKobo),
+              state: WalletEntryState.APPLIED_TO_ORDER,
+              appliedOrderId: order.id,
+              appliedAt: now,
+            },
+          });
+          if (count > 0) {
+            await tx.savingsWalletEntry.create({
+              data: {
+                buyerId: input.buyerId,
+                referenceValue: entry.referenceValue,
+                actualValue: entry.actualValue,
+                grossSaving: entry.grossSaving,
+                buyerShare: koboToNaira(leftoverKobo),
+                state: WalletEntryState.AVAILABLE,
+              },
+            });
+            appliedKobo += usedKobo;
+          }
+        }
+      }
+
+      if (appliedKobo > 0) {
+        await tx.order.update({
+          where: { id: order.id },
+          data: { savingsApplied: koboToNaira(appliedKobo) },
+        });
+        await postLedgerEntry(
+          {
+            account: 'BUYER_SAVINGS_CREDIT',
+            amountKobo: -appliedKobo,
+            entryKey: `savings-applied:${order.id}`,
+            memo: 'Savings credit applied toward order at checkout',
+            orderId: order.id,
+            userId: input.buyerId,
+          },
+          tx,
+        );
+      }
     }
 
     // Cleared atomically with order creation — the real source of truth for
@@ -206,4 +304,9 @@ export async function createOrder(input: CheckoutInput) {
       include: { items: true },
     });
   });
+
+  const netPayableNaira = Math.max(0, koboToNaira(grossTotalKobo) - Number(createdOrder.savingsApplied));
+  await notifyBuyerOrderPlaced(input.buyerId, createdOrder.id, createdOrder.items.length, netPayableNaira);
+
+  return createdOrder;
 }

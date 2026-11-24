@@ -6,6 +6,7 @@ import { SourcingScope } from '@prisma/client';
 import { requireAdminUser } from '@/lib/admin/session';
 import { recordAudit } from '@/lib/audit';
 import { safeAction } from '@/lib/actions/safe';
+import { notifyBuyerPriceAlertsForMaterial } from '@/lib/notifications';
 
 function optionalText(formData: FormData, key: string): string | null {
   const value = formData.get(key);
@@ -59,6 +60,7 @@ async function updateMaterialActionImpl(formData: FormData) {
 
   if (priceChanged) {
     await prisma.priceSnapshot.create({ data: { materialId: id, price } });
+    await notifyBuyerPriceAlertsForMaterial(id);
   }
   await recordAudit({
     actor: { id: admin.id, role: admin.role },

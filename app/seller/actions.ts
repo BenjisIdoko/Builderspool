@@ -12,7 +12,7 @@ import { releaseAllocation } from '@/lib/bidding/fallback';
 import { hashPassword, verifyPassword } from '@/lib/auth/password';
 import { assertNotRateLimited, recordLoginAttempt } from '@/lib/auth/rateLimit';
 import { sendVerificationForNewUser } from '@/lib/auth/emailVerification';
-import { markNotificationRead, markAllNotificationsRead } from '@/lib/notifications';
+import { markNotificationRead, markAllNotificationsRead, notifyBuyerOrderUpdate } from '@/lib/notifications';
 
 function requiredText(formData: FormData, key: string): string {
   const value = formData.get(key);
@@ -226,6 +226,20 @@ export async function acceptAllocation(formData: FormData): Promise<{ error: str
         fresh.status === AllocationStatus.PENDING
           ? 'The time to accept this award has passed.'
           : awardNoLongerWaiting(fresh.status, fresh.cancelReason),
+      );
+    }
+
+    const fullAlloc = await prisma.allocation.findUnique({
+      where: { id: allocation.id },
+      include: { orderItem: { include: { order: { select: { id: true, buyerId: true } }, material: { select: { name: true } } } } },
+    });
+    if (fullAlloc) {
+      await notifyBuyerOrderUpdate(
+        fullAlloc.orderItem.order.buyerId,
+        fullAlloc.orderItem.order.id,
+        `Supplier confirmed: ${fullAlloc.orderItem.material.name}`,
+        `A verified supplier has confirmed ${fullAlloc.quantityFilled} units of ${fullAlloc.orderItem.material.name} and is preparing delivery to our fulfilment centre.`,
+        `allocation-accepted:${fullAlloc.id}`,
       );
     }
   } catch (err) {

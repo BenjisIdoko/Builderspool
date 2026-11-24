@@ -556,6 +556,8 @@ model Order {
   status           OrderStatus    @default(PENDING_PAYMENT)
   paymentMethod    PaymentMethod?
   paymentReference String?        @unique // Paystack transaction reference for the current/latest payment attempt
+  // Savings wallet credit applied toward this order's total at checkout.
+  savingsApplied   Decimal        @default(0) @db.Decimal(12, 2)
   createdAt        DateTime       @default(now())
   paidAt           DateTime?
 
@@ -582,6 +584,7 @@ model Order {
   locality Locality?     @relation(fields: [localityId], references: [id])
   zone     DeliveryZone? @relation(fields: [zoneId], references: [id])
   items    OrderItem[]
+  appliedSavingsEntries SavingsWalletEntry[] @relation("AppliedOrderSavings")
 
   @@index([zoneId])
 }
@@ -691,6 +694,16 @@ enum NotificationType {
   BID_LOST
   SHEET_OPENED // a category sheet is open for bids
   SHEET_OFFERED // the vendor's ranked bid is offered the whole sheet
+  DIRECT_ORDER_RECEIVED // a buyer ordered a Buy Direct line from this seller
+  ACCEPT_REMINDER // seller reminder that an award/direct accept deadline is approaching
+  ORDER_PLACED // buyer placed an order (awaiting payment)
+  ORDER_PAID // buyer's order payment confirmed
+  PAYMENT_REMINDER // buyer reminder that an order is still awaiting payment
+  CART_REMINDER // buyer reminder for items waiting in their cart
+  ORDER_UPDATE // buyer update: supplier assigned, goods received at centre, or line refunded
+  SAVINGS_CREDITED // buyer earned a verified Pool & Save savings credit
+  DISPATCH_UPDATE // buyer delivery dispatch status changed
+  PRICE_ALERT_REACHED // buyer's target price on a material was reached
 }
 
 // Real, event-driven in-app alerts — created only from an actual bidding
@@ -752,6 +765,7 @@ enum WalletEntryState {
   AVAILABLE
   WITHDRAWAL_REQUESTED
   PAID
+  APPLIED_TO_ORDER
 }
 
 // Per the developer brief's Savings Wallet (Section 17): the buyer pays a
@@ -779,11 +793,14 @@ model SavingsWalletEntry {
   withdrawalRequestedAt DateTime?
   paidAt                DateTime?
   paymentReference      String?          @unique // set when marked PAID — same manual-ops pattern as seller payoutReference, no live payment rail exists yet
+  appliedOrderId        String?
+  appliedAt             DateTime?
   createdAt             DateTime         @default(now())
 
   buyer           User             @relation(fields: [buyerId], references: [id])
   allocation      Allocation?      @relation(fields: [allocationId], references: [id], onDelete: Restrict)
   sheetFulfilment SheetFulfilment? @relation(fields: [sheetFulfilmentId], references: [id], onDelete: Restrict)
+  appliedOrder    Order?           @relation("AppliedOrderSavings", fields: [appliedOrderId], references: [id], onDelete: SetNull)
 
   @@index([buyerId, state])
 }
@@ -794,17 +811,52 @@ model SavingsWalletEntry {
 // already been reached is computed at read time from the real catalogPrice,
 // never fabricated.
 model PriceAlert {
-  id          String   @id @default(cuid())
+  id          String    @id @default(cuid())
   materialId  String
   buyerId     String
-  targetPrice Decimal  @db.Decimal(12, 2)
-  active      Boolean  @default(true)
-  createdAt   DateTime @default(now())
+  targetPrice Decimal   @db.Decimal(12, 2)
+  active      Boolean   @default(true)
+  notifiedAt  DateTime?
+  createdAt   DateTime  @default(now())
 
   material Material @relation(fields: [materialId], references: [id])
   buyer    User     @relation(fields: [buyerId], references: [id])
 
   @@index([materialId, active])
+}
+
+// ─── Outbound notifications & reminders (Email / SMS / WhatsApp) ────────────
+// Records every external message sent (or logged when a provider key is not
+// configured) and tracks deduplication keys so automated reminders fire once.
+enum NotificationChannel {
+  IN_APP
+  EMAIL
+  SMS
+  WHATSAPP
+}
+
+enum NotificationDeliveryStatus {
+  SENT
+  SKIPPED_NO_PROVIDER
+  FAILED
+}
+
+model NotificationDelivery {
+  id             String                     @id @default(cuid())
+  userId         String
+  notificationId String?
+  channel        NotificationChannel
+  recipient      String
+  subject        String?
+  body           String
+  status         NotificationDeliveryStatus
+  providerRef    String?
+  error          String?
+  dedupeKey      String?                    @unique
+  createdAt      DateTime                   @default(now())
+
+  @@index([userId, createdAt])
+  @@index([notificationId])
 }
 
 // ─────────────────────────────────────────────────────────────

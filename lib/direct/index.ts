@@ -5,6 +5,7 @@ import { nairaToKobo } from '../money';
 import { postLedgerEntry } from '../ledger';
 import { refundDueKobo } from '../bidding/refund';
 import { assertNoBankChangeUnderReview } from '../bank/hold';
+import { notifySellerDirectOrder, notifyBuyerOrderUpdate } from '../notifications';
 
 // Buy Direct fulfilment: a paid line goes straight to the seller whose listing
 // the buyer picked. Every step is a compare-and-swap or an idempotent ledger
@@ -21,7 +22,7 @@ function reference(prefix: string, date = new Date()) {
 async function refundLine(orderItemId: string, reason: string) {
   const item = await prisma.orderItem.findUniqueOrThrow({
     where: { id: orderItemId },
-    include: { order: { select: { id: true, buyerId: true } } },
+    include: { order: { select: { id: true, buyerId: true } }, material: { select: { name: true } } },
   });
   await prisma.orderItem.update({ where: { id: item.id }, data: { unfilledQuantity: item.quantity } });
   await postLedgerEntry({
@@ -33,6 +34,13 @@ async function refundLine(orderItemId: string, reason: string) {
     orderItemId: item.id,
     userId: item.order.buyerId,
   });
+  await notifyBuyerOrderUpdate(
+    item.order.buyerId,
+    item.order.id,
+    `Line refunded: ${item.material.name}`,
+    `${item.material.name} could not be supplied (${reason.toLowerCase()}). A refund has been recorded on your order.`,
+    `buyer-refund:${item.id}`,
+  );
 }
 
 async function releaseStock(listingId: string | null, quantity: number) {
@@ -48,36 +56,47 @@ export async function startDirectFulfilment(orderItemId: string): Promise<{ star
   const existing = await prisma.directFulfilment.findUnique({ where: { orderItemId } });
   if (existing) return { started: true };
 
-  const item = await prisma.orderItem.findUniqueOrThrow({ where: { id: orderItemId }, include: { listing: true } });
+  const item = await prisma.orderItem.findUniqueOrThrow({
+    where: { id: orderItemId },
+    include: { listing: true, material: { select: { name: true, unit: true } } },
+  });
   if (!item.listing) {
     await refundLine(item.id, 'No seller on this Buy Direct line — not charged');
     return { started: false };
   }
 
   const hours = await getSetting<number>('direct.acceptWindowHours');
+  const acceptDeadlineAt = new Date(Date.now() + hours * 3_600_000);
   try {
-    const reserved = await prisma.$transaction(async (tx) => {
+    const created = await prisma.$transaction(async (tx) => {
       const { count } = await tx.sellerListing.updateMany({
         where: { id: item.listing!.id, stockQty: { gte: item.quantity } },
         data: { stockQty: { decrement: item.quantity } },
       });
-      if (count === 0) return false;
-      await tx.directFulfilment.create({
+      if (count === 0) return null;
+      return tx.directFulfilment.create({
         data: {
           orderItemId: item.id,
           sellerId: item.listing!.sellerId,
           listingId: item.listing!.id,
           quantity: item.quantity,
           unitPrice: item.priceLocked,
-          acceptDeadlineAt: new Date(Date.now() + hours * 3_600_000),
+          acceptDeadlineAt,
         },
       });
-      return true;
     });
-    if (!reserved) {
+    if (!created) {
       await refundLine(item.id, 'The seller could not supply this line — not charged');
       return { started: false };
     }
+    await notifySellerDirectOrder(
+      item.listing.sellerId,
+      created.id,
+      item.material.name,
+      item.quantity,
+      item.material.unit,
+      acceptDeadlineAt,
+    );
     return { started: true };
   } catch (err) {
     // A concurrent run created it first: nothing more to do.
@@ -91,6 +110,21 @@ export async function acceptDirect(id: string, sellerId: string, now = new Date(
     where: { id, sellerId, status: DirectStatus.AWAITING_ACCEPT, acceptDeadlineAt: { gt: now } },
     data: { status: DirectStatus.ACCEPTED, acceptedAt: now },
   });
+  if (count === 1) {
+    const row = await prisma.directFulfilment.findUnique({
+      where: { id },
+      include: { orderItem: { include: { order: { select: { id: true, buyerId: true } }, material: { select: { name: true } } } } },
+    });
+    if (row) {
+      await notifyBuyerOrderUpdate(
+        row.orderItem.order.buyerId,
+        row.orderItem.order.id,
+        `Supplier confirmed: ${row.orderItem.material.name}`,
+        `The seller has confirmed your order for ${row.orderItem.material.name} and is preparing delivery to our fulfilment centre.`,
+        `direct-accepted:${row.id}`,
+      );
+    }
+  }
   return count === 1;
 }
 
@@ -129,7 +163,17 @@ export async function expireOverdueDirect(now = new Date()): Promise<number> {
  * commission setting never alters what this seller was promised.
  */
 export async function issueDirectGrn(id: string) {
-  const row = await prisma.directFulfilment.findUniqueOrThrow({ where: { id }, include: { orderItem: { select: { orderId: true } } } });
+  const row = await prisma.directFulfilment.findUniqueOrThrow({
+    where: { id },
+    include: {
+      orderItem: {
+        include: {
+          order: { select: { id: true, buyerId: true } },
+          material: { select: { name: true } },
+        },
+      },
+    },
+  });
   if (row.status !== DirectStatus.ACCEPTED) throw new Error('The seller has not accepted this order line, so it cannot be received.');
   if (row.receivedAt) throw new Error('A GRN has already been issued for this line.');
 
@@ -137,7 +181,7 @@ export async function issueDirectGrn(id: string) {
   const goodsKobo = nairaToKobo(row.unitPrice) * row.quantity;
   const commissionKobo = Math.round((goodsKobo * pct) / 100);
 
-  return prisma.$transaction(
+  const updated = await prisma.$transaction(
     async (tx) => {
       const { count } = await tx.directFulfilment.updateMany({
         where: { id, status: DirectStatus.ACCEPTED, receivedAt: null },
@@ -172,6 +216,16 @@ export async function issueDirectGrn(id: string) {
     },
     { timeout: 20_000, maxWait: 10_000 },
   );
+
+  await notifyBuyerOrderUpdate(
+    row.orderItem.order.buyerId,
+    row.orderItem.order.id,
+    `Received at fulfilment centre: ${row.orderItem.material.name}`,
+    `We have received and checked your ${row.orderItem.material.name} (${updated.grnNumber}).`,
+    `direct-grn:${id}`,
+  );
+
+  return updated;
 }
 
 /** Pays the seller once the GRN has cleared the line, and the payout switch is on. */

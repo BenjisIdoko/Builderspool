@@ -14,6 +14,7 @@ const WALLET_LABEL: Record<string, string> = {
   AVAILABLE: 'Available',
   WITHDRAWAL_REQUESTED: 'Requested',
   PAID: 'Paid',
+  APPLIED_TO_ORDER: 'Applied to order',
 };
 
 const QUEUE_FILTERS = [

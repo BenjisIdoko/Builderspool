@@ -118,9 +118,12 @@ export async function getSavingsWalletForBuyer(buyerId: string) {
   const paidOut = entries
     .filter((e) => e.state === WalletEntryState.PAID)
     .reduce((sum, e) => sum + Number(e.buyerShare), 0);
+  const appliedToOrders = entries
+    .filter((e) => e.state === WalletEntryState.APPLIED_TO_ORDER)
+    .reduce((sum, e) => sum + Number(e.buyerShare), 0);
   const allTime = entries.reduce((sum, e) => sum + Number(e.buyerShare), 0);
 
-  return { entries, available, withdrawalRequested, paidOut, allTime };
+  return { entries, available, withdrawalRequested, paidOut, appliedToOrders, allTime };
 }
 
 /** Moves every AVAILABLE entry for a buyer into WITHDRAWAL_REQUESTED — a real ops queue, not an automated payout (no payment rail exists yet, same honest gap as checkout's own initiatePayment stub). */

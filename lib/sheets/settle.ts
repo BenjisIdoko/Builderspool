@@ -2,6 +2,7 @@ import { SheetAwardStatus, SheetStatus } from '@prisma/client';
 import { prisma } from '@/lib/prisma';
 import { recordAudit } from '@/lib/audit';
 import { startDirectFulfilment } from '@/lib/direct';
+import { notifyBuyerOrderUpdate } from '@/lib/notifications';
 import { notifySheetNotAwarded } from './notify';
 
 export interface SettleReport {
@@ -28,7 +29,7 @@ export async function settleSheet(sheetId: string, now = new Date()): Promise<Se
   const sheet = await prisma.poolSheet.findUnique({
     where: { id: sheetId },
     include: {
-      lines: { include: { orderItems: { select: { id: true, quantity: true } } } },
+      lines: { include: { orderItems: { select: { id: true, quantity: true, orderId: true, order: { select: { buyerId: true } }, material: { select: { name: true } } } } } },
       awards: { where: { status: SheetAwardStatus.ACCEPTED }, include: { bid: { include: { lines: true } } } },
       bids: { select: { sellerId: true } },
     },
@@ -51,6 +52,15 @@ export async function settleSheet(sheetId: string, now = new Date()): Promise<Se
       return { orderItemId: i.id, sheetId, bidId: winner.bidId, sellerId: winner.bid.sellerId, quantity: i.quantity, unitPrice };
     });
     await prisma.sheetFulfilment.createMany({ data, skipDuplicates: true });
+    for (const i of items) {
+      await notifyBuyerOrderUpdate(
+        i.order.buyerId,
+        i.orderId,
+        `Supplier assigned: ${i.material.name}`,
+        `A verified supplier has accepted the pool for ${i.material.name} and is preparing delivery to our fulfilment centre.`,
+        `sheet-assigned:${i.id}`,
+      );
+    }
   } else {
     for (const i of items) {
       const r = await startDirectFulfilment(i.id);

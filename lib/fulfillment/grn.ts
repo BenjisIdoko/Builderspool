@@ -3,6 +3,7 @@ import { AllocationStatus, PayoutStatus } from '@prisma/client';
 import { creditSavingsForAllocation } from '../wallet';
 import { nairaToKobo } from '../money';
 import { postLedgerEntry } from '../ledger';
+import { notifyBuyerOrderUpdate, notifyBuyerSavingsCredited } from '../notifications';
 
 function generateGrnNumber(date = new Date()) {
   const datePart = date.toISOString().slice(0, 10).replace(/-/g, '');
@@ -19,7 +20,7 @@ function generateGrnNumber(date = new Date()) {
 export async function issueGrn(allocationId: string) {
   const allocation = await prisma.allocation.findUniqueOrThrow({
     where: { id: allocationId },
-    include: { bid: true, orderItem: { include: { order: true } } },
+    include: { bid: true, orderItem: { include: { order: true, material: { select: { name: true } } } } },
   });
 
   if (allocation.status === AllocationStatus.CANCELLED) {
@@ -36,7 +37,7 @@ export async function issueGrn(allocationId: string) {
 
   // One transaction: the receipt, what we now owe the seller, and the buyer's
   // savings credit all land together or not at all.
-  const updated = await prisma.$transaction(async (tx) => {
+  const { updated, savingsEntry } = await prisma.$transaction(async (tx) => {
     const { count } = await tx.allocation.updateMany({
       where: { id: allocationId, receivedAt: null, status: { not: AllocationStatus.CANCELLED } },
       data: {
@@ -64,10 +65,28 @@ export async function issueGrn(allocationId: string) {
 
     // Same real event that unlocks the seller's payout also finalizes the
     // buyer's savings credit, if the winning bid actually beat the reference price.
-    await creditSavingsForAllocation(allocation, tx);
+    const savingsEntry = await creditSavingsForAllocation(allocation, tx);
 
-    return tx.allocation.findUniqueOrThrow({ where: { id: allocationId } });
+    const updated = await tx.allocation.findUniqueOrThrow({ where: { id: allocationId } });
+    return { updated, savingsEntry };
   }, { timeout: 20_000, maxWait: 10_000 });
+
+  await notifyBuyerOrderUpdate(
+    allocation.orderItem.order.buyerId,
+    allocation.orderItem.orderId,
+    `Received at fulfilment centre: ${allocation.orderItem.material.name}`,
+    `We have received and checked ${allocation.quantityFilled} units of ${allocation.orderItem.material.name} (${updated.grnNumber}).`,
+    `allocation-grn:${allocation.id}`,
+  );
+  if (savingsEntry) {
+    await notifyBuyerSavingsCredited(
+      allocation.orderItem.order.buyerId,
+      allocation.orderItem.orderId,
+      allocation.orderItem.material.name,
+      Number(savingsEntry.buyerShare),
+      `savings-credited:alloc:${allocation.id}`,
+    );
+  }
 
   return updated;
 }

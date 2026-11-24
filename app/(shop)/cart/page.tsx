@@ -16,7 +16,7 @@ import { CheckoutSteps } from '@/components/checkout-steps';
 import { SwipeToDelete } from '@/components/swipe-to-delete';
 
 export default function CartPage() {
-  const { lines, subtotal, updateQuantity, removeItem } = useCart();
+  const { lines, itemCount, totalUnits, subtotal, updateQuantity, removeItem } = useCart();
 
   if (lines.length === 0) {
     return (
@@ -35,8 +35,6 @@ export default function CartPage() {
     );
   }
 
-  const itemCount = lines.reduce((sum, l) => sum + l.quantity, 0);
-
   return (
     <div className="mx-auto w-full max-w-section pt-6 pb-24 lg:pb-10">
       <CheckoutSteps current={0} />
@@ -52,7 +50,7 @@ export default function CartPage() {
       <div className="grid grid-cols-1 gap-8 lg:grid-cols-[1fr_340px]">
         <div>
           <h2 className="mb-3 text-label text-slate uppercase">
-            Materials · <span className="tabular-nums">{lines.length}</span> line {lines.length === 1 ? 'item' : 'items'}
+            Materials · <span className="tabular-nums">{lines.length}</span> {lines.length === 1 ? 'product' : 'products'} (<span className="tabular-nums">{totalUnits}</span> total {totalUnits === 1 ? 'unit' : 'units'})
           </h2>
           <LazyMotion features={domMax} strict>
           <MotionConfig reducedMotion="user">

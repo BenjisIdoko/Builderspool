@@ -84,6 +84,8 @@ export default async function OrderConfirmationPage({
     0,
   );
   const deliveryTotal = order.items.reduce((sum, item) => sum + item.deliveryCost, 0) / (order.items.length || 1);
+  const savingsApplied = order.savingsApplied ?? 0;
+  const amountDue = Math.max(0, subtotal + deliveryTotal - savingsApplied);
   const center = order.items[0]?.fulfillmentCenter;
   const isPickup = order.items.every((item) => item.deliveryCost === 0);
   const stages = getOrderTrackingStages(order);
@@ -138,7 +140,7 @@ export default async function OrderConfirmationPage({
           <ActionForm action={retryPaymentAction}>
             <input type="hidden" name="orderId" value={order.id} />
             <Button type="submit" variant="cta" size="lg">
-              Pay now — {formatNaira(subtotal + deliveryTotal)}
+              Pay now — {formatNaira(amountDue)}
             </Button>
           </ActionForm>
         ) : (
@@ -364,9 +366,15 @@ export default async function OrderConfirmationPage({
             <span>Delivery</span>
             <span className="font-bold tabular-nums">{deliveryTotal === 0 ? 'Free' : formatNaira(deliveryTotal)}</span>
           </div>
+          {savingsApplied > 0 && (
+            <div className="flex justify-between text-success">
+              <span>Savings credit applied</span>
+              <span className="font-bold tabular-nums">−{formatNaira(savingsApplied)}</span>
+            </div>
+          )}
           <div className="flex justify-between pt-1 text-base font-bold text-ink">
             <span>Total</span>
-            <span className="tabular-nums">{formatNaira(subtotal + deliveryTotal)}</span>
+            <span className="tabular-nums">{formatNaira(amountDue)}</span>
           </div>
           {refundDue > 0 && (
             <div className="flex justify-between text-sm font-bold text-danger">

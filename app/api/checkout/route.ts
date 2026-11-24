@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { createOrder, type CheckoutInput } from '@/lib/checkout';
+import { createOrder, getOrderTotal, type CheckoutInput } from '@/lib/checkout';
 import { initiateOrderPayment } from '@/lib/payments/initiateOrderPayment';
+import { confirmOrderPaid } from '@/lib/payments/confirmOrderPaid';
 import { errorMessage } from '@/lib/errors';
 import { getCurrentBuyer } from '@/lib/buyer/auth';
 
@@ -19,6 +20,13 @@ export async function POST(request: NextRequest) {
     order = await createOrder({ ...body, buyerId: buyer.id });
   } catch (error: unknown) {
     return NextResponse.json({ error: errorMessage(error, "We couldn't place your order. Check your details and try again. If it keeps happening, contact us.") }, { status: 400 });
+  }
+
+  // If the applied savings credit covers the entire order total (0 Naira due),
+  // confirm the order as PAID immediately without opening Paystack.
+  if (getOrderTotal(order) <= 0) {
+    const paidOrder = await confirmOrderPaid(order.id);
+    return NextResponse.json({ order: paidOrder, payment: null });
   }
 
   // The order is committed above regardless of payment outcome — a payment

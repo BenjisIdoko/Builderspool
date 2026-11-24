@@ -1,5 +1,6 @@
 import { prisma } from '../prisma';
 import { DispatchStatus } from '@prisma/client';
+import { notifyBuyerDispatchUpdate } from '../notifications';
 
 const DISPATCH_SEQUENCE: DispatchStatus[] = [
   DispatchStatus.ASSIGNED,
@@ -7,6 +8,14 @@ const DISPATCH_SEQUENCE: DispatchStatus[] = [
   DispatchStatus.IN_TRANSIT,
   DispatchStatus.DELIVERED,
 ];
+
+const DISPATCH_STATUS_LABEL: Record<DispatchStatus, string> = {
+  ASSIGNED: 'Assigned',
+  AT_PICKUP: 'At pickup',
+  IN_TRANSIT: 'In transit',
+  DELIVERED: 'Delivered',
+  CANCELLED: 'Cancelled',
+};
 
 /** Null once a dispatch is at its final status (DELIVERED) or CANCELLED. */
 export function nextDispatchStatus(current: DispatchStatus): DispatchStatus | null {
@@ -21,11 +30,21 @@ export function nextDispatchStatus(current: DispatchStatus): DispatchStatus | nu
  * an ops user may advance status without a location update in hand.
  */
 export async function advanceDispatch(dispatchId: string, location?: string) {
-  const dispatch = await prisma.dispatch.findUniqueOrThrow({ where: { id: dispatchId } });
+  const dispatch = await prisma.dispatch.findUniqueOrThrow({
+    where: { id: dispatchId },
+    include: {
+      orderItem: {
+        include: {
+          order: { select: { id: true, buyerId: true } },
+          material: { select: { name: true } },
+        },
+      },
+    },
+  });
   const next = nextDispatchStatus(dispatch.status);
   if (!next) throw new Error('This dispatch is already at its final status.');
 
-  return prisma.dispatch.update({
+  const updated = await prisma.dispatch.update({
     where: { id: dispatchId },
     data: {
       status: next,
@@ -34,14 +53,44 @@ export async function advanceDispatch(dispatchId: string, location?: string) {
       deliveredAt: next === DispatchStatus.DELIVERED ? new Date() : dispatch.deliveredAt,
     },
   });
+
+  await notifyBuyerDispatchUpdate(
+    dispatch.orderItem.order.buyerId,
+    dispatch.orderItem.order.id,
+    dispatch.orderItem.material.name,
+    DISPATCH_STATUS_LABEL[next],
+    updated.currentLocation,
+  );
+
+  return updated;
 }
 
 export async function cancelDispatch(dispatchId: string) {
-  const dispatch = await prisma.dispatch.findUniqueOrThrow({ where: { id: dispatchId } });
+  const dispatch = await prisma.dispatch.findUniqueOrThrow({
+    where: { id: dispatchId },
+    include: {
+      orderItem: {
+        include: {
+          order: { select: { id: true, buyerId: true } },
+          material: { select: { name: true } },
+        },
+      },
+    },
+  });
   if (dispatch.status === DispatchStatus.DELIVERED) {
     throw new Error('A delivered dispatch cannot be cancelled.');
   }
-  return prisma.dispatch.update({ where: { id: dispatchId }, data: { status: DispatchStatus.CANCELLED } });
+  const updated = await prisma.dispatch.update({ where: { id: dispatchId }, data: { status: DispatchStatus.CANCELLED } });
+
+  await notifyBuyerDispatchUpdate(
+    dispatch.orderItem.order.buyerId,
+    dispatch.orderItem.order.id,
+    dispatch.orderItem.material.name,
+    DISPATCH_STATUS_LABEL.CANCELLED,
+    updated.currentLocation,
+  );
+
+  return updated;
 }
 
 export async function updateDispatchLocation(dispatchId: string, location: string) {

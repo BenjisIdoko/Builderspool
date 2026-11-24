@@ -11,10 +11,15 @@ import { Button } from '@/components/ui/button';
 import { MaterialImage } from '@/components/material-image';
 import { QuantityStepper } from '@/components/quantity-stepper';
 
-// The items on the checkout screen: change a quantity or remove a line without leaving the page.
-// Lines fade and settle in and out, the rest close up around them, and each line total rolls to its
-// new figure. Under prefers-reduced-motion everything simply updates.
-export function CheckoutLineItems() {
+// The items on the checkout screen: change a quantity, switch an item with a picked seller between
+// Pool & Save and Buy Direct, or remove a line without leaving the page.
+export function CheckoutLineItems({
+  itemModes,
+  onToggleItemMode,
+}: {
+  itemModes?: Record<string, 'POOL' | 'DIRECT'>;
+  onToggleItemMode?: (materialId: string, mode: 'POOL' | 'DIRECT') => void;
+}) {
   const { lines, updateQuantity, removeItem } = useCart();
 
   return (
@@ -22,7 +27,10 @@ export function CheckoutLineItems() {
       <MotionConfig reducedMotion="user">
         <ul className="relative divide-y divide-border overflow-hidden rounded-lg bg-surface">
           <AnimatePresence initial={false} mode="popLayout">
-            {lines.map((line) => (
+            {lines.map((line) => {
+              const hasSeller = Boolean(line.listingId);
+              const lineMode = hasSeller ? (itemModes?.[line.materialId] ?? 'POOL') : 'POOL';
+              return (
               <m.li
                 key={line.materialId}
                 layout
@@ -44,7 +52,38 @@ export function CheckoutLineItems() {
                   <div className="text-pretty text-sm font-semibold text-ink">{line.name}</div>
                   <div className="text-caption tabular-nums text-muted-foreground">
                     {formatNaira(linePrice(line))} / {line.unit}
+                    {line.sellerName && <span> · {line.sellerName}</span>}
                   </div>
+                  {onToggleItemMode && (
+                    <div className="mt-1.5 flex flex-wrap items-center gap-1.5">
+                      {hasSeller ? (
+                        <div className="inline-flex rounded-full border border-border bg-well p-0.5 text-[11px] font-semibold">
+                          <button
+                            type="button"
+                            onClick={() => onToggleItemMode(line.materialId, 'POOL')}
+                            className={`rounded-full px-2.5 py-0.5 transition-colors ${
+                              lineMode === 'POOL' ? 'bg-brand text-white' : 'text-slate hover:text-ink'
+                            }`}
+                          >
+                            Pool &amp; Save
+                          </button>
+                          <button
+                            type="button"
+                            onClick={() => onToggleItemMode(line.materialId, 'DIRECT')}
+                            className={`rounded-full px-2.5 py-0.5 transition-colors ${
+                              lineMode === 'DIRECT' ? 'bg-ink text-white' : 'text-slate hover:text-ink'
+                            }`}
+                          >
+                            Buy Direct
+                          </button>
+                        </div>
+                      ) : (
+                        <span className="inline-flex items-center rounded-full bg-pale-blue px-2.5 py-0.5 text-[11px] font-semibold text-cyan-text">
+                          Pool &amp; Save
+                        </span>
+                      )}
+                    </div>
+                  )}
                 </div>
 
                 <Button
@@ -69,7 +108,8 @@ export function CheckoutLineItems() {
                   <AnimatedNaira value={linePrice(line) * line.quantity} />
                 </div>
               </m.li>
-            ))}
+            );
+            })}
           </AnimatePresence>
         </ul>
       </MotionConfig>

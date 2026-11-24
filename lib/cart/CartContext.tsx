@@ -15,6 +15,7 @@ export type { CartLine };
 interface CartContextValue {
   lines: CartLine[];
   itemCount: number;
+  totalUnits: number;
   subtotal: number;
   addItem: (item: Omit<CartLine, 'quantity'>, quantity?: number) => void;
   updateQuantity: (materialId: string, quantity: number) => void;
@@ -160,9 +161,10 @@ export function CartProvider({
   }, [buyerId, startTransition]);
 
   const value = useMemo<CartContextValue>(() => {
-    const itemCount = lines.reduce((sum, l) => sum + l.quantity, 0);
+    const itemCount = lines.length;
+    const totalUnits = lines.reduce((sum, l) => sum + l.quantity, 0);
     const subtotal = lines.reduce((sum, l) => sum + l.quantity * linePrice(l), 0);
-    return { lines, itemCount, subtotal, addItem, updateQuantity, removeItem, clear };
+    return { lines, itemCount, totalUnits, subtotal, addItem, updateQuantity, removeItem, clear };
   }, [lines, addItem, updateQuantity, removeItem, clear]);
 
   return <CartContext.Provider value={value}>{children}</CartContext.Provider>;

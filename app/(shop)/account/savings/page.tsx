@@ -16,6 +16,7 @@ const WALLET_LABEL: Record<string, string> = {
   AVAILABLE: 'Available',
   WITHDRAWAL_REQUESTED: 'Withdrawal requested',
   PAID: 'Paid out',
+  APPLIED_TO_ORDER: 'Used at checkout',
 };
 
 export default async function AccountSavingsPage() {

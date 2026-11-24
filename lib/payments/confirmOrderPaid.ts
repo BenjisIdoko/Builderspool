@@ -3,6 +3,7 @@ import { OrderStatus, PurchaseMode } from '@prisma/client';
 import { joinCycleForOrderItem } from '../bidding';
 import { startDirectFulfilment } from '../direct';
 import { isSheetEngineOn, joinSheetForOrderItem } from '../sheets';
+import { notifyBuyerOrderPaid } from '../notifications';
 
 /**
  * Marks an order PAID and joins each of its items to a bid cycle — the one
@@ -29,6 +30,7 @@ export async function confirmOrderPaid(orderId: string) {
       // otherwise they pool per material as before.
       else if (!((await isSheetEngineOn()) && (await joinSheetForOrderItem(item.id)))) await joinCycleForOrderItem(item.id);
     }
+    await notifyBuyerOrderPaid(order.buyerId, order.id, order.items.length);
   }
 
   return order;

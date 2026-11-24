@@ -83,3 +83,46 @@ export async function sendBankChangeDecisionEmail(to: string, approved: boolean,
     `),
   });
 }
+
+function escapeHtml(text: string): string {
+  return text
+    .replace(/&/g, '&amp;')
+    .replace(/</g, '&lt;')
+    .replace(/>/g, '&gt;')
+    .replace(/"/g, '&quot;');
+}
+
+export async function sendNotificationEmail({
+  to,
+  title,
+  body,
+  link,
+}: {
+  to: string;
+  title: string;
+  body: string;
+  link?: string;
+}): Promise<void> {
+  const safeTitle = escapeHtml(title);
+  const safeBody = escapeHtml(body);
+  const ctaHtml = link
+    ? `
+      <a href="${escapeHtml(link)}" style="display:inline-block;margin-top:16px;padding:12px 24px;background:#2954e5;color:#fff;text-decoration:none;border-radius:9999px;font-weight:700;font-size:14px;">
+        View details
+      </a>
+      <p style="margin-top:20px;font-size:12px;color:#8a8f97;word-break:break-all;">${escapeHtml(link)}</p>
+    `
+    : '';
+
+  await sendEmail({
+    to,
+    subject: `${title} — Builders Pool`,
+    html: shell(`
+      <h1 style="font-size:20px;margin:0 0 12px;">${safeTitle}</h1>
+      <p style="font-size:14px;line-height:1.6;color:#5b6068;">
+        ${safeBody}
+      </p>
+      ${ctaHtml}
+    `),
+  });
+}

@@ -2,11 +2,13 @@ import Link from 'next/link';
 import { StorefrontIcon, UserIcon } from '@phosphor-icons/react/ssr';
 import { getCurrentBuyer } from '@/lib/buyer/auth';
 import { getCategoryMenu } from '@/lib/queries/materials';
+import { getNotificationsForBuyer } from '@/lib/notifications';
 import { CartSheet } from './cart-sheet';
 import { HeaderSearch } from './header-search';
 import { CategoryStrip } from './category-strip';
 import { AccountMenu } from './account-menu';
 import { CategoryMegaMenu } from './category-mega-menu';
+import { BuyerNotificationBell } from './buyer-notification-bell';
 import { LogoMark, Wordmark } from './logo';
 
 // Jumia-style storefront shell: utility strip (desktop), sticky white header
@@ -14,6 +16,7 @@ import { LogoMark, Wordmark } from './logo';
 // moves to its own row under the header and the utility strip hides.
 export async function SiteHeader() {
   const [buyer, menu] = await Promise.all([getCurrentBuyer(), getCategoryMenu()]);
+  const buyerAlerts = buyer ? await getNotificationsForBuyer(buyer.id, 12) : null;
 
   return (
     <div className="sticky top-0 z-20 bg-surface shadow-[0_1px_0_var(--color-hairline)]">
@@ -53,7 +56,15 @@ export async function SiteHeader() {
 
           <div className="ml-auto flex shrink-0 items-center gap-1 lg:ml-0 lg:gap-3">
             {buyer ? (
-              <AccountMenu firstName={buyer.name.trim().split(/\s+/)[0]} />
+              <>
+                <AccountMenu firstName={buyer.name.trim().split(/\s+/)[0]} />
+                {buyerAlerts && (
+                  <BuyerNotificationBell
+                    notifications={buyerAlerts.notifications}
+                    unreadCount={buyerAlerts.unreadCount}
+                  />
+                )}
+              </>
             ) : (
               <Link
                 href="/login"

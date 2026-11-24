@@ -2,13 +2,14 @@
 
 import Link from 'next/link';
 import { useTransition } from 'react';
-import { BellIcon, CaretDownIcon, MapPinIcon, ReceiptIcon, SignOutIcon, UserIcon, WalletIcon } from '@phosphor-icons/react/ssr';
+import { BellIcon, BellRingingIcon, CaretDownIcon, MapPinIcon, ReceiptIcon, SignOutIcon, UserIcon, WalletIcon } from '@phosphor-icons/react/ssr';
 import { signOutBuyer } from '@/app/login/actions';
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from '@/components/ui/dropdown-menu';
 
 const LINKS = [
   { href: '/account', label: 'My account', icon: UserIcon },
   { href: '/orders', label: 'Orders', icon: ReceiptIcon },
+  { href: '/account/notifications', label: 'Notifications', icon: BellRingingIcon },
   { href: '/account/savings', label: 'Savings credit', icon: WalletIcon },
   { href: '/account/addresses', label: 'Address book', icon: MapPinIcon },
   { href: '/account/alerts', label: 'Price alerts', icon: BellIcon },

@@ -67,6 +67,8 @@ export default async function AdminOrderDetailPage({ params }: { params: Promise
 
   const subtotal = order.items.reduce((sum, item) => sum + item.priceLocked * item.quantity, 0);
   const deliveryTotal = order.items.reduce((sum, item) => sum + item.deliveryCost, 0) / (order.items.length || 1);
+  const savingsApplied = order.savingsApplied ?? 0;
+  const netTotal = Math.max(0, subtotal + deliveryTotal - savingsApplied);
   const stages = getOrderTrackingStages(order);
   const buyerName = order.buyer.businessName ?? order.buyer.name;
   const escrowStatus = getEscrowStatus(order);
@@ -397,9 +399,15 @@ export default async function AdminOrderDetailPage({ params }: { params: Promise
             <span>Delivery</span>
             <span className="font-mono font-medium tabular-nums">{deliveryTotal === 0 ? 'Free' : <Money amount={deliveryTotal} />}</span>
           </div>
+          {savingsApplied > 0 && (
+            <div className="flex justify-between text-success">
+              <span>Savings credit applied</span>
+              <span className="font-mono font-medium tabular-nums">−<Money amount={savingsApplied} /></span>
+            </div>
+          )}
           <div className="flex justify-between pt-1 text-base font-bold text-ink">
             <span>Total</span>
-            <span className="font-mono tabular-nums"><Money amount={subtotal + deliveryTotal} /></span>
+            <span className="font-mono tabular-nums"><Money amount={netTotal} /></span>
           </div>
         </div>
       </div>

@@ -4,6 +4,8 @@ import { redirect } from 'next/navigation';
 import { prisma } from '@/lib/prisma';
 import { requireBuyer } from '@/lib/buyer/auth';
 import { initiateOrderPayment } from '@/lib/payments/initiateOrderPayment';
+import { confirmOrderPaid } from '@/lib/payments/confirmOrderPaid';
+import { getOrderTotal } from '@/lib/checkout/orderTotal';
 import { getRequestOrigin } from '@/lib/http/origin';
 import { safeAction } from '@/lib/actions/safe';
 
@@ -12,8 +14,13 @@ async function retryPaymentActionImpl(formData: FormData) {
   if (typeof orderId !== 'string') return;
 
   const buyer = await requireBuyer();
-  const order = await prisma.order.findUnique({ where: { id: orderId } });
+  const order = await prisma.order.findUnique({ where: { id: orderId }, include: { items: true } });
   if (!order || order.buyerId !== buyer.id || order.status !== 'PENDING_PAYMENT') return;
+
+  if (getOrderTotal(order) <= 0) {
+    await confirmOrderPaid(orderId);
+    redirect(`/orders/${orderId}`);
+  }
 
   const origin = await getRequestOrigin();
   let authorizationUrl: string | null = null;

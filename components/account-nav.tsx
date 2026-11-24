@@ -3,12 +3,13 @@
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import { useTransition } from 'react';
-import { BellIcon, IdentificationCardIcon, MapPinIcon, ReceiptIcon, SignOutIcon, SquaresFourIcon, WalletIcon } from '@phosphor-icons/react/ssr';
+import { BellIcon, BellRingingIcon, IdentificationCardIcon, MapPinIcon, ReceiptIcon, SignOutIcon, SquaresFourIcon, WalletIcon } from '@phosphor-icons/react/ssr';
 import { signOutBuyer } from '@/app/login/actions';
 
 const ITEMS = [
   { href: '/account', label: 'Overview', icon: SquaresFourIcon, exact: true },
   { href: '/orders', label: 'Orders', icon: ReceiptIcon },
+  { href: '/account/notifications', label: 'Notifications', icon: BellRingingIcon },
   { href: '/account/savings', label: 'Savings credit', icon: WalletIcon },
   { href: '/account/addresses', label: 'Address book', icon: MapPinIcon },
   { href: '/account/alerts', label: 'Price alerts', icon: BellIcon },
