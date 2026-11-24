@@ -110,10 +110,14 @@ export function CheckoutForm({
   const router = useRouter();
   const { lines, subtotal, clear } = useCart();
   const [region, setRegion] = useState(REGIONS[0]);
-  const [fulfillmentMethod, setFulfillmentMethod] = useState<FulfillmentMethod>('DELIVERY');
-  const [paymentMethod, setPaymentMethod] = useState<PaymentMethod>('BANK_TRANSFER');
   // The default saved address fills the form in; the buyer can pick another or type a new one.
   const initialAddress = savedAddresses.find((a) => a.isDefault) ?? savedAddresses[0] ?? null;
+  const initialLocalityId = areas.enabled && initialAddress?.localityId && findLocality(areas, initialAddress.localityId) ? initialAddress.localityId : '';
+  const initialZone = areas.enabled && initialLocalityId ? (findLocality(areas, initialLocalityId)?.zone ?? null) : null;
+  const [fulfillmentMethod, setFulfillmentMethod] = useState<FulfillmentMethod>(
+    !areas.enabled || (initialZone !== null && initialZone.fee !== null) ? 'DELIVERY' : 'PICKUP'
+  );
+  const [paymentMethod, setPaymentMethod] = useState<PaymentMethod>('BANK_TRANSFER');
   const [addressChoice, setAddressChoice] = useState(initialAddress?.id ?? '');
   const [deliveryAddress, setDeliveryAddress] = useState(initialAddress?.address ?? '');
   const [deliveryContactName, setDeliveryContactName] = useState(initialAddress?.contactName ?? defaultContactName);
@@ -122,10 +126,17 @@ export function CheckoutForm({
   const [neededBy, setNeededBy] = useState('');
   const [deliveryWindow, setDeliveryWindow] = useState('');
   const [deliveryNotes, setDeliveryNotes] = useState('');
-  const [localityId, setLocalityId] = useState(areas.enabled && initialAddress?.localityId && findLocality(areas, initialAddress.localityId) ? initialAddress.localityId : '');
+  const [localityId, setLocalityId] = useState(initialLocalityId);
   const zone = areas.enabled && localityId ? (findLocality(areas, localityId)?.zone ?? null) : null;
   // With the picker on, delivery needs a zone that has a fee; otherwise pickup only.
   const deliveryAvailable = !areas.enabled || (zone !== null && zone.fee !== null);
+  const deliveryUnavailableReason = !areas.enabled
+    ? null
+    : !localityId
+      ? 'Select your area first'
+      : !zone || zone.fee === null
+        ? 'Pickup only in this area'
+        : null;
   const costFor = (method: FulfillmentMethod) =>
     areas.enabled ? (method === 'DELIVERY' ? (zone?.fee ?? 0) : 0) : getDeliveryCost(region, method);
   // How the cart is bought. Buyers can set all eligible items to Buy Direct or Pool & Save,
@@ -588,11 +599,22 @@ export function CheckoutForm({
                   selected ? 'border-brand bg-info-soft' : 'border-input enabled:hover:border-brand'
                 }`}
               >
-                <span className="flex items-center gap-2.5">
-                  <RadioDot selected={selected} />
-                  <span className="font-semibold text-ink">{label}</span>
+                <span className="flex items-start gap-2.5">
+                  <RadioDot selected={selected} className="mt-0.5" />
+                  <span>
+                    <span className="block font-semibold text-ink">{label}</span>
+                    {unavailable && deliveryUnavailableReason && (
+                      <span className="mt-0.5 block text-xs text-warning-text">
+                        {!localityId
+                          ? 'Choose your area in step 01 above to check delivery availability.'
+                          : `${zone ? `${zone.name} is` : 'This area is'} pickup-only until a delivery fee is set.`}
+                      </span>
+                    )}
+                  </span>
                 </span>
-                <span className="tabular-nums text-slate">{unavailable ? 'Not available here yet' : cost === 0 ? 'Free' : formatNaira(cost)}</span>
+                <span className="shrink-0 tabular-nums text-slate">
+                  {unavailable ? (deliveryUnavailableReason ?? 'Unavailable') : cost === 0 ? 'Free' : formatNaira(cost)}
+                </span>
               </button>
             );
           })}
