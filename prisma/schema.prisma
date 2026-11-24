@@ -109,6 +109,11 @@ enum PaymentMethod {
   USSD
 }
 
+enum PaymentProvider {
+  PAYSTACK
+  CREDO
+}
+
 enum DispatchStatus {
   ASSIGNED
   AT_PICKUP
@@ -553,9 +558,10 @@ model Order {
   deliveryQuote     Json?
   buyerId          String
   region           String
-  status           OrderStatus    @default(PENDING_PAYMENT)
+  status           OrderStatus     @default(PENDING_PAYMENT)
   paymentMethod    PaymentMethod?
-  paymentReference String?        @unique // Paystack transaction reference for the current/latest payment attempt
+  paymentProvider  PaymentProvider @default(PAYSTACK)
+  paymentReference String?         @unique // Paystack or Credo transaction reference for the current/latest payment attempt
   // Savings wallet credit applied toward this order's total at checkout.
   savingsApplied   Decimal        @default(0) @db.Decimal(12, 2)
   createdAt        DateTime       @default(now())

@@ -57,20 +57,24 @@ export default async function OrderConfirmationPage({
   searchParams,
 }: {
   params: Promise<{ id: string }>;
-  searchParams: Promise<{ reference?: string; trxref?: string; payment?: string }>;
+  searchParams: Promise<{ reference?: string; trxref?: string; transRef?: string; payment?: string }>;
 }) {
   const { id } = await params;
-  const { reference, trxref, payment } = await searchParams;
+  const { reference, trxref, transRef, payment } = await searchParams;
   const [firstLoad, buyer] = await Promise.all([getOrderById(id), requireBuyer()]);
   if (!firstLoad || firstLoad.buyerId !== buyer.id) notFound();
 
-  // Paystack redirects the buyer back here after checkout — verify directly
-  // with Paystack right away rather than waiting on the webhook, so the
-  // buyer sees "Paid" the moment they land instead of a stale pending state.
-  const refToVerify = reference ?? trxref;
+  // Paystack redirects back with ?reference=...&trxref=... and Credo Pay redirects
+  // back with ?transRef=...&reference=... — verify directly with the gateway right
+  // away rather than waiting on the webhook, so the buyer sees "Paid" immediately.
+  const refToVerify = reference ?? trxref ?? transRef;
   let order = firstLoad;
-  if (refToVerify && order.status === 'PENDING_PAYMENT' && order.paymentReference === refToVerify) {
-    await verifyAndConfirmOrderPayment(id, refToVerify);
+  if (
+    refToVerify &&
+    order.status === 'PENDING_PAYMENT' &&
+    (order.paymentReference === refToVerify || (order.paymentProvider === 'CREDO' && Boolean(transRef)))
+  ) {
+    await verifyAndConfirmOrderPayment(id, refToVerify, transRef);
     order = (await getOrderById(id)) ?? order;
   }
 

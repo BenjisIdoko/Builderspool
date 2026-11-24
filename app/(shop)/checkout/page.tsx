@@ -9,6 +9,7 @@ import { isPoolClosedForToday } from '@/lib/pool-stages';
 import { getCheckoutAreas } from '@/lib/queries/checkoutAreas';
 import { getPickupCenters } from '@/lib/queries/pickupCenters';
 import { getSavingsWalletForBuyer } from '@/lib/wallet';
+import { isCredoConfigured, isCredoTestMode } from '@/lib/payments/credo';
 import { prisma } from '@/lib/prisma';
 
 export const metadata = { title: 'Checkout' };
@@ -53,7 +54,10 @@ export default async function CheckoutPage() {
         // Earliest on-site date a buyer can ask for: tomorrow, Lagos time.
         earliestDate={addDaysYmd(lagosYmd(new Date()), 1)}
         availableSavingsCredit={wallet.available}
-        testMode={process.env.PAYSTACK_SECRET_KEY?.startsWith('sk_test_') ?? false}
+        paystackConfigured={Boolean(process.env.PAYSTACK_SECRET_KEY)}
+        credoConfigured={isCredoConfigured()}
+        paystackTestMode={process.env.PAYSTACK_SECRET_KEY?.startsWith('sk_test_') ?? false}
+        credoTestMode={isCredoTestMode()}
       />
     </div>
   );

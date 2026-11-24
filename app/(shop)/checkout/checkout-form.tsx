@@ -4,7 +4,7 @@ import { useState } from 'react';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { BankIcon, CheckCircleIcon, CircleIcon, DeviceMobileIcon, MapPinIcon, TruckIcon, CreditCardIcon, LockKeyIcon, WalletIcon } from '@phosphor-icons/react/ssr';
-import type { PaymentMethod } from '@prisma/client';
+import type { PaymentMethod, PaymentProvider } from '@prisma/client';
 import { useCart } from '@/lib/cart/CartContext';
 import type { CheckoutAreas } from '@/lib/queries/checkoutAreas';
 import { CheckoutLocalityPicker, findLocality } from '@/components/checkout-locality-picker';
@@ -84,7 +84,10 @@ export function CheckoutForm({
   poolCloseTime,
   earliestDate,
   availableSavingsCredit = 0,
-  testMode,
+  paystackConfigured = true,
+  credoConfigured = false,
+  paystackTestMode = false,
+  credoTestMode = false,
 }: {
   /** The locality picker's data; `enabled` is false until the setting is switched on. */
   areas: CheckoutAreas;
@@ -105,7 +108,10 @@ export function CheckoutForm({
   earliestDate: string;
   /** Available Savings Wallet credit in Naira that can be applied at checkout. */
   availableSavingsCredit?: number;
-  testMode: boolean;
+  paystackConfigured?: boolean;
+  credoConfigured?: boolean;
+  paystackTestMode?: boolean;
+  credoTestMode?: boolean;
 }) {
   const router = useRouter();
   const { lines, subtotal, clear } = useCart();
@@ -118,6 +124,10 @@ export function CheckoutForm({
     !areas.enabled || (initialZone !== null && initialZone.fee !== null) ? 'DELIVERY' : 'PICKUP'
   );
   const [paymentMethod, setPaymentMethod] = useState<PaymentMethod>('BANK_TRANSFER');
+  const [paymentProvider, setPaymentProvider] = useState<PaymentProvider>(
+    paystackConfigured ? 'PAYSTACK' : credoConfigured ? 'CREDO' : 'PAYSTACK'
+  );
+  const testMode = paymentProvider === 'CREDO' ? credoTestMode : paystackTestMode;
   const [addressChoice, setAddressChoice] = useState(initialAddress?.id ?? '');
   const [deliveryAddress, setDeliveryAddress] = useState(initialAddress?.address ?? '');
   const [deliveryContactName, setDeliveryContactName] = useState(initialAddress?.contactName ?? defaultContactName);
@@ -217,6 +227,7 @@ export function CheckoutForm({
           fulfillmentMethod,
           pickupCenterId: fulfillmentMethod === 'PICKUP' ? (center?.id ?? null) : null,
           paymentMethod,
+          paymentProvider,
           mode: effectiveMode,
           applySavingsCredit,
           items: lines.map((l) => ({
@@ -621,8 +632,49 @@ export function CheckoutForm({
         </div>
 
         <div className="mb-3 flex items-center gap-2">
-          <h2 className="text-label text-muted-foreground uppercase">Payment method</h2>
+          <h2 className="text-label text-muted-foreground uppercase">Payment gateway</h2>
           {testMode && <Badge variant="test">Test</Badge>}
+        </div>
+        <div className="mb-5 grid grid-cols-2 gap-2">
+          {(
+            [
+              {
+                provider: 'PAYSTACK' as PaymentProvider,
+                label: 'Paystack',
+                caption: 'Card, Transfer, USSD',
+                enabled: paystackConfigured,
+              },
+              {
+                provider: 'CREDO' as PaymentProvider,
+                label: 'Credo Pay',
+                caption: 'Card, Bank, USSD',
+                enabled: credoConfigured,
+              },
+            ] as const
+          ).map(({ provider, label, caption, enabled }) => {
+            const selected = paymentProvider === provider;
+            return (
+              <button
+                key={provider}
+                type="button"
+                disabled={!enabled}
+                onClick={() => setPaymentProvider(provider)}
+                className={`flex items-start gap-2 rounded-lg border p-3 text-left text-sm transition-[border-color,background-color,scale] duration-150 ease-out outline-none focus-visible:ring-2 focus-visible:ring-ring active:not-disabled:scale-[0.98] disabled:cursor-not-allowed disabled:opacity-55 ${
+                  selected ? 'border-brand bg-info-soft' : 'border-input enabled:hover:border-brand'
+                }`}
+              >
+                <RadioDot selected={selected} className="mt-0.5" />
+                <span className="min-w-0">
+                  <span className="block font-semibold text-ink">{label}</span>
+                  <span className="block text-[11px] text-slate">{enabled ? caption : 'Not configured yet'}</span>
+                </span>
+              </button>
+            );
+          })}
+        </div>
+
+        <div className="mb-3 flex items-center gap-2">
+          <h2 className="text-label text-muted-foreground uppercase">Payment method</h2>
         </div>
         <div className="mb-5 flex flex-col gap-2">
           {PAYMENT_OPTIONS.map(({ method, label, icon: Icon }) => {

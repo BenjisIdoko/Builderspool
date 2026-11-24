@@ -1,5 +1,5 @@
 import { prisma } from '../prisma';
-import { OrderStatus, PurchaseMode, WalletEntryState, type PaymentMethod } from '@prisma/client';
+import { OrderStatus, PaymentProvider, PurchaseMode, WalletEntryState, type PaymentMethod } from '@prisma/client';
 import { getDeliveryCost, type FulfillmentMethod } from './deliveryCost';
 import { getSetting } from '../settings';
 import { regionForState } from '../areas/region';
@@ -20,6 +20,7 @@ export interface CheckoutInput {
   // order's region; without one, the region's default station is used.
   pickupCenterId?: string | null;
   paymentMethod: PaymentMethod;
+  paymentProvider?: PaymentProvider;
   // How the whole cart is bought by default (each item can also override its mode).
   mode?: 'POOL' | 'DIRECT';
   // Whether to apply the buyer's available Savings Wallet balance toward this order.
@@ -197,6 +198,7 @@ export async function createOrder(input: CheckoutInput) {
         zoneId: area?.zoneId ?? null,
         status: OrderStatus.PENDING_PAYMENT,
         paymentMethod: input.paymentMethod,
+        paymentProvider: input.paymentProvider === PaymentProvider.CREDO ? PaymentProvider.CREDO : PaymentProvider.PAYSTACK,
         savingsApplied: 0,
         ...delivery,
       },
