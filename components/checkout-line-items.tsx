@@ -78,7 +78,7 @@ export function CheckoutLineItems({
                           </button>
                         </div>
                       ) : (
-                        <span className="inline-flex items-center rounded-full bg-pale-blue px-2.5 py-0.5 text-[11px] font-semibold text-cyan-text">
+                        <span className="text-[11px] font-semibold text-cyan-text">
                           Pool &amp; Save
                         </span>
                       )}

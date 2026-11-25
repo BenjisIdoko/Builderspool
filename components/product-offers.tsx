@@ -55,7 +55,7 @@ export function ProductOffers({ unit }: { unit: string }) {
                   Verified
                 </span>
                 {i === 0 && offers.length > 1 && (
-                  <span className="rounded-full bg-cyan px-2 py-0.5 text-caption font-bold text-ink">Lowest price</span>
+                  <span className="text-caption font-bold text-cyan-text">Lowest price</span>
                 )}
               </div>
               <div className="text-caption text-slate">

@@ -2,7 +2,7 @@ import { Button } from '@/components/ui/button';
 import { EmptyState } from '@/components/empty-state/empty-state';
 import { NoResultsIllustration } from '@/components/empty-state/illustrations';
 import Link from 'next/link';
-import { CaretLeftIcon, CaretRightIcon, TruckIcon } from '@phosphor-icons/react/ssr';
+import { CaretLeftIcon, CaretRightIcon } from '@phosphor-icons/react/ssr';
 import { getMaterials, getCategories, getFulfillmentCenters, MATERIAL_SORT_VALUES, type MaterialSort } from '@/lib/queries/materials';
 import { MaterialCard } from '@/components/material-card';
 import { getOfferCounts } from '@/lib/queries/offers';
@@ -110,10 +110,7 @@ export default async function CatalogPage({
           </h1>
         </div>
         {regions.length > 0 && (
-          <span className="flex shrink-0 items-center gap-1.5 rounded-full bg-success-soft px-3 py-1.5 text-caption font-semibold text-success">
-            <TruckIcon className="size-3.5" />
-            Free pickup. Delivery in selected areas.
-          </span>
+          <p className="shrink-0 text-caption text-slate">Free pickup. Delivery in selected areas.</p>
         )}
       </div>
       <p className="mb-8 text-body-sm text-slate">Fixed catalogue price, <span className="tabular-nums">{total}</span> materials.</p>

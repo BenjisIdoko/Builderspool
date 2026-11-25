@@ -15,10 +15,10 @@ export function ProductPoolPanel({ pool, unit }: { pool: PoolSnapshot; unit: str
   return (
     <section
       aria-label="Pool & Save"
-      className="rounded-card border-l-4 border-cyan bg-pale-blue p-5"
+      className="rounded-card bg-pale-blue p-5"
     >
       <div className="flex flex-wrap items-center justify-between gap-2">
-        <span className="inline-flex items-center gap-1.5 rounded-full bg-cyan px-3 py-1 text-caption font-bold text-ink">
+        <span className="inline-flex items-center gap-1.5 text-body-sm font-bold text-ink">
           <UsersThreeIcon weight="fill" className="size-4" />
           Pool &amp; Save
         </span>
