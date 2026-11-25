@@ -46,7 +46,7 @@ The founder chose to price delivery by load, vehicle and distance (like a ride-h
 5. Whether a paint "unit" (Litre / Drum) is one litre or one 20 L drum, and the length of a roofing sheet (the estimate is per m2).
 6. A tick on "Confirmed" for each item weight after checking the estimate.
 
-### Checkout side (built 25 November, still switched off)
+### Checkout side (built and pushed 25 November, commit abfb1e0, still switched off)
 
 | # | Topic | Decision | Effect |
 | --- | --- | --- | --- |
@@ -69,10 +69,10 @@ Built by the product owner on 24 November and recorded here from the code. Confi
 | --- | --- | --- | --- |
 | D15 | Second payment gateway | **Credo Pay alongside Paystack.** A "Payment gateway" choice at checkout, a redirect check on the order page, and a webhook at `/api/webhooks/credo`. Each order records its provider (`Order.paymentProvider`). | Credo is offered only when `CREDO_PUBLIC_KEY` and `CREDO_SECRET_KEY` are set. They are not set on Vercel yet, so buyers see "Not configured yet". The webhook's event name and signature scheme were written from memory and are **not yet confirmed against Credo's documentation**: test them in Credo's demo environment before going live. |
 | D16 | Savings credit at checkout | **A buyer can spend their savings credit on an order.** It is ticked by default when they have a balance. Credit is used oldest first, a part-used entry is split so the rest stays available, and an order fully covered by credit is confirmed as paid at once. | Credit is taken when the order is placed, not when it is paid. See the open questions below. |
-| D17 | Buyer and seller notifications | **In-app bell and page for buyers (`/account/notifications`), plus email, SMS and WhatsApp for every notification.** Events: order placed, payment confirmed, supplier confirmed or assigned, received at the centre, savings credited, dispatch updates, refunds, price-alert hits, and reminders for unpaid orders, carts left behind and expiring seller offers. Every delivery attempt is logged (`NotificationDelivery`). | Email works only through Resend's verified domain. SMS and WhatsApp send only when Termii, Twilio or WhatsApp keys are set, none of which exist yet. Each event is sent once (a deduplication key). |
+| D17 | Buyer and seller notifications | **In-app bell and page for buyers (`/account/notifications`), plus email, SMS and WhatsApp.** (Text messages were narrowed to key events on 25 November: see D19.) Events: order placed, payment confirmed, supplier confirmed or assigned, received at the centre, savings credited, dispatch updates, refunds, price-alert hits, and reminders for unpaid orders, carts left behind and expiring seller offers. Every delivery attempt is logged (`NotificationDelivery`). | Email works only through Resend's verified domain. SMS and WhatsApp send only when Termii, Twilio or WhatsApp keys are set, none of which exist yet. Each event is sent once (a deduplication key). |
 | D18 | Mixed carts | **Each line can be Buy Direct or Pool & Save**, not only the whole cart. A line can go direct only when the buyer picked a seller for it. | Replaces the old rule that Buy Direct needed a seller on every line. |
 
-### 25 November 2026: text message rules (built, waiting for push)
+### 25 November 2026: text message rules (built and pushed, commit c3e35ae)
 
 | # | Topic | What was built | Notes |
 | --- | --- | --- | --- |
@@ -83,7 +83,7 @@ Built by the product owner on 24 November and recorded here from the code. Confi
 
 ### Review on 25 November
 
-Fixed the same day (not yet pushed):
+Fixed the same day (pushed, commit 8a505cf):
 1. **Credo payment could be reused.** On the order page, a buyer could pass the reference of one paid Credo transaction to confirm any other order of the same total. The check now requires the paid transaction to belong to that order.
 2. **A failed notification could break real work.** Alerts are sent after orders, payments and receipts are saved, but an error in one could stop the rest of that step. A failed alert is now logged and ignored.
 3. **The reminder sweep could fail the pool clock.** It is now isolated, so a reminder error cannot stop a pool stage.
