@@ -16,8 +16,8 @@ export default function RootError({ error, reset }: { error: Error & { digest?: 
       <EmptyState
         illustration={ErrorIllustration}
         as="h1"
-        title="Something went wrong"
-        description="This is usually a brief connection problem. Try again in a moment."
+        title="Unable to load this page"
+        description="Try again in a moment. If it keeps happening, contact the BuildersPool team."
       >
         <Button type="button" onClick={reset}>
           Try again

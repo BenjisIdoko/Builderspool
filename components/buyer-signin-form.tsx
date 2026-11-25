@@ -34,7 +34,7 @@ export function BuyerSignInForm() {
   return (
     <>
       <h1 className="mb-1 text-2xl font-bold tracking-tight text-ink">Log in</h1>
-      <p className="mb-7 text-sm text-muted-foreground">Log in to your Builders Pool account.</p>
+      <p className="mb-7 text-sm text-muted-foreground">Log in to your BuildersPool account.</p>
 
       <form onSubmit={handleSubmit} className="space-y-5">
         <div>
@@ -70,7 +70,7 @@ export function BuyerSignInForm() {
       <p className="mt-6 text-sm text-muted-foreground">
         Don&apos;t have an account?{' '}
         <Link href="/signup" className="rounded-sm font-medium text-brand outline-none hover:underline focus-visible:ring-2 focus-visible:ring-ring">
-          Join Builders Pool
+          Join BuildersPool
         </Link>
       </p>
     </>

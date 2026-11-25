@@ -33,7 +33,7 @@ export default async function VerifyEmailPage({
         </>
       )}
       <Link href="/" className="text-sm font-medium text-brand hover:underline">
-        Back to Builders Pool
+        Back to BuildersPool
       </Link>
     </AuthSplitScreen>
   );

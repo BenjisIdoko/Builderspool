@@ -19,8 +19,8 @@ export default function ShopError({ error, reset }: { error: Error & { digest?: 
       <EmptyState
         illustration={ErrorIllustration}
         as="h1"
-        title="Something went wrong"
-        description="This is usually a brief connection problem. Try again — your cart is safe."
+        title="Unable to load this page"
+        description="Try again. Your cart is safe. If it keeps happening, call +234 805 420 7559."
       >
         <Button type="button" onClick={reset}>
           Try again

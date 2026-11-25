@@ -38,7 +38,7 @@ export function ProductPoolPanel({ pool, unit }: { pool: PoolSnapshot; unit: str
           <dt className="text-label text-slate uppercase">Pooled for {day}{pool.sheets && ' · all areas'}</dt>
           <dd className="mt-1 text-body-sm text-ink">
             {empty ? (
-              'No orders yet — yours would open it.'
+              'No orders yet. Yours would be the first.'
             ) : (
               <>
                 <span className="font-mono text-figure tabular-nums">{pool.pooledQuantity.toLocaleString('en-NG')}</span>{' '}
@@ -51,7 +51,7 @@ export function ProductPoolPanel({ pool, unit }: { pool: PoolSnapshot; unit: str
         <div>
           <dt className="text-label text-slate uppercase">Your share of any saving</dt>
           <dd className="mt-1 text-body-sm text-ink">
-            <span className="font-mono text-figure">50%</span> of the verified saving, paid to your savings wallet {SAVINGS_TIMING_TEXT}.
+            <span className="font-mono text-figure">50%</span> of the verified saving, added to your savings credit {SAVINGS_TIMING_TEXT}.
           </dd>
         </div>
       </dl>

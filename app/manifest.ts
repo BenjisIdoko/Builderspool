@@ -2,8 +2,8 @@ import type { MetadataRoute } from 'next';
 
 export default function manifest(): MetadataRoute.Manifest {
   return {
-    name: 'Builders Pool',
-    short_name: 'Builders Pool',
+    name: 'BuildersPool',
+    short_name: 'BuildersPool',
     description: 'Construction materials, sourced and delivered.',
     start_url: '/',
     scope: '/',

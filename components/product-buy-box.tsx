@@ -65,7 +65,7 @@ export function ProductBuyBox({ material }: { material: BuyerMaterial }) {
 
         <div className="mb-5 flex items-center justify-between gap-3">
           <span className="text-[13px] font-bold text-slate">
-            Quantity ({material.unit})
+            Quantity
           </span>
           <QuantityStepper value={quantity} onChange={setQuantity} label={material.name} />
         </div>
@@ -139,7 +139,7 @@ export function ProductBuyBox({ material }: { material: BuyerMaterial }) {
           </SheetDescription>
           <div className="flex items-center justify-between gap-3">
             <span className="text-heading-sm text-ink">
-              Quantity ({material.unit})
+              Quantity
             </span>
             <QuantityStepper value={quantity} onChange={setQuantity} label={material.name} />
           </div>

@@ -24,14 +24,14 @@ export const metadata: Metadata = {
   metadataBase: new URL(process.env.NEXT_PUBLIC_SITE_URL ?? 'https://builderspool.vercel.app'),
   title: {
     default: 'BuildersPool — Building materials in Abuja: buy direct or pool and save',
-    template: '%s · Builders Pool',
+    template: '%s · BuildersPool',
   },
   description:
     'Buy cement, steel, blocks and more from verified Abuja suppliers. Buy Direct at listed prices, or Pool & Save with other builders and share the savings.',
-  applicationName: 'Builders Pool',
-  openGraph: { siteName: 'Builders Pool', type: 'website' },
+  applicationName: 'BuildersPool',
+  openGraph: { siteName: 'BuildersPool', type: 'website' },
   icons: { apple: '/icons/apple-touch-icon.png' },
-  appleWebApp: { capable: true, title: 'Builders Pool', statusBarStyle: 'default' },
+  appleWebApp: { capable: true, title: 'BuildersPool', statusBarStyle: 'default' },
 };
 
 // viewport-fit=cover lets the app draw under the notch / home indicator; the

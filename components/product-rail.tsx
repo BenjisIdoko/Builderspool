@@ -27,8 +27,8 @@ export function ProductRail({
           <h2 className="text-heading-lg text-ink">{title}</h2>
           {subtitle && <p className="text-pretty text-[13px] text-slate">{subtitle}</p>}
         </div>
-        <Link href={href} className="inline-flex min-h-11 shrink-0 items-center text-sm font-bold text-orange-text hover:underline">
-          SEE ALL
+        <Link href={href} className="inline-flex min-h-11 shrink-0 items-center text-sm font-bold text-orange-text uppercase hover:underline">
+          See all<span className="sr-only"> materials</span>
         </Link>
       </div>
       <ul className="flex snap-x gap-3 overflow-x-auto p-4 [scrollbar-width:none] lg:gap-4 lg:p-5 [&::-webkit-scrollbar]:hidden">

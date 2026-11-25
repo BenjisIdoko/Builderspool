@@ -7,7 +7,7 @@ import { sendEmail } from './resend';
 function shell(bodyHtml: string): string {
   return `
     <div style="font-family:'Plus Jakarta Sans',Arial,sans-serif;max-width:480px;margin:0 auto;padding:32px 24px;color:#15181c;">
-      <div style="font-weight:800;font-size:16px;margin-bottom:24px;">Builders Pool</div>
+      <div style="font-weight:800;font-size:16px;margin-bottom:24px;">BuildersPool</div>
       ${bodyHtml}
       <p style="margin-top:32px;font-size:12px;color:#8a8f97;">
         If you didn't request this, you can safely ignore this email.
@@ -19,7 +19,7 @@ function shell(bodyHtml: string): string {
 export async function sendPasswordResetEmail(to: string, resetUrl: string): Promise<void> {
   await sendEmail({
     to,
-    subject: 'Reset your Builders Pool password',
+    subject: 'Reset your BuildersPool password',
     html: shell(`
       <h1 style="font-size:20px;margin:0 0 12px;">Reset your password</h1>
       <p style="font-size:14px;line-height:1.6;color:#5b6068;">
@@ -36,7 +36,7 @@ export async function sendPasswordResetEmail(to: string, resetUrl: string): Prom
 export async function sendVerificationEmail(to: string, verifyUrl: string): Promise<void> {
   await sendEmail({
     to,
-    subject: 'Verify your email — Builders Pool',
+    subject: 'Verify your email — BuildersPool',
     html: shell(`
       <h1 style="font-size:20px;margin:0 0 12px;">Verify your email</h1>
       <p style="font-size:14px;line-height:1.6;color:#5b6068;">
@@ -53,11 +53,11 @@ export async function sendVerificationEmail(to: string, verifyUrl: string): Prom
 export async function sendBankChangeOtpEmail(to: string, code: string): Promise<void> {
   await sendEmail({
     to,
-    subject: 'Your Builders Pool bank-detail code',
+    subject: 'Your BuildersPool bank-detail code',
     html: shell(`
       <h1 style="font-size:20px;margin:0 0 12px;">Confirm your bank-detail change</h1>
       <p style="font-size:14px;line-height:1.6;color:#5b6068;">
-        Enter this code on the Builders Pool KYC page to confirm the change. It expires in 10 minutes. Never share it with anyone, including our staff.
+        Enter this code on the BuildersPool KYC page to confirm the change. It expires in 10 minutes. Never share it with anyone, including our staff.
       </p>
       <p style="margin:16px 0;font-size:32px;font-weight:800;letter-spacing:8px;">${code}</p>
       <p style="font-size:13px;line-height:1.6;color:#5b6068;">
@@ -70,7 +70,7 @@ export async function sendBankChangeOtpEmail(to: string, code: string): Promise<
 export async function sendBankChangeDecisionEmail(to: string, approved: boolean, note?: string | null): Promise<void> {
   await sendEmail({
     to,
-    subject: approved ? 'Your bank details were updated: Builders Pool' : 'Your bank-detail change was not approved: Builders Pool',
+    subject: approved ? 'Your bank details were updated: BuildersPool' : 'Your bank-detail change was not approved: BuildersPool',
     html: shell(`
       <h1 style="font-size:20px;margin:0 0 12px;">${approved ? 'Bank details updated' : 'Bank-detail change not approved'}</h1>
       <p style="font-size:14px;line-height:1.6;color:#5b6068;">
@@ -116,7 +116,7 @@ export async function sendNotificationEmail({
 
   await sendEmail({
     to,
-    subject: `${title} — Builders Pool`,
+    subject: `${title} — BuildersPool`,
     html: shell(`
       <h1 style="font-size:20px;margin:0 0 12px;">${safeTitle}</h1>
       <p style="font-size:14px;line-height:1.6;color:#5b6068;">

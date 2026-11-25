@@ -112,7 +112,7 @@ export default async function CatalogPage({
         {regions.length > 0 && (
           <span className="flex shrink-0 items-center gap-1.5 rounded-full bg-success-soft px-3 py-1.5 text-caption font-semibold text-success">
             <TruckIcon className="size-3.5" />
-            Delivery available — {regions.map((r) => r.charAt(0) + r.slice(1).toLowerCase()).join(', ')}
+            Free pickup. Delivery in selected areas.
           </span>
         )}
       </div>
@@ -165,7 +165,7 @@ export default async function CatalogPage({
           ) : (
             <div className="grid grid-cols-2 gap-3 min-[600px]:grid-cols-3 xl:grid-cols-4">
               {materials.map((material) => (
-                <MaterialCard key={material.id} material={material} showScope offerCount={offerCounts[material.id]} />
+                <MaterialCard key={material.id} material={material} showScope showCategory={!category} offerCount={offerCounts[material.id]} />
               ))}
             </div>
           )}

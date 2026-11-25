@@ -44,7 +44,7 @@ export function AuthSplitScreen({
       <div className="flex w-full flex-col justify-center px-6 py-16 sm:px-12 lg:w-1/2 lg:px-20">
         <Link href="/" className="mb-8 flex min-h-11 w-fit items-center gap-2 rounded-sm outline-none focus-visible:ring-2 focus-visible:ring-ring">
           <LogoMark className="size-8" />
-          <span className="text-[15px] font-medium tracking-tight text-ink">Builders Pool</span>
+          <span className="text-[15px] font-medium tracking-tight text-ink">BuildersPool</span>
         </Link>
         <div className="w-full max-w-sm">{children}</div>
       </div>

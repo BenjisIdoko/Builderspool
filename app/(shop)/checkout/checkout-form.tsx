@@ -28,7 +28,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 
 const FULFILLMENT_OPTIONS: { method: FulfillmentMethod; label: string }[] = [
   { method: 'DELIVERY', label: 'Delivery to site' },
-  { method: 'PICKUP', label: 'Pickup at center' },
+  { method: 'PICKUP', label: 'Pickup at centre' },
 ];
 
 const PAYMENT_OPTIONS: { method: PaymentMethod; label: string; icon: typeof BankIcon }[] = [

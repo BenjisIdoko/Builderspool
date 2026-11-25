@@ -79,7 +79,7 @@ export default async function Home() {
             <p className="bp-rise mt-4 text-body-sm text-white/85" style={{ '--rise-delay': '60ms' } as React.CSSProperties}>
               <span className="font-mono font-medium text-cyan">50%</span> of the verified saving comes back to you.{' '}
               <Link href="#how" className="rounded-sm text-white underline underline-offset-2 outline-none focus-visible:ring-2 focus-visible:ring-white/70">
-                How it’s calculated
+                How Pool &amp; Save works
               </Link>
             </p>
             <div className="bp-rise mt-7 flex flex-wrap items-center gap-x-6 gap-y-3" style={{ '--rise-delay': '120ms' } as React.CSSProperties}>
@@ -163,7 +163,7 @@ export default async function Home() {
               </span>
               <span className="flex flex-1 flex-col justify-end p-6 lg:p-8">
                 <span className="text-label uppercase text-cyan">Pickup stations</span>
-                <span className="mt-2 text-heading-xl">Collect free. ₦0 delivery.</span>
+                <span className="mt-2 text-heading-xl">Free pickup.</span>
                 <span className="mt-2 text-body-sm text-on-navy-muted">Choose the station closest to your site at checkout.</span>
               </span>
             </div>

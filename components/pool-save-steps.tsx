@@ -24,7 +24,7 @@ function buildSteps(times: CycleTimes): HowItWorksStep[] {
     },
     {
       title: 'You keep half the saving',
-      description: 'If suppliers beat the catalogue price, half the saving goes to your wallet once we’ve checked your order.',
+      description: 'If suppliers beat the catalogue price, half the saving goes to your savings credit once we’ve checked your order.',
       theme: 'green',
     },
   ];

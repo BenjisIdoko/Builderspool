@@ -1,7 +1,7 @@
 import { EmptyState } from '@/components/empty-state/empty-state';
 import { OfflineIllustration } from '@/components/empty-state/illustrations';
 
-export const metadata = { title: 'Offline — Builders Pool' };
+export const metadata = { title: 'Offline — BuildersPool' };
 
 // Shown by the service worker (public/sw.js) when a page load fails offline.
 export default function OfflinePage() {
@@ -11,7 +11,7 @@ export default function OfflinePage() {
         illustration={OfflineIllustration}
         as="h1"
         title="You're offline"
-        description="Builders Pool needs a connection to load prices and your cart. Check your signal and try again."
+        description="BuildersPool needs a connection to load prices and your cart. Check your signal and try again."
       />
     </div>
   );

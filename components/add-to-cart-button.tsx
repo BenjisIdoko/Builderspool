@@ -18,6 +18,7 @@ export function AddToCartButton({ material }: { material: BuyerMaterial }) {
     <Button
       type="button"
       variant="outline"
+      aria-label={`${added ? 'Added' : 'Add to cart'}: ${material.name}`}
       className="w-full gap-1.5 border-cta text-cta hover:bg-cta hover:text-white"
       onClick={() => {
         addItem(

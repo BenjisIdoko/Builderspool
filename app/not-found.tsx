@@ -16,7 +16,7 @@ export default function NotFound() {
         description="The link may be old or mistyped."
       >
         <Button asChild>
-          <Link href="/">Back to Builders Pool</Link>
+          <Link href="/">Back to BuildersPool</Link>
         </Button>
       </EmptyState>
     </div>

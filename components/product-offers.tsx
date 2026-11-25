@@ -21,7 +21,7 @@ export function ProductOffers({ unit }: { unit: string }) {
           Buy Direct
         </h2>
         <p className="mt-1 text-pretty text-body-sm text-slate">
-          No seller has listed this product yet, so Buy Direct isn&apos;t available for it. Pool &amp; Save works now, and Buy Direct appears here as soon as a verified seller lists it.
+          No seller offers this yet. Pool &amp; Save is available now.
         </p>
       </section>
     );
@@ -30,10 +30,10 @@ export function ProductOffers({ unit }: { unit: string }) {
   return (
     <section aria-labelledby="offers-heading" className="rounded-card bg-surface p-5 shadow-[0_0_0_1px_var(--color-hairline)]">
       <h2 id="offers-heading" className="text-heading-sm text-ink">
-        Buy Direct: offers from sellers ({offers.length})
+        Seller offers ({offers.length})
       </h2>
       <p className="mt-1 text-pretty text-body-sm text-slate">
-        Each seller sets their own price per {unit}. Pick a seller, then choose Buy Direct at checkout to buy from them; or choose Pool &amp; Save there to have suppliers compete for your order instead. Your price follows your pick.
+        Each seller sets their own price per {unit}. Pick a seller to buy from them at their price, or choose Pool &amp; Save at checkout to get the pool price.
       </p>
 
       <RadioGroup value={selected?.id ?? ''} onValueChange={select} aria-labelledby="offers-heading" className="mt-4 gap-0 divide-y divide-hairline">
