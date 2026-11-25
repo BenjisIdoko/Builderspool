@@ -46,9 +46,20 @@ The founder chose to price delivery by load, vehicle and distance (like a ride-h
 5. Whether a paint "unit" (Litre / Drum) is one litre or one 20 L drum, and the length of a roofing sheet (the estimate is per m2).
 6. A tick on "Confirmed" for each item weight after checking the estimate.
 
+### Checkout side (built 25 November, still switched off)
+
+| # | Topic | Decision | Effect |
+| --- | --- | --- | --- |
+| D23 | Where the fee comes from | **The buyer pins the site, the server prices it.** At checkout the buyer searches an address (Google Places, restricted to Nigeria, through our own routes so the key stays on the server) and picks a suggestion. `/api/checkout/delivery-quote` shows the fee. `createOrder` then works the fee out again from the cart and the site; the price shown is never what is trusted. | The order stores the site (`deliveryLatitude`, `deliveryLongitude`) and the working (`deliveryQuote`: centre, km, load, trips, base fare, rounding). The fee is the same amount on every order line, as today, so refunds keep pro-rating it. |
+| D24 | If the price moved | The checkout sends the fee the buyer saw. If the server's fee differs, the order is refused with the new price ("The delivery price is now N...") instead of charging something else. | No surprise charge if settings, rates or weights change between the quote and the pay button. |
+| D25 | When it cannot be priced | A site that cannot be priced (no Google answer, an item with no confirmed weight, no vehicle fits) **falls back to the zone fee**, with a message at checkout. An area with no zone fee and no distance price has nothing to fall back to: the buyer is told to choose pickup. | With distance pricing on, an area with a zone but no flat fee can now offer delivery, because the fee comes from the site. |
+| D26 | Pin required | With distance pricing on, delivery needs a pinned site ("your site on the map" is a required field). Saved addresses do not store map positions yet, so choosing one means searching the site again. | Follow-up: store the position on saved addresses. |
+
+Everything is behind `delivery.distancePricingEnabled`. With it off, or with no Google key, the checkout shows no map search and charges exactly what it did before. The site text the driver sees is still the typed address; the pin only sets the price.
+
 ### Not built yet (delivery pricing)
 
-The buyer side: an address search at checkout, the distance quote, saving the quote and the destination on the order, and writing the fee onto the order lines. The fee will be stored as the same amount on every line of the order, as today, so refunds keep pro-rating it. Fallback: zone fee when the quote fails.
+Map positions on saved addresses; a limit on how often one buyer can call address search (it needs a sign-in, and typing waits 300 ms and starts at 3 letters, but there is no per-buyer cap); showing the full per-trip working to the buyer or to ops on the order page.
 
 ## 24 November 2026: payments, notifications and savings credit (built, reviewed 25 November)
 

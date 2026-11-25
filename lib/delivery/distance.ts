@@ -46,3 +46,8 @@ export async function roadDistanceKm(origin: LatLng, destination: LatLng): Promi
     return null;
   }
 }
+
+/** Nigeria's bounding box. A site outside it is a mistake or a spoofed request, never priced. */
+export function isInNigeria(p: { lat: number; lng: number }): boolean {
+  return Number.isFinite(p.lat) && Number.isFinite(p.lng) && p.lat >= 4.2 && p.lat <= 13.9 && p.lng >= 2.6 && p.lng <= 14.7;
+}

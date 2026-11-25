@@ -11,18 +11,21 @@ import { getPickupCenters } from '@/lib/queries/pickupCenters';
 import { getSavingsWalletForBuyer } from '@/lib/wallet';
 import { isCredoConfigured, isCredoTestMode } from '@/lib/payments/credo';
 import { prisma } from '@/lib/prisma';
+import { getSetting } from '@/lib/settings';
+import { isMapsConfigured } from '@/lib/delivery/distance';
 
 export const metadata = { title: 'Checkout' };
 
 export default async function CheckoutPage() {
   const buyer = await requireBuyer();
-  const [{ times }, areas, centers, addressRows, stationRows, wallet] = await Promise.all([
+  const [{ times }, areas, centers, addressRows, stationRows, wallet, distanceSetting] = await Promise.all([
     getBuyerFacingTimes(),
     getCheckoutAreas(),
     getPickupCenters(),
     prisma.buyerAddress.findMany({ where: { buyerId: buyer.id }, orderBy: [{ isDefault: 'desc' }, { createdAt: 'asc' }] }),
     prisma.buyerPickupStation.findMany({ where: { buyerId: buyer.id }, select: { centerId: true } }),
     getSavingsWalletForBuyer(buyer.id),
+    getSetting<boolean>('delivery.distancePricingEnabled'),
   ]);
 
   return (
@@ -58,6 +61,8 @@ export default async function CheckoutPage() {
         credoConfigured={isCredoConfigured()}
         paystackTestMode={process.env.PAYSTACK_SECRET_KEY?.startsWith('sk_test_') ?? false}
         credoTestMode={isCredoTestMode()}
+        // Off until ops switch it on (Admin > Delivery pricing); also needs the maps key to be set.
+        distancePricing={Boolean(distanceSetting) && isMapsConfigured()}
       />
     </div>
   );

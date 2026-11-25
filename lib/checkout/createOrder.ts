@@ -1,5 +1,5 @@
 import { prisma } from '../prisma';
-import { OrderStatus, PaymentProvider, PurchaseMode, WalletEntryState, type PaymentMethod } from '@prisma/client';
+import { OrderStatus, PaymentProvider, PurchaseMode, WalletEntryState, type PaymentMethod, type Prisma } from '@prisma/client';
 import { getDeliveryCost, type FulfillmentMethod } from './deliveryCost';
 import { getSetting } from '../settings';
 import { regionForState } from '../areas/region';
@@ -8,6 +8,9 @@ import { getPickableListing } from '../queries/offers';
 import { koboToNaira, nairaToKobo } from '../money';
 import { postLedgerEntry } from '../ledger';
 import { notifyBuyerOrderPlaced } from '../notifications';
+import { isInNigeria } from '../delivery/distance';
+import { quoteDelivery, type DeliveryQuote } from '../delivery/quote';
+import { formatNaira } from '../format';
 
 export interface CheckoutInput {
   buyerId: string;
@@ -36,6 +39,12 @@ export interface CheckoutInput {
   deliveryContactPhone?: string;
   deliveryWindow?: string;
   deliveryNotes?: string;
+  // Where the site is on the map, from the checkout's address search. When distance pricing is on, the delivery
+  // fee is worked out from this; without it (or if it cannot be priced) the zone or region fee applies.
+  deliveryLatitude?: number | null;
+  deliveryLongitude?: number | null;
+  // The fee the buyer was shown. If the price has moved since, the order is refused rather than charged differently.
+  expectedDeliveryFee?: number | null;
 }
 
 const MAX_LINE_QUANTITY = 100_000;
@@ -129,6 +138,7 @@ export async function createOrder(input: CheckoutInput) {
   let region = input.region;
   let area: { localityId: string; zoneId: string } | null = null;
   let zoneFee: number | null = null;
+  let areaName = '';
   if (await getSetting<boolean>('areas.checkoutPickerEnabled')) {
     if (!input.localityId) throw new Error('Choose where you are so we can check delivery.');
     const locality = await prisma.locality.findUnique({
@@ -142,9 +152,23 @@ export async function createOrder(input: CheckoutInput) {
     region = zoneRegion;
     area = { localityId: locality.id, zoneId: locality.zone.id };
     zoneFee = locality.zone.deliveryFee === null ? null : Number(locality.zone.deliveryFee);
-    if (input.fulfillmentMethod === 'DELIVERY' && zoneFee === null) {
-      throw new Error(`Delivery to ${locality.name} isn't available yet. Choose pickup instead.`);
-    }
+    areaName = locality.name;
+  }
+
+  // Distance pricing: when the buyer pinned their site and the feature is on, the fee comes from the load, the
+  // vehicles and the road distance, worked out here from the cart (never from a figure the client sent). If it
+  // cannot be priced, the zone or region fee is used, as before.
+  let quote: DeliveryQuote | null = null;
+  const site =
+    input.fulfillmentMethod === 'DELIVERY' && isInNigeria({ lat: Number(input.deliveryLatitude), lng: Number(input.deliveryLongitude) })
+      ? { lat: Number(input.deliveryLatitude), lng: Number(input.deliveryLongitude) }
+      : null;
+  if (site) {
+    const result = await quoteDelivery(input.items.map((i) => ({ materialId: i.materialId, quantity: i.quantity })), site);
+    if (result.ok) quote = result.quote;
+  }
+  if (area && input.fulfillmentMethod === 'DELIVERY' && !quote && zoneFee === null) {
+    throw new Error(`Delivery to ${areaName} isn't available yet. Choose pickup instead.`);
   }
 
   let center = null;
@@ -157,11 +181,21 @@ export async function createOrder(input: CheckoutInput) {
     throw new Error(`We can't serve ${region.charAt(0)}${region.slice(1).toLowerCase()} yet. Choose another area.`);
   }
 
-  const deliveryCost = area
-    ? input.fulfillmentMethod === 'DELIVERY'
-      ? (zoneFee as number)
-      : 0
-    : getDeliveryCost(region, input.fulfillmentMethod);
+  const deliveryCost = quote
+    ? quote.fee
+    : area
+      ? input.fulfillmentMethod === 'DELIVERY'
+        ? (zoneFee as number)
+        : 0
+      : getDeliveryCost(region, input.fulfillmentMethod);
+
+  if (
+    input.fulfillmentMethod === 'DELIVERY' &&
+    typeof input.expectedDeliveryFee === 'number' &&
+    Math.round(input.expectedDeliveryFee) !== Math.round(deliveryCost)
+  ) {
+    throw new Error(`The delivery price is now ${formatNaira(deliveryCost)}. Check your order total and place it again.`);
+  }
 
   // Real site details for DELIVERY — validated here (server-side) since the
   // client already enforces it, but the client's word alone was never trusted
@@ -200,6 +234,9 @@ export async function createOrder(input: CheckoutInput) {
         paymentMethod: input.paymentMethod,
         paymentProvider: input.paymentProvider === PaymentProvider.CREDO ? PaymentProvider.CREDO : PaymentProvider.PAYSTACK,
         savingsApplied: 0,
+        deliveryLatitude: site?.lat ?? null,
+        deliveryLongitude: site?.lng ?? null,
+        ...(quote ? { deliveryQuote: quote as unknown as Prisma.InputJsonValue } : {}),
         ...delivery,
       },
     });

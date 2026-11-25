@@ -94,7 +94,7 @@ These are acknowledged and tracked by the product owner. Report them only if the
 | G12 | **The seller terms text** says "will be published before the pilot". It is a placeholder. |
 | G13 | **The map on pickup stations is a link** ("View on map") that opens an external map. There is no embedded map, and stations have no opening hours yet. |
 | G14 | **A removed (disabled) staff or admin email cannot be reused** for a new account. |
-| G15 | **Distance-based delivery pricing is built but switched off, and checkout does not use it.** The admin page, settings and calculation exist (decided 16 Nov, see `docs/decisions.md` D10 to D14). The Google Maps key, vehicle rates, station coordinates and confirmed item weights do not exist yet, so the switch cannot be turned on. Checkout still charges the zone fee. Test only the admin side (ADM-DLV) and that checkout is unchanged. |
+| G15 | **Distance-based delivery pricing is fully built but switched off.** The admin page, settings, calculation and the checkout side (address search, fee quote, fee stored on the order) exist (decisions D10 to D14 and D23 to D26 in `docs/decisions.md`). The Google Maps key, vehicle rates, station coordinates and confirmed item weights do not exist yet, so the switch cannot be turned on and checkout still charges the zone fee. Test the admin side (ADM-DLV) and that checkout is unchanged; BUY-CHK-18 to 21 can only be tested once the four prerequisites are in and the switch is on, ideally on a test deployment. |
 | G16 | **Credo Pay is built but not configured.** No Credo keys exist in production, so the "Credo Pay" option shows "Not configured yet". Its webhook has not been tested against Credo. Test Credo only if the product owner gives you demo keys. |
 | G17 | **Savings credit is locked when an order is placed**, not when it is paid. An unpaid order keeps the credit tied to it until it is paid, and nothing releases it automatically. Report it only if credit disappears from an order that was paid or cancelled in a way that should have released it. |
 | G18 | **Refunds ignore savings credit.** A line refund shows the full line price even when part of it was paid with credit. Known and awaiting a decision. |
@@ -273,6 +273,10 @@ Each requirement has an acceptance criterion you can test. "Expected" means the 
 | BUY-CHK-6 | Pickup station | Pickup shows the chosen station's name, address and directions. The buyer's default station is preselected and their saved stations are listed first. If the region has more than one station the buyer can choose for this order. The order records the chosen station. A station from another region is refused by the server. |
 | BUY-CHK-7 | Disabled pay button | The pay button names the first missing required field. It enables only when valid. |
 | BUY-CHK-8 | Payment | Bank transfer, card or USSD through the chosen gateway. A TEST tag shows in test mode for that gateway. After payment the buyer lands on the order page. |
+| BUY-CHK-18 | Distance pricing is invisible while off | With `delivery.distancePricingEnabled` off, or no Google key, checkout shows no "Find your site on the map" box and delivery costs exactly the zone or region fee. (Always test this first.) |
+| BUY-CHK-19 | Site search (needs the switch on) | Typing three or more letters shows up to six Nigerian address suggestions. Arrow keys and Enter choose one. A search that returns nothing shows nothing. If Google is down the buyer sees "Address search is unavailable" and the standard area rate applies. A site outside Nigeria is never accepted. |
+| BUY-CHK-20 | Distance fee shown | After a site is chosen the Delivery line shows the distance fee and a note such as "12.3 km from Ikeja Hub, 1 trip (Pickup / small van)". The fee is base fare + rate per km per trip, rounded up to the next N50. Changing the cart quantities re-prices it. A site that cannot be priced shows the zone fee and says so; an area with no zone fee tells the buyer to choose pickup. Delivery needs a pinned site, so the pay button says "your site on the map" until one is chosen. |
+| BUY-CHK-21 | Price is checked at order time | The order stores the same fee on every line, the site and the working (`deliveryQuote`). If the price changed between the quote and "Pay", the order is refused with the new price and nothing is charged. Pickup orders store no site and no distance fee. |
 | BUY-CHK-9 | Payment start failure | If Paystack cannot start, the order still exists as "Awaiting payment". The order page offers a retry. No error page appears. |
 | BUY-CHK-10 | Webhook | A successful payment webhook marks the order paid exactly once and joins the right pool (see BUY-ORD-4). A repeated webhook changes nothing. A webhook with a bad signature is rejected. |
 | BUY-CHK-11 | After-pool-close payment | A payment confirmed after the pool close joins the **next day's** pool. |
@@ -743,7 +747,7 @@ See `docs/decisions.md` for decisions made. Still open or not yet built:
 6. The seller terms text is a draft (`docs/seller-terms-draft.md`). The app still shows the placeholder line.
 7. Minimum eligible bids per line is settled at 1.
 8. Credit on abandoned orders, refunds where credit was used, SMS and WhatsApp rules, and Credo set-up are undecided (see `docs/decisions.md`, "Review on 25 November").
-9. Distance-based delivery pricing waits on the founder: per-km rates, confirmed vehicle capacities, the Google Maps key, station coordinates and confirmed item weights (see `docs/decisions.md`). Its checkout side is not built.
+9. Distance-based delivery pricing waits on the founder: per-km rates, confirmed vehicle capacities, the Google Maps key, station coordinates and confirmed item weights (see `docs/decisions.md`). Its checkout side is built and waiting behind the switch.
 
 ---
 
@@ -788,7 +792,7 @@ These areas changed most recently and deserve extra attention:
 - **Checkout** changed a lot on 24 November: payment gateway choice (Paystack, Credo Pay), savings credit, mixed Buy Direct and pooled lines, and the clearer Delivery option (BUY-CHK-3, 12 to 17).
 - **Notifications**: buyer bell and page, reminders, email, SMS and WhatsApp, with channel choices and key-events-only text messages (BUY-NOT-1 to 9).
 - Admin **Pickup stations** screen and the buyer's pickup choice at checkout. Stations now take optional map coordinates (ADM-CAT-6).
-- New admin **Delivery pricing** page and settings group (ADM-DLV). Switched off: confirm that checkout delivery fees did not change.
+- New admin **Delivery pricing** page and settings group (ADM-DLV), and the checkout side of it (site search, distance fee, BUY-CHK-18 to 21). Switched off: confirm that checkout delivery fees did not change.
 - Error handling: failures now return a message beside the control, with confirmation dialogs on risky admin actions.
 - **Lagos-time dates** everywhere.
 - **Seller KYC form** that keeps answers on errors, **listing** re-check after photo removal, **payouts** from all three sources, **allocations** decline confirmation.

@@ -1,6 +1,6 @@
 'use client';
 
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { BankIcon, CheckCircleIcon, CircleIcon, DeviceMobileIcon, MapPinIcon, TruckIcon, CreditCardIcon, LockKeyIcon, WalletIcon } from '@phosphor-icons/react/ssr';
@@ -15,6 +15,7 @@ import { getDeliveryCost, type FulfillmentMethod } from '@/lib/checkout/delivery
 import { checkoutFallbackText } from '@/lib/pool-stages';
 import { DatePicker } from '@/components/ui/date-picker';
 import { PickupLocation } from '@/components/pickup-location';
+import { SiteLocationSearch, type PickedSite } from '@/components/site-location-search';
 import { STATION_REGIONS } from '@/lib/areas/region';
 import { PickupStationList } from '@/components/pickup-station-list';
 import type { PickupCenter } from '@/lib/queries/pickupCenters';
@@ -70,6 +71,12 @@ export type SavedCheckoutAddress = {
   isDefault: boolean;
 };
 
+type DeliveryQuoteState =
+  | { status: 'idle' }
+  | { status: 'loading' }
+  | { status: 'ok'; fee: number; distanceKm: number; centreName: string; trips: string[]; totalKg: number }
+  | { status: 'fallback' };
+
 type SubmitState = { status: 'idle' } | { status: 'submitting' } | { status: 'error'; message: string };
 
 export function CheckoutForm({
@@ -88,6 +95,7 @@ export function CheckoutForm({
   credoConfigured = false,
   paystackTestMode = false,
   credoTestMode = false,
+  distancePricing = false,
 }: {
   /** The locality picker's data; `enabled` is false until the setting is switched on. */
   areas: CheckoutAreas;
@@ -112,6 +120,8 @@ export function CheckoutForm({
   credoConfigured?: boolean;
   paystackTestMode?: boolean;
   credoTestMode?: boolean;
+  /** Delivery is priced from the pinned site (load, vehicle, distance). Off: the zone or region fee, as before. */
+  distancePricing?: boolean;
 }) {
   const router = useRouter();
   const { lines, subtotal, clear } = useCart();
@@ -138,17 +148,56 @@ export function CheckoutForm({
   const [deliveryNotes, setDeliveryNotes] = useState('');
   const [localityId, setLocalityId] = useState(initialLocalityId);
   const zone = areas.enabled && localityId ? (findLocality(areas, localityId)?.zone ?? null) : null;
-  // With the picker on, delivery needs a zone that has a fee; otherwise pickup only.
-  const deliveryAvailable = !areas.enabled || (zone !== null && zone.fee !== null);
+  // Distance pricing: the site the buyer pinned, and the fee worked out from it for this cart.
+  const [site, setSite] = useState<PickedSite | null>(null);
+  // The last answer, tagged with the site and cart it was for; an answer for anything else counts as still loading.
+  const [quoteResult, setQuoteResult] = useState<{ key: string; value: DeliveryQuoteState } | null>(null);
+  const linesKey = lines.map((l) => `${l.materialId}:${l.quantity}`).join(',');
+  const quoteKey = site ? `${site.lat},${site.lng}|${linesKey}` : '';
+  useEffect(() => {
+    if (!distancePricing || fulfillmentMethod !== 'DELIVERY' || !site) return;
+    const controller = new AbortController();
+    fetch('/api/checkout/delivery-quote', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ lat: site.lat, lng: site.lng, items: linesKey.split(',').filter(Boolean).map((k) => ({ materialId: k.split(':')[0], quantity: Number(k.split(':')[1]) })) }),
+      signal: controller.signal,
+    })
+      .then((res) => res.json())
+      .then((body) => {
+        const value: DeliveryQuoteState = body.ok
+          ? { status: 'ok', fee: body.fee, distanceKm: body.distanceKm, centreName: body.centreName, trips: body.trips, totalKg: body.totalKg }
+          : { status: 'fallback' };
+        setQuoteResult({ key: quoteKey, value });
+      })
+      .catch((e) => {
+        if ((e as Error).name !== 'AbortError') setQuoteResult({ key: quoteKey, value: { status: 'fallback' } });
+      });
+    return () => controller.abort();
+  }, [distancePricing, fulfillmentMethod, site, linesKey, quoteKey]);
+  const siteQuote: DeliveryQuoteState =
+    distancePricing && site ? (quoteResult?.key === quoteKey ? quoteResult.value : { status: 'loading' }) : { status: 'idle' };
+  const pricedFee = siteQuote.status === 'ok' ? siteQuote.fee : null;
+  // With the picker on, delivery needs a zone with a fee, or (when distance pricing is on) just a zone, since the
+  // fee then comes from the site; otherwise pickup only.
+  const deliveryAvailable = !areas.enabled || (zone !== null && (zone.fee !== null || distancePricing));
   const deliveryUnavailableReason = !areas.enabled
     ? null
     : !localityId
       ? 'Select your area first'
-      : !zone || zone.fee === null
+      : !zone || (zone.fee === null && !distancePricing)
         ? 'Pickup only in this area'
         : null;
   const costFor = (method: FulfillmentMethod) =>
-    areas.enabled ? (method === 'DELIVERY' ? (zone?.fee ?? 0) : 0) : getDeliveryCost(region, method);
+    method === 'DELIVERY' && pricedFee !== null
+      ? pricedFee
+      : areas.enabled
+        ? method === 'DELIVERY'
+          ? (zone?.fee ?? 0)
+          : 0
+        : getDeliveryCost(region, method);
+  // The site is priced online only when it has a price; an area with no flat fee has nothing to fall back to.
+  const noFallbackFee = areas.enabled && (zone?.fee ?? null) === null;
   // How the cart is bought. Buyers can set all eligible items to Buy Direct or Pool & Save,
   // or customize each line item individually when they have a mixed cart.
   const [mode, setMode] = useState<'POOL' | 'DIRECT'>('POOL');
@@ -193,7 +242,13 @@ export function CheckoutForm({
           ? 'a contact name'
           : !deliveryContactPhone.trim()
             ? 'a contact phone'
-            : null
+            : distancePricing && !site
+              ? 'your site on the map'
+              : distancePricing && siteQuote.status === 'loading'
+                ? 'the delivery price'
+                : distancePricing && siteQuote.status === 'fallback' && noFallbackFee
+                  ? 'a delivery price: this site cannot be priced online, so choose pickup'
+                  : null
       : null;
 
   const deliveryCost = costFor(fulfillmentMethod);
@@ -248,6 +303,9 @@ export function CheckoutForm({
                   .filter(Boolean)
                   .join(' · '),
                 deliveryNotes,
+                ...(distancePricing && site
+                  ? { deliveryLatitude: site.lat, deliveryLongitude: site.lng, expectedDeliveryFee: deliveryCost }
+                  : {}),
               }
             : {}),
         }),
@@ -261,7 +319,7 @@ export function CheckoutForm({
       if (body.order?.id) {
         clear();
         if (body.payment?.authorizationUrl) {
-          window.location.href = body.payment.authorizationUrl;
+          window.location.assign(body.payment.authorizationUrl);
           return;
         }
         router.push(`/orders/${body.order.id}${body.paymentError ? '?payment=failed' : ''}`);
@@ -366,6 +424,7 @@ export function CheckoutForm({
                             checked={selected}
                             onChange={() => {
                               setAddressChoice(id);
+                              setSite(null);
                               setDeliveryAddress(a?.address ?? '');
                               setLandmark(a?.landmark ?? '');
                               if (a) {
@@ -402,6 +461,30 @@ export function CheckoutForm({
               )}
               <fieldset className="flex flex-col gap-4">
                 <legend className="mb-1 text-heading-sm text-ink">Site</legend>
+                {distancePricing && (
+                  <div>
+                    <SiteLocationSearch
+                      site={site}
+                      onPick={(picked) => {
+                        setSite(picked);
+                        if (!deliveryAddress.trim()) setDeliveryAddress(picked.address);
+                      }}
+                      onClear={() => setSite(null)}
+                    />
+                    {siteQuote.status === 'ok' && (
+                      <p className="mt-1 text-caption text-muted-foreground">
+                        {siteQuote.distanceKm} km from {siteQuote.centreName}, {siteQuote.trips.length} {siteQuote.trips.length === 1 ? 'trip' : 'trips'} ({[...new Set(siteQuote.trips)].join(', ')}).
+                      </p>
+                    )}
+                    {siteQuote.status === 'fallback' && (
+                      <p className="mt-1 text-caption text-warning-text">
+                        {noFallbackFee
+                          ? 'We cannot price delivery to this site online yet. Choose pickup, or try another address.'
+                          : 'We could not work out a distance price for this site, so the standard rate for your area applies.'}
+                      </p>
+                    )}
+                  </div>
+                )}
                 <div>
                   <Label htmlFor="deliveryAddress" className="mb-1.5 text-body-sm font-medium text-ink">
                     Site address
@@ -742,6 +825,11 @@ export function CheckoutForm({
             <span>{fulfillmentMethod === 'DELIVERY' ? 'Delivery' : 'Pickup'}</span>
             {deliveryCost === 0 ? <span className="font-bold text-ink">Free</span> : <AnimatedNaira value={deliveryCost} className="font-bold text-ink" />}
           </div>
+          {fulfillmentMethod === 'DELIVERY' && siteQuote.status === 'ok' && (
+            <p className="-mt-1 text-caption text-muted-foreground">
+              About {Math.round(siteQuote.totalKg).toLocaleString('en-NG')} kg, {siteQuote.distanceKm} km by road.
+            </p>
+          )}
           {savingsDiscount > 0 && (
             <div className="flex justify-between text-success">
               <span>Savings credit applied</span>
