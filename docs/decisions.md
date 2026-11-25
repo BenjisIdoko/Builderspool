@@ -88,11 +88,17 @@ Fixed the same day (pushed, commit 8a505cf):
 2. **A failed notification could break real work.** Alerts are sent after orders, payments and receipts are saved, but an error in one could stop the rest of that step. A failed alert is now logged and ignored.
 3. **The reminder sweep could fail the pool clock.** It is now isolated, so a reminder error cannot stop a pool stage.
 
-Open for the founder:
-- **Credit on abandoned orders.** If a buyer places an order with credit applied and never pays, the credit stays locked to that order. Nothing releases it. Choose: release it when an unpaid order is cancelled or expires (for example after 24 hours), or leave it until the buyer pays.
-- **Refunds where credit was used.** The refund calculation ignores the credit. A buyer who paid part of a line with credit and is later refunded is shown the full line price as due. Choose: return the credit part to their savings credit, and refund only the cash part.
-- **SMS and WhatsApp: whether to use WhatsApp alone, or WhatsApp and SMS.** The event list and the opt-out are now built (D19, D20). Still to decide: WhatsApp as the main channel with SMS as the back-up, or SMS only. WhatsApp usually needs Meta-approved message templates for alerts sent outside a 24-hour chat window.
-- ~~Credo configuration.~~ Deferred by the founder on 25 November: launch with Paystack only (D15). Revisit later.
+Open for the founder: nothing left from this review. The credit, refund and text-message questions were settled the same evening (D27 to D29 below).
+
+### 25 November 2026 (evening): credit, refunds and text messages (built, waiting for push)
+
+| # | Topic | Decision | What was built |
+| --- | --- | --- | --- |
+| D27 | Credit on unpaid orders | **Release it.** An unpaid order that holds savings credit expires after **24 hours**: it is marked Cancelled and every credit entry spent on it becomes available again. The buyer gets an "Order expired" notice. | Runs every few minutes with the pool clock (`lib/checkout/expireUnpaidOrders.ts`). Only orders that hold credit are touched; unpaid orders without credit are left alone. A late payment can no longer turn a cancelled order into a paid one (`confirmOrderPaid` accepts only orders still awaiting payment); if money arrives for a cancelled order it is logged for a manual refund. |
+| D28 | Refunds where credit was used | **Refund the cash part only; give the credit part back as credit.** For a line no supplier filled, the credit share is the line's share of the order times the credit applied; the rest is the cash refund. | The refund-due ledger now holds only the cash part. The credit part is posted to the savings ledger and added to the buyer's savings credit as a new available entry ("Savings credit returned"). It can never exceed the credit applied to that order. The order page shows the two amounts separately. A line paid entirely with credit has no cash refund. |
+| D29 | Text messages | **SMS only.** WhatsApp stays switched off, and there is no WhatsApp-first logic with SMS as back-up. | No code change: the WhatsApp platform switch (`notifications.whatsappEnabled`) is already off and the WhatsApp tick box is hidden while it is off. Revisit only if the business wants WhatsApp later. |
+
+**Bug found while building this.** Splitting a savings entry at checkout (when an entry is larger than what is still needed) would have been refused by the database, because the leftover had no source and the table requires exactly one. It would have failed the order. Nothing in production had used credit yet (no wallet rows exist). Migration `20261125180000_wallet_entry_origin` adds `originEntryId` so a carved-out entry points to the entry it came from, and relaxes the check to allow it. The same column holds credit returned on refunds.
 
 ## Still open
 
@@ -101,7 +107,7 @@ Open for the founder:
 - Station coordinates and opening hours (D1). The coordinates are also needed for distance-based delivery fees (D12).
 - Delivery fees for the five new zones (D9). Distance pricing (D10 to D14) would replace the flat fee once it is switched on; until then these zones stay pickup only.
 - Everything under "Still owed by the founder (delivery pricing)" above.
-- The open points under "Review on 25 November" above (credit on abandoned orders, refunds with credit, SMS and WhatsApp rules). Credo is deferred (D15).
+- Credo is deferred (D15). The credit, refund and text-message points are settled (D27 to D29).
 - Approving sellers for the new zones: none has approved coverage there yet, so pooled lines in those zones have no bidders until sellers ask for the zones and ops approve.
 
 ## To build from these decisions

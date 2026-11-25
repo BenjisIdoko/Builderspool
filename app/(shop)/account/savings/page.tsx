@@ -81,10 +81,14 @@ export default async function AccountSavingsPage() {
               <li key={entry.id} className="flex flex-wrap items-center justify-between gap-x-4 gap-y-2 px-5 py-4">
                 <div className="min-w-0 flex-1 basis-56">
                   <div className="text-pretty text-sm font-semibold text-ink">
-                    {entry.allocation?.bid.material.name ?? entry.sheetFulfilment?.orderItem.material.name}
+                    {entry.originEntryId
+                      ? 'Savings credit returned'
+                      : (entry.allocation?.bid.material.name ?? entry.sheetFulfilment?.orderItem.material.name)}
                   </div>
                   <div className="mt-0.5 text-xs tabular-nums text-muted-foreground">
-                    You paid {formatNaira(Number(entry.referenceValue))}, actual cost {formatNaira(Number(entry.actualValue))} · {formatLagosDate(entry.createdAt)}
+                    {entry.originEntryId
+                      ? `Credit you spent on an order that could not be filled · ${formatLagosDate(entry.createdAt)}`
+                      : `You paid ${formatNaira(Number(entry.referenceValue))}, actual cost ${formatNaira(Number(entry.actualValue))} · ${formatLagosDate(entry.createdAt)}`}
                   </div>
                 </div>
                 <div className="flex shrink-0 items-center gap-3">

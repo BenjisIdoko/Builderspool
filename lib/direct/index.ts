@@ -3,7 +3,7 @@ import { prisma } from '../prisma';
 import { getSetting } from '../settings';
 import { nairaToKobo } from '../money';
 import { postLedgerEntry } from '../ledger';
-import { refundDueKobo } from '../bidding/refund';
+import { recordLineRefund } from '../bidding/refund';
 import { assertNoBankChangeUnderReview } from '../bank/hold';
 import { notifySellerDirectOrder, notifyBuyerOrderUpdate } from '../notifications';
 
@@ -25,15 +25,7 @@ async function refundLine(orderItemId: string, reason: string) {
     include: { order: { select: { id: true, buyerId: true } }, material: { select: { name: true } } },
   });
   await prisma.orderItem.update({ where: { id: item.id }, data: { unfilledQuantity: item.quantity } });
-  await postLedgerEntry({
-    account: 'BUYER_REFUND_DUE',
-    amountKobo: refundDueKobo(item, item.quantity),
-    entryKey: `refund-due:${item.id}`,
-    memo: reason,
-    orderId: item.order.id,
-    orderItemId: item.id,
-    userId: item.order.buyerId,
-  });
+  await recordLineRefund(item, item.quantity, reason, item.order.buyerId);
   await notifyBuyerOrderUpdate(
     item.order.buyerId,
     item.order.id,

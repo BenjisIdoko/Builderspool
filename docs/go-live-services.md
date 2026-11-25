@@ -22,7 +22,7 @@ Status key: **Done** = working in production today. **Set up** = account exists 
 | # | Service | Why we need it | What to do | Variables | Pay | Status |
 | --- | --- | --- | --- | --- | --- | --- |
 | 9 | **Termii** (SMS) | Key text alerts: payment confirmed, order and delivery updates, seller awards | Register a **sender name** (Nigerian networks approve it, it can take days), fund the wallet, ask Termii to enable the route. Start on `generic`; switch to `dnd` once enabled, so numbers on the Do Not Disturb list are reached. | `TERMII_API_KEY`, `TERMII_SENDER_ID`, `TERMII_SMS_CHANNEL` | Prepaid credit, per message | Not started |
-| 10 | **WhatsApp** (optional, switched off) | Alerts on WhatsApp | Needs a **Meta business verification**, a business phone number and **approved message templates** before it can send alerts. Only start this after SMS works. Via Termii (`TERMII_WHATSAPP_DEVICE_ID`), Twilio, or Meta's own API. | `TERMII_WHATSAPP_DEVICE_ID` or `TWILIO_*` or `WHATSAPP_ACCESS_TOKEN`, `WHATSAPP_PHONE_NUMBER_ID` | Per conversation, billed by the provider | Not started |
+| 10 | **WhatsApp** | **Skipped: text messages are SMS only (decision of 25 November).** | Nothing to do. The WhatsApp switch stays off. | `TERMII_WHATSAPP_DEVICE_ID`, `TWILIO_*`, `WHATSAPP_ACCESS_TOKEN` (leave unset) | none | Deferred |
 | 11 | **MetaMap** (seller CAC check) | Checks a seller's CAC registration during KYC | Create the account, get the client ID and secret, set them. Until then, ops must verify CAC by hand. | `METAMAP_CLIENT_ID`, `METAMAP_CLIENT_SECRET` | Per check | Not started |
 
 ## C. Needed only to switch on distance-based delivery pricing

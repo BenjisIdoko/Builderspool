@@ -96,8 +96,8 @@ These are acknowledged and tracked by the product owner. Report them only if the
 | G14 | **A removed (disabled) staff or admin email cannot be reused** for a new account. |
 | G15 | **Distance-based delivery pricing is fully built but switched off.** The admin page, settings, calculation and the checkout side (address search, fee quote, fee stored on the order) exist (decisions D10 to D14 and D23 to D26 in `docs/decisions.md`). The Google Maps key, vehicle rates, station coordinates and confirmed item weights do not exist yet, so the switch cannot be turned on and checkout still charges the zone fee. Test the admin side (ADM-DLV) and that checkout is unchanged; BUY-CHK-18 to 21 can only be tested once the four prerequisites are in and the switch is on, ideally on a test deployment. |
 | G16 | **Credo Pay is built but not configured.** No Credo keys exist in production, so the "Credo Pay" option shows "Not configured yet". Its webhook has not been tested against Credo. Test Credo only if the product owner gives you demo keys. **Decision 25 November: launch with Paystack only; Credo is deferred.** |
-| G17 | **Savings credit is locked when an order is placed**, not when it is paid. An unpaid order keeps the credit tied to it until it is paid, and nothing releases it automatically. Report it only if credit disappears from an order that was paid or cancelled in a way that should have released it. |
-| G18 | **Refunds ignore savings credit.** A line refund shows the full line price even when part of it was paid with credit. Known and awaiting a decision. |
+| G17 | **Unpaid orders give their savings credit back after 24 hours.** An unpaid order that holds credit is cancelled after 24 hours and the credit becomes available again; the buyer is told. Unpaid orders without credit are not cancelled. Report it if credit is still locked to an unpaid order older than a day, or if a paid order loses its credit. |
+| G18 | **A refund splits into cash and credit.** For a line no supplier filled, the part the buyer paid with savings credit goes back to their savings credit ("Savings credit returned"); only the rest is a cash refund. Report it if a refund shows the full line price on an order that used credit, or if more credit comes back than was spent. |
 
 ---
 
@@ -283,6 +283,8 @@ Each requirement has an acceptance criterion you can test. "Expected" means the 
 | BUY-CHK-12 | Payment gateway | A "Payment gateway" choice offers Paystack and Credo Pay. A gateway that is not configured is disabled with "Not configured yet". The order records the chosen gateway, and "Pay now" on the order page uses the same gateway. |
 | BUY-CHK-13 | Savings credit | A buyer with an available balance sees "Apply savings credit", ticked by default, with the amount. Total due falls by the credit, never below zero. The server applies credit oldest first and only what the order needs: a part-used entry is split and the remainder stays available. The order page shows "Savings credit applied" and the amount due. Placing two orders at once cannot spend the same credit twice. |
 | BUY-CHK-14 | Fully covered order | When credit covers the whole total, the button reads "Place order with savings credit", no gateway opens, and the order is confirmed as paid at once and joins the pool or goes to the seller as normal. |
+| BUY-CHK-22 | Unpaid order with credit | Place an order with credit applied and do not pay. After 24 hours (or when the order is older than that) the order shows Cancelled, the credit entries are available again, and the buyer has an "Order expired" notice. An order without credit is unchanged. |
+| BUY-CHK-23 | Refund with credit | An order paid partly with credit has a line no supplier fills. The order page shows the cash refund and "Returned to your savings credit" as separate lines; the savings page shows a new "Savings credit returned" entry. The two amounts add up to the line's refund. |
 | BUY-CHK-15 | Amount charged | The gateway is asked for the total **after** credit, and the payment is accepted only when the paid amount equals that total exactly. |
 | BUY-CHK-16 | Delivery not available | With the area picker on, the Delivery option shows why it is unavailable ("Select your area first" or "Pickup only in this area") and checkout defaults to Pickup when the chosen area has no delivery. |
 | BUY-CHK-17 | One payment, one order | The redirect back from Credo confirms an order only when the paid transaction was started for that order. Using another order's transaction reference leaves the order unpaid. |
@@ -503,7 +505,7 @@ Page: `/admin/delivery-pricing` (sidebar: "Delivery pricing"). Switched off; see
 - **Seller payable.** Pool: bid price x quantity. Buy Direct: line value less 3%.
 - **Refund (whole kobo)** for unfilled quantity:
   `refund = locked unit price x unfilled units + round(delivery cost x unfilled units / ordered units)`
-- **Savings credit at checkout.** Credit is spent oldest entry first. If an entry is larger than what is still needed, it is split: the used part is marked "Used at checkout" and the rest stays available. The amount used is stored on the order (`savingsApplied`) and posted to the money ledger as a negative credit entry, once per order. The amount due is `gross total - credit applied`, never below zero. A payment is accepted only for exactly that amount. Known limits: G17 and G18.
+- **Savings credit at checkout.** Credit is spent oldest entry first. If an entry is larger than what is still needed, it is split: the used part is marked "Used at checkout" and the rest stays available. The amount used is stored on the order (`savingsApplied`) and posted to the money ledger as a negative credit entry, once per order. The amount due is `gross total - credit applied`, never below zero. A payment is accepted only for exactly that amount. See G17 and G18 for expiry and refunds. A returned-credit entry has no material of its own and shows as "Savings credit returned".
 - **Delivery fee (today)** is a flat fee per zone (seeded at N15,000 in each of five zones). A zone with no fee offers pickup only.
 - **Delivery fee (distance pricing, built but off, G15).** When switched on and a quote can be worked out:
   1. Load = sum of (quantity x weight per unit) over the order lines. Only confirmed weights count. A line with no confirmed weight makes the quote fail.
@@ -746,7 +748,7 @@ See `docs/decisions.md` for decisions made. Still open or not yet built:
 5. Bank-detail changes (OTP, ops review, optional call) are built. The OTP email needs a verified Resend sending domain to reach every seller, so ask the product owner whether it is set before testing SEL-KYC-9.
 6. The seller terms text is a draft (`docs/seller-terms-draft.md`). The app still shows the placeholder line.
 7. Minimum eligible bids per line is settled at 1.
-8. Credit on abandoned orders, refunds where credit was used, SMS and WhatsApp rules, and Credo set-up are undecided (see `docs/decisions.md`, "Review on 25 November").
+8. Credit release, refunds with credit and text messages (SMS only) are settled (D27 to D29 in `docs/decisions.md`). Credo is deferred.
 9. Distance-based delivery pricing waits on the founder: per-km rates, confirmed vehicle capacities, the Google Maps key, station coordinates and confirmed item weights (see `docs/decisions.md`). Its checkout side is built and waiting behind the switch.
 
 ---

@@ -6,6 +6,7 @@ import { advanceSheets, countDueSheets } from '../sheets/tick';
 import { awardCycle } from './award';
 import { expireOverdueAllocations, finalizeCycleFallback, type FallbackReport } from './fallback';
 import { runAutomatedReminders, type ReminderReport } from '../notifications/reminders';
+import { expireUnpaidCreditOrders } from '../checkout/expireUnpaidOrders';
 import type { CycleCloseReport } from './types';
 
 export interface TickReport {
@@ -96,6 +97,13 @@ export async function advanceCycles(now = new Date()): Promise<TickReport> {
     console.error('Reminder sweep failed:', err);
   }
 
+  // Unpaid orders that hold savings credit give it back after 24 hours.
+  try {
+    await expireUnpaidCreditOrders(now);
+  } catch (err) {
+    console.error('Unpaid-order credit release failed:', err);
+  }
+
   return report;
 }
 
@@ -129,6 +137,7 @@ export async function advanceIfDue(now = new Date()): Promise<boolean> {
     if (now.getTime() - lastReminderCheck >= 5 * 60_000) {
       lastReminderCheck = now.getTime();
       await runAutomatedReminders(now).catch((err) => console.error('Reminder sweep failed:', err));
+      await expireUnpaidCreditOrders(now).catch((err) => console.error('Unpaid-order credit release failed:', err));
     }
     return false;
   }

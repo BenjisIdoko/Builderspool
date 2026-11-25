@@ -805,14 +805,22 @@ model SavingsWalletEntry {
   paymentReference      String?          @unique // set when marked PAID — same manual-ops pattern as seller payoutReference, no live payment rail exists yet
   appliedOrderId        String?
   appliedAt             DateTime?
+  // Set only on an entry carved out of another one: the unused rest of an entry
+  // that was part-spent at checkout, or credit handed back when a line that was
+  // part-paid with credit is refunded. Such an entry has no allocation or
+  // sheet fulfilment of its own; a CHECK constraint keeps the sources exclusive.
+  originEntryId         String?
   createdAt             DateTime         @default(now())
 
+  origin          SavingsWalletEntry?  @relation("EntryOrigin", fields: [originEntryId], references: [id], onDelete: Restrict)
+  derivedEntries  SavingsWalletEntry[] @relation("EntryOrigin")
   buyer           User             @relation(fields: [buyerId], references: [id])
   allocation      Allocation?      @relation(fields: [allocationId], references: [id], onDelete: Restrict)
   sheetFulfilment SheetFulfilment? @relation(fields: [sheetFulfilmentId], references: [id], onDelete: Restrict)
   appliedOrder    Order?           @relation("AppliedOrderSavings", fields: [appliedOrderId], references: [id], onDelete: SetNull)
 
   @@index([buyerId, state])
+  @@index([originEntryId])
 }
 
 // A buyer's stored "notify me at this price" request. Stored only — there's

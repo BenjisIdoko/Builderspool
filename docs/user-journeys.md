@@ -26,7 +26,7 @@ Built on 24 November, not yet re-walked in the journeys below.
 
 - **Notifications.** Buyers get an in-app bell and a Notifications page, and every notification is also emailed. SMS and WhatsApp are built but send nothing until a provider is set up. Buyers hear about: order placed, payment confirmed, supplier confirmed, goods received, savings credited, delivery updates, refunds and price alerts, plus reminders for unpaid orders and carts left behind. Sellers get their pool, sheet and Buy Direct alerts the same way, and a reminder before an offer expires. This closes most of the "Buyers get no notifications" gap.
 - **Checkout.** A buyer can pay with Paystack or Credo Pay (Credo is not switched on yet), spend their savings credit, and mix Buy Direct and Pool & Save lines in one order. Delivery explains why it is unavailable and checkout defaults to Pickup in areas with no delivery.
-- **Open points** are in `docs/decisions.md` under "Review on 25 November": credit left on abandoned orders, refunds where credit was used, and SMS and WhatsApp rules.
+- **Credit and refunds (25 November evening).** An unpaid order that holds savings credit expires after 24 hours and the credit is given back. A refund for an unfilled line returns the credit part as credit and only the cash part as a refund. Text messages are SMS only. See `docs/decisions.md`, D27 to D29.
 
 ## Buyer
 

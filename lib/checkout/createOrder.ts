@@ -302,6 +302,7 @@ export async function createOrder(input: CheckoutInput) {
             await tx.savingsWalletEntry.create({
               data: {
                 buyerId: input.buyerId,
+                originEntryId: entry.id,
                 referenceValue: entry.referenceValue,
                 actualValue: entry.actualValue,
                 grossSaving: entry.grossSaving,

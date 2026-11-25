@@ -1,8 +1,7 @@
 import { prisma } from '../prisma';
 import { AllocationStatus, BidStatus, type Allocation } from '@prisma/client';
 import { getSettings } from '../settings';
-import { refundDueKobo } from './refund';
-import { postLedgerEntry } from '../ledger';
+import { recordLineRefund } from './refund';
 import { notifyAwardLapsed, notifyBidWon, notifyBuyerOrderUpdate } from '../notifications';
 import { allocateDemand } from './allocate';
 
@@ -232,15 +231,12 @@ export async function finalizeCycleFallback(cycleId: string, now = new Date()): 
     if (unfilled === 0) continue;
 
     await prisma.orderItem.update({ where: { id: item.id }, data: { unfilledQuantity: unfilled } });
-    await postLedgerEntry({
-      account: 'BUYER_REFUND_DUE',
-      amountKobo: refundDueKobo(item, unfilled),
-      entryKey: `refund-due:${item.id}`,
-      memo: `No winning supplier for ${unfilled} of ${item.quantity} units — not charged`,
-      orderId: item.order.id,
-      orderItemId: item.id,
-      userId: item.order.buyerId,
-    });
+    await recordLineRefund(
+      item,
+      unfilled,
+      `No winning supplier for ${unfilled} of ${item.quantity} units — not charged`,
+      item.order.buyerId,
+    );
     await notifyBuyerOrderUpdate(
       item.order.buyerId,
       item.order.id,

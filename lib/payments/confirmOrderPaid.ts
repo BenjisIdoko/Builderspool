@@ -13,7 +13,9 @@ import { notifyBuyerOrderPaid } from '../notifications';
  */
 export async function confirmOrderPaid(orderId: string) {
   const { count } = await prisma.order.updateMany({
-    where: { id: orderId, status: { not: OrderStatus.PAID } },
+    // Only an order still waiting for payment can become paid: a cancelled one
+    // (for example an unpaid order that expired and gave its credit back) must not.
+    where: { id: orderId, status: OrderStatus.PENDING_PAYMENT },
     data: { status: OrderStatus.PAID, paidAt: new Date() },
   });
 
@@ -21,6 +23,12 @@ export async function confirmOrderPaid(orderId: string) {
     where: { id: orderId },
     include: { items: true },
   });
+
+  if (count === 0 && order.status === OrderStatus.CANCELLED) {
+    // Money arrived for an order that had already expired and given its credit
+    // back. It cannot be applied; it needs a manual refund by ops.
+    console.error(`Payment received for cancelled order ${order.id}: refund it manually.`);
+  }
 
   if (count > 0) {
     for (const item of order.items) {

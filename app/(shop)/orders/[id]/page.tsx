@@ -27,6 +27,8 @@ import { OrderActions } from '@/components/order-actions';
 import { PickupLocation } from '@/components/pickup-location';
 import { describeLine, type LineTone } from '@/lib/orders/lineStatus';
 import { retryPaymentAction } from '../actions';
+import { splitRefund } from '@/lib/bidding/refund';
+import { koboToNaira, nairaToKobo } from '@/lib/money';
 import { ActionForm } from '@/components/ui/action-form';
 
 const STATUS_LABEL: Record<string, string> = {
@@ -89,6 +91,12 @@ export default async function OrderConfirmationPage({
   );
   const deliveryTotal = order.items.reduce((sum, item) => sum + item.deliveryCost, 0) / (order.items.length || 1);
   const savingsApplied = order.savingsApplied ?? 0;
+  // The part of a refund the buyer paid with savings credit goes back to their credit, not out as cash.
+  const refundSplit = splitRefund({
+    refundKobo: nairaToKobo(refundDue),
+    creditAppliedKobo: nairaToKobo(savingsApplied),
+    orderGrossKobo: nairaToKobo(subtotal + deliveryTotal),
+  });
   const amountDue = Math.max(0, subtotal + deliveryTotal - savingsApplied);
   const center = order.items[0]?.fulfillmentCenter;
   const isPickup = order.items.every((item) => item.deliveryCost === 0);
@@ -380,11 +388,25 @@ export default async function OrderConfirmationPage({
             <span>Total</span>
             <span className="tabular-nums">{formatNaira(amountDue)}</span>
           </div>
-          {refundDue > 0 && (
+          {refundDue > 0 && refundSplit.creditKobo === 0 && (
             <div className="flex justify-between text-sm font-bold text-danger">
               <span>Refund for items no supplier filled</span>
               <span className="tabular-nums">{formatNaira(refundDue)}</span>
             </div>
+          )}
+          {refundDue > 0 && refundSplit.creditKobo > 0 && (
+            <>
+              {refundSplit.cashKobo > 0 && (
+                <div className="flex justify-between text-sm font-bold text-danger">
+                  <span>Refund for items no supplier filled</span>
+                  <span className="tabular-nums">{formatNaira(koboToNaira(refundSplit.cashKobo))}</span>
+                </div>
+              )}
+              <div className="flex justify-between text-sm font-bold text-success">
+                <span>Returned to your savings credit</span>
+                <span className="tabular-nums">{formatNaira(koboToNaira(refundSplit.creditKobo))}</span>
+              </div>
+            </>
           )}
         </div>
       </div>
