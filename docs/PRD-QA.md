@@ -98,6 +98,7 @@ These are acknowledged and tracked by the product owner. Report them only if the
 | G16 | **Credo Pay is built but not configured.** No Credo keys exist in production, so the "Credo Pay" option shows "Not configured yet". Its webhook has not been tested against Credo. Test Credo only if the product owner gives you demo keys. **Decision 25 November: launch with Paystack only; Credo is deferred.** |
 | G17 | **Unpaid orders give their savings credit back after 24 hours.** An unpaid order that holds credit is cancelled after 24 hours and the credit becomes available again; the buyer is told. Unpaid orders without credit are not cancelled. Report it if credit is still locked to an unpaid order older than a day, or if a paid order loses its credit. |
 | G18 | **A refund splits into cash and credit.** For a line no supplier filled, the part the buyer paid with savings credit goes back to their savings credit ("Savings credit returned"); only the rest is a cash refund. Report it if a refund shows the full line price on an order that used credit, or if more credit comes back than was spent. |
+| G19 | **A seller's product shows to buyers only when the listing is live, in stock, and the seller is KYC-approved.** It appears as an offer under "Buy Direct" on the product page, not as a new catalogue product. A listing saved before KYC approval is held as a draft and goes live when ops approve the KYC. A listing with no photo is rejected and never reaches ops. Report it if an approved seller's in-stock live listing is missing from the product page. |
 
 ---
 

@@ -100,6 +100,15 @@ Open for the founder: nothing left from this review. The credit, refund and text
 
 **Bug found while building this.** Splitting a savings entry at checkout (when an entry is larger than what is still needed) would have been refused by the database, because the leftover had no source and the table requires exactly one. It would have failed the order. Nothing in production had used credit yet (no wallet rows exist). Migration `20261125180000_wallet_entry_origin` adds `originEntryId` so a carved-out entry points to the entry it came from, and relaxes the check to allow it. The same column holds credit returned on refunds.
 
+### 25 November 2026 (night): products listed by sellers did not appear for buyers
+
+Checked the whole path: seller saves a listing, the upload checks run, ops review flagged ones, buyers see live ones. A listing is shown to buyers only when it is **live**, has **stock above zero**, and the seller is **KYC-approved and not suspended**. Buyer pages are not cached, so they update at once. A listing is an offer on an existing catalogue product (shown under "Buy Direct" on the product page); sellers cannot add new catalogue products.
+
+| # | Finding | What was done |
+| --- | --- | --- |
+| D30 | **A listing saved before the seller's KYC was approved stayed a hidden draft forever.** The seller was told "it goes live once your KYC is verified" but approving KYC did nothing to the listings. Ops approval of a flagged listing had the same effect when the seller was unverified. | Approving KYC (or reactivating a suspended seller) now runs the upload checks again on the seller's drafts: good ones go live, flagged ones go to the review queue, failing ones tell the seller what to fix (`lib/listings/applyChecks.ts`). The ops review card now warns "Approving still keeps it hidden from buyers until this seller's KYC is approved". |
+| D31 | A listing with no photo, or a small one, is rejected by the checks and never reaches ops. | Working as designed. The seller sees "Needs a fix" with the reason. Photo upload is working on prod. |
+
 ## Still open
 
 - Commission (D3).

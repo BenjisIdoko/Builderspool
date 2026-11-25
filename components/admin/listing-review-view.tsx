@@ -33,6 +33,11 @@ function Facts({ row }: { row: ReviewRow }) {
       <div>
         <dt className="text-label text-slate uppercase">Seller KYC</dt>
         <dd className="text-ink">{row.sellerKyc === 'APPROVED' ? 'Verified' : 'Not verified'}</dd>
+        {row.sellerKyc !== 'APPROVED' && (
+          <p className="mt-1 max-w-48 text-pretty text-caption text-warning-text">
+            Approving still keeps it hidden from buyers until this seller&rsquo;s KYC is approved.
+          </p>
+        )}
       </div>
     </dl>
   );

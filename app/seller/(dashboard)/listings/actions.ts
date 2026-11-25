@@ -5,61 +5,17 @@ import { KycStatus, ListingQcResult, ListingStatus } from '@prisma/client';
 import { prisma } from '@/lib/prisma';
 import { getSellerActor } from '@/lib/seller/session';
 import { recordAudit } from '@/lib/audit';
-import { median, notLiveMessage, runListingQc } from '@/lib/listings/qc';
+import { notLiveMessage } from '@/lib/listings/qc';
+import { applyListingChecks } from '@/lib/listings/applyChecks';
 import { deleteListingPhotoFile, isListingUploadConfigured, uploadListingPhoto } from '@/lib/storage/listingPhotos';
 
 type Result = { error: string } | { ok: true; message: string };
-
-const STATUS_FOR: Record<ListingQcResult, ListingStatus> = {
-  PASSED: ListingStatus.ACTIVE,
-  NEEDS_REVIEW: ListingStatus.PENDING_REVIEW,
-  REJECTED: ListingStatus.REJECTED,
-};
 
 function intField(fd: FormData, key: string): number | null {
   const raw = String(fd.get(key) ?? '').trim();
   if (raw === '') return null;
   const n = Number(raw);
   return Number.isInteger(n) ? n : NaN;
-}
-
-type CheckedListing = { id: string; materialId: string; price: unknown; shelfLifeDays: number | null; sellerId: string };
-
-// Runs the upload checks on a listing's current photos and sets its status from
-// the outcome. Shared by saving and by removing a photo, so both treat a listing
-// the same way: still good stays live, anything else says what to fix.
-async function applyListingChecks(listing: CheckedListing, perishable: boolean, verified: boolean) {
-  const photos = await prisma.listingPhoto.findMany({ where: { listingId: listing.id }, orderBy: { sortOrder: 'asc' } });
-  const others = await prisma.sellerListing.findMany({
-    where: { materialId: listing.materialId, status: ListingStatus.ACTIVE, NOT: { sellerId: listing.sellerId } },
-    select: { price: true },
-  });
-  const medianPrice = median(others.map((o) => Number(o.price)));
-  const qc = runListingQc({
-    price: Number(listing.price),
-    medianPrice,
-    perishable,
-    shelfLifeDays: listing.shelfLifeDays,
-    photos,
-    duplicatePhoto: false,
-  });
-  // Only a verified seller can go live; everyone else stays a draft that is
-  // saved but invisible to buyers.
-  const status = qc.result === ListingQcResult.PASSED && !verified ? ListingStatus.DRAFT : STATUS_FOR[qc.result];
-  await prisma.sellerListing.update({
-    where: { id: listing.id },
-    data: {
-      status,
-      qcResult: qc.result,
-      qcReasons: qc.reasons,
-      qcMedianPrice: medianPrice,
-      qcCheckedAt: new Date(),
-      reviewedAt: null,
-      reviewedById: null,
-      reviewNote: null,
-    },
-  });
-  return qc;
 }
 
 // Saves a seller's listing for one material, stores any new photos, then runs

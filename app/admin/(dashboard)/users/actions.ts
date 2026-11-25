@@ -6,6 +6,7 @@ import { KycStatus } from '@prisma/client';
 import { requireAdminUser } from '@/lib/admin/session';
 import { recordAudit } from '@/lib/audit';
 import { releasePendingAllocationsForSeller } from '@/lib/bidding/fallback';
+import { publishDraftListingsForSeller } from '@/lib/listings/applyChecks';
 import { safeAction } from '@/lib/actions/safe';
 
 async function approveKycActionImpl(formData: FormData) {
@@ -21,11 +22,22 @@ async function approveKycActionImpl(formData: FormData) {
     data: { kycStatus: KycStatus.APPROVED, kycReviewedAt: new Date(), kycRejectionReason: null },
   });
   if (count === 0) throw new Error('Only a pending submission can be approved.');
-  await recordAudit({ actor: { id: admin.id, role: admin.role }, action: 'kyc.approved', entityType: 'SellerProfile', entityId: userId, summary: 'Approved a seller KYC submission' });
+
+  // Listings the seller saved before approval were held as drafts: check them again and let the good ones go live.
+  const listings = await publishDraftListingsForSeller(userId);
+  await recordAudit({
+    actor: { id: admin.id, role: admin.role },
+    action: 'kyc.approved',
+    entityType: 'SellerProfile',
+    entityId: userId,
+    summary: `Approved a seller KYC submission${listings.live + listings.inReview + listings.needFixing > 0 ? ` (listings: ${listings.live} live, ${listings.inReview} sent to review, ${listings.needFixing} need fixing)` : ''}`,
+  });
 
   revalidatePath('/admin/users');
   revalidatePath('/admin/verification');
   revalidatePath('/admin/sellers');
+  revalidatePath('/admin/listings');
+  revalidatePath('/seller/listings');
 }
 
 async function rejectKycActionImpl(formData: FormData) {
@@ -92,6 +104,7 @@ async function reactivateSellerActionImpl(formData: FormData) {
   });
   if (count === 0) throw new Error('Only a suspended seller can be reactivated.');
 
+  await publishDraftListingsForSeller(userId);
   await recordAudit({ actor: { id: admin.id, role: admin.role }, action: 'seller.reactivated', entityType: 'SellerProfile', entityId: userId, summary: 'Reactivated a suspended seller' });
   revalidatePath('/admin/users');
   revalidatePath('/admin/verification');
