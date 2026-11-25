@@ -43,7 +43,7 @@ The founder chose to price delivery by load, vehicle and distance (like a ride-h
 2. Confirmed capacities and longest-item lengths for each class.
 3. The Google Maps Platform key, with billing, set on Vercel.
 4. Latitude and longitude for each pickup station.
-5. Whether a paint "unit" (Litre / Drum) is one litre or one 20 L drum, and the length of a roofing sheet (the estimate is per m2).
+5. ~~Whether a paint "unit" is one litre or one 20 L drum~~ Settled 25 November: **one 20L drum** (D35). Still open: the length of a roofing sheet (the estimate is per m2).
 6. A tick on "Confirmed" for each item weight after checking the estimate.
 
 ### Checkout side (built and pushed 25 November, commit abfb1e0, still switched off)
@@ -111,6 +111,7 @@ Checked the whole path: seller saves a listing, the upload checks run, ops revie
 | D32 | Buyers could not tell from the catalogue which products have seller offers. | Catalogue cards (catalogue page, home page rails, "more from" row) show a "N seller offer(s)" tag on the image when at least one pickable seller listing exists. It uses the same rule as the product page's Buy Direct list, so a card never promises an offer the page does not show. |
 | D33 | Sellers had to keep checking their Listings page to learn what ops decided. | A seller now gets a notice (in the app, and by email if on; not by SMS) when ops **approve** a listing, **reject** it (with ops' note), or when their KYC approval **re-checks held drafts** (one summary: how many are live, waiting for review, or need fixing). If the seller is not yet verified, an approval notice says it goes live once the account is verified. New notification types `LISTING_LIVE` and `LISTING_REJECTED` (migration `20261125210000_listing_notifications`). |
 | D34 | Product card descriptions were raw technical strings that ran past two lines and were cut off ("450 × 150 × 225mm; min. compressive strength 2.5…"). | All 28 product descriptions rewritten to one short plain line each, using only facts already in the old text (about 55 characters, so a card shows it whole; cards now allow three lines on phones). Units get a space ("450 × 150 × 225 mm"), "Nominal dia." becomes "diameter", and the cement lines read "Strength class 32.5N/R". Names like "6-inch" no longer break after the hyphen. The old text is saved in `docs/product-descriptions-2026-11-rollback.json`, and `prisma/catalogue-reference-data.json` is updated so a fresh database gets the same text. |
+| D35 | What a paint "unit" means, and clumsy unit text ("/ Litre / Drum (20L drum)", "/ Bag (50kg bag)"). | **A paint unit is one 20L drum** (founder, 25 November). The four paints now read "20L drum" and the cement bags "50kg bag", so prices read "₦155,000 / 20L drum" and "₦13,250 / 50kg bag". **Gloss / Oil-Based Paint** was "(4L / 20L)" and is now also priced per 20L drum: confirm its ₦49,000 is for a 20L drum. A quantity before a unit that starts with a number reads "12 × 50kg bag" (one helper, `formatQuantity`). Old units are in `docs/product-units-2026-11-rollback.json`. The weight estimates for paints were already per 20L drum; they still need an admin "Confirmed" tick. |
 
 ## Still open
 

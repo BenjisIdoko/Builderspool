@@ -2,7 +2,7 @@ import { TruckIcon } from '@phosphor-icons/react/ssr';
 import { MaterialImage } from '@/components/material-image';
 import { AwardResponse } from '@/components/seller/award-response';
 import { Badge } from '@/components/ui/badge';
-import { formatLagosDateTime } from '@/lib/format';
+import { formatLagosDateTime, formatQuantity } from '@/lib/format';
 import { PAYOUT_LABEL } from '@/lib/labels';
 import { allocationStatusTone, payoutStatusTone, pillClass } from '@/lib/statusColors';
 import type { getSellerAllocations } from '@/lib/queries/sellerPortal';
@@ -59,7 +59,7 @@ export function SellerAllocationList({ allocations }: { allocations: Allocation[
 
               <div className="text-ink">
                 <span className="mr-1 text-xs text-muted-foreground sm:hidden">Quantity:</span>
-                <span className="tabular-nums">{a.quantityFilled.toLocaleString('en-NG')}</span> {a.bid.material.unit}
+                <span className="tabular-nums">{formatQuantity(a.quantityFilled, a.bid.material.unit)}</span>
                 {awaitingReply && a.acceptDeadlineAt && (
                   <div className="mt-1 text-xs font-medium tabular-nums text-warning-text">Accept by {formatLagosDateTime(a.acceptDeadlineAt)}</div>
                 )}

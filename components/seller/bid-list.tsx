@@ -4,7 +4,7 @@ import { MaterialImage } from '@/components/material-image';
 import { WithdrawBidButton } from '@/components/seller/withdraw-bid-button';
 import { Badge } from '@/components/ui/badge';
 import { bidStatusTone, pillClass } from '@/lib/statusColors';
-import { formatLagosDateTime, formatNaira } from '@/lib/format';
+import { formatLagosDateTime, formatNaira, formatQuantity } from '@/lib/format';
 import type { getSellerBids } from '@/lib/queries/sellerPortal';
 
 type SellerBid = Awaited<ReturnType<typeof getSellerBids>>[number];
@@ -40,7 +40,7 @@ export function SellerBidList({ bids }: { bids: SellerBid[] }) {
             <div className="mt-1 flex flex-wrap items-center gap-x-4 gap-y-1 text-sm tabular-nums text-muted-foreground">
               <span className="flex items-center gap-1.5">
                 <StackIcon className="size-3.5" />
-                {bid.quantityOffered.toLocaleString('en-NG')} {bid.material.unit}
+                {formatQuantity(bid.quantityOffered, bid.material.unit)}
               </span>
               <span className="flex items-center gap-1.5">
                 <TruckIcon className="size-3.5" />

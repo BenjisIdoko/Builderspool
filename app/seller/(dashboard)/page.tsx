@@ -17,7 +17,7 @@ import { getSellerActor } from '@/lib/seller/session';
 import { getSellerOnboarding } from '@/lib/onboarding/seller';
 import { ChecklistCard } from '@/components/checklist-card';
 import { getSellerProfile, getOpenCyclesForSeller, getSellerBids, getSellerAllocations } from '@/lib/queries/sellerPortal';
-import { formatNaira, formatLagosClock, formatLagosDateTime } from '@/lib/format';
+import { formatNaira, formatLagosClock, formatLagosDateTime, formatQuantity } from '@/lib/format';
 import { pillClass, payoutStatusTone } from '@/lib/statusColors';
 import { BidDialog } from '@/components/seller/bid-dialog';
 import { VerifyEmailBanner } from '@/components/verify-email-banner';
@@ -196,7 +196,7 @@ export default async function SellerDashboardPage() {
                     </Badge>
                   </div>
                   <div className="truncate text-[12.5px] text-slate">
-                    {a.bid.material.name} · {a.quantityFilled} {a.bid.material.unit}
+                    {a.bid.material.name} · {formatQuantity(a.quantityFilled, a.bid.material.unit)}
                   </div>
                   <div className="text-[13px] font-extrabold tabular-nums text-ink">
                     {formatNaira(Number(a.bid.unitPrice) * a.quantityFilled)}
@@ -223,7 +223,7 @@ export default async function SellerDashboardPage() {
                       <TableCell className="py-3 text-ink">
                         <div className="max-w-40 truncate">{a.bid.material.name}</div>
                         <div className="text-xs text-muted-foreground">
-                          {a.quantityFilled} {a.bid.material.unit}
+                          {formatQuantity(a.quantityFilled, a.bid.material.unit)}
                         </div>
                       </TableCell>
                       <TableCell className="py-3 text-right font-semibold tabular-nums text-ink">
@@ -305,7 +305,7 @@ export default async function SellerDashboardPage() {
               <div className="mb-1 flex justify-between text-[13px]">
                 <span className="text-slate">Pooled demand</span>
                 <span className="font-semibold tabular-nums text-ink">
-                  {cycle.totalQuantityRequested} {cycle.material.unit}
+                  {formatQuantity(cycle.totalQuantityRequested, cycle.material.unit)}
                 </span>
               </div>
 
@@ -315,7 +315,7 @@ export default async function SellerDashboardPage() {
                   <span>
                     Your bid: <span className="font-bold">{formatNaira(cycle.myBid.unitPrice)}</span> for{' '}
                     <span className="font-bold">
-                      {cycle.myBid.quantityOffered} {cycle.material.unit}
+                      {formatQuantity(cycle.myBid.quantityOffered, cycle.material.unit)}
                     </span>
                   </span>
                 </div>

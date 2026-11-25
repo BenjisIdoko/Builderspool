@@ -26,7 +26,7 @@ function estimate(name: string, category: string): Estimate | null {
   if (n.includes('fitting')) return { kg: 0.02, why: 'small PVC fitting' };
   if (category === 'Paints & Coatings') {
     const kg = n.includes('textured') ? 35 : n.includes('gloss') ? 22 : 28;
-    return { kg, why: '20 L drum. The unit reads "Litre / Drum", so check whether a unit is one litre or one drum' };
+    return { kg, why: '20 L drum. A paint unit is one 20L drum (founder, 25 November 2026)' };
   }
   if (n.includes('aluminium')) return { kg: 1.5, why: '0.55 mm aluminium sheet, per m². Longest side depends on sheet length' };
   if (n.includes('stone-coated')) return { kg: 5, why: 'stone-coated steel tile, per m². Longest side depends on sheet length' };

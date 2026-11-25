@@ -6,6 +6,7 @@ import { Sheet, SheetContent, SheetDescription, SheetTitle } from '@/components/
 import { pillClass, allocationStatusTone } from '@/lib/statusColors';
 import { STATUS_LABEL, PAYOUT_LABEL } from './order-table-row';
 import type { SellerOrderRow } from './order-table';
+import { formatQuantity } from '@/lib/format';
 
 // Phone-sized version of a requisition row (SellerMobileApp handoff): a tappable
 // card that opens the same detail the desktop "View" toggle reveals, in a
@@ -29,7 +30,7 @@ export function SellerOrderCard({ order, amount }: { order: SellerOrderRow; amou
         </div>
         <div className="truncate text-xs text-slate">{order.buyerName}</div>
         <div className="mb-1.5 truncate text-xs text-muted-foreground">
-          {order.materialName} · {order.quantity} {order.unit}
+          {order.materialName} · {formatQuantity(order.quantity, order.unit)}
         </div>
         <div className="text-[13px] font-extrabold tabular-nums text-ink">{amount}</div>
       </button>
@@ -42,7 +43,7 @@ export function SellerOrderCard({ order, amount }: { order: SellerOrderRow; amou
         >
           <SheetTitle className="text-lg font-bold text-ink">{order.shortId}</SheetTitle>
           <SheetDescription>
-            {order.buyerName} · {order.materialName} · {order.quantity} {order.unit}
+            {order.buyerName} · {order.materialName} · {formatQuantity(order.quantity, order.unit)}
           </SheetDescription>
           <dl className="flex flex-col gap-3 text-sm">
             <div className="flex justify-between gap-4">

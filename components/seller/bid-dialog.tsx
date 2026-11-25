@@ -3,7 +3,7 @@
 import { useState } from 'react';
 import { ShieldCheckIcon } from '@phosphor-icons/react/ssr';
 import { submitBid } from '@/app/seller/actions';
-import { formatNaira } from '@/lib/format';
+import { formatNaira, formatQuantity } from '@/lib/format';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Input } from '@/components/ui/input';
@@ -42,7 +42,7 @@ export function BidDialog({
           <p className="text-pretty text-sm text-slate">
             Consolidated pool:{' '}
             <span className="font-bold text-ink">
-              {cycle.totalQuantityRequested} {cycle.material.unit}
+              {formatQuantity(cycle.totalQuantityRequested, cycle.material.unit)}
             </span>{' '}
             ({cycle.region ?? 'National'})
           </p>

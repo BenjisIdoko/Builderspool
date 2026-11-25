@@ -1,7 +1,7 @@
 import { UsersThreeIcon } from '@phosphor-icons/react/ssr';
 import type { PoolSnapshot } from '@/lib/queries/pool';
 import { refundRuleText, SAVINGS_TIMING_TEXT } from '@/lib/pool-stages';
-import { formatClock } from '@/lib/format';
+import { formatClock, formatQuantity } from '@/lib/format';
 
 // The Pool & Save panel on a product page. It states, truthfully for this
 // platform's flow, what happens to an order: the buyer pays the catalogue
@@ -41,8 +41,7 @@ export function ProductPoolPanel({ pool, unit }: { pool: PoolSnapshot; unit: str
               'No orders yet. Yours would be the first.'
             ) : (
               <>
-                <span className="font-mono text-figure tabular-nums">{pool.pooledQuantity.toLocaleString('en-NG')}</span>{' '}
-                {unit} · <span className="font-mono text-figure tabular-nums">{pool.buyerCount}</span>{' '}
+                <span className="font-mono text-figure tabular-nums">{formatQuantity(pool.pooledQuantity, unit)}</span> · <span className="font-mono text-figure tabular-nums">{pool.buyerCount}</span>{' '}
                 {pool.buyerCount === 1 ? 'buyer' : 'buyers'}
               </>
             )}

@@ -6,6 +6,7 @@ import { Badge } from '@/components/ui/badge';
 import { TableCell, TableRow } from '@/components/ui/table';
 import { pillClass, allocationStatusTone } from '@/lib/statusColors';
 import { PAYOUT_LABEL } from '@/lib/labels';
+import { formatQuantity } from '@/lib/format';
 
 export const STATUS_LABEL: Record<string, string> = {
   PENDING: 'Pending',
@@ -49,7 +50,7 @@ export function SellerOrderTableRow({
       <TableCell className="py-3 text-ink">
         <div className="max-w-48 truncate font-semibold">{buyerName}</div>
         <div className="max-w-48 truncate text-xs text-muted-foreground">
-          {materialName} · {quantity} {unit}
+          {materialName} · {formatQuantity(quantity, unit)}
         </div>
         {expanded && (
           <div className="mt-1.5 flex flex-col gap-0.5 text-xs text-slate">

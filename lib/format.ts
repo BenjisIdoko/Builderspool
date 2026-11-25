@@ -65,3 +65,12 @@ export function formatLagosDate(date: Date | null | undefined): string {
 export function isWithinDays(date: Date | null | undefined, days: number): boolean {
   return !!date && Date.now() - date.getTime() < days * 24 * 60 * 60 * 1000;
 }
+
+/**
+ * A quantity next to its unit: "12 blocks" reads fine, but "12 50kg bag" does not, so a unit that
+ * starts with a number gets a multiplication sign: "12 × 50kg bag".
+ */
+export function formatQuantity(quantity: number, unit: string): string {
+  const q = quantity.toLocaleString('en-NG');
+  return /^\d/.test(unit) ? `${q} × ${unit}` : `${q} ${unit}`;
+}
