@@ -7,14 +7,21 @@ import { AccountShell, ACCOUNT_CARD } from '@/components/account-shell';
 import { Button } from '@/components/ui/button';
 import { EmptyState } from '@/components/empty-state/empty-state';
 import { NoNotificationsIllustration } from '@/components/empty-state/illustrations';
-import { markBuyerNotificationReadAction, markAllBuyerNotificationsReadAction } from '../actions';
+import { markBuyerNotificationReadAction, markAllBuyerNotificationsReadAction, saveBuyerNotificationPreferencesAction } from '../actions';
+import { getSettings } from '@/lib/settings';
+import { getNotificationPreferences } from '@/lib/notifications/preferences';
+import { NotificationPreferences } from '@/components/notification-preferences';
 import { BUYER_NOTIFICATION_ICON, BUYER_NOTIFICATION_TONE } from '@/components/buyer-notification-bell';
 
 export const metadata = { title: 'Notifications' };
 
 export default async function AccountNotificationsPage() {
   const buyer = await requireBuyer();
-  const { notifications, unreadCount } = await getNotificationsForBuyer(buyer.id, 50);
+  const [{ notifications, unreadCount }, prefs, settings] = await Promise.all([
+    getNotificationsForBuyer(buyer.id, 50),
+    getNotificationPreferences(buyer.id),
+    getSettings(),
+  ]);
 
   return (
     <AccountShell>
@@ -36,6 +43,21 @@ export default async function AccountNotificationsPage() {
           </form>
         )}
       </div>
+
+      <section aria-labelledby="channels-heading" className={`${ACCOUNT_CARD} mb-4 p-5 sm:p-6`}>
+        <h2 id="channels-heading" className="mb-3 text-heading-sm text-ink">
+          How we reach you
+        </h2>
+        <NotificationPreferences
+          action={saveBuyerNotificationPreferencesAction}
+          values={prefs}
+          phone={prefs.phone}
+          phoneHref="/account/profile"
+          smsEnabled={Boolean(settings['notifications.smsEnabled'])}
+          whatsappEnabled={Boolean(settings['notifications.whatsappEnabled'])}
+          textEvents="Only key updates: payment confirmed, order and delivery updates, and payment reminders."
+        />
+      </section>
 
       <section aria-label="Your notifications" className={ACCOUNT_CARD}>
         {notifications.length === 0 ? (

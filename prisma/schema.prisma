@@ -192,6 +192,10 @@ model User {
   // The pickup station a buyer chose on their account page. Checkout uses it
   // for pickup orders in that station's region; null means "no preference".
   pickupCenterId  String?
+  // Alert channels the person has left on. In-app alerts are always on.
+  notifyEmail     Boolean   @default(true)
+  notifySms       Boolean   @default(true)
+  notifyWhatsapp  Boolean   @default(false) // opt-in: WhatsApp requires the person's agreement first
 
   pickupCenter            FulfillmentCenter?       @relation("BuyerPickupCenter", fields: [pickupCenterId], references: [id], onDelete: SetNull)
   addresses               BuyerAddress[]

@@ -150,6 +150,8 @@ Confirm the current value of each with the product owner before testing, because
 | `areas.checkoutPickerEnabled` | off | On: checkout asks for locality and zone and uses zone delivery fees. Off: older region-based delivery charge. |
 | `money.sellerPayoutsEnabled` | off | Seller payouts. Server must refuse when off. |
 | `money.walletWithdrawalsEnabled` | off | Savings-credit withdrawals. Server must refuse when off. |
+| `notifications.smsEnabled` / `notifications.whatsappEnabled` | on / **off** | Platform switches for text-message alerts (Admin > Settings > Alerts by text message). |
+| `TERMII_SMS_CHANNEL` | not set (`generic`) | `dnd` also reaches numbers on the Do Not Disturb list. |
 | Credo keys (`CREDO_PUBLIC_KEY`, `CREDO_SECRET_KEY`) | not set | Credo Pay is offered at checkout only when both exist. |
 | SMS and WhatsApp provider keys | not set | Without them, SMS and WhatsApp deliveries are logged as skipped. Email needs `RESEND_API_KEY` and a verified domain. |
 
@@ -314,9 +316,11 @@ Each requirement has an acceptance criterion you can test. "Expected" means the 
 | BUY-NOT-2 | Page | `/account/notifications` lists notifications newest first with an icon per type, "Mark read" on each and "Mark all as read (N)". The empty state reads "No notifications yet". Notifications is in the account left menu. |
 | BUY-NOT-3 | Events | A buyer is notified when: an order is placed, payment is confirmed, a supplier confirms or is assigned, goods are received at the centre, savings credit is added, a delivery status changes, a line is refunded, or a price alert target is reached. |
 | BUY-NOT-4 | Reminders | An unpaid order gets one reminder 30 minutes to 24 hours after it was placed. A cart left for 2 to 48 hours gets at most one reminder per day. A seller gets one reminder before an award, Buy Direct order or sheet offer expires. A repeated run never sends a second copy. |
-| BUY-NOT-5 | Channels | Each notification is also emailed (when email is set up) and sent by SMS and WhatsApp when a provider is configured. Without a provider those attempts are logged as skipped and nothing else breaks. A disabled user gets nothing. |
+| BUY-NOT-5 | Channels | Every notification shows in the app. It is also emailed when email is set up and the person has email on. **SMS and WhatsApp are used only for key events**: payment confirmed, order updates, delivery updates, payment reminders, and for sellers an award, a sheet offer, a Buy Direct order and the reminder before one expires. Cart reminders, price alerts, savings credit, order placed and broadcast pool notices never use them. A text goes out only when the platform switch is on, the person has that channel on, they have a phone number, and a provider key is set; otherwise the attempt is logged as skipped. A disabled user gets nothing. |
 | BUY-NOT-6 | Never blocks | A notification failure must not stop checkout, payment confirmation, goods receipt, a seller accepting, or the pool clock. |
 | BUY-NOT-7 | Ownership | A buyer can mark only their own notifications read. |
+| BUY-NOT-8 | Choose channels | `/account/notifications` has "How we reach you" with Email, Text message (SMS) and, when the platform allows it, WhatsApp. Unticking a box and saving stops that channel (in-app alerts stay). "Saved." shows beside the button. A channel the platform has switched off is not shown. Without a phone number the page says so and links to the profile. A seller owner sees the same choices on Settings, with a phone number field (10 to 16 digits, otherwise an error beside the button). Staff see their owner's choices read-only. |
+| BUY-NOT-9 | Message format | A text message is plain characters only (no naira sign, no em dash), at most 160 characters, with a link to the order or page. Numbers typed as 08012345678, +2348012345678 or 8012345678 all work. |
 
 ### 7.7 Buyer: address book (`BUY-ADDR`)
 
@@ -782,7 +786,7 @@ These areas changed most recently and deserve extra attention:
 - Category **mega menu** and the header **account menu** (buyer) and **top-bar menu** (seller).
 - Buyer **account area** with left menu, and the new **address book** (saved pickup stations and delivery addresses) with checkout prefill.
 - **Checkout** changed a lot on 24 November: payment gateway choice (Paystack, Credo Pay), savings credit, mixed Buy Direct and pooled lines, and the clearer Delivery option (BUY-CHK-3, 12 to 17).
-- **Notifications**: buyer bell and page, reminders, email, SMS and WhatsApp (BUY-NOT).
+- **Notifications**: buyer bell and page, reminders, email, SMS and WhatsApp, with channel choices and key-events-only text messages (BUY-NOT-1 to 9).
 - Admin **Pickup stations** screen and the buyer's pickup choice at checkout. Stations now take optional map coordinates (ADM-CAT-6).
 - New admin **Delivery pricing** page and settings group (ADM-DLV). Switched off: confirm that checkout delivery fees did not change.
 - Error handling: failures now return a message beside the control, with confirmation dialogs on risky admin actions.

@@ -61,6 +61,15 @@ Built by the product owner on 24 November and recorded here from the code. Confi
 | D17 | Buyer and seller notifications | **In-app bell and page for buyers (`/account/notifications`), plus email, SMS and WhatsApp for every notification.** Events: order placed, payment confirmed, supplier confirmed or assigned, received at the centre, savings credited, dispatch updates, refunds, price-alert hits, and reminders for unpaid orders, carts left behind and expiring seller offers. Every delivery attempt is logged (`NotificationDelivery`). | Email works only through Resend's verified domain. SMS and WhatsApp send only when Termii, Twilio or WhatsApp keys are set, none of which exist yet. Each event is sent once (a deduplication key). |
 | D18 | Mixed carts | **Each line can be Buy Direct or Pool & Save**, not only the whole cart. A line can go direct only when the buyer picked a seller for it. | Replaces the old rule that Buy Direct needed a seller on every line. |
 
+### 25 November 2026: text message rules (built, waiting for push)
+
+| # | Topic | What was built | Notes |
+| --- | --- | --- | --- |
+| D19 | Which alerts use text messages | **SMS and WhatsApp are kept for key events only**: buyers get payment confirmed, order updates, delivery updates and payment reminders; sellers get awards, sheet offers, Buy Direct orders and the reminder before an offer expires. Cart reminders, price alerts, savings credit, "order placed" and broadcast pool notices stay in the app and email. | Each text message costs money, so the list is deliberately short. |
+| D20 | Opt-out and switches | **Each person can turn off email, SMS and WhatsApp** (buyers on Notifications, sellers on Settings; in-app alerts are always on). Admin Settings has two platform switches: SMS (on) and WhatsApp (**off** until Meta-approved templates exist). A seller can add the phone number for text messages on Settings. **WhatsApp is opt-in (off until the person ticks it), because Meta requires agreement first; email and SMS are on until turned off.** | New columns `User.notifyEmail`, `notifySms`, `notifyWhatsapp` (migration `20261125120000_add_notification_preferences`). |
+| D21 | Message format | **Text messages are plain ASCII and kept to one 160-character part** where possible (the naira sign becomes NGN, dashes and curly quotes are simplified; too long falls back to the title and link). Nigerian numbers typed without the leading 0 are accepted. | One non-basic character turns an SMS into Unicode at 70 characters a part, about double the cost. |
+| D22 | Termii route | The SMS route is set by `TERMII_SMS_CHANNEL`: `generic` (default) or `dnd`. | `dnd` also reaches numbers on Nigeria's Do Not Disturb list. Switch to it once Termii confirms the route is enabled for our sender name, and test it. |
+
 ### Review on 25 November
 
 Fixed the same day (not yet pushed):
@@ -71,7 +80,7 @@ Fixed the same day (not yet pushed):
 Open for the founder:
 - **Credit on abandoned orders.** If a buyer places an order with credit applied and never pays, the credit stays locked to that order. Nothing releases it. Choose: release it when an unpaid order is cancelled or expires (for example after 24 hours), or leave it until the buyer pays.
 - **Refunds where credit was used.** The refund calculation ignores the credit. A buyer who paid part of a line with credit and is later refunded is shown the full line price as due. Choose: return the credit part to their savings credit, and refund only the cash part.
-- **SMS and WhatsApp cost, consent and templates.** Every event goes to email, SMS and WhatsApp at once (cart reminders and price alerts included), with no opt-in or opt-out. WhatsApp's business API usually delivers free-text messages only inside a 24-hour window, so most alerts would need approved templates. Decide which events go to which channel and whether buyers can opt out.
+- **SMS and WhatsApp: whether to use WhatsApp alone, or WhatsApp and SMS.** The event list and the opt-out are now built (D19, D20). Still to decide: WhatsApp as the main channel with SMS as the back-up, or SMS only. WhatsApp usually needs Meta-approved message templates for alerts sent outside a 24-hour chat window.
 - **Credo configuration.** Keys, the webhook address and a demo-environment test (D15).
 
 ## Still open

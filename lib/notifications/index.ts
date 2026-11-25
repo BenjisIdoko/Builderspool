@@ -66,6 +66,7 @@ async function createAndDeliver(opts: NotifyOptions) {
 
   await deliverMultiChannel({
     userId: opts.userId,
+    type: opts.type,
     notificationId: notification.id,
     title: opts.title,
     body: opts.body,

@@ -5,6 +5,8 @@ import { CoverageStatus } from '@prisma/client';
 import { prisma } from '@/lib/prisma';
 import { requireSellerOwner } from '@/lib/seller/session';
 import { recordAudit } from '@/lib/audit';
+import { safeAction } from '@/lib/actions/safe';
+import { saveNotificationPreferences } from '@/lib/notifications/preferences';
 
 // The owner asks to cover the ticked zones. Ticking a zone creates (or
 // renews) a request that ops approve; unticking a request still waiting
@@ -105,3 +107,12 @@ export async function saveCategoriesAction(formData: FormData): Promise<{ error:
     return { error: err instanceof Error ? err.message : 'Could not save your categories.' };
   }
 }
+
+// The owner chooses where the account's alerts go. Alerts are addressed to the owner's account.
+async function saveSellerNotificationPreferencesImpl(formData: FormData) {
+  const owner = await requireSellerOwner();
+  await saveNotificationPreferences(owner.sellerId, formData);
+  revalidatePath('/seller/settings');
+}
+
+export const saveSellerNotificationPreferencesAction = safeAction(saveSellerNotificationPreferencesImpl);

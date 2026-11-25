@@ -11,6 +11,10 @@ import { ZoneCoverageForm } from '@/components/seller/zone-coverage-form';
 import { CategoryRegistrationForm } from '@/components/seller/category-registration-form';
 import { getSellerCategories } from '@/lib/queries/sheets';
 import { KYC_LABEL } from '@/lib/labels';
+import { getSettings } from '@/lib/settings';
+import { getNotificationPreferences } from '@/lib/notifications/preferences';
+import { NotificationPreferences } from '@/components/notification-preferences';
+import { saveSellerNotificationPreferencesAction } from './actions';
 
 const KYC_ACTION: Record<string, string> = {
   NOT_SUBMITTED: 'Start verification',
@@ -38,7 +42,12 @@ export default async function SellerSettingsPage() {
 
   const profile = await getSellerProfile(sellerId);
   if (!profile) redirect('/seller/login');
-  const [coverage, categories] = await Promise.all([getSellerCoverage(sellerId), getSellerCategories(sellerId)]);
+  const [coverage, categories, prefs, platform] = await Promise.all([
+    getSellerCoverage(sellerId),
+    getSellerCategories(sellerId),
+    getNotificationPreferences(sellerId),
+    getSettings(),
+  ]);
 
   // Real, derived from actual bid history — not a stored field, so it's
   // computed the same honest way AdminSellers' directory derives it.
@@ -115,12 +124,18 @@ export default async function SellerSettingsPage() {
         </section>
 
         <section aria-labelledby="notifications-heading" className={CARD}>
-          <h2 id="notifications-heading" className="mb-2 text-heading-sm text-ink">
+          <h2 id="notifications-heading" className="mb-3 text-heading-sm text-ink">
             Notifications
           </h2>
-          <p className="max-w-[64ch] text-pretty text-sm text-muted-foreground">
-            You get in-app alerts for new pools and bid results. Email and SMS alerts are coming soon.
-          </p>
+          <NotificationPreferences
+            action={saveSellerNotificationPreferencesAction}
+            values={prefs}
+            phone={prefs.phone}
+            smsEnabled={Boolean(platform['notifications.smsEnabled'])}
+            whatsappEnabled={Boolean(platform['notifications.whatsappEnabled'])}
+            textEvents="Only offers you must answer: an award, a sheet offered to you, a Buy Direct order, and a reminder before one expires."
+            readOnly={!actor.isOwner}
+          />
         </section>
       </div>
     </div>

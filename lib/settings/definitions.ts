@@ -15,7 +15,7 @@ export interface SettingDefinition {
   max?: number;
 }
 
-export type SettingGroupId = 'cycle' | 'sheets' | 'scoring' | 'pool' | 'fees' | 'money' | 'accounts' | 'delivery';
+export type SettingGroupId = 'cycle' | 'sheets' | 'scoring' | 'pool' | 'fees' | 'money' | 'accounts' | 'delivery' | 'notifications';
 
 export const SETTING_GROUPS: { id: SettingGroupId; title: string; description: string }[] = [
   {
@@ -42,6 +42,11 @@ export const SETTING_GROUPS: { id: SettingGroupId; title: string; description: s
     id: 'delivery',
     title: 'Delivery pricing',
     description: 'Fee from load, vehicle and distance. Vehicle rates and item weights are set under Delivery pricing in the admin menu.',
+  },
+  {
+    id: 'notifications',
+    title: 'Alerts by text message',
+    description: 'Email and in-app alerts are always on. Text messages cost money for every message, so only key events use them, and each person can turn them off.',
   },
 ];
 
@@ -82,6 +87,8 @@ export const SETTING_DEFINITIONS: SettingDefinition[] = [
   { key: 'delivery.distancePricingEnabled', label: 'Price delivery by load, vehicle and distance', group: 'delivery', type: 'bool', default: false, help: 'Off: checkout keeps the zone or region flat fee. It cannot be turned on until the Delivery pricing page shows every check as ready.' },
   { key: 'delivery.baseFare', label: 'Base fare per trip (naira)', group: 'delivery', type: 'int', default: 3000, min: 0, max: 1000000, help: 'Charged once for every vehicle trip, before the per-kilometre rate.' },
   { key: 'delivery.roundTo', label: 'Round the fee up to the next (naira)', group: 'delivery', type: 'int', default: 50, min: 1, max: 10000 },
+  { key: 'notifications.smsEnabled', label: 'Send key alerts by SMS', group: 'notifications', type: 'bool', default: true, help: 'Only sends once an SMS provider key is set on the server. Order paid, order updates, delivery updates, payment reminders, and offers a seller must answer.' },
+  { key: 'notifications.whatsappEnabled', label: 'Send key alerts by WhatsApp', group: 'notifications', type: 'bool', default: false, help: 'Leave off until WhatsApp message templates are approved by Meta. Without them most messages are not delivered.' },
   { key: 'accounts.documentExpiryWarnDays', label: 'Warn about expiring documents (days before)', group: 'accounts', type: 'int', default: 30, min: 1, max: 365 },
 ];
 

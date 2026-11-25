@@ -1,6 +1,8 @@
-import { NotificationChannel, NotificationDeliveryStatus } from '@prisma/client';
+import { NotificationChannel, NotificationDeliveryStatus, type NotificationType } from '@prisma/client';
 import { prisma } from '../prisma';
+import { getSettings } from '../settings';
 import { sendNotificationEmail } from '../email/send';
+import { planChannels } from './policy';
 
 // Normalizes a Nigerian phone number (e.g. 08012345678 or +2348012345678) to
 // international format without the leading + (2348012345678).
@@ -9,7 +11,31 @@ export function toInternationalPhone(phone: string): string {
   if (digits.startsWith('0') && digits.length === 11) {
     return `234${digits.slice(1)}`;
   }
+  // A Nigerian mobile number typed without the leading 0 (8012345678).
+  if (digits.length === 10 && /^[789]/.test(digits)) {
+    return `234${digits}`;
+  }
   return digits;
+}
+
+// One SMS part holds 160 characters, but only if every character is in the basic GSM set. A single
+// character outside it (the naira sign, an em dash, a curly quote) switches the whole message to
+// Unicode, which holds 70 per part and costs about twice as much. So text messages are written in
+// plain ASCII and kept to one part where they can be: the full wording when it fits, otherwise the
+// title and the link.
+export function toSmsText(title: string, body: string, link?: string): string {
+  const plain = (s: string) =>
+    s
+      .replace(/₦/g, 'NGN ')
+      .replace(/[\u2013\u2014]/g, '-')
+      .replace(/[\u2018\u2019]/g, "'")
+      .replace(/[\u201C\u201D]/g, '"')
+      .replace(/[^\x20-\x7E]/g, '')
+      .replace(/\s+/g, ' ')
+      .trim();
+  const tail = link ? ` ${link}` : '';
+  const full = `BuildersPool: ${plain(title)} - ${plain(body)}${tail}`;
+  return full.length <= 160 ? full : `BuildersPool: ${plain(title)}${tail}`;
 }
 
 interface OutboundResult {
@@ -31,7 +57,9 @@ async function sendSmsMessage(phone: string, text: string): Promise<OutboundResu
           from: process.env.TERMII_SENDER_ID ?? 'BuildersPl',
           sms: text,
           type: 'plain',
-          channel: 'generic',
+          // 'generic' is the standard route. 'dnd' also reaches numbers on Nigeria's Do Not Disturb list,
+          // which our transactional alerts may use. Set TERMII_SMS_CHANNEL=dnd once Termii enables it.
+          channel: process.env.TERMII_SMS_CHANNEL === 'dnd' ? 'dnd' : 'generic',
           api_key: process.env.TERMII_API_KEY,
         }),
       });
@@ -193,6 +221,7 @@ async function sendEmailChannel(
 
 export interface MultiChannelPayload {
   userId: string;
+  type: NotificationType;
   notificationId?: string;
   title: string;
   body: string;
@@ -210,9 +239,20 @@ export async function deliverMultiChannel(payload: MultiChannelPayload): Promise
   try {
     const user = await prisma.user.findUnique({
       where: { id: payload.userId },
-      select: { email: true, phone: true, disabledAt: true },
+      select: { email: true, phone: true, disabledAt: true, notifyEmail: true, notifySms: true, notifyWhatsapp: true },
     });
     if (!user || user.disabledAt) return;
+
+    // What this person chose, what the platform allows, and which events use text messages.
+    const settings = await getSettings();
+    const plan = planChannels({
+      type: payload.type,
+      prefs: user,
+      hasEmail: Boolean(user.email),
+      hasPhone: Boolean(user.phone && user.phone.trim()),
+      smsEnabled: Boolean(settings['notifications.smsEnabled']),
+      whatsappEnabled: Boolean(settings['notifications.whatsappEnabled']),
+    });
 
     const appUrl = (process.env.NEXT_PUBLIC_APP_URL ?? 'https://builderspool.vercel.app').replace(/\/$/, '');
     const fullLink = payload.link
@@ -227,7 +267,7 @@ export async function deliverMultiChannel(payload: MultiChannelPayload): Promise
 
     const tasks: Promise<void>[] = [];
 
-    if (user.email) {
+    if (plan.email) {
       tasks.push(
         (async () => {
           const emailKey = payload.dedupeKey ? `${payload.dedupeKey}:EMAIL` : undefined;
@@ -235,14 +275,14 @@ export async function deliverMultiChannel(payload: MultiChannelPayload): Promise
             const exists = await prisma.notificationDelivery.findUnique({ where: { dedupeKey: emailKey } });
             if (exists) return;
           }
-          const res = await sendEmailChannel(user.email, payload.title, payload.body, fullLink);
+          const res = await sendEmailChannel(user.email!, payload.title, payload.body, fullLink);
           await prisma.notificationDelivery
             .create({
               data: {
                 userId: payload.userId,
                 notificationId: payload.notificationId,
                 channel: NotificationChannel.EMAIL,
-                recipient: user.email,
+                recipient: user.email!,
                 subject: payload.title,
                 body: payload.body,
                 status: res.status,
@@ -256,8 +296,8 @@ export async function deliverMultiChannel(payload: MultiChannelPayload): Promise
       );
     }
 
-    if (user.phone && user.phone.trim()) {
-      const phone = user.phone.trim();
+    const phone = user.phone?.trim() ?? '';
+    if (plan.sms) {
       tasks.push(
         (async () => {
           const smsKey = payload.dedupeKey ? `${payload.dedupeKey}:SMS` : undefined;
@@ -265,7 +305,8 @@ export async function deliverMultiChannel(payload: MultiChannelPayload): Promise
             const exists = await prisma.notificationDelivery.findUnique({ where: { dedupeKey: smsKey } });
             if (exists) return;
           }
-          const res = await sendSmsMessage(phone, textMessage);
+          const smsText = toSmsText(payload.title, payload.body, fullLink);
+          const res = await sendSmsMessage(phone, smsText);
           await prisma.notificationDelivery
             .create({
               data: {
@@ -273,7 +314,7 @@ export async function deliverMultiChannel(payload: MultiChannelPayload): Promise
                 notificationId: payload.notificationId,
                 channel: NotificationChannel.SMS,
                 recipient: phone,
-                body: textMessage,
+                body: smsText,
                 status: res.status,
                 providerRef: res.providerRef,
                 error: res.error,
@@ -282,6 +323,11 @@ export async function deliverMultiChannel(payload: MultiChannelPayload): Promise
             })
             .catch(() => {});
         })(),
+      );
+    }
+
+    if (plan.whatsapp) {
+      tasks.push(
         (async () => {
           const waKey = payload.dedupeKey ? `${payload.dedupeKey}:WHATSAPP` : undefined;
           if (waKey) {

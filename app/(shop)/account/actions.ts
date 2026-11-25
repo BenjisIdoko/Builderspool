@@ -6,6 +6,7 @@ import { requireBuyer } from '@/lib/buyer/auth';
 import { requestWithdrawal } from '@/lib/wallet';
 import { safeAction } from '@/lib/actions/safe';
 import { markNotificationRead, markAllNotificationsRead } from '@/lib/notifications';
+import { saveNotificationPreferences } from '@/lib/notifications/preferences';
 
 async function updateBuyerProfileImpl(formData: FormData) {
   const name = formData.get('name');
@@ -40,6 +41,14 @@ async function requestWithdrawalActionImpl() {
 export const requestWithdrawalAction = safeAction(requestWithdrawalActionImpl);
 
 export const updateBuyerProfile = safeAction(updateBuyerProfileImpl);
+
+async function saveBuyerNotificationPreferencesImpl(formData: FormData) {
+  const buyer = await requireBuyer();
+  await saveNotificationPreferences(buyer.id, formData);
+  revalidatePath('/account/notifications');
+}
+
+export const saveBuyerNotificationPreferencesAction = safeAction(saveBuyerNotificationPreferencesImpl);
 
 export async function markBuyerNotificationReadAction(formData: FormData) {
   const buyer = await requireBuyer();
