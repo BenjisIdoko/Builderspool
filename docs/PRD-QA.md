@@ -4,8 +4,8 @@
 | --- | --- |
 | **Product** | BuildersPool, collaborative procurement for construction materials in Abuja (FCT), Nigeria |
 | **Document type** | Product requirements and test guide, written for a QA tester |
-| **Version** | 1.1 |
-| **Date** | 16 November 2026 |
+| **Version** | 1.2 |
+| **Date** | 25 November 2026 |
 | **Live site** | https://builderspool.vercel.app |
 | **Source of truth** | `docs/floot-port-notes.md` (business rules), `docs/user-journeys.md` (journeys), `DESIGN.md` (design system). Where the code and the rulebook disagree, the rulebook wins and the code is the bug. |
 
@@ -82,7 +82,7 @@ These are acknowledged and tracked by the product owner. Report them only if the
 | --- | --- |
 | G1 | **No delivery code.** The home page promises one ("share it only when goods arrive"). It is not built. |
 | G2 | **No dispute or "Report a problem" flow.** The home page mentions reporting within 3 days. Admin can only hold a payout. |
-| G3 | **Buyers receive no notifications** except the verification and password-reset emails. Sellers have an in-app bell for pools only. |
+| G3 | **Notifications work in the app and by email only.** Buyers and sellers have an in-app bell and, for buyers, a notifications page. Email needs a verified Resend sending domain to reach every user. SMS and WhatsApp send only when a provider is configured, and none is yet, so those deliveries are logged as skipped. |
 | G4 | **Refunds are bookkeeping only.** A refund is recorded as "refund due". No money is returned automatically, and there is no refund payout tool. |
 | G5 | **Seller payouts are off** (`money.sellerPayoutsEnabled`). Savings withdrawals are off (`money.walletWithdrawalsEnabled`). The server must refuse both, and the buttons must say why. |
 | G6 | **Five zones have no delivery fee yet** (decided 13 Nov): AMAC City Centre, AMAC Jabi / Utako / Gwarinpa corridor, Kuje, Kwali and Abaji. Every locality is now in a zone, but in these five buyers can only pick up until a fee is set. No seller has approved coverage for them either. |
@@ -95,6 +95,9 @@ These are acknowledged and tracked by the product owner. Report them only if the
 | G13 | **The map on pickup stations is a link** ("View on map") that opens an external map. There is no embedded map, and stations have no opening hours yet. |
 | G14 | **A removed (disabled) staff or admin email cannot be reused** for a new account. |
 | G15 | **Distance-based delivery pricing is built but switched off, and checkout does not use it.** The admin page, settings and calculation exist (decided 16 Nov, see `docs/decisions.md` D10 to D14). The Google Maps key, vehicle rates, station coordinates and confirmed item weights do not exist yet, so the switch cannot be turned on. Checkout still charges the zone fee. Test only the admin side (ADM-DLV) and that checkout is unchanged. |
+| G16 | **Credo Pay is built but not configured.** No Credo keys exist in production, so the "Credo Pay" option shows "Not configured yet". Its webhook has not been tested against Credo. Test Credo only if the product owner gives you demo keys. |
+| G17 | **Savings credit is locked when an order is placed**, not when it is paid. An unpaid order keeps the credit tied to it until it is paid, and nothing releases it automatically. Report it only if credit disappears from an order that was paid or cancelled in a way that should have released it. |
+| G18 | **Refunds ignore savings credit.** A line refund shows the full line price even when part of it was paid with credit. Known and awaiting a decision. |
 
 ---
 
@@ -124,6 +127,8 @@ At checkout, card payments run against Paystack's **test mode**. Use Paystack's 
 - See Paystack's documentation for failure and decline test cases.
 - Bank transfer and USSD also open Paystack. Paystack's test mode shows how each behaves.
 
+**Credo Pay** is a second gateway. It appears at checkout only when the Credo keys are set (see G16). Until then the option is disabled with "Not configured yet" and Paystack is used.
+
 If a payment fails at the start (a Paystack error) the order is still created and the buyer can retry payment from the order page. This is intended.
 
 ### 4.4 Safety rules for testing on live data
@@ -145,6 +150,8 @@ Confirm the current value of each with the product owner before testing, because
 | `areas.checkoutPickerEnabled` | off | On: checkout asks for locality and zone and uses zone delivery fees. Off: older region-based delivery charge. |
 | `money.sellerPayoutsEnabled` | off | Seller payouts. Server must refuse when off. |
 | `money.walletWithdrawalsEnabled` | off | Savings-credit withdrawals. Server must refuse when off. |
+| Credo keys (`CREDO_PUBLIC_KEY`, `CREDO_SECRET_KEY`) | not set | Credo Pay is offered at checkout only when both exist. |
+| SMS and WhatsApp provider keys | not set | Without them, SMS and WhatsApp deliveries are logged as skipped. Email needs `RESEND_API_KEY` and a verified domain. |
 
 ---
 
@@ -258,15 +265,21 @@ Each requirement has an acceptance criterion you can test. "Expected" means the 
 | --- | --- | --- |
 | BUY-CHK-1 | Sign-in required | A signed-out visitor is sent to log in and returns to checkout. |
 | BUY-CHK-2 | Area and zone | With `areas.checkoutPickerEnabled` on, the buyer picks a locality. The zone, seller count and delivery fee are shown. A locality with no zone or no fee shows "tell us you want delivery" and forces pickup. The request stores once per phone and locality. |
-| BUY-CHK-3 | How to buy | **Buy Direct** needs a picked seller on every line, otherwise it is disabled with the reason. **Pool & Save** works for any cart. |
+| BUY-CHK-3 | How to buy | **Pool & Save** works for any cart. **Buy Direct** is available when at least one line has a picked seller. With a mixed cart, lines with a seller go direct and the rest pool, and each line has its own toggle. The summary says "N direct, M pooled". A line with no picked seller cannot be set to Buy Direct, and the server refuses it. |
 | BUY-CHK-4 | Delivery or pickup | Delivery needs site address, contact name, contact phone. Needed-by date is tomorrow or later in Lagos time. Delivery fee equals the zone fee (default seeded fee is N15,000 per zone). Pickup is free. |
 | BUY-CHK-5 | Saved addresses | The default saved delivery address fills the site, landmark, contact and area. A "Deliver to" list switches between saved addresses or "A different address". "Manage your saved addresses" links to the address book. |
 | BUY-CHK-6 | Pickup station | Pickup shows the chosen station's name, address and directions. The buyer's default station is preselected and their saved stations are listed first. If the region has more than one station the buyer can choose for this order. The order records the chosen station. A station from another region is refused by the server. |
 | BUY-CHK-7 | Disabled pay button | The pay button names the first missing required field. It enables only when valid. |
-| BUY-CHK-8 | Payment | Bank transfer, card or USSD through Paystack. A TEST tag shows in test mode. After payment the buyer lands on the order page. |
+| BUY-CHK-8 | Payment | Bank transfer, card or USSD through the chosen gateway. A TEST tag shows in test mode for that gateway. After payment the buyer lands on the order page. |
 | BUY-CHK-9 | Payment start failure | If Paystack cannot start, the order still exists as "Awaiting payment". The order page offers a retry. No error page appears. |
 | BUY-CHK-10 | Webhook | A successful payment webhook marks the order paid exactly once and joins the right pool (see BUY-ORD-4). A repeated webhook changes nothing. A webhook with a bad signature is rejected. |
 | BUY-CHK-11 | After-pool-close payment | A payment confirmed after the pool close joins the **next day's** pool. |
+| BUY-CHK-12 | Payment gateway | A "Payment gateway" choice offers Paystack and Credo Pay. A gateway that is not configured is disabled with "Not configured yet". The order records the chosen gateway, and "Pay now" on the order page uses the same gateway. |
+| BUY-CHK-13 | Savings credit | A buyer with an available balance sees "Apply savings credit", ticked by default, with the amount. Total due falls by the credit, never below zero. The server applies credit oldest first and only what the order needs: a part-used entry is split and the remainder stays available. The order page shows "Savings credit applied" and the amount due. Placing two orders at once cannot spend the same credit twice. |
+| BUY-CHK-14 | Fully covered order | When credit covers the whole total, the button reads "Place order with savings credit", no gateway opens, and the order is confirmed as paid at once and joins the pool or goes to the seller as normal. |
+| BUY-CHK-15 | Amount charged | The gateway is asked for the total **after** credit, and the payment is accepted only when the paid amount equals that total exactly. |
+| BUY-CHK-16 | Delivery not available | With the area picker on, the Delivery option shows why it is unavailable ("Select your area first" or "Pickup only in this area") and checkout defaults to Pickup when the chosen area has no delivery. |
+| BUY-CHK-17 | One payment, one order | The redirect back from Credo confirms an order only when the paid transaction was started for that order. Using another order's transaction reference leaves the order unpaid. |
 
 ### 7.5 Buyer: orders (`BUY-ORD`)
 
@@ -292,6 +305,18 @@ Each requirement has an acceptance criterion you can test. "Expected" means the 
 | BUY-ACC-5 | Savings credit | Shows Available, Withdrawal requested, Paid out so far (when withdrawals are enabled) or one balance plus "Withdrawals aren't available yet" (when disabled). Entries show "You paid X, actual cost Y" and the buyer's share. |
 | BUY-ACC-6 | Withdrawal | Only offered when enabled and the balance is above zero. It asks for confirmation first. When disabled, the server refuses even if called directly. |
 | BUY-ACC-7 | Price alerts page | Lists alerts with target, current price, status and "Cancel alert". Empty state links to the catalogue. |
+
+### 7.6a Buyer: notifications (`BUY-NOT`)
+
+| ID | Requirement | Acceptance criteria |
+| --- | --- | --- |
+| BUY-NOT-1 | Bell | A signed-in buyer sees a bell in the header with an unread count, the latest notifications, "Mark all read" and a link to the full page. Each item links to the order or page it is about. |
+| BUY-NOT-2 | Page | `/account/notifications` lists notifications newest first with an icon per type, "Mark read" on each and "Mark all as read (N)". The empty state reads "No notifications yet". Notifications is in the account left menu. |
+| BUY-NOT-3 | Events | A buyer is notified when: an order is placed, payment is confirmed, a supplier confirms or is assigned, goods are received at the centre, savings credit is added, a delivery status changes, a line is refunded, or a price alert target is reached. |
+| BUY-NOT-4 | Reminders | An unpaid order gets one reminder 30 minutes to 24 hours after it was placed. A cart left for 2 to 48 hours gets at most one reminder per day. A seller gets one reminder before an award, Buy Direct order or sheet offer expires. A repeated run never sends a second copy. |
+| BUY-NOT-5 | Channels | Each notification is also emailed (when email is set up) and sent by SMS and WhatsApp when a provider is configured. Without a provider those attempts are logged as skipped and nothing else breaks. A disabled user gets nothing. |
+| BUY-NOT-6 | Never blocks | A notification failure must not stop checkout, payment confirmation, goods receipt, a seller accepting, or the pool clock. |
+| BUY-NOT-7 | Ownership | A buyer can mark only their own notifications read. |
 
 ### 7.7 Buyer: address book (`BUY-ADDR`)
 
@@ -398,7 +423,7 @@ Two tabs: **Pickup station** and **Door delivery**.
 | ID | Requirement | Acceptance criteria |
 | --- | --- | --- |
 | SEL-UI-1 | Top-bar menu | On large screens the avatar becomes "Hi, Name" with Settings, KYC verification, Payouts, Team (owner only) and Log out. |
-| SEL-UI-2 | Bell | The in-app bell lists pool notifications and marks them read. |
+| SEL-UI-2 | Bell | The in-app bell lists pool, sheet and Buy Direct notifications (new pool or request, closing soon, award, award passed on, order waiting for acceptance, reminder before an offer expires) and marks them read. Sellers also receive them by email, and by SMS and WhatsApp when a provider is configured. |
 
 ### 7.17 Admin: vendor verification and sellers (`ADM-VER`)
 
@@ -470,6 +495,7 @@ Page: `/admin/delivery-pricing` (sidebar: "Delivery pricing"). Switched off; see
 - **Seller payable.** Pool: bid price x quantity. Buy Direct: line value less 3%.
 - **Refund (whole kobo)** for unfilled quantity:
   `refund = locked unit price x unfilled units + round(delivery cost x unfilled units / ordered units)`
+- **Savings credit at checkout.** Credit is spent oldest entry first. If an entry is larger than what is still needed, it is split: the used part is marked "Used at checkout" and the rest stays available. The amount used is stored on the order (`savingsApplied`) and posted to the money ledger as a negative credit entry, once per order. The amount due is `gross total - credit applied`, never below zero. A payment is accepted only for exactly that amount. Known limits: G17 and G18.
 - **Delivery fee (today)** is a flat fee per zone (seeded at N15,000 in each of five zones). A zone with no fee offers pickup only.
 - **Delivery fee (distance pricing, built but off, G15).** When switched on and a quote can be worked out:
   1. Load = sum of (quantity x weight per unit) over the order lines. Only confirmed weights count. A line with no confirmed weight makes the quote fail.
@@ -575,6 +601,11 @@ See SEL-LST-2. Additional rule: sellers never see the reference price on listing
 | E12 | **Suspend a seller.** Suspend a seller holding one pending and one accepted award. | Only the pending award is released. The seller cannot bid. |
 | E13 | **Address book to checkout.** Save two pickup stations and three delivery addresses, change defaults, delete the default. | Defaults update correctly and checkout reflects them. |
 | E14 | **Admin adds a pickup station.** | It appears for buyers at once. Deleting it after an order used it is refused. |
+| E16 | **Pay with savings credit.** Give a QA buyer credit, add items, leave "Apply savings credit" ticked, pay. | Total due falls by the credit. The credit entry shows "Used at checkout". The order page shows the credit line and the amount due. Cancelling the ticked box charges the full total. |
+| E17 | **Credit covers the whole order.** Use a small cart and a larger credit. | Button reads "Place order with savings credit". No gateway opens. The order is paid at once. The unused part of the credit entry stays available. |
+| E18 | **Mixed cart.** Pick a seller for one item only, use Buy Direct. | That line is Buy Direct, the other pools. The order page shows each line's own status. |
+| E19 | **Notifications.** Place and pay an order. Open the bell and `/account/notifications`. | "Order placed" and "Payment confirmed" appear once each, link to the order, and mark read. Repeating the payment check adds nothing. |
+| E20 | **Credo reuse (only with demo keys).** Pay one Credo order, then open a second unpaid order of the same total with the first order's `transRef` in the address. | The second order stays unpaid. |
 | E15 | **Staff permissions.** Invite a staff member, use the link, sign in as staff. | Staff can bid and work orders. Staff cannot open KYC or Team. Removing staff signs them out. |
 
 ### 9.3 Business-rule scenarios (from the rulebook, abridged)
@@ -707,19 +738,20 @@ See `docs/decisions.md` for decisions made. Still open or not yet built:
 5. Bank-detail changes (OTP, ops review, optional call) are built. The OTP email needs a verified Resend sending domain to reach every seller, so ask the product owner whether it is set before testing SEL-KYC-9.
 6. The seller terms text is a draft (`docs/seller-terms-draft.md`). The app still shows the placeholder line.
 7. Minimum eligible bids per line is settled at 1.
-8. Distance-based delivery pricing waits on the founder: per-km rates, confirmed vehicle capacities, the Google Maps key, station coordinates and confirmed item weights (see `docs/decisions.md`). Its checkout side is not built.
+8. Credit on abandoned orders, refunds where credit was used, SMS and WhatsApp rules, and Credo set-up are undecided (see `docs/decisions.md`, "Review on 25 November").
+9. Distance-based delivery pricing waits on the founder: per-km rates, confirmed vehicle capacities, the Google Maps key, station coordinates and confirmed item weights (see `docs/decisions.md`). Its checkout side is not built.
 
 ---
 
 ## Appendix A. Route map
 
-**Storefront:** `/`, `/catalog`, `/catalog/[id]`, `/cart`, `/checkout`, `/orders`, `/orders/[id]`, `/account`, `/account/addresses`, `/account/savings`, `/account/alerts`, `/account/profile`, `/login`, `/signup`, `/verify-email`, `/forgot-password`, `/reset-password`, `/offline`.
+**Storefront:** `/`, `/catalog`, `/catalog/[id]`, `/cart`, `/checkout`, `/orders`, `/orders/[id]`, `/account`, `/account/addresses`, `/account/savings`, `/account/alerts`, `/account/notifications`, `/account/profile`, `/login`, `/signup`, `/verify-email`, `/forgot-password`, `/reset-password`, `/offline`.
 
 **Seller Centre:** `/seller/login`, `/seller/signup`, `/seller` (dashboard), `/seller/listings`, `/seller/rfqs`, `/seller/rfqs/[sheetId]`, `/seller/bids`, `/seller/orders`, `/seller/allocations`, `/seller/payouts`, `/seller/kyc`, `/seller/settings`, `/seller/team`.
 
 **Ops admin:** `/admin/login`, `/admin`, `/admin/orders`, `/admin/orders/[id]`, `/admin/sellers`, `/admin/materials`, `/admin/materials/[id]`, `/admin/catalogue-reference`, `/admin/listings`, `/admin/direct`, `/admin/areas`, `/admin/pickup-stations`, `/admin/delivery-pricing`, `/admin/sheets`, `/admin/cycles/[id]`, `/admin/haulage`, `/admin/escrow`, `/admin/savings`, `/admin/users`, `/admin/team`, `/admin/verification`, `/admin/settings`, `/admin/audit-log`.
 
-**API and system:** `POST /api/checkout`, `POST /api/webhooks/payment`, `/api/pool/tick`, `/api/cron/close-cycles`, `/api/cron/cycle-tick`, `/api/cron/notify-closing-soon`, `/api/materials/search`, `/api/seller/search`, `/api/admin/search`, `/api/admin/orders`.
+**API and system:** `POST /api/checkout`, `POST /api/webhooks/payment`, `POST /api/webhooks/credo`, `/api/pool/tick`, `/api/cron/close-cycles`, `/api/cron/cycle-tick`, `/api/cron/notify-closing-soon`, `/api/materials/search`, `/api/seller/search`, `/api/admin/search`, `/api/admin/orders`.
 
 ## Appendix B. Status glossary
 
@@ -740,7 +772,7 @@ See `docs/decisions.md` for decisions made. Still open or not yet built:
 | KYC | Not started / Pending review / Verified / Rejected / Suspended | Seller verification |
 | Payout (seller wording) | Awaiting receipt / Being paid / Paid / On hold | Money due to the seller |
 | Payout (ops wording) | Awaiting GRN / Cleared for payout / Disbursed / On hold | Same, in warehouse terms |
-| Savings entry | Available / Withdrawal requested / Paid out | Buyer's savings credit |
+| Savings entry | Available / Used at checkout / Withdrawal requested / Paid out | Buyer's savings credit |
 | Coverage request | Waiting for approval / Approved / Not approved | Zone or category request |
 
 ## Appendix C. Recent changes worth regression-testing
@@ -749,6 +781,8 @@ These areas changed most recently and deserve extra attention:
 
 - Category **mega menu** and the header **account menu** (buyer) and **top-bar menu** (seller).
 - Buyer **account area** with left menu, and the new **address book** (saved pickup stations and delivery addresses) with checkout prefill.
+- **Checkout** changed a lot on 24 November: payment gateway choice (Paystack, Credo Pay), savings credit, mixed Buy Direct and pooled lines, and the clearer Delivery option (BUY-CHK-3, 12 to 17).
+- **Notifications**: buyer bell and page, reminders, email, SMS and WhatsApp (BUY-NOT).
 - Admin **Pickup stations** screen and the buyer's pickup choice at checkout. Stations now take optional map coordinates (ADM-CAT-6).
 - New admin **Delivery pricing** page and settings group (ADM-DLV). Switched off: confirm that checkout delivery fees did not change.
 - Error handling: failures now return a message beside the control, with confirmation dialogs on risky admin actions.

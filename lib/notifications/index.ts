@@ -20,6 +20,17 @@ export interface NotifyOptions {
  * so automated reminders or repeated triggers never spam the user.
  */
 export async function notifyUser(opts: NotifyOptions) {
+  // Best effort, like the channel delivery below: every caller sits after a committed write
+  // (order placed, payment confirmed, GRN issued), so a failed alert must never undo or abort it.
+  try {
+    return await createAndDeliver(opts);
+  } catch (err) {
+    console.error('Notification failed:', opts.type, err);
+    return null;
+  }
+}
+
+async function createAndDeliver(opts: NotifyOptions) {
   const inAppKey = opts.dedupeKey ? `${opts.dedupeKey}:IN_APP` : undefined;
   if (inAppKey) {
     const existing = await prisma.notificationDelivery.findUnique({ where: { dedupeKey: inAppKey } });

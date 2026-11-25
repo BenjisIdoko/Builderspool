@@ -50,6 +50,30 @@ The founder chose to price delivery by load, vehicle and distance (like a ride-h
 
 The buyer side: an address search at checkout, the distance quote, saving the quote and the destination on the order, and writing the fee onto the order lines. The fee will be stored as the same amount on every line of the order, as today, so refunds keep pro-rating it. Fallback: zone fee when the quote fails.
 
+## 24 November 2026: payments, notifications and savings credit (built, reviewed 25 November)
+
+Built by the product owner on 24 November and recorded here from the code. Confirm with the founder if any of it should change.
+
+| # | Topic | What was built | Notes |
+| --- | --- | --- | --- |
+| D15 | Second payment gateway | **Credo Pay alongside Paystack.** A "Payment gateway" choice at checkout, a redirect check on the order page, and a webhook at `/api/webhooks/credo`. Each order records its provider (`Order.paymentProvider`). | Credo is offered only when `CREDO_PUBLIC_KEY` and `CREDO_SECRET_KEY` are set. They are not set on Vercel yet, so buyers see "Not configured yet". The webhook's event name and signature scheme were written from memory and are **not yet confirmed against Credo's documentation**: test them in Credo's demo environment before going live. |
+| D16 | Savings credit at checkout | **A buyer can spend their savings credit on an order.** It is ticked by default when they have a balance. Credit is used oldest first, a part-used entry is split so the rest stays available, and an order fully covered by credit is confirmed as paid at once. | Credit is taken when the order is placed, not when it is paid. See the open questions below. |
+| D17 | Buyer and seller notifications | **In-app bell and page for buyers (`/account/notifications`), plus email, SMS and WhatsApp for every notification.** Events: order placed, payment confirmed, supplier confirmed or assigned, received at the centre, savings credited, dispatch updates, refunds, price-alert hits, and reminders for unpaid orders, carts left behind and expiring seller offers. Every delivery attempt is logged (`NotificationDelivery`). | Email works only through Resend's verified domain. SMS and WhatsApp send only when Termii, Twilio or WhatsApp keys are set, none of which exist yet. Each event is sent once (a deduplication key). |
+| D18 | Mixed carts | **Each line can be Buy Direct or Pool & Save**, not only the whole cart. A line can go direct only when the buyer picked a seller for it. | Replaces the old rule that Buy Direct needed a seller on every line. |
+
+### Review on 25 November
+
+Fixed the same day (not yet pushed):
+1. **Credo payment could be reused.** On the order page, a buyer could pass the reference of one paid Credo transaction to confirm any other order of the same total. The check now requires the paid transaction to belong to that order.
+2. **A failed notification could break real work.** Alerts are sent after orders, payments and receipts are saved, but an error in one could stop the rest of that step. A failed alert is now logged and ignored.
+3. **The reminder sweep could fail the pool clock.** It is now isolated, so a reminder error cannot stop a pool stage.
+
+Open for the founder:
+- **Credit on abandoned orders.** If a buyer places an order with credit applied and never pays, the credit stays locked to that order. Nothing releases it. Choose: release it when an unpaid order is cancelled or expires (for example after 24 hours), or leave it until the buyer pays.
+- **Refunds where credit was used.** The refund calculation ignores the credit. A buyer who paid part of a line with credit and is later refunded is shown the full line price as due. Choose: return the credit part to their savings credit, and refund only the cash part.
+- **SMS and WhatsApp cost, consent and templates.** Every event goes to email, SMS and WhatsApp at once (cart reminders and price alerts included), with no opt-in or opt-out. WhatsApp's business API usually delivers free-text messages only inside a 24-hour window, so most alerts would need approved templates. Decide which events go to which channel and whether buyers can opt out.
+- **Credo configuration.** Keys, the webhook address and a demo-environment test (D15).
+
 ## Still open
 
 - Commission (D3).
@@ -57,6 +81,7 @@ The buyer side: an address search at checkout, the distance quote, saving the qu
 - Station coordinates and opening hours (D1). The coordinates are also needed for distance-based delivery fees (D12).
 - Delivery fees for the five new zones (D9). Distance pricing (D10 to D14) would replace the flat fee once it is switched on; until then these zones stay pickup only.
 - Everything under "Still owed by the founder (delivery pricing)" above.
+- The four open points under "Review on 25 November" above (credit on abandoned orders, refunds with credit, SMS and WhatsApp rules, Credo set-up).
 - Approving sellers for the new zones: none has approved coverage there yet, so pooled lines in those zones have no bidders until sellers ask for the zones and ops approve.
 
 ## To build from these decisions

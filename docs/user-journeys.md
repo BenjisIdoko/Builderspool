@@ -20,6 +20,14 @@ Built and live on 12 November 2026. None of these closes a gap in the promises t
 - **Seller pages** (listings, bids, RFQs list, payouts, settings, KYC, team, allocations) were polished. The KYC form no longer loses typed answers on an error. The payouts page now counts Buy Direct and RFQ payouts as well as older bids.
 - **QA guide.** `docs/PRD-QA.md` describes requirements and test scenarios for a QA tester.
 
+## Changes since 16 November
+
+Built on 24 November, not yet re-walked in the journeys below.
+
+- **Notifications.** Buyers get an in-app bell and a Notifications page, and every notification is also emailed. SMS and WhatsApp are built but send nothing until a provider is set up. Buyers hear about: order placed, payment confirmed, supplier confirmed, goods received, savings credited, delivery updates, refunds and price alerts, plus reminders for unpaid orders and carts left behind. Sellers get their pool, sheet and Buy Direct alerts the same way, and a reminder before an offer expires. This closes most of the "Buyers get no notifications" gap.
+- **Checkout.** A buyer can pay with Paystack or Credo Pay (Credo is not switched on yet), spend their savings credit, and mix Buy Direct and Pool & Save lines in one order. Delivery explains why it is unavailable and checkout defaults to Pickup in areas with no delivery.
+- **Open points** are in `docs/decisions.md` under "Review on 25 November": credit left on abandoned orders, refunds where credit was used, and SMS and WhatsApp rules.
+
 ## Buyer
 
 **Who.** A contractor or site manager in Abuja ordering cement, blocks, rebar, roofing or fittings for a site.
@@ -94,7 +102,7 @@ Screens: `/checkout`
 - Picks an area: the three AMAC corridors, Bwari or Gwagwalada. Other places show a "tell us you want delivery" box.
 - Chooses how to buy: Buy Direct (needs a seller on every item) or Pool & Save.
 - Chooses delivery to site (₦15,000 per zone) or free pickup at the centre, then fills site address, contact, needed-by date and notes.
-- Pays by bank transfer, card or USSD through Paystack, currently in test mode.
+- Pays by bank transfer, card or USSD through Paystack (test mode). Credo Pay is built as a second gateway but not switched on. Savings credit can be applied, ticked by default, and an order fully covered by credit is paid at once.
 
 **Works today**
 - The fee is shown before paying.
@@ -104,7 +112,7 @@ Screens: `/checkout`
 **Friction and gaps**
 - Eleven places, mostly central Abuja (Wuse, Garki, Maitama, Asokoro, Gwarinpa and others), have no zone, so those buyers can only pick up.
 - A flat ₦15,000 delivery is heavy on a small order. Distance-based pricing (load, vehicle and kilometres) is built behind a switch but not live, and the checkout side is not built.
-- Buy Direct is greyed out until a seller lists.
+- Buy Direct is greyed out until a seller lists. With a mixed cart, lines with a picked seller go direct and the rest pool.
 - A TEST tag shows because payments are not live.
 
 **Where a helper fits.** A "what happens after you pay" note beside the pay button, so the pool timeline is clear before committing.
@@ -479,7 +487,7 @@ _Home page, delivery caption. Status: Does not match._
 
 ### Other gaps the map exposes
 
-- **Buyers get no notifications** (Buyer). Only the verification and password reset emails exist. Sellers have an in-app bell for pools; buyers have nothing.
+- **Buyer notifications are partly live** (Buyer). The bell, page and emails exist (24 Nov). Email reaches only the account owner until a Resend domain is verified, and SMS and WhatsApp send nothing until a provider is set up. There is no way for a buyer to choose which channels they get.
 - **Refunds are bookkeeping only** (Buyer, Ops). A refund is recorded as "refund due" in the ledger. The payment webhook ignores refund events and there is no payout tool, so the money return is manual.
 - **Four vendor approvals in four places** (Seller, Ops). KYC, zone requests, category requests and listing review each have their own screen, and none notifies the seller.
 - **Two bidding models in the seller menu** (Seller). Open cycles, My bids and Allocations are the older per-material flow; RFQs is the new one. A new seller cannot tell which to use.

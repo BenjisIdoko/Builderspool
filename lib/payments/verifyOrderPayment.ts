@@ -36,9 +36,9 @@ export async function verifyAndConfirmOrderPayment(
       const result = await verifyCredoTransaction(verifyKey, expectedNaira);
       if (!result.paid) return;
       if (result.amountKobo !== expectedKobo) return;
-      if (order.paymentReference && result.reference !== order.paymentReference && result.transRef !== verifyKey) {
-        return;
-      }
+      // The paid transaction must be the one started for THIS order. Without this, a buyer
+      // could pass the transRef of one paid order to confirm any other order of the same total.
+      if (!order.paymentReference || result.reference !== order.paymentReference) return;
 
       await confirmOrderPaid(orderId);
       return;

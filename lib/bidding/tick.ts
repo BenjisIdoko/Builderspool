@@ -90,7 +90,11 @@ export async function advanceCycles(now = new Date()): Promise<TickReport> {
   report.sheetsClosed = sheets.closed;
 
   // Periodic e-commerce reminders (unpaid orders, cart reminders, expiring seller awards, price alerts).
-  report.reminders = await runAutomatedReminders(now);
+  try {
+    report.reminders = await runAutomatedReminders(now);
+  } catch (err) {
+    console.error('Reminder sweep failed:', err);
+  }
 
   return report;
 }
@@ -124,7 +128,7 @@ export async function advanceIfDue(now = new Date()): Promise<boolean> {
     // Even if no pool stage transition is due right now, sweep reminders every 5 minutes.
     if (now.getTime() - lastReminderCheck >= 5 * 60_000) {
       lastReminderCheck = now.getTime();
-      await runAutomatedReminders(now);
+      await runAutomatedReminders(now).catch((err) => console.error('Reminder sweep failed:', err));
     }
     return false;
   }
