@@ -1,0 +1,142 @@
+[
+  {
+    "id": "cmu6lcp1z00a5rqc7hd6l2mwi",
+    "name": "Portland-Limestone Cement 42.5 Grade",
+    "spec": "Compressive strength class 42.5N/42.5R (42.5–62.5 N/mm² @ 28 days)"
+  },
+  {
+    "id": "cmu6l75ge000orqc7ygkvet32",
+    "name": "PVC Conduit Pipe, 20mm",
+    "spec": "20mm diameter, heavy gauge"
+  },
+  {
+    "id": "cmu6l81v9001lrqc7xbungn85",
+    "name": "PVC Conduit Pipe, 25mm",
+    "spec": "25mm diameter, heavy gauge"
+  },
+  {
+    "id": "cmu6l78gz000rrqc7jekypaqu",
+    "name": "PVC Elbow Fitting, 20mm",
+    "spec": "20mm diameter, 90-degree"
+  },
+  {
+    "id": "cmu6l7z6e001irqc79qg4k637",
+    "name": "PVC Tee Fitting, 20mm",
+    "spec": "20mm diameter, equal tee"
+  },
+  {
+    "id": "cmu6ld2jl00akrqc7x40ezwlt",
+    "name": "Dangote Cement 42.5 Grade (50kg)",
+    "spec": "Compressive strength class 42.5N/R"
+  },
+  {
+    "id": "cmu6lcmbt00a2rqc74upvkl79",
+    "name": "Ordinary Portland Cement 32.5 Grade",
+    "spec": "Compressive strength class 32.5N/32.5R (32.5–52.5 N/mm² @ 28 days)"
+  },
+  {
+    "id": "cmu6lf8ke00czrqc7gsmqx9r7",
+    "name": "Sandcrete Solid Block — 5-inch",
+    "spec": "450 × 125 × 225mm"
+  },
+  {
+    "id": "cmu6ldums00bhrqc7641c1rui",
+    "name": "Reinforcement Bar (Rebar) — 20mm",
+    "spec": "Nominal dia. 20mm; Grade 460"
+  },
+  {
+    "id": "cmu6ljafq00hkrqc7lki0svzz",
+    "name": "Gloss / Oil-Based Paint",
+    "spec": "Solvent-based gloss enamel"
+  },
+  {
+    "id": "cmu6ljd7b00hnrqc77wby7gdn",
+    "name": "Textured / Sandtex Finish",
+    "spec": "Textured acrylic masonry coating"
+  },
+  {
+    "id": "cmu6lfpz300dhrqc7giszpo0x",
+    "name": "Step-Tile Aluminium Roofing Sheet",
+    "spec": "Gauge 0.45–0.55mm"
+  },
+  {
+    "id": "cmu6lfvd000dnrqc79g97fccg",
+    "name": "Stone-Coated Steel Roofing Tile",
+    "spec": "Steel core with acrylic-bonded stone granules"
+  },
+  {
+    "id": "cmu6lfb3i00d2rqc7114popr3",
+    "name": "Interlocking Stabilised Earth Block",
+    "spec": "Compressed earth + 5–10% cement binder"
+  },
+  {
+    "id": "cmu6lfn1800derqc703lzf8ve",
+    "name": "Long-Span Aluminium Roofing Sheet",
+    "spec": "Gauge 0.45–0.55mm (SON minimum 0.4mm)"
+  },
+  {
+    "id": "cmu6lfsm200dkrqc7d0g3e4nf",
+    "name": "Metcoppo Aluminium Roofing Sheet",
+    "spec": "Gauge 0.45–0.55mm"
+  },
+  {
+    "id": "cmu6lf5te00cwrqc7x998vfnx",
+    "name": "Sandcrete Hollow Block — 6-inch",
+    "spec": "450 × 150 × 225mm; min. compressive strength 2.5 N/mm²"
+  },
+  {
+    "id": "cmu6lf30z00ctrqc79ide102i",
+    "name": "Sandcrete Hollow Block — 9-inch",
+    "spec": "450 × 225 × 225mm; min. compressive strength 3.45 N/mm²"
+  },
+  {
+    "id": "cmu6ldem200azrqc7y6z45926",
+    "name": "BUA Cement 32.5 Grade (50kg)",
+    "spec": "Compressive strength class 32.5N/R"
+  },
+  {
+    "id": "cmu6ld4um00anrqc740o06bjk",
+    "name": "BUA Cement 42.5 Grade (50kg)",
+    "spec": "Compressive strength class 42.5N/R"
+  },
+  {
+    "id": "cmu6ldc7c00awrqc74ehad2ee",
+    "name": "Dangote Cement 32.5 Grade (50kg)",
+    "spec": "Compressive strength class 32.5N/R"
+  },
+  {
+    "id": "cmu6ld7gu00aqrqc7dh02pgo1",
+    "name": "HBM Nigeria (Elephant) Cement 42.5 Grade (50kg)",
+    "spec": "Compressive strength class 42.5N/R"
+  },
+  {
+    "id": "cmu6lj80m00hhrqc7rqmks9cb",
+    "name": "Exterior Weathershield Paint",
+    "spec": "Acrylic weathershield formulation"
+  },
+  {
+    "id": "cmu6lj5ko00herqc75tdxe7cp",
+    "name": "Interior Emulsion Paint",
+    "spec": "Vinyl matt/silk emulsion"
+  },
+  {
+    "id": "cmu6ldmdb00b8rqc7jd6xqd54",
+    "name": "Reinforcement Bar (Rebar) — 10mm",
+    "spec": "Nominal dia. 10mm; Grade 460"
+  },
+  {
+    "id": "cmu6ldpib00bbrqc7la0p851e",
+    "name": "Reinforcement Bar (Rebar) — 12mm",
+    "spec": "Nominal dia. 12mm; Grade 460"
+  },
+  {
+    "id": "cmu6lds3s00berqc7kmphaxnv",
+    "name": "Reinforcement Bar (Rebar) — 16mm",
+    "spec": "Nominal dia. 16mm; Grade 460"
+  },
+  {
+    "id": "cmu6ldjbi00b5rqc715icb4ri",
+    "name": "Reinforcement Bar (Rebar) — 8mm",
+    "spec": "Nominal dia. 8mm; Grade 460 (B500B/B500C weldable)"
+  }
+]

@@ -42,9 +42,18 @@ export function MaterialCard({
 
       <CardContent className="flex flex-1 flex-col gap-1 p-0">
         <Link href={`/catalog/${material.id}`} className="rounded-sm outline-none focus-visible:ring-2 focus-visible:ring-ring">
-          <span className="line-clamp-2 text-sm leading-snug text-text-storefront">{material.name}</span>
+          <span className="line-clamp-2 text-sm leading-snug text-text-storefront">{material.name.split(/(\S*\d-[A-Za-z]\S*)/).map((part, i) =>
+              // "6-inch" stays on one line instead of breaking after the hyphen.
+              i % 2 === 1 ? (
+                <span key={i} className="whitespace-nowrap">
+                  {part}
+                </span>
+              ) : (
+                part
+              ),
+            )}</span>
         </Link>
-        {material.spec && <p className="line-clamp-2 text-sm text-slate">{material.spec}</p>}
+        {material.spec && <p className="line-clamp-3 text-sm text-slate">{material.spec}</p>}
       </CardContent>
 
       <CardFooter className="mt-auto flex-col items-stretch gap-3 border-0 bg-transparent p-0">
