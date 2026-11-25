@@ -11,7 +11,7 @@ import { markBuyerNotificationReadAction, markAllBuyerNotificationsReadAction, s
 import { getSettings } from '@/lib/settings';
 import { getNotificationPreferences } from '@/lib/notifications/preferences';
 import { NotificationPreferences } from '@/components/notification-preferences';
-import { BUYER_NOTIFICATION_ICON, BUYER_NOTIFICATION_TONE } from '@/components/buyer-notification-bell';
+import { BUYER_NOTIFICATION_ICON, BUYER_NOTIFICATION_TONE } from '@/components/buyer-notification-display';
 
 export const metadata = { title: 'Notifications' };
 
