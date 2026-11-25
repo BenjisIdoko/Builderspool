@@ -32,6 +32,8 @@ export function NotificationPreferences({ action, values, phone, phoneHref, smsE
   const hasTextChannel = channels.some((c) => c.name !== 'notifyEmail');
   const phoneHere = !phoneHref && hasTextChannel;
   const needsPhone = hasTextChannel && !phone && !phoneHere;
+  // On the seller page the phone field sits here, so the hint goes under it.
+  const noPhoneHint = phoneHere && !phone?.trim() && !readOnly;
 
   return (
     <ActionForm action={action} successMessage="Saved." className="flex flex-col gap-2">
@@ -52,7 +54,22 @@ export function NotificationPreferences({ action, values, phone, phoneHref, smsE
           <Label htmlFor="notify-phone" className="text-sm font-semibold text-ink">
             Phone number for text messages
           </Label>
-          <Input id="notify-phone" name="phone" type="tel" inputMode="tel" autoComplete="tel" placeholder="08012345678" defaultValue={phone ?? ''} disabled={readOnly} />
+          <Input
+            id="notify-phone"
+            name="phone"
+            type="tel"
+            inputMode="tel"
+            autoComplete="tel"
+            placeholder="08012345678"
+            defaultValue={phone ?? ''}
+            disabled={readOnly}
+            aria-describedby={noPhoneHint ? 'notify-phone-hint' : undefined}
+          />
+          {noPhoneHint && (
+            <p id="notify-phone-hint" className="text-pretty text-xs text-warning-text">
+              Add your number to get text messages. Until then you only get email and in-app alerts.
+            </p>
+          )}
         </div>
       )}
       {needsPhone && (
