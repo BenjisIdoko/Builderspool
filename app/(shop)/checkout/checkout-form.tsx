@@ -718,7 +718,7 @@ export function CheckoutForm({
           <h2 className="text-label text-muted-foreground uppercase">Payment gateway</h2>
           {testMode && <Badge variant="test">Test</Badge>}
         </div>
-        <div className="mb-5 grid grid-cols-2 gap-2">
+        <div className="mb-5 grid grid-cols-2 gap-2 has-[>button:only-child]:grid-cols-1">
           {(
             [
               {
@@ -734,7 +734,11 @@ export function CheckoutForm({
                 enabled: credoConfigured,
               },
             ] as const
-          ).map(({ provider, label, caption, enabled }) => {
+          )
+            // A gateway with no keys is hidden, so buyers never see a dead option.
+            // If neither is configured (local dev), show both so the state is visible.
+            .filter((option, _, all) => option.enabled || !all.some((o) => o.enabled))
+            .map(({ provider, label, caption, enabled }) => {
             const selected = paymentProvider === provider;
             return (
               <button
