@@ -1,6 +1,7 @@
 import { ListingQcResult, ListingStatus } from '@prisma/client';
 import { prisma } from '@/lib/prisma';
 import { median, runListingQc } from '@/lib/listings/qc';
+import { notifySellerListingsChecked } from '@/lib/notifications';
 
 const STATUS_FOR: Record<ListingQcResult, ListingStatus> = {
   PASSED: ListingStatus.ACTIVE,
@@ -70,5 +71,6 @@ export async function publishDraftListingsForSeller(sellerId: string) {
     else if (qc.result === ListingQcResult.NEEDS_REVIEW) report.inReview += 1;
     else report.needFixing += 1;
   }
+  await notifySellerListingsChecked(sellerId, report);
   return report;
 }

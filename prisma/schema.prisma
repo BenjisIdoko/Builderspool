@@ -714,6 +714,8 @@ enum NotificationType {
   SAVINGS_CREDITED // buyer earned a verified Pool & Save savings credit
   DISPATCH_UPDATE // buyer delivery dispatch status changed
   PRICE_ALERT_REACHED // buyer's target price on a material was reached
+  LISTING_LIVE // seller: a listing was approved by ops or went live after KYC approval
+  LISTING_REJECTED // seller: ops rejected a listing, or a held draft failed the checks
 }
 
 // Real, event-driven in-app alerts — created only from an actual bidding

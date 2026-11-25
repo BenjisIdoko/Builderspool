@@ -9,6 +9,7 @@ import {
   TruckIcon,
   TagIcon,
   ShoppingCartIcon,
+  CheckCircleIcon,
 } from '@phosphor-icons/react/ssr';
 import type { NotificationType } from '@prisma/client';
 
@@ -32,6 +33,8 @@ export const BUYER_NOTIFICATION_ICON: Record<NotificationType, ComponentType<{ c
   SAVINGS_CREDITED: WalletIcon,
   DISPATCH_UPDATE: TruckIcon,
   PRICE_ALERT_REACHED: TagIcon,
+  LISTING_LIVE: CheckCircleIcon,
+  LISTING_REJECTED: XCircleIcon,
 };
 
 export const BUYER_NOTIFICATION_TONE: Record<NotificationType, string> = {
@@ -51,4 +54,6 @@ export const BUYER_NOTIFICATION_TONE: Record<NotificationType, string> = {
   SAVINGS_CREDITED: 'bg-success-soft text-success',
   DISPATCH_UPDATE: 'bg-pale-blue text-cyan-text',
   PRICE_ALERT_REACHED: 'bg-success-soft text-success',
+  LISTING_LIVE: 'bg-success-soft text-success',
+  LISTING_REJECTED: 'bg-danger-soft text-danger',
 };

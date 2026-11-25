@@ -5,6 +5,7 @@ import { ListingStatus } from '@prisma/client';
 import { prisma } from '@/lib/prisma';
 import { requireAdminUser } from '@/lib/admin/session';
 import { recordAudit } from '@/lib/audit';
+import { notifySellerListingDecision } from '@/lib/notifications';
 
 type Result = { error: string } | { ok: true };
 
@@ -20,7 +21,7 @@ export async function decideListingAction(formData: FormData): Promise<Result> {
     if (decision !== 'approve' && decision !== 'reject') throw new Error('Choose approve or reject.');
     if (decision === 'reject' && note.length < 3) throw new Error('Tell the seller why it was rejected.');
 
-    const listing = await prisma.sellerListing.findUnique({ where: { id: listingId }, include: { material: { select: { name: true } } } });
+    const listing = await prisma.sellerListing.findUnique({ where: { id: listingId }, include: { material: { select: { name: true } }, seller: { select: { sellerProfile: { select: { kycStatus: true } } } } } });
     if (!listing) throw new Error('That listing no longer exists.');
 
     const moved = await prisma.sellerListing.updateMany({
@@ -41,6 +42,11 @@ export async function decideListingAction(formData: FormData): Promise<Result> {
       entityId: listingId,
       summary: `${decision === 'approve' ? 'Approved' : 'Rejected'} ${listing.material.name}${note ? `: ${note}` : ''}`,
     });
+
+    // Best effort: the decision is saved, so a failed alert must not turn it into an error.
+    await notifySellerListingDecision(listing.sellerId, listing.id, listing.material.name, decision === 'approve', note, listing.seller.sellerProfile?.kycStatus === 'APPROVED').catch((err) =>
+      console.error('Listing decision notice failed:', err),
+    );
 
     revalidatePath('/admin/listings');
     revalidatePath('/seller/listings');

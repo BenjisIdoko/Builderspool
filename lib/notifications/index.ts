@@ -188,6 +188,47 @@ export async function notifySellerDirectOrder(
   });
 }
 
+// A seller is told when ops decide on a listing they flagged, so nobody has to keep checking the page.
+export async function notifySellerListingDecision(
+  sellerId: string,
+  listingId: string,
+  materialName: string,
+  approved: boolean,
+  reviewNote?: string | null,
+  sellerVerified = true,
+) {
+  await notifyUser({
+    userId: sellerId,
+    type: approved ? NotificationType.LISTING_LIVE : NotificationType.LISTING_REJECTED,
+    title: approved ? `Your listing is approved: ${materialName}` : `Your listing was not approved: ${materialName}`,
+    body: approved
+      ? sellerVerified
+        ? `${materialName} passed review and is now live for buyers.`
+        : `${materialName} passed review. It goes live for buyers once your account is verified.`
+      : `${materialName} was not approved${reviewNote?.trim() ? `: ${reviewNote.trim().replace(/[.!?\s]+$/, '')}` : ''}. Fix it and save again to send it for checking.`,
+    link: '/seller/listings',
+    dedupeKey: `listing-decision:${listingId}:${approved ? 'approved' : 'rejected'}:${Date.now()}`,
+  });
+}
+
+// After a seller is verified, the listings they had saved are checked again; one note says what happened.
+export async function notifySellerListingsChecked(sellerId: string, report: { live: number; inReview: number; needFixing: number }) {
+  const parts = [
+    report.live > 0 ? `${report.live} ${report.live === 1 ? 'listing is' : 'listings are'} now live for buyers` : null,
+    report.inReview > 0 ? `${report.inReview} ${report.inReview === 1 ? 'is' : 'are'} waiting for our team to check` : null,
+    report.needFixing > 0 ? `${report.needFixing} ${report.needFixing === 1 ? 'needs' : 'need'} fixing before ${report.needFixing === 1 ? 'it' : 'they'} can go live` : null,
+  ].filter(Boolean);
+  if (parts.length === 0) return;
+  await notifyUser({
+    userId: sellerId,
+    type: report.live > 0 ? NotificationType.LISTING_LIVE : NotificationType.LISTING_REJECTED,
+    title: 'Your account is verified: listings checked',
+    body: `${parts.join('; ')}.`.replace(/^./, (c) => c.toUpperCase()),
+    link: '/seller/listings',
+    dedupeKey: `listings-checked:${sellerId}:${Date.now()}`,
+  });
+}
+
 // ─── Buyer lifecycle notifications ───────────────────────────────────────────
 
 export async function notifyBuyerOrderPlaced(

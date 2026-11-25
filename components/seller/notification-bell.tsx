@@ -15,6 +15,7 @@ import {
   TruckIcon,
   TagIcon,
   ShoppingCartIcon,
+  CheckCircleIcon,
 } from '@phosphor-icons/react/ssr';
 import { markNotificationReadAction, markAllNotificationsReadAction } from '@/app/seller/actions';
 import { Button } from '@/components/ui/button';
@@ -41,6 +42,8 @@ const TYPE_ICON: Record<NotificationType, React.ComponentType<{ className?: stri
   SAVINGS_CREDITED: WalletIcon,
   DISPATCH_UPDATE: TruckIcon,
   PRICE_ALERT_REACHED: TagIcon,
+  LISTING_LIVE: CheckCircleIcon,
+  LISTING_REJECTED: XCircleIcon,
 };
 
 const TYPE_TONE: Record<NotificationType, string> = {
@@ -60,6 +63,8 @@ const TYPE_TONE: Record<NotificationType, string> = {
   SAVINGS_CREDITED: 'bg-success-soft text-success',
   DISPATCH_UPDATE: 'bg-pale-blue text-cyan-text',
   PRICE_ALERT_REACHED: 'bg-success-soft text-success',
+  LISTING_LIVE: 'bg-success-soft text-success',
+  LISTING_REJECTED: 'bg-danger-soft text-danger',
 };
 
 function timeAgo(date: Date) {
