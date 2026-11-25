@@ -67,7 +67,7 @@ Built by the product owner on 24 November and recorded here from the code. Confi
 
 | # | Topic | What was built | Notes |
 | --- | --- | --- | --- |
-| D15 | Second payment gateway | **Credo Pay alongside Paystack.** A "Payment gateway" choice at checkout, a redirect check on the order page, and a webhook at `/api/webhooks/credo`. Each order records its provider (`Order.paymentProvider`). | Credo is offered only when `CREDO_PUBLIC_KEY` and `CREDO_SECRET_KEY` are set. They are not set on Vercel yet, so buyers see "Not configured yet". The webhook's event name and signature scheme were written from memory and are **not yet confirmed against Credo's documentation**: test them in Credo's demo environment before going live. |
+| D15 | Second payment gateway | **Credo Pay alongside Paystack. Deferred 25 November: launch with Paystack only, Credo stays switched off.** A "Payment gateway" choice at checkout, a redirect check on the order page, and a webhook at `/api/webhooks/credo`. Each order records its provider (`Order.paymentProvider`). | Credo is offered only when `CREDO_PUBLIC_KEY` and `CREDO_SECRET_KEY` are set. They are not set on Vercel yet, so buyers see "Not configured yet". The webhook's event name and signature scheme were written from memory and are **not yet confirmed against Credo's documentation**: test them in Credo's demo environment before going live. |
 | D16 | Savings credit at checkout | **A buyer can spend their savings credit on an order.** It is ticked by default when they have a balance. Credit is used oldest first, a part-used entry is split so the rest stays available, and an order fully covered by credit is confirmed as paid at once. | Credit is taken when the order is placed, not when it is paid. See the open questions below. |
 | D17 | Buyer and seller notifications | **In-app bell and page for buyers (`/account/notifications`), plus email, SMS and WhatsApp.** (Text messages were narrowed to key events on 25 November: see D19.) Events: order placed, payment confirmed, supplier confirmed or assigned, received at the centre, savings credited, dispatch updates, refunds, price-alert hits, and reminders for unpaid orders, carts left behind and expiring seller offers. Every delivery attempt is logged (`NotificationDelivery`). | Email works only through Resend's verified domain. SMS and WhatsApp send only when Termii, Twilio or WhatsApp keys are set, none of which exist yet. Each event is sent once (a deduplication key). |
 | D18 | Mixed carts | **Each line can be Buy Direct or Pool & Save**, not only the whole cart. A line can go direct only when the buyer picked a seller for it. | Replaces the old rule that Buy Direct needed a seller on every line. |
@@ -92,7 +92,7 @@ Open for the founder:
 - **Credit on abandoned orders.** If a buyer places an order with credit applied and never pays, the credit stays locked to that order. Nothing releases it. Choose: release it when an unpaid order is cancelled or expires (for example after 24 hours), or leave it until the buyer pays.
 - **Refunds where credit was used.** The refund calculation ignores the credit. A buyer who paid part of a line with credit and is later refunded is shown the full line price as due. Choose: return the credit part to their savings credit, and refund only the cash part.
 - **SMS and WhatsApp: whether to use WhatsApp alone, or WhatsApp and SMS.** The event list and the opt-out are now built (D19, D20). Still to decide: WhatsApp as the main channel with SMS as the back-up, or SMS only. WhatsApp usually needs Meta-approved message templates for alerts sent outside a 24-hour chat window.
-- **Credo configuration.** Keys, the webhook address and a demo-environment test (D15).
+- ~~Credo configuration.~~ Deferred by the founder on 25 November: launch with Paystack only (D15). Revisit later.
 
 ## Still open
 
@@ -101,7 +101,7 @@ Open for the founder:
 - Station coordinates and opening hours (D1). The coordinates are also needed for distance-based delivery fees (D12).
 - Delivery fees for the five new zones (D9). Distance pricing (D10 to D14) would replace the flat fee once it is switched on; until then these zones stay pickup only.
 - Everything under "Still owed by the founder (delivery pricing)" above.
-- The four open points under "Review on 25 November" above (credit on abandoned orders, refunds with credit, SMS and WhatsApp rules, Credo set-up).
+- The open points under "Review on 25 November" above (credit on abandoned orders, refunds with credit, SMS and WhatsApp rules). Credo is deferred (D15).
 - Approving sellers for the new zones: none has approved coverage there yet, so pooled lines in those zones have no bidders until sellers ask for the zones and ops approve.
 
 ## To build from these decisions
