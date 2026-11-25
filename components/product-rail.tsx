@@ -9,11 +9,14 @@ export function ProductRail({
   subtitle,
   href,
   materials,
+  offerCounts = {},
 }: {
   title: string;
   subtitle?: string;
   href: string;
   materials: BuyerMaterial[];
+  /** Sellers offering each product, by material id. */
+  offerCounts?: Record<string, number>;
 }) {
   if (materials.length === 0) return null;
 
@@ -31,7 +34,7 @@ export function ProductRail({
       <ul className="flex snap-x gap-3 overflow-x-auto p-4 [scrollbar-width:none] lg:gap-4 lg:p-5 [&::-webkit-scrollbar]:hidden">
         {materials.map((material) => (
           <li key={material.id} className="w-[176px] shrink-0 snap-start sm:w-[200px] lg:w-[224px]">
-            <MaterialCard material={material} />
+            <MaterialCard material={material} offerCount={offerCounts[material.id]} />
           </li>
         ))}
       </ul>

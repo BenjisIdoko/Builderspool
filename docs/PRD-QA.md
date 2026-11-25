@@ -99,6 +99,7 @@ These are acknowledged and tracked by the product owner. Report them only if the
 | G17 | **Unpaid orders give their savings credit back after 24 hours.** An unpaid order that holds credit is cancelled after 24 hours and the credit becomes available again; the buyer is told. Unpaid orders without credit are not cancelled. Report it if credit is still locked to an unpaid order older than a day, or if a paid order loses its credit. |
 | G18 | **A refund splits into cash and credit.** For a line no supplier filled, the part the buyer paid with savings credit goes back to their savings credit ("Savings credit returned"); only the rest is a cash refund. Report it if a refund shows the full line price on an order that used credit, or if more credit comes back than was spent. |
 | G19 | **A seller's product shows to buyers only when the listing is live, in stock, and the seller is KYC-approved.** It appears as an offer under "Buy Direct" on the product page, not as a new catalogue product. A listing saved before KYC approval is held as a draft and goes live when ops approve the KYC. A listing with no photo is rejected and never reaches ops. Report it if an approved seller's in-stock live listing is missing from the product page. |
+| G20 | **Catalogue cards show "N seller offer(s)"** on the product image when a pickable seller listing exists (same rule as G19). Cards without offers show nothing. Report it if a card shows a count the product page's Buy Direct list does not match. |
 
 ---
 

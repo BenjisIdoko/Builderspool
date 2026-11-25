@@ -8,6 +8,7 @@ import {
   TruckIcon,
 } from '@phosphor-icons/react/ssr';
 import { getMaterials, getCategories } from '@/lib/queries/materials';
+import { getOfferCounts } from '@/lib/queries/offers';
 import { HeroPoolBar } from '@/components/hero-pool-bar';
 import { getBuyerFacingTimes } from '@/lib/bidding/buyerTimes';
 import { buildPoolStages, isPoolClosedForToday } from '@/lib/pool-stages';
@@ -34,7 +35,7 @@ const TRUST = [
 ];
 
 export default async function Home() {
-  const [{ materials }, categories, { times, sheets }] = await Promise.all([getMaterials(), getCategories(), getBuyerFacingTimes()]);
+  const [{ materials }, categories, { times, sheets }, offerCounts] = await Promise.all([getMaterials(), getCategories(), getBuyerFacingTimes(), getOfferCounts()]);
   const stages = buildPoolStages(times, sheets);
   const closed = isPoolClosedForToday(times);
   const poolDay = closed ? 'tomorrow’s' : 'today’s';
@@ -118,6 +119,7 @@ export default async function Home() {
             }
             href="/catalog"
             materials={poolPicks}
+            offerCounts={offerCounts}
           />
         </div>
 
@@ -126,6 +128,7 @@ export default async function Home() {
           subtitle="Lowest catalogue prices first"
           href="/catalog"
           materials={lowestPrices}
+          offerCounts={offerCounts}
         />
       </div>
 

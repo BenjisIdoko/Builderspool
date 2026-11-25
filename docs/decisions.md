@@ -108,6 +108,7 @@ Checked the whole path: seller saves a listing, the upload checks run, ops revie
 | --- | --- | --- |
 | D30 | **A listing saved before the seller's KYC was approved stayed a hidden draft forever.** The seller was told "it goes live once your KYC is verified" but approving KYC did nothing to the listings. Ops approval of a flagged listing had the same effect when the seller was unverified. | Approving KYC (or reactivating a suspended seller) now runs the upload checks again on the seller's drafts: good ones go live, flagged ones go to the review queue, failing ones tell the seller what to fix (`lib/listings/applyChecks.ts`). The ops review card now warns "Approving still keeps it hidden from buyers until this seller's KYC is approved". |
 | D31 | A listing with no photo, or a small one, is rejected by the checks and never reaches ops. | Working as designed. The seller sees "Needs a fix" with the reason. Photo upload is working on prod. |
+| D32 | Buyers could not tell from the catalogue which products have seller offers. | Catalogue cards (catalogue page, home page rails, "more from" row) show a "N seller offer(s)" tag on the image when at least one pickable seller listing exists. It uses the same rule as the product page's Buy Direct list, so a card never promises an offer the page does not show. |
 
 ## Still open
 

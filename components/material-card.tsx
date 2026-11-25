@@ -6,7 +6,7 @@ import { MaterialImage } from './material-image';
 import { Card, CardContent, CardFooter } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 
-export function MaterialCard({ material, showScope = false }: { material: BuyerMaterial; showScope?: boolean }) {
+export function MaterialCard({ material, showScope = false, offerCount = 0 }: { material: BuyerMaterial; showScope?: boolean; offerCount?: number }) {
   return (
     <Card className="h-full gap-2 rounded-md border-0 p-2 shadow-none transition-shadow duration-150 hover:shadow-card-hover">
       <Link href={`/catalog/${material.id}`} className="relative block overflow-hidden rounded-sm bg-canvas outline outline-1 -outline-offset-1 outline-black/10 dark:outline-white/10 outline-offset-0 focus-visible:ring-2 focus-visible:ring-ring">
@@ -19,6 +19,12 @@ export function MaterialCard({ material, showScope = false }: { material: BuyerM
         <Badge variant="outline" className="absolute top-2 left-2 border-transparent bg-white/92 text-muted-foreground">
           {material.category}
         </Badge>
+        {/* On the image, not in the footer, so cards with and without offers keep their prices aligned. */}
+        {offerCount > 0 && (
+          <span className="absolute bottom-2 left-2 rounded-full bg-white/92 px-2 py-0.5 text-caption font-medium text-success">
+            {offerCount} seller {offerCount === 1 ? 'offer' : 'offers'}
+          </span>
+        )}
       </Link>
 
       <CardContent className="flex flex-1 flex-col gap-1 p-0">

@@ -50,6 +50,18 @@ export const getOffers = cache(async (materialId: string): Promise<Offer[]> => {
   }));
 });
 
+// How many sellers are offering each product right now, for the "seller offers" tag on
+// catalogue cards. Same pickable rule as the offers list, so a card never promises an
+// offer the product page does not show. Products with none are absent from the map.
+export const getOfferCounts = cache(async (): Promise<Record<string, number>> => {
+  const rows = await prisma.sellerListing.groupBy({
+    by: ['materialId'],
+    where: PICKABLE_LISTING,
+    _count: { _all: true },
+  });
+  return Object.fromEntries(rows.map((r) => [r.materialId, r._count._all]));
+});
+
 // One listing the buyer picked, or null if it is no longer pickable for that
 // material. Never trust a listing id from the client without this check.
 export async function getPickableListing(listingId: string, materialId: string) {

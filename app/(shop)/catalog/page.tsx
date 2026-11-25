@@ -5,6 +5,7 @@ import Link from 'next/link';
 import { CaretLeftIcon, CaretRightIcon, TruckIcon } from '@phosphor-icons/react/ssr';
 import { getMaterials, getCategories, getFulfillmentCenters, MATERIAL_SORT_VALUES, type MaterialSort } from '@/lib/queries/materials';
 import { MaterialCard } from '@/components/material-card';
+import { getOfferCounts } from '@/lib/queries/offers';
 import { CatalogSortSelect } from '@/components/catalog-sort-select';
 import { CatalogFilterSheet } from '@/components/catalog-filter-sheet';
 
@@ -28,10 +29,11 @@ export default async function CatalogPage({
   const sourcingScope = scopeParam === 'NATIONAL' || scopeParam === 'REGIONAL' ? scopeParam : undefined;
   const page = Math.max(1, Number(pageParam) || 1);
 
-  const [categories, centers, { materials, total, pageCount }] = await Promise.all([
+  const [categories, centers, { materials, total, pageCount }, offerCounts] = await Promise.all([
     getCategories(),
     getFulfillmentCenters(),
     getMaterials({ category, query: q, sort, sourcingScope, page, pageSize: PAGE_SIZE }),
+    getOfferCounts(),
   ]);
   const regions = [...new Set(centers.map((c) => c.region))];
 
@@ -163,7 +165,7 @@ export default async function CatalogPage({
           ) : (
             <div className="grid grid-cols-2 gap-3 min-[600px]:grid-cols-3 xl:grid-cols-4">
               {materials.map((material) => (
-                <MaterialCard key={material.id} material={material} showScope />
+                <MaterialCard key={material.id} material={material} showScope offerCount={offerCounts[material.id]} />
               ))}
             </div>
           )}

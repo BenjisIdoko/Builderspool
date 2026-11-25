@@ -16,7 +16,7 @@ import { ProductPoolPanel } from '@/components/product-pool-panel';
 import { ProductOffers } from '@/components/product-offers';
 import { OfferSelectionProvider } from '@/components/offer-selection';
 import { SelectedPrice } from '@/components/selected-price';
-import { getOffers } from '@/lib/queries/offers';
+import { getOffers, getOfferCounts } from '@/lib/queries/offers';
 import { getPoolSnapshot } from '@/lib/queries/pool';
 import { MaterialCard } from '@/components/material-card';
 import { formatNaira } from '@/lib/format';
@@ -38,13 +38,14 @@ export default async function MaterialPage({ params }: { params: Promise<{ id: s
   const material = await getMaterialById(id);
   if (!material) notFound();
 
-  const [priceHistory, fulfillmentCenters, related, boughtTogether, pool, offers] = await Promise.all([
+  const [priceHistory, fulfillmentCenters, related, boughtTogether, pool, offers, offerCounts] = await Promise.all([
     getPriceHistory(id),
     getFulfillmentCenters(),
     getRelatedMaterials(id, material.category),
     getFrequentlyBoughtTogether(id),
     getPoolSnapshot(id),
     getOffers(id),
+    getOfferCounts(),
   ]);
   const bundleItems = boughtTogether.length > 0 ? boughtTogether : related;
   const bundleTitle = boughtTogether.length > 0 ? 'Frequently procured together' : `More from ${material.category}`;
@@ -105,7 +106,7 @@ export default async function MaterialPage({ params }: { params: Promise<{ id: s
           <h2 className="mb-6 text-ink">{bundleTitle}</h2>
           <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-4">
             {bundleItems.map((item) => (
-              <MaterialCard key={item.id} material={item} />
+              <MaterialCard key={item.id} material={item} offerCount={offerCounts[item.id]} />
             ))}
           </div>
         </div>
