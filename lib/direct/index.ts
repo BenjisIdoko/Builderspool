@@ -3,7 +3,7 @@ import { prisma } from '../prisma';
 import { getSetting } from '../settings';
 import { nairaToKobo } from '../money';
 import { postLedgerEntry } from '../ledger';
-import { recordLineRefund } from '../bidding/refund';
+import { sendToOpsSourcing } from '../sourcing';
 import { assertNoBankChangeUnderReview } from '../bank/hold';
 import { notifySellerDirectOrder, notifyBuyerOrderUpdate } from '../notifications';
 
@@ -16,23 +16,11 @@ function reference(prefix: string, date = new Date()) {
   return `${prefix}-${datePart}-${Math.floor(1000 + Math.random() * 9000)}`;
 }
 
-// The buyer is not charged for a line the seller could not supply: it is
-// recorded as unfilled and a refund due is posted (same entry key as pooled
-// lines, so it can only ever be posted once per line).
+// BuildersPool meets every order: a line the seller could not supply goes to the
+// ops team to source (lib/sourcing), not to an automatic refund.
 async function refundLine(orderItemId: string, reason: string) {
-  const item = await prisma.orderItem.findUniqueOrThrow({
-    where: { id: orderItemId },
-    include: { order: { select: { id: true, buyerId: true } }, material: { select: { name: true } } },
-  });
-  await prisma.orderItem.update({ where: { id: item.id }, data: { unfilledQuantity: item.quantity } });
-  await recordLineRefund(item, item.quantity, reason, item.order.buyerId);
-  await notifyBuyerOrderUpdate(
-    item.order.buyerId,
-    item.order.id,
-    `Line refunded: ${item.material.name}`,
-    `${item.material.name} could not be supplied (${reason.toLowerCase()}). A refund has been recorded on your order.`,
-    `buyer-refund:${item.id}`,
-  );
+  const item = await prisma.orderItem.findUniqueOrThrow({ where: { id: orderItemId }, select: { quantity: true } });
+  await sendToOpsSourcing(orderItemId, item.quantity, reason);
 }
 
 async function releaseStock(listingId: string | null, quantity: number) {

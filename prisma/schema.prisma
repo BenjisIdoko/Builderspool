@@ -635,6 +635,8 @@ model OrderItem {
   dispatch          Dispatch?
   direct            DirectFulfilment?
   sheetFulfilment   SheetFulfilment?
+  // When no supplier or seller took the line, BuildersPool sources it (2026-11-26).
+  opsSourcing       OpsSourcing?
 }
 
 // One per material, per region (null = national), per day.
@@ -1476,4 +1478,29 @@ model VehicleClass {
   sortOrder  Int      @default(0)
   active     Boolean  @default(true)
   createdAt  DateTime @default(now())
+}
+
+enum SourcingStatus {
+  OPEN // BuildersPool's team must source this line
+  SOURCED // the team found it; it goes through the fulfilment centre as usual
+  REFUNDED // last resort, decided by ops: the buyer is refunded instead
+}
+
+// A line no supplier or picked seller would fill. BuildersPool meets every order
+// (founder, 2026-11-26), so instead of refunding automatically the line lands here
+// for the ops team to source. One row per order line.
+model OpsSourcing {
+  id           String         @id @default(cuid())
+  orderItemId  String         @unique
+  quantity     Int
+  reason       String
+  status       SourcingStatus @default(OPEN)
+  note         String?
+  createdAt    DateTime       @default(now())
+  resolvedAt   DateTime?
+  resolvedById String?
+
+  orderItem OrderItem @relation(fields: [orderItemId], references: [id])
+
+  @@index([status, createdAt])
 }

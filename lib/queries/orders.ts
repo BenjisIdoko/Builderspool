@@ -17,6 +17,7 @@ export const ORDER_DETAIL_INCLUDE = {
       sheetLine: { select: { sheet: { select: { status: true, poolClosesAt: true, bidsCloseAt: true, rank3EndsAt: true } } } },
       sheetFulfilment: { select: { status: true, receivedAt: true, savingsWalletEntry: { select: { buyerShare: true } } } },
       direct: { select: { status: true, acceptDeadlineAt: true, receivedAt: true } },
+      opsSourcing: { select: { status: true } },
       allocations: {
         select: {
           createdAt: true,

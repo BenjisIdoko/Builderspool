@@ -17,14 +17,21 @@ export interface LineStatusInput {
   sheetLine: { sheet: { status: 'OPEN' | 'BIDDING' | 'AWARDING' | 'AWARDED' | 'CANCELLED'; poolClosesAt: Date; bidsCloseAt: Date; rank3EndsAt: Date } } | null;
   sheetFulfilment: { status: 'PENDING' | 'FULFILLED' | 'FAILED'; savingsWalletEntry: { buyerShare: number } | null } | null;
   direct: { status: 'AWAITING_ACCEPT' | 'ACCEPTED' | 'FULFILLED' | 'DECLINED' | 'EXPIRED'; acceptDeadlineAt: Date } | null;
+  /** Set when no supplier or seller took the line and BuildersPool's team is sourcing it. */
+  opsSourcing?: { status: 'OPEN' | 'SOURCED' | 'REFUNDED' } | null;
 }
 
 const time = formatLagosClock;
 const dateTime = formatLagosDateTime;
 const naira = (n: number) => `₦${n.toLocaleString('en-NG', { maximumFractionDigits: 2 })}`;
 
-/** True when no supplier took the line and the buyer is owed it back. */
-export function isRefundedLine(item: Pick<LineStatusInput, 'quantity' | 'unfilledQuantity'>): boolean {
+/**
+ * True when the buyer is owed the line back. Since 26 November BuildersPool sources
+ * unfilled lines, so that only happens when ops chose a refund; a line with no
+ * sourcing record and units unfilled is from before then, when refunds were automatic.
+ */
+export function isRefundedLine(item: Pick<LineStatusInput, 'quantity' | 'unfilledQuantity' | 'opsSourcing'>): boolean {
+  if (item.opsSourcing) return item.opsSourcing.status === 'REFUNDED';
   return item.quantity > 0 && item.unfilledQuantity >= item.quantity;
 }
 
@@ -33,6 +40,13 @@ export function describeLine(item: LineStatusInput, orderPaid: boolean): LineSta
   const { sheetLine, sheetFulfilment, direct } = item;
   const revertedFromSheet = sheetLine?.sheet.status === 'CANCELLED' || sheetFulfilment?.status === 'FAILED';
   const sentBack = revertedFromSheet ? 'No supplier took the pool, so your order went to the seller you picked, at the price you paid. ' : '';
+
+  if (item.opsSourcing?.status === 'OPEN') {
+    return { tone: 'warning', label: 'BuildersPool is sourcing it', detail: 'No supplier took it, so our team is sourcing it for you.' };
+  }
+  if (item.opsSourcing?.status === 'SOURCED') {
+    return { tone: 'info', label: 'Sourced by BuildersPool', detail: 'On its way to our fulfilment centre.' };
+  }
 
   if (isRefundedLine(item)) {
     const why =
@@ -51,7 +65,7 @@ export function describeLine(item: LineStatusInput, orderPaid: boolean): LineSta
   if (direct) {
     switch (direct.status) {
       case 'AWAITING_ACCEPT':
-        return { tone: 'warning', label: 'Waiting for the seller to accept', detail: `${sentBack}They have until ${dateTime(direct.acceptDeadlineAt)}; if they can't supply it, you'll be refunded.` };
+        return { tone: 'warning', label: 'Waiting for the seller to accept', detail: `${sentBack}They have until ${dateTime(direct.acceptDeadlineAt)}. If they can't, BuildersPool sources it.` };
       case 'ACCEPTED':
         return { tone: 'info', label: 'Seller accepted', detail: `${sentBack}They are preparing your goods for the fulfilment centre.` };
       case 'FULFILLED':

@@ -40,6 +40,7 @@ const LINK_GROUPS = [
       { href: '/admin/materials', label: 'Materials', icon: PackageIcon },
       { href: '/admin/catalogue-reference', label: 'Catalogue reference', icon: BooksIcon },
       { href: '/admin/listings', label: 'Listing review', icon: ListChecksIcon },
+      { href: '/admin/sourcing', label: 'Sourcing', icon: PackageIcon },
       { href: '/admin/direct', label: 'Buy Direct orders', icon: ReceiptIcon },
       { href: '/admin/areas', label: 'Service areas', icon: MapPinIcon },
       { href: '/admin/pickup-stations', label: 'Pickup stations', icon: StorefrontIcon },

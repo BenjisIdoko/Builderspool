@@ -1,8 +1,8 @@
 import { prisma } from '../prisma';
 import { AllocationStatus, BidStatus, type Allocation } from '@prisma/client';
 import { getSettings } from '../settings';
-import { recordLineRefund } from './refund';
-import { notifyAwardLapsed, notifyBidWon, notifyBuyerOrderUpdate } from '../notifications';
+import { sendToOpsSourcing } from '../sourcing';
+import { notifyAwardLapsed, notifyBidWon } from '../notifications';
 import { allocateDemand } from './allocate';
 
 // What happens to an award a supplier doesn't take (Transfer File 5.4):
@@ -230,20 +230,8 @@ export async function finalizeCycleFallback(cycleId: string, now = new Date()): 
     const unfilled = Math.max(0, item.quantity - covered);
     if (unfilled === 0) continue;
 
-    await prisma.orderItem.update({ where: { id: item.id }, data: { unfilledQuantity: unfilled } });
-    await recordLineRefund(
-      item,
-      unfilled,
-      `No winning supplier for ${unfilled} of ${item.quantity} units — not charged`,
-      item.order.buyerId,
-    );
-    await notifyBuyerOrderUpdate(
-      item.order.buyerId,
-      item.order.id,
-      `Pool update: ${item.material.name}`,
-      `No supplier covered ${unfilled} of ${item.quantity} ${item.material.unit} of ${item.material.name} in this pool. A refund has been recorded on your order.`,
-      `fallback-refund:${item.id}`,
-    );
+    // BuildersPool meets every order: the units no supplier took go to the ops team to source.
+    await sendToOpsSourcing(item.id, unfilled, `No winning supplier for ${unfilled} of ${item.quantity} units`);
     unsuccessfulLines += 1;
     unfilledUnits += unfilled;
   }

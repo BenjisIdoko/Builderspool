@@ -81,10 +81,13 @@ export default async function OrderConfirmationPage({
   }
 
   const subtotal = order.items.reduce((sum, item) => sum + item.priceLocked * item.quantity, 0);
-  // Units no supplier took on by the fallback time: not charged, refund due.
+  // Units owed back: only lines ops refunded (or, before 26 Nov, lines refunded automatically).
+  // A line BuildersPool is sourcing is not a refund.
+  const owesRefund = (item: (typeof order.items)[number]) =>
+    item.opsSourcing ? item.opsSourcing.status === 'REFUNDED' : item.unfilledQuantity > 0;
   const refundDue = order.items.reduce(
     (sum, item) =>
-      item.unfilledQuantity > 0
+      owesRefund(item) && item.unfilledQuantity > 0
         ? sum + item.priceLocked * item.unfilledQuantity + (item.deliveryCost * item.unfilledQuantity) / item.quantity
         : sum,
     0,
@@ -352,9 +355,14 @@ export default async function OrderConfirmationPage({
                       {line.detail && <span className="text-muted-foreground"> · {line.detail}</span>}
                     </div>
                   )}
-                  {item.unfilledQuantity > 0 && !line && (
+                  {item.unfilledQuantity > 0 && !line && item.opsSourcing?.status === 'OPEN' && (
+                    <div className="mt-0.5 text-sm font-medium text-warning-text">
+                      BuildersPool is sourcing {item.unfilledQuantity} of {item.quantity} for you.
+                    </div>
+                  )}
+                  {item.unfilledQuantity > 0 && !line && owesRefund(item) && (
                     <div className="mt-0.5 text-sm font-medium text-danger">
-                      No supplier could fill {item.unfilledQuantity} of {item.quantity}. You&apos;ll be refunded.
+                      {item.unfilledQuantity} of {item.quantity} couldn&apos;t be supplied. You&apos;ll be refunded.
                     </div>
                   )}
                 </div>
@@ -390,7 +398,7 @@ export default async function OrderConfirmationPage({
           </div>
           {refundDue > 0 && refundSplit.creditKobo === 0 && (
             <div className="flex justify-between text-sm font-semibold text-danger">
-              <span>Refund for items no supplier filled</span>
+              <span>Refund for items not supplied</span>
               <span className="tabular-nums">{formatNaira(refundDue)}</span>
             </div>
           )}
@@ -398,7 +406,7 @@ export default async function OrderConfirmationPage({
             <>
               {refundSplit.cashKobo > 0 && (
                 <div className="flex justify-between text-sm font-semibold text-danger">
-                  <span>Refund for items no supplier filled</span>
+                  <span>Refund for items not supplied</span>
                   <span className="tabular-nums">{formatNaira(koboToNaira(refundSplit.cashKobo))}</span>
                 </div>
               )}
