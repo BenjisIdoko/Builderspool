@@ -26,7 +26,7 @@ colors:
   background: "#F1F1F2"
   card: "#FFFFFF"
   card-alt: "#FBFCFD"
-  surface: "#E9EEF4"
+  surface: "#FFFFFF"         # same white as card in the code (app/globals.css --color-surface)
   muted: "#E4E9EF"
 
   # ── Text (unchanged) ─────────────────────────────────────────────────────
@@ -34,7 +34,7 @@ colors:
   text-storefront: "#282828"
   text-secondary: "#545459"
   muted-foreground: "#5A6B80"
-  placeholder: "#6B6B70"
+  placeholder: "#5A6B80"     # inputs use muted-foreground for placeholders
 
   # ── Lines ────────────────────────────────────────────────────────────────
   hairline: "#E6E6E8"        # decorative dividers only (1.25:1 — never a control boundary)
@@ -57,7 +57,9 @@ colors:
   on-navy-muted: "#B6BFCC"   # 8.9:1 on navy
   on-navy-line: "rgba(255,255,255,0.14)"
 
-  charts: ["#0B1F3A", "#1BA6DE", "#7FC8EA", "#5A6B80", "#B7C3D0"]
+  # The one chart (price history) uses navy for the line and area, muted-foreground for labels.
+  chart-line: "#0B1F3A"
+  chart-label: "#5A6B80"
 
 typography:
   families:
