@@ -54,7 +54,7 @@ const INCLUDE = {
 
 // Listings the upload checks flagged, oldest first so nothing waits behind newer ones.
 export async function getReviewQueue() {
-  const [pending, decided] = await Promise.all([
+  const [pending, decided, all] = await Promise.all([
     prisma.sellerListing.findMany({ where: { status: ListingStatus.PENDING_REVIEW }, include: INCLUDE, orderBy: { updatedAt: 'asc' } }),
     prisma.sellerListing.findMany({
       where: { reviewedAt: { not: null } },
@@ -62,6 +62,15 @@ export async function getReviewQueue() {
       orderBy: { reviewedAt: 'desc' },
       take: 10,
     }),
+    prisma.sellerListing.findMany({
+      include: { ...INCLUDE, material: { select: { name: true, unit: true, category: true } } },
+      orderBy: { updatedAt: 'desc' },
+      take: 200,
+    }),
   ]);
-  return { pending: pending.map(toRow), decided: decided.map(toRow) };
+  return {
+    pending: pending.map(toRow),
+    decided: decided.map(toRow),
+    all: all.map((l) => ({ ...toRow(l), category: l.material.category })),
+  };
 }

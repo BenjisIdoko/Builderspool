@@ -49,8 +49,7 @@ export default async function SellerListingsPage() {
       <div className="mb-1 text-xs text-muted-foreground">Merchant · listings</div>
       <h1 className="mb-1 text-heading-lg text-ink">My listings</h1>
       <p className="mb-6 text-pretty text-sm text-muted-foreground">
-        Set your own price, stock, lead time and photos for each product you sell. Listings that pass our checks go live on
-        their own; only flagged ones are reviewed by our team.
+        Pick a category and product, set your price and stock, and add a photo. Listings that pass our checks go live straight away.
       </p>
 
       <div className="mb-6 overflow-hidden rounded-lg bg-card-alt">

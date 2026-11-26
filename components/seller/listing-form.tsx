@@ -6,7 +6,7 @@ import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
-import { Select, SelectContent, SelectGroup, SelectItem, SelectLabel, SelectTrigger, SelectValue } from '@/components/ui/select';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 
 export type ListingFormValues = {
   id?: string;
@@ -47,6 +47,7 @@ export function ListingForm({
   const [isPending, startTransition] = useTransition();
   const [message, setMessage] = useState<{ tone: 'error' | 'ok'; text: string } | null>(null);
   const [materialId, setMaterialId] = useState(values?.materialId ?? '');
+  const [category, setCategory] = useState('');
   const formRef = useRef<HTMLFormElement>(null);
   const selected = materials.find((m) => m.id === materialId);
   const badge = values?.status ? STATUS_BADGE[values.status] : null;
@@ -60,7 +61,11 @@ export function ListingForm({
     startTransition(async () => {
       const r = await fn();
       setMessage('error' in r ? { tone: 'error', text: r.error } : { tone: 'ok', text: r.message });
-      if (!('error' in r) && !values) formRef.current?.reset();
+      if (!('error' in r) && !values) {
+        formRef.current?.reset();
+        setCategory('');
+        setMaterialId('');
+      }
     });
   }
 
@@ -80,26 +85,43 @@ export function ListingForm({
           {selected && <span className="basis-full text-caption text-muted-foreground">{selected.category}</span>}
         </div>
       ) : (
-        <div className="space-y-1.5">
-          <Label htmlFor="new-material">Product</Label>
-          <Select name="materialId" required value={materialId} onValueChange={setMaterialId}>
-            <SelectTrigger id="new-material" className="h-11 w-full">
-              <SelectValue placeholder="Choose a product" />
-            </SelectTrigger>
-            <SelectContent>
-              {Object.entries(byCategory).map(([category, items]) => (
-                <SelectGroup key={category}>
-                  <SelectLabel>{category}</SelectLabel>
-                  {items.map((m) => (
-                    <SelectItem key={m.id} value={m.id}>
-                      {m.name} ({m.unit})
-                    </SelectItem>
-                  ))}
-                </SelectGroup>
-              ))}
-            </SelectContent>
-          </Select>
-          {selected && <p className="text-caption text-muted-foreground">Category: {selected.category}</p>}
+        <div className="grid gap-4 sm:grid-cols-2">
+          <div className="space-y-1.5">
+            <Label htmlFor="new-category">Category</Label>
+            <Select
+              value={category}
+              onValueChange={(c) => {
+                setCategory(c);
+                setMaterialId('');
+              }}
+            >
+              <SelectTrigger id="new-category" className="h-11 w-full">
+                <SelectValue placeholder="Choose a category" />
+              </SelectTrigger>
+              <SelectContent>
+                {Object.keys(byCategory).map((c) => (
+                  <SelectItem key={c} value={c}>
+                    {c}
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+          </div>
+          <div className="space-y-1.5">
+            <Label htmlFor="new-material">Product</Label>
+            <Select name="materialId" required value={materialId} onValueChange={setMaterialId} disabled={!category}>
+              <SelectTrigger id="new-material" className="h-11 w-full">
+                <SelectValue placeholder={category ? 'Choose a product' : 'Choose a category first'} />
+              </SelectTrigger>
+              <SelectContent>
+                {(byCategory[category] ?? []).map((m) => (
+                  <SelectItem key={m.id} value={m.id}>
+                    {m.name} ({m.unit})
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+          </div>
         </div>
       )}
 
