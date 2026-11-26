@@ -623,16 +623,16 @@ export function CheckoutForm({
             [
               {
                 value: 'DIRECT',
-                label: canBuyDirectAll ? 'Buy Direct' : 'Buy Direct (where seller picked)',
+                label: 'Buy Direct',
                 body: canBuyDirectAll
-                  ? 'From the seller you picked.'
-                  : 'Items with a seller go direct; others join Pool & Save.',
+                  ? 'From your picked seller.'
+                  : 'Picked items direct. The rest pooled.',
                 disabled: !hasAnyPickableSeller,
               },
               {
                 value: 'POOL',
                 label: 'Pool & Save',
-                body: `Joins ${poolDay === 'today' ? 'today’s' : 'tomorrow’s'} pool, which closes at ${formatClock(poolCloseTime)}. You keep half of any saving.`,
+                body: `Pool closes ${formatClock(poolCloseTime)}${poolDay === 'today' ? '' : ' tomorrow'}. Keep half the saving.`,
                 disabled: false,
               },
             ] as const

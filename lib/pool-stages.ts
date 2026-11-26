@@ -11,12 +11,12 @@ export function buildPoolStages(times: CycleTimes, sheets = false): PoolStage[] 
   if (sheets) {
     return [
       { time: times.poolCloseTime, label: 'Pool closes', detail: 'Orders placed before this join the day’s pool for your area.' },
-      { time: times.fallbackTime, label: 'Final result', detail: 'A supplier is confirmed for your order. If none takes the pool, it goes to the seller you picked, or is refunded.' },
+      { time: times.fallbackTime, label: 'Final result', detail: 'A supplier is confirmed for your order. If none takes the pool, your picked seller or BuildersPool fills it.' },
     ];
   }
   return [
     { time: times.poolCloseTime, label: 'Pool closes', detail: 'Orders placed before this join the day’s pool.' },
-    { time: times.fallbackTime, label: 'Final result', detail: 'A supplier is confirmed for your order. If none takes the pool, it goes to the seller you picked, or is refunded.' },
+    { time: times.fallbackTime, label: 'Final result', detail: 'A supplier is confirmed for your order. If none takes the pool, your picked seller or BuildersPool fills it.' },
   ];
 }
 
@@ -31,8 +31,8 @@ export function refundRuleText(everyItemHasSeller = true): string {
 /** One line for checkout, shown only under the selected Pool & Save option. */
 export function checkoutFallbackText(everyItemHasSeller = true): string {
   return everyItemHasSeller
-    ? 'If no supplier takes it, it goes to your picked seller, or you’re refunded.'
-    : 'If no supplier takes it, items with a picked seller go to that seller; the rest are refunded.';
+    ? 'No supplier? We still fill your order.'
+    : 'No supplier? We still fill your order.';
 }
 
 /** When the saving reaches the wallet: when our centre issues the goods-received note (lib/fulfillment/grn.ts, lib/sheets/fulfil.ts), not on buyer confirmation. */
