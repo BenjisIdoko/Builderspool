@@ -156,7 +156,7 @@ export default async function CatalogPage({
           ) : (
             <div className="grid grid-cols-2 gap-3 min-[600px]:grid-cols-3 xl:grid-cols-4">
               {materials.map((material) => (
-                <MaterialCard key={material.id} material={material} showScope showCategory={!category} offerCount={offerCounts[material.id]} />
+                <MaterialCard key={material.id} material={material} offerCount={offerCounts[material.id]} />
               ))}
             </div>
           )}

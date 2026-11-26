@@ -1,6 +1,5 @@
 import { UsersThreeIcon } from '@phosphor-icons/react/ssr';
 import type { PoolSnapshot } from '@/lib/queries/pool';
-import { refundRuleText } from '@/lib/pool-stages';
 import { formatClock, formatQuantity } from '@/lib/format';
 
 // The Pool & Save panel on a product page. It states, truthfully for this
@@ -54,9 +53,6 @@ export function ProductPoolPanel({ pool, unit }: { pool: PoolSnapshot; unit: str
         </div>
       </dl>
 
-      <p className="mt-4 text-pretty text-caption text-slate">
-        {refundRuleText()}
-      </p>
     </section>
   );
 }

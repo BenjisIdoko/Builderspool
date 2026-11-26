@@ -73,9 +73,7 @@ export default async function MaterialPage({ params }: { params: Promise<{ id: s
         <div className="flex flex-col gap-5 lg:col-start-2 lg:row-span-2 lg:row-start-1">
           <header>
             <h1 className="text-balance text-ink">{material.name}</h1>
-            <p className="mt-1 text-body-sm text-slate">
-              Sold per {material.unit} · {material.sourcingScope === 'NATIONAL' ? 'National supply' : 'Regional'}
-            </p>
+            {material.spec && <p className="mt-2 text-pretty text-body text-slate">{material.spec}</p>}
             <p className="mt-3 text-price-lg tabular-nums text-ink lg:hidden">
               <SelectedPrice catalogPrice={material.catalogPrice} />
               <span className="ml-1 font-sans text-body-sm font-medium text-muted-foreground">/ {material.unit}</span>

@@ -115,8 +115,7 @@ export function ProductDetailPanel({
               Notify me at a target price
             </div>
             <p className="mb-3 text-pretty text-sm text-muted-foreground">
-              We&apos;ll save this — there&apos;s no email/SMS alerting yet, so check back here to see if it&apos;s
-              been reached.
+              We&apos;ll tell you when the price reaches your target.
             </p>
             <div className="flex gap-2">
               <Input

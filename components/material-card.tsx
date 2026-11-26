@@ -4,18 +4,12 @@ import type { BuyerMaterial } from '@/lib/queries/materials';
 import { AddToCartButton } from './add-to-cart-button';
 import { MaterialImage } from './material-image';
 import { Card, CardContent, CardFooter } from '@/components/ui/card';
-import { Badge } from '@/components/ui/badge';
 
 export function MaterialCard({
   material,
-  showScope = false,
-  showCategory = true,
   offerCount = 0,
 }: {
   material: BuyerMaterial;
-  showScope?: boolean;
-  /** Off on a category page, where every card would repeat the page title. */
-  showCategory?: boolean;
   offerCount?: number;
 }) {
   return (
@@ -27,11 +21,6 @@ export function MaterialCard({
           alt={material.name}
           className="aspect-square w-full"
         />
-        {showCategory && (
-          <Badge variant="outline" className="absolute top-2 left-2 border-transparent bg-white/92 text-muted-foreground">
-            {material.category}
-          </Badge>
-        )}
         {/* On the image, not in the footer, so cards with and without offers keep their prices aligned. */}
         {offerCount > 0 && (
           <span className="absolute bottom-2 left-2 rounded-full bg-white/92 px-2 py-0.5 text-caption font-medium text-success">
@@ -42,7 +31,7 @@ export function MaterialCard({
 
       <CardContent className="flex flex-1 flex-col gap-1 p-0">
         <Link href={`/catalog/${material.id}`} className="rounded-sm outline-none focus-visible:ring-2 focus-visible:ring-ring">
-          <span className="line-clamp-2 text-sm leading-snug text-text-storefront">{material.name.split(/(\S*\d-[A-Za-z]\S*)/).map((part, i) =>
+          <span className="line-clamp-2 text-base font-semibold leading-snug text-ink">{material.name.split(/(\S*\d-[A-Za-z]\S*)/).map((part, i) =>
               // "6-inch" stays on one line instead of breaking after the hyphen.
               i % 2 === 1 ? (
                 <span key={i} className="whitespace-nowrap">
@@ -53,7 +42,7 @@ export function MaterialCard({
               ),
             )}</span>
         </Link>
-        {material.spec && <p className="line-clamp-3 text-sm text-slate">{material.spec}</p>}
+        {material.spec && <p className="line-clamp-2 text-sm text-muted-foreground">{material.spec}</p>}
       </CardContent>
 
       <CardFooter className="mt-auto flex-col items-stretch gap-3 border-0 bg-transparent p-0">
@@ -63,11 +52,6 @@ export function MaterialCard({
           </span>
           <span className="ml-1 text-sm text-muted-foreground">/ {material.unit}</span>
         </div>
-        {showScope && (
-          <p className="-mt-2 text-caption text-muted-foreground">
-            {material.sourcingScope === 'NATIONAL' ? 'National supply' : 'Regional'}
-          </p>
-        )}
         <AddToCartButton material={material} />
       </CardFooter>
     </Card>

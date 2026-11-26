@@ -72,7 +72,10 @@ export async function getMaterials({
     ...BUYER_VISIBLE,
     category: category || undefined,
     sourcingScope: sourcingScope || undefined,
-    name: query ? { contains: query, mode: 'insensitive' } : undefined,
+    // Titles are short; the words that left them (rebar's "reinforcement", "sandcrete", "aluminium") live in the description, so search both.
+    OR: query
+      ? [{ name: { contains: query, mode: 'insensitive' } }, { spec: { contains: query, mode: 'insensitive' } }]
+      : undefined,
   };
   const orderBy = sortToOrderBy(sort);
 
@@ -95,7 +98,10 @@ export async function searchMaterialsLive(query: string, limit = 6) {
   const trimmed = query.trim();
   if (!trimmed) return [];
   const materials = await prisma.material.findMany({
-    where: { ...BUYER_VISIBLE, name: { contains: trimmed, mode: 'insensitive' } },
+    where: {
+      ...BUYER_VISIBLE,
+      OR: [{ name: { contains: trimmed, mode: 'insensitive' } }, { spec: { contains: trimmed, mode: 'insensitive' } }],
+    },
     select: BUYER_SAFE_SELECT,
     orderBy: [{ name: 'asc' }],
     take: limit,
