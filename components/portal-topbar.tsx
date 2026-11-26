@@ -70,7 +70,7 @@ export function PortalTopbar({
 
   return (
     <div className="hidden h-16 shrink-0 items-center justify-between gap-4 border-b border-border bg-surface px-8 lg:flex">
-      <nav aria-label="Breadcrumb" className="text-[13px] text-muted-foreground">
+      <nav aria-label="Breadcrumb" className="text-sm text-muted-foreground">
         Console
         {parent && (
           <>

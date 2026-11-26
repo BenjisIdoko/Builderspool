@@ -54,7 +54,7 @@ export function OrderTableRow({
       </TableCell>
       <TableCell className="py-3 text-ink">
         <div className="flex items-center gap-2.5">
-          <Avatar name={buyerName} className="size-8 shrink-0 text-[10px]" />
+          <Avatar name={buyerName} className="size-8 shrink-0 text-xs" />
           <div className="min-w-0">
             <div className="max-w-40 truncate font-medium">{buyerName}</div>
             <div className="max-w-40 truncate text-xs text-muted-foreground">{buyerEmail}</div>

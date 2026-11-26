@@ -108,7 +108,7 @@ export function HeaderSearch() {
           aria-expanded={showDropdown}
           aria-controls="header-search-results"
           autoComplete="off"
-          className="h-full min-w-0 flex-1 bg-transparent text-base text-text-storefront outline-none placeholder:text-muted-foreground lg:text-[17px]"
+          className="h-full min-w-0 flex-1 bg-transparent text-base text-text-storefront outline-none placeholder:text-muted-foreground lg:text-base"
         />
         <Button type="submit" variant="cta" className="relative h-9 rounded-full px-5 text-sm after:absolute after:inset-x-0 after:-inset-y-1">
           Search
@@ -155,7 +155,7 @@ export function HeaderSearch() {
                         <div className="truncate text-sm font-medium text-text-storefront">{m.name}</div>
                         <div className="truncate text-xs text-muted-foreground">{m.category}</div>
                       </div>
-                      <div className="shrink-0 text-sm font-bold tabular-nums text-text-storefront">
+                      <div className="shrink-0 text-sm font-semibold tabular-nums text-text-storefront">
                         {formatNaira(m.catalogPrice)}
                       </div>
                     </button>

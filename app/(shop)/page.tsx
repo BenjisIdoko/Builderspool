@@ -28,10 +28,10 @@ const DELIVERY_ZONES = [
 
 
 const TRUST = [
-  { icon: CertificateIcon, title: 'Verified suppliers', sub: 'CAC, ID and address checked' },
-  { icon: LockKeyIcon, title: 'Secure payment', sub: 'Suppliers paid after we receive your goods' },
-  { icon: PackageIcon, title: 'Received at our centre', sub: 'Every order reaches us before it reaches you' },
-  { icon: TruckIcon, title: 'Pickup or delivery', sub: 'Collect free, or delivered to site' },
+  { icon: CertificateIcon, title: 'Verified suppliers' },
+  { icon: LockKeyIcon, title: 'Suppliers paid after we receive your goods' },
+  { icon: PackageIcon, title: 'Received and checked at our centre' },
+  { icon: TruckIcon, title: 'Free pickup, or delivery to site' },
 ];
 
 export default async function Home() {
@@ -69,16 +69,14 @@ export default async function Home() {
             lower edge. To change the height, change the 85. */}
         <div className="mx-auto flex min-h-[clamp(34rem,85svh,60rem)] w-full max-w-section flex-col justify-center pt-14 pb-28 lg:pt-16 lg:pb-28">
           <div>
-            <p className="bp-rise text-label uppercase text-cyan">Pool &amp; Save · Abuja</p>
-            <h1 className="bp-rise mt-4 max-w-[12ch] text-balance text-display-xl text-white">
+            <h1 className="bp-rise max-w-[12ch] text-balance text-display-xl text-white">
               Build smarter. <span className="text-cyan">Save more.</span>
             </h1>
             <p className="bp-rise mt-5 max-w-[34ch] text-pretty text-body-lg text-white/85" style={{ '--rise-delay': '60ms' } as React.CSSProperties}>
-              Join the pool with other builders. Verified suppliers compete for the combined order.
+              Pool orders with other builders. Suppliers compete, and half the saving comes back to you.
             </p>
-            <p className="bp-rise mt-4 text-body-sm text-white/85" style={{ '--rise-delay': '60ms' } as React.CSSProperties}>
-              <span className="font-mono font-medium text-cyan">50%</span> of the verified saving comes back to you.{' '}
-              <Link href="#how" className="rounded-sm text-white underline underline-offset-2 outline-none focus-visible:ring-2 focus-visible:ring-white/70">
+            <p className="bp-rise mt-4 text-body" style={{ '--rise-delay': '60ms' } as React.CSSProperties}>
+              <Link href="#how" className="inline-flex min-h-11 items-center rounded-sm text-white underline underline-offset-2 outline-none focus-visible:ring-2 focus-visible:ring-white/70">
                 How Pool &amp; Save works
               </Link>
             </p>
@@ -86,7 +84,7 @@ export default async function Home() {
               <Button asChild variant="cta" size="lg" className="h-12 px-7 text-base">
                 <Link href="#join">Join {poolDay} pool</Link>
               </Button>
-              <Link href="/catalog" className="inline-flex min-h-11 items-center rounded-sm text-body font-bold underline-offset-4 outline-none hover:underline focus-visible:ring-2 focus-visible:ring-white/70">
+              <Link href="/catalog" className="inline-flex min-h-11 items-center rounded-sm text-body font-semibold underline-offset-4 outline-none hover:underline focus-visible:ring-2 focus-visible:ring-white/70">
                 Shop materials →
               </Link>
             </div>
@@ -114,7 +112,7 @@ export default async function Home() {
             title={`Join ${poolDay} pool`}
             subtitle={
               closed
-                ? `Today’s pool has closed. Orders placed now join tomorrow’s pool, which closes at ${formatClock(times.poolCloseTime)}.`
+                ? `Today’s pool has closed. Orders now join tomorrow’s, which closes at ${formatClock(times.poolCloseTime)}.`
                 : `Order before ${formatClock(times.poolCloseTime)} to join today’s pool.`
             }
             href="/catalog"
@@ -125,7 +123,6 @@ export default async function Home() {
 
         <ProductRail
           title="Lowest prices"
-          subtitle="Lowest catalogue prices first"
           href="/catalog"
           materials={lowestPrices}
           offerCounts={offerCounts}
@@ -135,13 +132,10 @@ export default async function Home() {
       <Reveal>
         <section id="safe" className="mx-auto w-full max-w-section scroll-mt-40 pt-section">
           <ul className="grid grid-cols-1 gap-x-8 gap-y-6 sm:grid-cols-2 lg:grid-cols-4">
-            {TRUST.map(({ icon: Icon, title, sub }) => (
+            {TRUST.map(({ icon: Icon, title }) => (
               <li key={title} className="flex items-start gap-3">
                 <Icon weight="fill" className="mt-0.5 size-5 shrink-0 text-cyan-strong" />
-                <span>
-                  <span className="block text-body-sm font-bold text-ink">{title}</span>
-                  <span className="block text-caption text-slate">{sub}</span>
-                </span>
+                <span className="text-body font-medium text-ink">{title}</span>
               </li>
             ))}
           </ul>
@@ -162,22 +156,20 @@ export default async function Home() {
                 />
               </span>
               <span className="flex flex-1 flex-col justify-end p-6 lg:p-8">
-                <span className="text-label uppercase text-cyan">Pickup stations</span>
-                <span className="mt-2 text-heading-xl">Free pickup.</span>
-                <span className="mt-2 text-body-sm text-on-navy-muted">Choose the station closest to your site at checkout.</span>
+                <span className="text-heading-xl">Free pickup.</span>
+                <span className="mt-2 text-body text-on-navy-muted">Choose the station closest to your site at checkout.</span>
               </span>
             </div>
             <Link
               href="/seller/signup"
               className="group col-span-12 flex min-h-[260px] flex-col justify-end rounded-panel bg-pale-blue p-6 text-ink outline-none transition-colors duration-150 hover:bg-pale-blue/70 focus-visible:ring-2 focus-visible:ring-ring lg:col-span-5 lg:min-h-[360px] lg:p-8"
             >
-              <span className="text-label uppercase text-cyan-text">For suppliers</span>
-              <span className="mt-2 text-display-lg">
+              <span className="text-display-lg">
                 Sell to Abuja’s
                 <br />
                 builders.
               </span>
-              <span className="mt-5 inline-flex h-12 w-fit items-center rounded-md bg-cta px-7 text-base font-bold text-white transition-colors duration-150 group-hover:bg-cta-hover">
+              <span className="mt-5 inline-flex h-12 w-fit items-center rounded-md bg-cta px-7 text-base font-semibold text-white transition-colors duration-150 group-hover:bg-cta-hover">
                 Become a supplier
               </span>
             </Link>
@@ -213,7 +205,7 @@ export default async function Home() {
                     {photo && (
                       <span className="absolute inset-0 bg-[linear-gradient(0deg,rgba(11,31,58,0.85)_0%,rgba(11,31,58,0)_65%)]" />
                     )}
-                    <span className="absolute inset-x-3 bottom-3 text-body-sm font-bold text-white">{cat.name}</span>
+                    <span className="absolute inset-x-3 bottom-3 text-body-sm font-semibold text-white">{cat.name}</span>
                   </Link>
                 </li>
               );

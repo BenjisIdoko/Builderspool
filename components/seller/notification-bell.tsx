@@ -104,7 +104,7 @@ function NotificationRow({ n }: { n: Notification }) {
       </span>
       <span className="min-w-0 flex-1">
         <span className="flex items-center gap-1.5">
-          <span className="text-[13px] font-semibold text-ink">{n.title}</span>
+          <span className="text-sm font-semibold text-ink">{n.title}</span>
           {!n.read && (
             <>
               <span aria-hidden className="size-1.5 shrink-0 rounded-full bg-brand" />
@@ -113,7 +113,7 @@ function NotificationRow({ n }: { n: Notification }) {
           )}
         </span>
         <span className="mt-0.5 block text-xs text-slate">{n.body}</span>
-        <span className="mt-1 block text-[11px] text-muted-foreground">{timeAgo(n.createdAt)}</span>
+        <span className="mt-1 block text-xs text-muted-foreground">{timeAgo(n.createdAt)}</span>
       </span>
     </Link>
   );
@@ -132,7 +132,7 @@ export function NotificationBell({
         <Button type="button" variant="ghost" size="icon" className="relative lg:size-9" aria-label={unreadCount > 0 ? `Notifications, ${unreadCount} unread` : 'Notifications'}>
           <BellIcon className="size-4.5" />
           {unreadCount > 0 && (
-            <span aria-hidden className="absolute top-0.5 right-0.5 flex size-4 items-center justify-center rounded-full bg-danger text-[9px] font-bold tabular-nums text-white">
+            <span aria-hidden className="absolute top-0.5 right-0.5 flex size-4 items-center justify-center rounded-full bg-danger text-xs font-semibold tabular-nums text-white">
               {unreadCount > 9 ? '9+' : unreadCount}
             </span>
           )}
@@ -140,7 +140,7 @@ export function NotificationBell({
       </DropdownMenuTrigger>
       <DropdownMenuContent align="start" className="w-80 p-0">
         <div className="flex items-center justify-between border-b border-border px-3.5 py-2.5">
-          <span className="text-sm font-bold text-ink">Notifications</span>
+          <span className="text-sm font-semibold text-ink">Notifications</span>
           {unreadCount > 0 && (
             <form action={markAllNotificationsReadAction}>
               <button type="submit" className="-my-3 rounded-sm py-3 text-xs font-medium text-brand outline-none hover:underline focus-visible:ring-2 focus-visible:ring-ring">

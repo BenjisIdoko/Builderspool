@@ -15,20 +15,19 @@ export default async function VerifyEmailPage({
 
   return (
     <AuthSplitScreen
-      eyebrow="Construction materials · sourced nationally"
       headline="Verify your email."
       body="Confirming your email helps keep your account secure."
     >
       {'success' in result ? (
         <>
           <CheckCircleIcon className="mb-3 size-8 text-success" />
-          <h1 className="mb-1 text-2xl font-bold tracking-tight text-ink">Email verified</h1>
+          <h1 className="mb-1 text-2xl font-semibold tracking-tight text-ink">Email verified</h1>
           <p className="mb-7 text-sm text-muted-foreground">Thanks — your email address is confirmed.</p>
         </>
       ) : (
         <>
           <XCircleIcon className="mb-3 size-8 text-danger" />
-          <h1 className="mb-1 text-2xl font-bold tracking-tight text-ink">Couldn&apos;t verify</h1>
+          <h1 className="mb-1 text-2xl font-semibold tracking-tight text-ink">Couldn&apos;t verify</h1>
           <p className="mb-7 text-sm text-danger">{result.error}</p>
         </>
       )}

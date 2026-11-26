@@ -50,7 +50,7 @@ function NotificationRow({ n }: { n: BuyerNotification }) {
       </span>
       <span className="min-w-0 flex-1">
         <span className="flex items-center gap-1.5">
-          <span className="text-[13px] font-semibold text-ink">{n.title}</span>
+          <span className="text-sm font-semibold text-ink">{n.title}</span>
           {!n.read && (
             <>
               <span aria-hidden className="size-1.5 shrink-0 rounded-full bg-brand" />
@@ -58,8 +58,8 @@ function NotificationRow({ n }: { n: BuyerNotification }) {
             </>
           )}
         </span>
-        <span className="mt-0.5 block text-xs text-slate">{n.body}</span>
-        <span className="mt-1 block text-[11px] text-muted-foreground">{timeAgo(n.createdAt)}</span>
+        <span className="mt-0.5 block text-sm text-slate">{n.body}</span>
+        <span className="mt-1 block text-xs text-muted-foreground">{timeAgo(n.createdAt)}</span>
       </span>
     </Link>
   );
@@ -85,7 +85,7 @@ export function BuyerNotificationBell({
           {unreadCount > 0 && (
             <span
               aria-hidden
-              className="absolute top-0.5 right-0.5 flex h-[18px] min-w-[18px] items-center justify-center rounded-full bg-danger px-1 text-[11px] font-bold tabular-nums text-white"
+              className="absolute top-0.5 right-0.5 flex h-[18px] min-w-[18px] items-center justify-center rounded-full bg-danger px-1 text-xs font-semibold tabular-nums text-white"
             >
               {formatBadgeCount(unreadCount)}
             </span>
@@ -94,12 +94,12 @@ export function BuyerNotificationBell({
       </DropdownMenuTrigger>
       <DropdownMenuContent align="end" className="w-80 p-0">
         <div className="flex items-center justify-between border-b border-border px-3.5 py-2.5">
-          <span className="text-sm font-bold text-ink">Notifications</span>
+          <span className="text-sm font-semibold text-ink">Notifications</span>
           {unreadCount > 0 && (
             <form action={markAllBuyerNotificationsReadAction}>
               <button
                 type="submit"
-                className="-my-3 rounded-sm py-3 text-xs font-medium text-brand outline-none hover:underline focus-visible:ring-2 focus-visible:ring-ring"
+                className="-my-3 rounded-sm py-3 text-sm font-medium text-brand outline-none hover:underline focus-visible:ring-2 focus-visible:ring-ring"
               >
                 Mark all read
               </button>
@@ -125,7 +125,7 @@ export function BuyerNotificationBell({
 
         <Link
           href="/account/notifications"
-          className="block border-t border-border px-3.5 py-3 text-center text-xs font-medium text-brand outline-none hover:bg-well focus-visible:bg-well focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-ring"
+          className="block border-t border-border px-3.5 py-3 text-center text-sm font-medium text-brand outline-none hover:bg-well focus-visible:bg-well focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-ring"
         >
           View all notifications →
         </Link>

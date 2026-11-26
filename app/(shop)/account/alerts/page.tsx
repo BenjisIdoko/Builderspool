@@ -19,11 +19,10 @@ export default async function AccountAlertsPage() {
 
   return (
     <AccountShell>
-      <h1 className="mb-2 flex items-center gap-2 text-ink">
+      <h1 className="mb-6 flex items-center gap-2 text-ink">
         <BellIcon aria-hidden className="size-7 shrink-0" />
         Price alerts
       </h1>
-      <p className="mb-6 max-w-[64ch] text-pretty text-sm text-muted-foreground">Set a target price on any material and we&apos;ll tell you when it&apos;s reached.</p>
 
       <section aria-label="Your price alerts" className={ACCOUNT_CARD}>
         {priceAlerts.length === 0 ? (
@@ -32,7 +31,7 @@ export default async function AccountAlertsPage() {
             variant="inline"
             as="p"
             title="No price alerts yet"
-            description="Open any material and set a target price. We'll tell you when it's reached."
+            description="Set a target price on a material and we'll tell you when it's reached."
           >
             <Button asChild variant="outline">
               <Link href="/catalog">Browse materials</Link>

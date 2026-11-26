@@ -58,8 +58,8 @@ export default async function AdminCycleDetailPage({ params }: { params: Promise
             (Lagos time)
           </p>
           <p className="mt-2 text-sm text-ink">
-            Demand: <span className="font-bold">{cycle.totalQuantityRequested}</span> {cycle.material.unit}{' '}
-            requested · <span className="font-bold">{cycle.totalQuantityAllocated}</span> allocated
+            Demand: <span className="font-semibold">{cycle.totalQuantityRequested}</span> {cycle.material.unit}{' '}
+            requested · <span className="font-semibold">{cycle.totalQuantityAllocated}</span> allocated
           </p>
         </div>
 
@@ -118,7 +118,7 @@ export default async function AdminCycleDetailPage({ params }: { params: Promise
                       {bid.status.replace('_', ' ').toLowerCase()}
                     </Badge>
                     {bid.rejectionReason && (
-                      <div className="mt-1 text-[11px] text-muted-foreground">
+                      <div className="mt-1 text-xs text-muted-foreground">
                         {REJECTION_LABEL[bid.rejectionReason] ?? bid.rejectionReason}
                       </div>
                     )}

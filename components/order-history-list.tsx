@@ -53,7 +53,7 @@ export function OrderHistoryList({ orders }: { orders: OrderHistoryRow[] }) {
                 {formatLagosDateTime(order.createdAt)} · {order.itemCount} item{order.itemCount === 1 ? '' : 's'}
               </div>
             </div>
-            <div className="shrink-0 font-bold tabular-nums text-ink">{formatNaira(order.total)}</div>
+            <div className="shrink-0 font-semibold tabular-nums text-ink">{formatNaira(order.total)}</div>
           </Link>
         </li>
       ))}

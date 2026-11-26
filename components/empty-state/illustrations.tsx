@@ -74,7 +74,7 @@ function Badge({ cx, cy, children }: { cx: number; cy: number; children: React.R
 
 function BadgeText({ cx, cy, text }: { cx: number; cy: number; text: string }) {
   return (
-    <text x={cx} y={cy + 6} textAnchor="middle" className="fill-white" style={{ fontSize: 17, fontWeight: 800 }}>
+    <text x={cx} y={cy + 6} textAnchor="middle" className="fill-white" style={{ fontSize: 17, fontWeight: 600 }}>
       {text}
     </text>
   );
@@ -123,7 +123,7 @@ export function NotFoundIllustration({ className }: Props) {
           y="94"
           textAnchor="middle"
           className="fill-white"
-          style={{ fontSize: 32, fontWeight: 800, letterSpacing: '0.03em' }}
+          style={{ fontSize: 32, fontWeight: 600, letterSpacing: '0.03em' }}
         >
           404
         </text>
@@ -193,10 +193,10 @@ export function NoNotificationsIllustration({ className }: Props) {
         <rect x="55" y="98" width="90" height="8" rx="4" className="fill-brand-deep" />
         <path d="M89 108a11 11 0 0 0 22 0Z" className="fill-brand-deep" />
       </g>
-      <g className="bp-float fill-brand/50" style={{ fontSize: 15, fontWeight: 800 }}>
+      <g className="bp-float fill-brand/50" style={{ fontSize: 15, fontWeight: 600 }}>
         <text x="132" y="38">z</text>
       </g>
-      <g className="bp-float fill-brand/35" style={{ fontSize: 11, fontWeight: 800, animationDelay: '1s' }}>
+      <g className="bp-float fill-brand/35" style={{ fontSize: 11, fontWeight: 600, animationDelay: '1s' }}>
         <text x="146" y="26">z</text>
       </g>
       <Badge cx={142} cy={92}>

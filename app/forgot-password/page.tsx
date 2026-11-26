@@ -12,9 +12,8 @@ export default async function ForgotPasswordPage({
 
   return (
     <AuthSplitScreen
-      eyebrow="Construction materials · sourced nationally"
       headline="Get back into your account."
-      body="A reset link only works once and expires in an hour — request a new one anytime."
+      body="Reset links work once and expire in an hour."
     >
       <ForgotPasswordForm role={role ?? 'buyer'} />
     </AuthSplitScreen>

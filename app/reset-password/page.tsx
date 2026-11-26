@@ -12,7 +12,6 @@ export default async function ResetPasswordPage({
 
   return (
     <AuthSplitScreen
-      eyebrow="Construction materials · sourced nationally"
       headline="Choose a new password."
       body="Once reset, you'll sign back in with your new password."
     >

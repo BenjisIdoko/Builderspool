@@ -60,7 +60,7 @@ export function MaterialTableRow({
         </div>
         <div className="text-xs text-muted-foreground">{category}</div>
         {expanded && (
-          <div className="mt-1.5 flex flex-col gap-0.5 text-[11.5px] text-slate">
+          <div className="mt-1.5 flex flex-col gap-0.5 text-xs text-slate">
             {details.length > 0 ? (
               details.map((d) => (
                 <span key={d.label}>
@@ -90,7 +90,7 @@ export function MaterialTableRow({
         <button
           type="button"
           onClick={() => setExpanded((v) => !v)}
-          className="mr-1.5 h-7 rounded-md border border-border-strong bg-surface px-3 text-xs font-bold text-ink hover:bg-well"
+          className="mr-1.5 h-7 rounded-md border border-border-strong bg-surface px-3 text-xs font-semibold text-ink hover:bg-well"
         >
           {expanded ? 'Hide' : 'View'}
         </button>

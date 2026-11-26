@@ -23,7 +23,7 @@ export function EmptyState({
     <div className={`flex flex-col items-center text-center ${inline ? 'gap-3 px-6 py-10' : 'gap-4'}`}>
       <Illustration className={inline ? 'h-28 w-auto' : 'h-40 w-auto sm:h-48'} />
       <div className="max-w-sm">
-        <Heading className={`font-bold tracking-tight text-ink ${inline ? 'text-base' : 'text-xl'}`}>{title}</Heading>
+        <Heading className={`font-semibold tracking-tight text-ink ${inline ? 'text-base' : 'text-xl'}`}>{title}</Heading>
         {description && <p className="mt-1 text-sm text-muted-foreground">{description}</p>}
       </div>
       {children && <div className="flex flex-wrap justify-center gap-3">{children}</div>}

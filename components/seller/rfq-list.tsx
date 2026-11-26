@@ -46,7 +46,7 @@ export function SellerRfqList({ rfqs }: { rfqs: Rfq[] }) {
             >
               <div className="min-w-0 flex-1 basis-56">
                 <div className="flex flex-wrap items-center gap-x-2 gap-y-1">
-                  <span className="text-pretty font-bold text-ink">{r.category}</span>
+                  <span className="text-pretty font-semibold text-ink">{r.category}</span>
                   <Badge variant={status.variant}>{status.label}</Badge>
                   {mine && <Badge variant={mine.variant}>{mine.label}</Badge>}
                 </div>

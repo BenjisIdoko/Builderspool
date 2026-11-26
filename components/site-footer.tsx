@@ -12,17 +12,17 @@ export function SiteFooter() {
         <div className="col-span-12 lg:col-span-5">
           <div className="mb-2 flex items-center gap-2">
             <LogoTile className="size-8" />
-            <span className="font-display text-[15px] font-extrabold tracking-[-0.03em]">
+            <span className="font-display text-base font-semibold tracking-[-0.03em]">
               BUILDERS<span className="text-orange">POOL</span>
             </span>
           </div>
-          <p className="max-w-xs text-[12.5px] leading-relaxed text-white/70">
+          <p className="max-w-xs text-sm leading-relaxed text-white/70">
             Collaborative procurement for construction materials, Abuja (FCT), Nigeria.
           </p>
         </div>
         <div className="col-span-6 md:col-span-4 lg:col-span-2">
           <div className="mb-2.5 text-label text-white/60 uppercase">Buy</div>
-          <div className="flex flex-col items-start text-[13px]">
+          <div className="flex flex-col items-start text-sm">
             <Link href="/catalog" className="text-white/85 inline-flex min-h-11 items-center rounded-sm outline-none hover:text-white focus-visible:ring-2 focus-visible:ring-white/70 lg:min-h-8">
               Browse materials
             </Link>
@@ -36,7 +36,7 @@ export function SiteFooter() {
         </div>
         <div className="col-span-6 md:col-span-4 lg:col-span-2">
           <div className="mb-2.5 text-label text-white/60 uppercase">Sell</div>
-          <div className="flex flex-col items-start text-[13px]">
+          <div className="flex flex-col items-start text-sm">
             <Link href="/seller/signup" className="text-white/85 inline-flex min-h-11 items-center rounded-sm outline-none hover:text-white focus-visible:ring-2 focus-visible:ring-white/70 lg:min-h-8">
               Become a supplier
             </Link>
@@ -49,7 +49,7 @@ export function SiteFooter() {
           <div className="mb-2.5 text-label text-white/60 uppercase">
             Contact
           </div>
-          <div className="flex flex-col items-start text-[13px]">
+          <div className="flex flex-col items-start text-sm">
             <a href="tel:+2348054207559" className="text-white/85 inline-flex min-h-11 items-center rounded-sm outline-none hover:text-white focus-visible:ring-2 focus-visible:ring-white/70 lg:min-h-8">
               +234 805 420 7559
             </a>

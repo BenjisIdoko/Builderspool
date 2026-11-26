@@ -6,9 +6,8 @@ export const metadata = { title: 'Create your account' };
 export default function SignUpPage() {
   return (
     <AuthSplitScreen
-      eyebrow="Construction materials · sourced nationally"
       headline="Buy materials at a fair, fixed price."
-      body="Cement, blocks, rebar, roofing and fittings — pooled daily with other buyers for a better price than you'd get alone."
+      body="Pooled daily with other buyers for a better price than you'd get alone."
     >
       <BuyerSignUpForm />
     </AuthSplitScreen>

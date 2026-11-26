@@ -23,7 +23,7 @@ export function SellerOrderCard({ order, amount }: { order: SellerOrderRow; amou
         className="w-full rounded-card bg-card-alt p-3.5 text-left outline-none transition-[background-color,scale] duration-150 hover:bg-well/60 focus-visible:ring-2 focus-visible:ring-ring active:scale-[0.98]"
       >
         <div className="mb-1 flex items-center justify-between gap-2">
-          <span className="text-[13.5px] font-bold text-ink">{order.shortId}</span>
+          <span className="text-sm font-semibold text-ink">{order.shortId}</span>
           <Badge variant="outline" className={pillClass(allocationStatusTone(order.status))}>
             {STATUS_LABEL[order.status] ?? order.status}
           </Badge>
@@ -32,7 +32,7 @@ export function SellerOrderCard({ order, amount }: { order: SellerOrderRow; amou
         <div className="mb-1.5 truncate text-xs text-muted-foreground">
           {order.materialName} · {formatQuantity(order.quantity, order.unit)}
         </div>
-        <div className="text-[13px] font-extrabold tabular-nums text-ink">{amount}</div>
+        <div className="text-sm font-semibold tabular-nums text-ink">{amount}</div>
       </button>
 
       <Sheet open={open} onOpenChange={setOpen}>
@@ -41,18 +41,18 @@ export function SellerOrderCard({ order, amount }: { order: SellerOrderRow; amou
           showCloseButton={false}
           className="max-h-[80svh] overflow-y-auto rounded-t-[22px] px-5 pt-5 pb-[calc(20px+env(safe-area-inset-bottom))] md:hidden"
         >
-          <SheetTitle className="text-lg font-bold text-ink">{order.shortId}</SheetTitle>
+          <SheetTitle className="text-lg font-semibold text-ink">{order.shortId}</SheetTitle>
           <SheetDescription>
             {order.buyerName} · {order.materialName} · {formatQuantity(order.quantity, order.unit)}
           </SheetDescription>
           <dl className="flex flex-col gap-3 text-sm">
             <div className="flex justify-between gap-4">
               <dt className="shrink-0 text-muted-foreground">Amount</dt>
-              <dd className="font-bold tabular-nums text-ink">{amount}</dd>
+              <dd className="font-semibold tabular-nums text-ink">{amount}</dd>
             </div>
             <div className="flex justify-between gap-4">
               <dt className="shrink-0 text-muted-foreground">Status</dt>
-              <dd className="font-bold text-ink">{STATUS_LABEL[order.status] ?? order.status}</dd>
+              <dd className="font-semibold text-ink">{STATUS_LABEL[order.status] ?? order.status}</dd>
             </div>
             <div className="flex justify-between gap-4">
               <dt className="shrink-0 text-muted-foreground">Drop-off</dt>

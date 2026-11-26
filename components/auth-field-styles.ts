@@ -5,4 +5,4 @@
 export const AUTH_INPUT =
   'h-12 rounded-lg px-4 text-base sm:h-11 md:text-base';
 export const AUTH_LABEL = 'mb-2 text-sm font-medium text-slate';
-export const AUTH_BUTTON = 'h-12 w-full text-base font-bold sm:h-11';
+export const AUTH_BUTTON = 'h-12 w-full text-base font-semibold sm:h-11';

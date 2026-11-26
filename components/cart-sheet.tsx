@@ -35,7 +35,7 @@ export function CartSheet() {
         >
           <ShoppingCartIcon className="size-6" />
           {itemCount > 0 && (
-            <span className="absolute top-0.5 right-0.5 flex h-[18px] min-w-[18px] items-center justify-center rounded-full bg-cta px-1 text-[11px] font-bold text-white">
+            <span className="absolute top-0.5 right-0.5 flex h-[18px] min-w-[18px] items-center justify-center rounded-full bg-cta px-1 text-xs font-semibold text-white">
               {formatBadgeCount(itemCount)}
             </span>
           )}
@@ -86,7 +86,7 @@ export function CartSheet() {
                         {line.name}
                       </Link>
                     </SheetClose>
-                    <div className="text-xs text-muted-foreground">
+                    <div className="text-sm text-muted-foreground">
                       <span>{formatNaira(linePrice(line))}</span> / {line.unit}
                     </div>
                     {line.sellerName && <div className="text-caption text-slate">From {line.sellerName}</div>}
@@ -121,7 +121,7 @@ export function CartSheet() {
                         </Button>
                       </div>
 
-                      <span className="text-sm font-bold tabular-nums text-ink">
+                      <span className="text-sm font-semibold tabular-nums text-ink">
                         {formatNaira(linePrice(line) * line.quantity)}
                       </span>
                     </div>
@@ -144,9 +144,9 @@ export function CartSheet() {
             <SheetFooter className="border-t border-border">
               <div className="flex items-center justify-between text-sm">
                 <span className="text-slate">Subtotal</span>
-                <span className="font-bold tabular-nums text-ink">{formatNaira(subtotal)}</span>
+                <span className="font-semibold tabular-nums text-ink">{formatNaira(subtotal)}</span>
               </div>
-              <p className="text-xs text-muted-foreground">Delivery calculated at checkout.</p>
+              <p className="text-sm text-muted-foreground">Delivery calculated at checkout.</p>
               <SheetClose asChild>
                 <Button asChild size="lg" className="w-full">
                   <Link href="/checkout">Continue to checkout</Link>

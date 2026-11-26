@@ -70,8 +70,8 @@ export function SellerSidebar({
         <span className="flex items-center gap-2.5">
           <LogoTile className="size-9" />
           <span className="leading-tight">
-            <span className="block font-display text-[14.5px] font-extrabold tracking-[-0.02em] text-white">BUILDERS<span className="text-orange">POOL</span></span>
-            <span className="block text-[11px] font-semibold tracking-wide text-white/70">Seller portal</span>
+            <span className="block font-display text-sm font-semibold tracking-[-0.02em] text-white">BUILDERS<span className="text-orange">POOL</span></span>
+            <span className="block text-xs font-semibold tracking-wide text-white/70">Seller portal</span>
           </span>
         </span>
       </Link>
@@ -83,7 +83,7 @@ export function SellerSidebar({
       <nav className="flex flex-col gap-5 p-3">
         {LINK_GROUPS.map((group) => (
           <div key={group.label}>
-            <div className="mb-1.5 px-3 text-[10.5px] font-bold tracking-wide text-white/50 uppercase">
+            <div className="mb-1.5 px-3 text-xs font-semibold tracking-wide text-white/50 uppercase">
               {group.label}
             </div>
             <div className="flex flex-col gap-1">
@@ -101,7 +101,7 @@ export function SellerSidebar({
                     <link.icon className="size-4.5" />
                     <span className="flex-1">{link.label}</span>
                     {link.href === '/seller/kyc' && (
-                      <span className={`rounded-full px-1.5 py-0.5 text-[10px] font-bold ${pillClass(kycStatusTone(profile.kycStatus))}`}>
+                      <span className={`rounded-full px-1.5 py-0.5 text-xs font-semibold ${pillClass(kycStatusTone(profile.kycStatus))}`}>
                         {KYC_BADGE_LABEL[profile.kycStatus]}
                       </span>
                     )}
@@ -123,7 +123,7 @@ export function SellerSidebar({
             className="size-8 shrink-0 bg-white! text-xs text-ink!"
           />
           <div className="min-w-0 flex-1">
-            <div className="truncate text-[13px] font-bold text-white">
+            <div className="truncate text-sm font-semibold text-white">
               {profile.user.businessName ?? profile.user.name}
             </div>
             <form action={signOutSeller}>

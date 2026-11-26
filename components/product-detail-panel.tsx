@@ -79,7 +79,7 @@ export function ProductDetailPanel({
             <div className="grid grid-cols-2 gap-px overflow-hidden rounded-lg border border-border bg-border">
               {SPEC_FIELDS.map(({ key, label }) => (
                 <div key={key} className="bg-surface p-4">
-                  <div className="mb-1.5 text-[11px] text-muted-foreground">{label}</div>
+                  <div className="mb-1.5 text-xs text-muted-foreground">{label}</div>
                   <div className="text-sm font-semibold text-ink">{material[key] ?? '—'}</div>
                 </div>
               ))}
@@ -89,16 +89,16 @@ export function ProductDetailPanel({
 
         <TabsContent value="pricing" className="flex flex-col gap-6">
           <div className="rounded-lg bg-surface p-4 shadow-[0_0_0_1px_var(--color-hairline)]">
-            <div className="mb-3 text-xs font-bold text-slate">Price history</div>
+            <div className="mb-3 text-sm font-semibold text-slate">Price history</div>
             <PriceHistoryChart points={priceHistory} />
           </div>
 
           <div className="rounded-lg bg-surface p-4 shadow-[0_0_0_1px_var(--color-hairline)]">
-            <div className="mb-1 text-xs font-bold text-slate">Serving hubs</div>
-            <p className="mb-3 text-pretty text-xs text-muted-foreground">
+            <div className="mb-1 text-sm font-semibold text-slate">Serving hubs</div>
+            <p className="mb-3 text-pretty text-sm text-muted-foreground">
               {regionLabel === 'National'
-                ? 'Sourced nationally — fulfilled from whichever hub is closest to your delivery region.'
-                : 'Regionally sourced — fulfilled from whichever hub covers the region you choose at checkout.'}
+                ? 'Sourced nationally, from the hub closest to you.'
+                : 'Sourced regionally, from the hub covering your region.'}
             </p>
             <div className="flex flex-wrap gap-1.5">
               {fulfillmentCenters.map((center) => (
@@ -110,11 +110,11 @@ export function ProductDetailPanel({
           </div>
 
           <div className="rounded-lg bg-surface p-4 shadow-[0_0_0_1px_var(--color-hairline)]">
-            <div className="mb-1 flex items-center gap-1.5 text-xs font-bold text-slate">
+            <div className="mb-1 flex items-center gap-1.5 text-sm font-semibold text-slate">
               <BellIcon className="size-3.5" />
               Notify me at a target price
             </div>
-            <p className="mb-3 text-pretty text-xs text-muted-foreground">
+            <p className="mb-3 text-pretty text-sm text-muted-foreground">
               We&apos;ll save this — there&apos;s no email/SMS alerting yet, so check back here to see if it&apos;s
               been reached.
             </p>

@@ -21,7 +21,7 @@ export async function SiteHeader() {
   return (
     <div className="sticky top-0 z-20 bg-surface shadow-[0_1px_0_var(--color-hairline)]">
       <div className="hidden bg-canvas lg:block">
-        <div className="mx-auto flex h-10 max-w-section items-center justify-between text-[13px]">
+        <div className="mx-auto flex h-10 max-w-section items-center justify-between text-sm">
           <Link
             href="/seller/signup"
             className="inline-flex min-h-8 items-center gap-1.5 font-medium text-orange-text hover:underline"
@@ -68,7 +68,7 @@ export async function SiteHeader() {
             ) : (
               <Link
                 href="/login"
-                className="hidden min-h-11 items-center gap-1.5 rounded-md px-2 text-[15px] font-medium text-text-storefront outline-none hover:text-orange-text focus-visible:ring-2 focus-visible:ring-ring md:inline-flex"
+                className="hidden min-h-11 items-center gap-1.5 rounded-md px-2 text-base font-medium text-text-storefront outline-none hover:text-orange-text focus-visible:ring-2 focus-visible:ring-ring md:inline-flex"
               >
                 <UserIcon className="size-5" />
                 Log in

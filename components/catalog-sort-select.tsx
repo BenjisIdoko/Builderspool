@@ -40,7 +40,7 @@ export function CatalogSortSelect({
 
   return (
     <div className="flex items-center gap-2">
-      <label htmlFor="sort" className="text-xs text-muted-foreground">
+      <label htmlFor="sort" className="text-sm text-muted-foreground">
         Sort
       </label>
       <Select value={sort} onValueChange={(v) => router.push(buildUrl(v as MaterialSort))}>

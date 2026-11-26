@@ -1,6 +1,6 @@
 import { UsersThreeIcon } from '@phosphor-icons/react/ssr';
 import type { PoolSnapshot } from '@/lib/queries/pool';
-import { refundRuleText, SAVINGS_TIMING_TEXT } from '@/lib/pool-stages';
+import { refundRuleText } from '@/lib/pool-stages';
 import { formatClock, formatQuantity } from '@/lib/format';
 
 // The Pool & Save panel on a product page. It states, truthfully for this
@@ -18,7 +18,7 @@ export function ProductPoolPanel({ pool, unit }: { pool: PoolSnapshot; unit: str
       className="rounded-card bg-pale-blue p-5"
     >
       <div className="flex flex-wrap items-center justify-between gap-2">
-        <span className="inline-flex items-center gap-1.5 text-body-sm font-bold text-ink">
+        <span className="inline-flex items-center gap-1.5 text-body-sm font-semibold text-ink">
           <UsersThreeIcon weight="fill" className="size-4" />
           Pool &amp; Save
         </span>
@@ -28,9 +28,8 @@ export function ProductPoolPanel({ pool, unit }: { pool: PoolSnapshot; unit: str
         </span>
       </div>
 
-      <p className="mt-3 text-pretty text-body-sm text-ink">
-        You pay the catalogue price now. Orders placed before {formatClock(pool.poolCloseTime)} join {day}’s pool, and verified
-        suppliers then compete to fill the whole pool.
+      <p className="mt-3 text-pretty text-body text-ink">
+        Orders before {formatClock(pool.poolCloseTime)} join {day}’s pool. Suppliers then compete to fill it.
       </p>
 
       <dl className="mt-4 grid gap-4 sm:grid-cols-2">
@@ -50,7 +49,7 @@ export function ProductPoolPanel({ pool, unit }: { pool: PoolSnapshot; unit: str
         <div>
           <dt className="text-label text-slate uppercase">Your share of any saving</dt>
           <dd className="mt-1 text-body-sm text-ink">
-            <span className="font-mono text-figure">50%</span> of the verified saving, added to your savings credit {SAVINGS_TIMING_TEXT}.
+            <span className="font-mono text-figure">50%</span> of any saving, added to your savings credit after we check your order.
           </dd>
         </div>
       </dl>

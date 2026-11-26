@@ -23,9 +23,9 @@ export function buildPoolStages(times: CycleTimes, sheets = false): PoolStage[] 
 /** What happens if no supplier takes the pool: the founder's rule (docs/floot-port-notes.md 1c). */
 export function refundRuleText(everyItemHasSeller = true): string {
   if (!everyItemHasSeller) {
-    return 'If no supplier takes the pool, an item with a seller picked goes to that seller at the price you paid; an item with no seller picked is refunded. If a picked seller can’t supply it, you’re refunded.';
+    return 'If no supplier takes the pool, items with a picked seller go to that seller at your price. Others are refunded.';
   }
-  return 'If no supplier takes the pool, your order goes to the seller you picked, at the price you paid. If that seller can’t supply it, you’re refunded.';
+  return 'If no supplier takes the pool, your picked seller supplies it at your price. If they can’t, you’re refunded.';
 }
 
 /** One line for checkout, shown only under the selected Pool & Save option. */

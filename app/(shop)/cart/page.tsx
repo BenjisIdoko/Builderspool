@@ -1,7 +1,7 @@
 'use client';
 
 import Link from 'next/link';
-import { LockKeyIcon, TrashIcon } from '@phosphor-icons/react/ssr';
+import { TrashIcon } from '@phosphor-icons/react/ssr';
 import { useCart } from '@/lib/cart/CartContext';
 import { linePrice } from '@/lib/cart/types';
 import { AnimatePresence, LazyMotion, MotionConfig, domMax, m } from 'motion/react';
@@ -16,7 +16,7 @@ import { CheckoutSteps } from '@/components/checkout-steps';
 import { SwipeToDelete } from '@/components/swipe-to-delete';
 
 export default function CartPage() {
-  const { lines, itemCount, totalUnits, subtotal, updateQuantity, removeItem } = useCart();
+  const { lines, itemCount, subtotal, updateQuantity, removeItem } = useCart();
 
   if (lines.length === 0) {
     return (
@@ -38,20 +38,12 @@ export default function CartPage() {
   return (
     <div className="mx-auto w-full max-w-section pt-6 pb-24 lg:pb-10">
       <CheckoutSteps current={0} />
-      <h1 className="mb-3 text-balance text-ink">
+      <h1 className="mb-6 text-balance text-ink">
         Cart <span className="font-normal text-muted-foreground">(<AnimatedCount value={itemCount} /> {itemCount === 1 ? 'item' : 'items'})</span>
       </h1>
 
-      <p className="mb-6 flex items-center gap-2 text-xs text-slate">
-        <LockKeyIcon className="size-4 shrink-0" />
-        Suppliers are paid only after we receive your goods.
-      </p>
-
       <div className="grid grid-cols-1 gap-8 lg:grid-cols-[1fr_340px]">
         <div>
-          <h2 className="mb-3 text-label text-slate uppercase">
-            Materials · <span className="tabular-nums">{lines.length}</span> {lines.length === 1 ? 'product' : 'products'} (<span className="tabular-nums">{totalUnits}</span> total {totalUnits === 1 ? 'unit' : 'units'})
-          </h2>
           <LazyMotion features={domMax} strict>
           <MotionConfig reducedMotion="user">
           <ul className="relative divide-y divide-border overflow-hidden rounded-lg bg-surface">
@@ -117,13 +109,13 @@ export default function CartPage() {
         </div>
 
         <div className="h-fit">
-          <h2 className="mb-3 text-label text-slate uppercase">Order summary</h2>
+          <h2 className="mb-3 text-heading-sm text-ink">Order summary</h2>
           <div className="rounded-lg bg-surface p-5 lg:sticky lg:top-24">
           <div className="flex items-center justify-between text-sm">
             <span className="text-slate">Subtotal</span>
             <AnimatedNaira value={subtotal} className="text-price-sm text-ink" />
           </div>
-          <p className="mt-1 text-xs text-muted-foreground">Delivery calculated at checkout.</p>
+          <p className="mt-1 text-sm text-muted-foreground">Delivery calculated at checkout.</p>
 
           <Button asChild variant="cta" size="lg" className="mt-5 w-full max-lg:hidden">
             <Link href="/checkout">Continue to checkout</Link>
@@ -136,7 +128,7 @@ export default function CartPage() {
           (BuyerMobileApp handoff). */}
       <div className="fixed inset-x-0 bottom-[calc(61px+env(safe-area-inset-bottom))] z-30 flex items-center gap-3 border-t border-border bg-surface/95 px-4 py-3 backdrop-blur-[10px] lg:hidden">
         <div className="min-w-0">
-          <div className="text-xs text-muted-foreground">Subtotal</div>
+          <div className="text-sm text-muted-foreground">Subtotal</div>
           <AnimatedNaira value={subtotal} className="text-price-sm text-ink" />
         </div>
         <Button asChild variant="cta" size="lg" className="flex-1">

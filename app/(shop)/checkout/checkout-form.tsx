@@ -335,7 +335,7 @@ export function CheckoutForm({
   return (
     <form onSubmit={handleSubmit} className="grid grid-cols-1 gap-8 lg:grid-cols-[1fr_380px]">
       <div className="flex flex-col">
-        <div className="mb-3.5 text-label text-slate uppercase">{areas.enabled ? '01 · Where are you?' : '01 · Region'}</div>
+        <div className="mb-3.5 text-heading-sm text-ink">{areas.enabled ? '01 · Where are you?' : '01 · Region'}</div>
         {areas.enabled ? (
           <div className="mb-10">
             <CheckoutLocalityPicker
@@ -370,7 +370,7 @@ export function CheckoutForm({
         </div>
         )}
 
-        <div className="mb-3.5 text-label text-slate uppercase">
+        <div className="mb-3.5 text-heading-sm text-ink">
           02 · Items (<AnimatedCount value={lines.length} />)
         </div>
         <CheckoutLineItems
@@ -383,7 +383,7 @@ export function CheckoutForm({
 
         {fulfillmentMethod === 'PICKUP' && center && (
           <>
-            <div className="mt-10 mb-3.5 text-label text-slate uppercase">03 · Collect your order</div>
+            <div className="mt-10 mb-3.5 text-heading-sm text-ink">03 · Collect your order</div>
             {regionCenters.length > 1 && (
               <div className="mb-4">
                 <PickupStationList centers={regionCenters} value={center.id} onChange={setPickedCenterId} label="Pickup station for this order" />
@@ -402,7 +402,7 @@ export function CheckoutForm({
 
         {fulfillmentMethod === 'DELIVERY' && (
           <>
-            <div className="mt-10 mb-3.5 text-label text-slate uppercase">03 · Delivery details</div>
+            <div className="mt-10 mb-3.5 text-heading-sm text-ink">03 · Delivery details</div>
             <div className="flex flex-col gap-8 rounded-card bg-surface p-5">
               {savedAddresses.length > 0 && (
                 <fieldset className="flex flex-col gap-3">
@@ -594,7 +594,7 @@ export function CheckoutForm({
 
       <div className="h-fit rounded-md bg-surface p-5 lg:sticky lg:top-44">
         <div className="mb-5 rounded-md bg-ink p-4 text-white">
-          <div className="flex items-center gap-2 text-xs font-medium text-white/80">
+          <div className="flex items-center gap-2 text-sm font-medium text-white/80">
             {fulfillmentMethod === 'DELIVERY' ? (
               <TruckIcon className="size-4" />
             ) : (
@@ -604,20 +604,20 @@ export function CheckoutForm({
           </div>
           {fulfillmentMethod === 'PICKUP' && center ? (
             <>
-              <div className="mt-1 text-lg font-bold">{center.name}</div>
+              <div className="mt-1 text-lg font-semibold">{center.name}</div>
             </>
           ) : (
-            <div className="mt-1 text-lg font-bold">
+            <div className="mt-1 text-lg font-semibold">
               {areas.enabled ? (zone ? zone.name : 'Choose your area') : `${region.charAt(0) + region.slice(1).toLowerCase()} region`}
             </div>
           )}
         </div>
 
-        <div className="mb-5 text-xl font-bold text-ink">
+        <div className="mb-5 text-xl font-semibold text-ink">
           {lines.length} {lines.length === 1 ? 'item' : 'items'}
         </div>
 
-        <h2 className="mb-3 text-label text-muted-foreground uppercase">How to buy</h2>
+        <h2 className="mb-3 text-heading-sm text-ink">How to buy</h2>
         <div className="mb-5 flex flex-col gap-2">
           {(
             [
@@ -657,17 +657,17 @@ export function CheckoutForm({
                 <RadioDot selected={selected} className="mt-0.5" />
                 <span>
                   <span className="block font-semibold text-ink">{opt.label}</span>
-                  <span className="block text-pretty text-xs text-slate">{opt.body}</span>
+                  <span className="block text-pretty text-sm text-slate">{opt.body}</span>
                   {selected && opt.value === 'POOL' && (
-                    <span className="mt-1 block text-pretty text-xs text-slate">{checkoutFallbackText(noSeller.length === 0)}</span>
+                    <span className="mt-1 block text-pretty text-sm text-slate">{checkoutFallbackText(noSeller.length === 0)}</span>
                   )}
                   {opt.disabled && opt.value === 'DIRECT' && (
-                    <span className="mt-1 block text-pretty text-xs text-warning-text">
+                    <span className="mt-1 block text-pretty text-sm text-warning-text">
                       Pick a seller offer on any material page to use Buy Direct. Missing: {noSellerText}.
                     </span>
                   )}
                   {!opt.disabled && opt.value === 'DIRECT' && directCount > 0 && poolCount > 0 && (
-                    <span className="mt-1 block text-pretty text-xs text-brand">
+                    <span className="mt-1 block text-pretty text-sm text-brand">
                       {directCount} direct · {poolCount} pooled (you can toggle each item on the left).
                     </span>
                   )}
@@ -677,7 +677,7 @@ export function CheckoutForm({
           })}
         </div>
 
-        <h2 className="mb-3 text-label text-muted-foreground uppercase">Shipping method</h2>
+        <h2 className="mb-3 text-heading-sm text-ink">Shipping method</h2>
         <div className="mb-5 flex flex-col gap-2">
           {FULFILLMENT_OPTIONS.map(({ method, label }) => {
             const cost = costFor(method);
@@ -698,7 +698,7 @@ export function CheckoutForm({
                   <span>
                     <span className="block font-semibold text-ink">{label}</span>
                     {unavailable && deliveryUnavailableReason && (
-                      <span className="mt-0.5 block text-xs text-warning-text">
+                      <span className="mt-0.5 block text-sm text-warning-text">
                         {!localityId
                           ? 'Choose your area in step 01 above to check delivery availability.'
                           : `${zone ? `${zone.name} is` : 'This area is'} pickup-only until a delivery fee is set.`}
@@ -715,7 +715,7 @@ export function CheckoutForm({
         </div>
 
         <div className="mb-3 flex items-center gap-2">
-          <h2 className="text-label text-muted-foreground uppercase">Payment gateway</h2>
+          <h2 className="text-heading-sm text-ink">Payment gateway</h2>
           {testMode && <Badge variant="test">Test</Badge>}
         </div>
         <div className="mb-5 grid grid-cols-2 gap-2 has-[>button:only-child]:grid-cols-1">
@@ -753,7 +753,7 @@ export function CheckoutForm({
                 <RadioDot selected={selected} className="mt-0.5" />
                 <span className="min-w-0">
                   <span className="block font-semibold text-ink">{label}</span>
-                  <span className="block text-[11px] text-slate">{enabled ? caption : 'Not configured yet'}</span>
+                  <span className="block text-sm text-slate">{enabled ? caption : 'Not configured yet'}</span>
                 </span>
               </button>
             );
@@ -761,7 +761,7 @@ export function CheckoutForm({
         </div>
 
         <div className="mb-3 flex items-center gap-2">
-          <h2 className="text-label text-muted-foreground uppercase">Payment method</h2>
+          <h2 className="text-heading-sm text-ink">Payment method</h2>
         </div>
         <div className="mb-5 flex flex-col gap-2">
           {PAYMENT_OPTIONS.map(({ method, label, icon: Icon }) => {
@@ -785,7 +785,7 @@ export function CheckoutForm({
 
         {availableSavingsCredit > 0 && (
           <div className="mb-5">
-            <h2 className="mb-3 text-label text-muted-foreground uppercase">Savings credit</h2>
+            <h2 className="mb-3 text-heading-sm text-ink">Savings credit</h2>
             <label
               className={`flex cursor-pointer items-start justify-between gap-3 rounded-lg border p-3 text-sm transition-colors ${
                 applySavingsCredit ? 'border-brand bg-info-soft' : 'border-input hover:border-brand'
@@ -803,19 +803,19 @@ export function CheckoutForm({
                     <WalletIcon className="size-4 text-brand" />
                     Apply savings credit
                   </span>
-                  <span className="block text-xs text-slate">
+                  <span className="block text-sm text-slate">
                     Available balance: {formatNaira(availableSavingsCredit)}
                   </span>
                 </span>
               </span>
-              <span className="font-bold tabular-nums text-success">
+              <span className="font-semibold tabular-nums text-success">
                 −{formatNaira(Math.min(availableSavingsCredit, grossTotal))}
               </span>
             </label>
           </div>
         )}
 
-        <p className="mb-5 flex items-center gap-2 text-xs text-slate">
+        <p className="mb-5 flex items-center gap-2 text-sm text-slate">
           <LockKeyIcon className="size-4 shrink-0" />
           Suppliers are paid only after we receive your goods.
         </p>
@@ -823,11 +823,11 @@ export function CheckoutForm({
         <div className="flex flex-col gap-1.5 border-t border-border pt-4 text-sm">
           <div className="flex justify-between text-slate">
             <span>Materials subtotal</span>
-            <AnimatedNaira value={subtotal} className="font-bold text-ink" />
+            <AnimatedNaira value={subtotal} className="font-semibold text-ink" />
           </div>
           <div className="flex justify-between text-slate">
             <span>{fulfillmentMethod === 'DELIVERY' ? 'Delivery' : 'Pickup'}</span>
-            {deliveryCost === 0 ? <span className="font-bold text-ink">Free</span> : <AnimatedNaira value={deliveryCost} className="font-bold text-ink" />}
+            {deliveryCost === 0 ? <span className="font-semibold text-ink">Free</span> : <AnimatedNaira value={deliveryCost} className="font-semibold text-ink" />}
           </div>
           {fulfillmentMethod === 'DELIVERY' && siteQuote.status === 'ok' && (
             <p className="-mt-1 text-caption text-muted-foreground">
@@ -837,10 +837,10 @@ export function CheckoutForm({
           {savingsDiscount > 0 && (
             <div className="flex justify-between text-success">
               <span>Savings credit applied</span>
-              <span className="font-bold tabular-nums">−{formatNaira(savingsDiscount)}</span>
+              <span className="font-semibold tabular-nums">−{formatNaira(savingsDiscount)}</span>
             </div>
           )}
-          <div className="flex justify-between border-t border-border pt-2.5 text-base font-bold text-ink">
+          <div className="flex justify-between border-t border-border pt-2.5 text-base font-semibold text-ink">
             <span>Order total</span>
             <AnimatedNaira value={total} />
           </div>

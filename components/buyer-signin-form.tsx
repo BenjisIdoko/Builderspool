@@ -33,9 +33,7 @@ export function BuyerSignInForm() {
 
   return (
     <>
-      <h1 className="mb-1 text-2xl font-bold tracking-tight text-ink">Log in</h1>
-      <p className="mb-7 text-sm text-muted-foreground">Log in to your BuildersPool account.</p>
-
+      <h1 className="mb-7 text-2xl font-semibold tracking-tight text-ink">Log in</h1>
       <form onSubmit={handleSubmit} className="space-y-5">
         <div>
           <Label htmlFor="email" className={AUTH_LABEL}>

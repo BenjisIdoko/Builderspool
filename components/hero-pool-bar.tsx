@@ -40,7 +40,7 @@ export function HeroPoolBar({ stages }: { stages: PoolStage[] }) {
             className={`p-3 md:p-4 ${active ? 'bg-white text-ink' : 'bg-navy-raised/95 text-on-navy-muted'}`}
           >
             <div className="font-mono text-figure tabular-nums">{formatClock(stage.time)}</div>
-            <div className="text-body-sm font-bold">{stage.label}</div>
+            <div className="text-body-sm font-semibold">{stage.label}</div>
           </div>
         );
       })}

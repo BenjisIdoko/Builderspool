@@ -64,7 +64,7 @@ export function ProductBuyBox({ material }: { material: BuyerMaterial }) {
         </div>
 
         <div className="mb-5 flex items-center justify-between gap-3">
-          <span className="text-[13px] font-bold text-slate">
+          <span className="text-sm font-semibold text-slate">
             Quantity
           </span>
           <QuantityStepper value={quantity} onChange={setQuantity} label={material.name} />
@@ -73,11 +73,11 @@ export function ProductBuyBox({ material }: { material: BuyerMaterial }) {
         <div className="mb-5 flex flex-col gap-1.5 border-t border-border pt-4 text-sm">
           <div className="flex justify-between text-slate">
             <span>Subtotal</span>
-            <span className="font-bold tabular-nums text-ink">
+            <span className="font-semibold tabular-nums text-ink">
               {formatNaira(price * quantity)}
             </span>
           </div>
-          <p className="text-xs text-muted-foreground">
+          <p className="text-sm text-muted-foreground">
             Delivery calculated at checkout.
           </p>
         </div>
@@ -92,7 +92,7 @@ export function ProductBuyBox({ material }: { material: BuyerMaterial }) {
           <IconSwap swapped={added} from={<PlusIcon className="size-full" />} to={<CheckIcon weight="bold" className="size-full" />} />
           {added ? "Added" : "Add to cart"}
         </Button>
-        <p className="flex items-start gap-1.5 text-xs text-muted-foreground">
+        <p className="flex items-start gap-1.5 text-sm text-muted-foreground">
           <LockKeyIcon className="mt-0.5 size-3.5 shrink-0" />
           Suppliers are paid only after we receive your goods.
         </p>
@@ -106,7 +106,7 @@ export function ProductBuyBox({ material }: { material: BuyerMaterial }) {
         <button
           type="button"
           onClick={() => setSheetOpen(true)}
-          className="flex h-13 shrink-0 items-center gap-2 rounded-md border border-input px-4 text-body-sm font-bold tabular-nums text-ink transition-[background-color,scale] duration-150 outline-none focus-visible:ring-2 focus-visible:ring-ring active:scale-[0.96] active:bg-well"
+          className="flex h-13 shrink-0 items-center gap-2 rounded-md border border-input px-4 text-body-sm font-semibold tabular-nums text-ink transition-[background-color,scale] duration-150 outline-none focus-visible:ring-2 focus-visible:ring-ring active:scale-[0.96] active:bg-well"
         >
           Qty {quantity}
           <CaretDownIcon className="size-3.5 text-muted-foreground" />
@@ -145,7 +145,7 @@ export function ProductBuyBox({ material }: { material: BuyerMaterial }) {
           </div>
           <div className="flex justify-between border-t border-border pt-4 text-sm text-slate">
             <span>Subtotal</span>
-            <span className="font-bold tabular-nums text-ink">
+            <span className="font-semibold tabular-nums text-ink">
               {formatNaira(price * quantity)}
             </span>
           </div>

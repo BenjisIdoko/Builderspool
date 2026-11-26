@@ -3,7 +3,7 @@ import { EmptyState } from '@/components/empty-state/empty-state';
 import { NoResultsIllustration } from '@/components/empty-state/illustrations';
 import Link from 'next/link';
 import { CaretLeftIcon, CaretRightIcon } from '@phosphor-icons/react/ssr';
-import { getMaterials, getCategories, getFulfillmentCenters, MATERIAL_SORT_VALUES, type MaterialSort } from '@/lib/queries/materials';
+import { getMaterials, getCategories, MATERIAL_SORT_VALUES, type MaterialSort } from '@/lib/queries/materials';
 import { MaterialCard } from '@/components/material-card';
 import { getOfferCounts } from '@/lib/queries/offers';
 import { CatalogSortSelect } from '@/components/catalog-sort-select';
@@ -29,13 +29,11 @@ export default async function CatalogPage({
   const sourcingScope = scopeParam === 'NATIONAL' || scopeParam === 'REGIONAL' ? scopeParam : undefined;
   const page = Math.max(1, Number(pageParam) || 1);
 
-  const [categories, centers, { materials, total, pageCount }, offerCounts] = await Promise.all([
+  const [categories, { materials, total, pageCount }, offerCounts] = await Promise.all([
     getCategories(),
-    getFulfillmentCenters(),
     getMaterials({ category, query: q, sort, sourcingScope, page, pageSize: PAGE_SIZE }),
     getOfferCounts(),
   ]);
-  const regions = [...new Set(centers.map((c) => c.region))];
 
   function urlFor(overrides: { category?: string; sort?: MaterialSort; scope?: string; page?: number }) {
     const params = new URLSearchParams();
@@ -74,7 +72,7 @@ export default async function CatalogPage({
                 >
                   <input type="radio" readOnly aria-hidden="true" tabIndex={-1} checked={category === c.name} className="size-3.5 accent-brand" />
                   <span className="truncate">{c.name}</span>
-                  <span className="ml-auto text-[11.5px] tabular-nums text-muted-foreground">{c.count}</span>
+                  <span className="ml-auto text-xs tabular-nums text-muted-foreground">{c.count}</span>
                 </Link>
               ))}
             </div>
@@ -104,16 +102,12 @@ export default async function CatalogPage({
     <div className="mx-auto w-full max-w-section pt-6 pb-10">
       <div className="mb-3 flex flex-wrap items-start justify-between gap-3">
         <div>
-          <div className="mb-1 text-label text-slate uppercase">Catalogue</div>
           <h1 className="text-balance text-ink">
             {q ? `Results for "${q}"` : category ? category : 'Building materials'}
           </h1>
         </div>
-        {regions.length > 0 && (
-          <p className="shrink-0 text-caption text-slate">Free pickup. Delivery in selected areas.</p>
-        )}
       </div>
-      <p className="mb-8 text-body-sm text-slate">Fixed catalogue price, <span className="tabular-nums">{total}</span> materials.</p>
+      <p className="mb-8 text-body-sm text-slate"><span className="tabular-nums">{total}</span> materials · Fixed catalogue prices</p>
 
       <div className="grid grid-cols-1 gap-7 lg:grid-cols-[240px_1fr]">
         <aside className="hidden flex-col gap-8 rounded-card bg-surface p-5 lg:sticky lg:top-44 lg:flex lg:self-start">
@@ -186,7 +180,7 @@ export default async function CatalogPage({
                     <Link
                       href={urlFor({ page: p })}
                       aria-current={p === page ? 'page' : undefined}
-                      className={`flex size-11 items-center justify-center rounded-md border text-body-sm font-bold tabular-nums outline-none transition-[background-color,scale] duration-150 focus-visible:ring-2 focus-visible:ring-ring active:scale-[0.96] ${
+                      className={`flex size-11 items-center justify-center rounded-md border text-body-sm font-semibold tabular-nums outline-none transition-[background-color,scale] duration-150 focus-visible:ring-2 focus-visible:ring-ring active:scale-[0.96] ${
                         p === page
                           ? 'border-brand bg-brand text-brand-ink'
                           : 'border-input bg-surface text-ink hover:bg-well'

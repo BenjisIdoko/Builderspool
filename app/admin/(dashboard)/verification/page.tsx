@@ -150,7 +150,7 @@ export default async function AdminVerificationPage({
                   <TableRow key={seller.id}>
                     <TableCell className="py-3">
                       <div className="flex items-center gap-2.5">
-                        <Avatar name={seller.name} className="size-8 shrink-0 text-[10px]" />
+                        <Avatar name={seller.name} className="size-8 shrink-0 text-xs" />
                         <div className="min-w-0">
                           <div className="max-w-48 truncate font-medium text-ink">
                             {seller.businessName ?? seller.name}

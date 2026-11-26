@@ -54,7 +54,7 @@ function StepCard({ number, step }: { number: string; step: HowItWorksStep }) {
       <div className={`flex flex-col rounded-[16px] border p-4 ${t.panel}`}>
         <span className={`mb-4 font-mono text-figure-lg tabular-nums ${t.accent}`}>{number}</span>
         <h3 className="mb-2 text-balance text-heading-sm text-ink">{step.title}</h3>
-        <p className="text-pretty text-body-sm text-slate">{step.description}</p>
+        <p className="text-pretty text-body text-slate">{step.description}</p>
       </div>
     </div>
   );

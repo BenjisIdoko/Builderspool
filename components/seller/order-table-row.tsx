@@ -80,7 +80,7 @@ export function SellerOrderTableRow({
           onClick={() => setExpanded((v) => !v)}
           aria-expanded={expanded}
           aria-label={`${expanded ? 'Hide' : 'View'} details for ${shortId}`}
-          className="min-h-11 rounded-md border border-border-strong bg-surface px-4 text-xs font-bold text-ink outline-none transition-[background-color,scale] duration-150 hover:bg-well focus-visible:ring-2 focus-visible:ring-ring active:scale-[0.96] lg:min-h-8 lg:px-3"
+          className="min-h-11 rounded-md border border-border-strong bg-surface px-4 text-xs font-semibold text-ink outline-none transition-[background-color,scale] duration-150 hover:bg-well focus-visible:ring-2 focus-visible:ring-ring active:scale-[0.96] lg:min-h-8 lg:px-3"
         >
           {expanded ? 'Hide' : 'View'}
         </button>

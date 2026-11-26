@@ -30,7 +30,7 @@ function Field({ label, value }: { label: string; value: string }) {
   return (
     <div className="min-w-0">
       <dt className="mb-1 text-xs text-muted-foreground">{label}</dt>
-      <dd className="break-words text-sm font-bold text-ink">{value}</dd>
+      <dd className="break-words text-sm font-semibold text-ink">{value}</dd>
     </div>
   );
 }

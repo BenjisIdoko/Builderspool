@@ -33,7 +33,7 @@ export function AccountNav() {
               <Link
                 href={item.href}
                 aria-current={active ? 'page' : undefined}
-                className={`flex min-h-11 items-center gap-2.5 rounded-md px-3 text-[15px] whitespace-nowrap outline-none transition-colors duration-150 focus-visible:ring-2 focus-visible:ring-ring ${
+                className={`flex min-h-11 items-center gap-2.5 rounded-md px-3 text-base whitespace-nowrap outline-none transition-colors duration-150 focus-visible:ring-2 focus-visible:ring-ring ${
                   active ? 'bg-well font-semibold text-ink' : 'text-text-storefront hover:bg-well hover:text-ink'
                 }`}
               >
@@ -48,7 +48,7 @@ export function AccountNav() {
             type="button"
             disabled={isPending}
             onClick={() => startTransition(async () => { await signOutBuyer(); })}
-            className="flex min-h-11 w-full items-center justify-center gap-2 rounded-md px-3 text-[15px] font-semibold text-orange-text outline-none transition-colors duration-150 hover:bg-well focus-visible:ring-2 focus-visible:ring-ring disabled:opacity-60"
+            className="flex min-h-11 w-full items-center justify-center gap-2 rounded-md px-3 text-base font-semibold text-orange-text outline-none transition-colors duration-150 hover:bg-well focus-visible:ring-2 focus-visible:ring-ring disabled:opacity-60"
           >
             <SignOutIcon aria-hidden className="size-5" />
             Log out

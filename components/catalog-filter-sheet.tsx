@@ -27,12 +27,12 @@ export function CatalogFilterSheet({
       <SheetTrigger asChild>
         <button
           type="button"
-          className="flex h-11 items-center gap-1.5 rounded-md border border-border-strong bg-surface px-3.5 text-[13px] font-semibold text-ink outline-none transition-[background-color,scale] duration-150 hover:bg-well focus-visible:ring-2 focus-visible:ring-ring active:scale-[0.96] lg:hidden"
+          className="flex h-11 items-center gap-1.5 rounded-md border border-border-strong bg-surface px-3.5 text-sm font-semibold text-ink outline-none transition-[background-color,scale] duration-150 hover:bg-well focus-visible:ring-2 focus-visible:ring-ring active:scale-[0.96] lg:hidden"
         >
           <FunnelIcon className="size-4" />
           Filters
           {activeCount > 0 && (
-            <span className="flex size-[18px] items-center justify-center rounded-full bg-brand text-[10.5px] font-bold tabular-nums text-white">
+            <span className="flex size-[18px] items-center justify-center rounded-full bg-brand text-xs font-semibold tabular-nums text-white">
               {activeCount}
             </span>
           )}
@@ -42,7 +42,7 @@ export function CatalogFilterSheet({
         side="bottom"
         className="max-h-[85svh] overflow-y-auto rounded-t-[22px] px-5 pt-5 pb-[calc(20px+env(safe-area-inset-bottom))] lg:hidden"
       >
-        <SheetTitle className="text-lg font-bold text-ink">Filters</SheetTitle>
+        <SheetTitle className="text-lg font-semibold text-ink">Filters</SheetTitle>
         <SheetDescription className="sr-only">
           Filter the catalogue by category and sourcing.
         </SheetDescription>

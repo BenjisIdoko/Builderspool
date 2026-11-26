@@ -6,7 +6,7 @@ const STEPS = ['Cart', 'Checkout', 'Confirmed'] as const;
 // a fabricated procurement-workflow narrative.
 export function CheckoutSteps({ current }: { current: 0 | 1 | 2 }) {
   return (
-    <div className="mb-8 flex items-center gap-2 text-xs font-medium">
+    <div className="mb-8 flex items-center gap-2 text-sm font-medium">
       {STEPS.map((label, i) => (
         <div key={label} className="flex items-center gap-2">
           <span
@@ -15,7 +15,7 @@ export function CheckoutSteps({ current }: { current: 0 | 1 | 2 }) {
             }`}
           >
             <span
-              className={`flex size-4.5 items-center justify-center rounded-full text-[10px] ${
+              className={`flex size-4.5 items-center justify-center rounded-full text-xs ${
                 i < current
                   ? 'bg-ink text-canvas'
                   : i === current

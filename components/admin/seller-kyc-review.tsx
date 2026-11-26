@@ -54,7 +54,7 @@ function isWebUrl(value: string): boolean {
 function Field({ label, value }: { label: string; value: string | null }) {
   return (
     <div>
-      <div className="text-[11px] text-muted-foreground">{label}</div>
+      <div className="text-xs text-muted-foreground">{label}</div>
       <div className="text-sm text-ink">{value || '—'}</div>
     </div>
   );

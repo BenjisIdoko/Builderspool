@@ -57,7 +57,7 @@ export function CheckoutLineItems({
                   {onToggleItemMode && (
                     <div className="mt-1.5 flex flex-wrap items-center gap-1.5">
                       {hasSeller ? (
-                        <div className="inline-flex rounded-full border border-border bg-well p-0.5 text-[11px] font-semibold">
+                        <div className="inline-flex rounded-full border border-border bg-well p-0.5 text-xs font-semibold">
                           <button
                             type="button"
                             onClick={() => onToggleItemMode(line.materialId, 'POOL')}
@@ -78,7 +78,7 @@ export function CheckoutLineItems({
                           </button>
                         </div>
                       ) : (
-                        <span className="text-[11px] font-semibold text-cyan-text">
+                        <span className="text-xs font-semibold text-cyan-text">
                           Pool &amp; Save
                         </span>
                       )}
@@ -104,7 +104,7 @@ export function CheckoutLineItems({
                   className="col-span-2 col-start-1 row-start-2 justify-self-start sm:col-span-1 sm:col-start-3 sm:row-start-1"
                 />
 
-                <div className="col-start-3 row-start-2 text-right font-bold text-ink sm:col-start-4 sm:row-start-1">
+                <div className="col-start-3 row-start-2 text-right font-semibold text-ink sm:col-start-4 sm:row-start-1">
                   <AnimatedNaira value={linePrice(line) * line.quantity} />
                 </div>
               </m.li>

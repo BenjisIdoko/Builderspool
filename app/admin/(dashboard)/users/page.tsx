@@ -78,7 +78,7 @@ export default async function AdminUsersPage({
       <div className="mb-10 grid grid-cols-2 gap-4 sm:grid-cols-5">
         {ROLE_FILTERS.map((f) => (
           <div key={f.label} className="rounded-lg bg-card-alt p-4">
-            <div className="mb-1 text-[11px] text-muted-foreground">{f.label}</div>
+            <div className="mb-1 text-xs text-muted-foreground">{f.label}</div>
             <div className="text-xl font-semibold text-ink">{counts[f.countKey]}</div>
           </div>
         ))}
@@ -142,7 +142,7 @@ export default async function AdminUsersPage({
                 <TableRow key={u.id}>
                   <TableCell className="py-3">
                     <div className="flex items-center gap-2.5">
-                      <Avatar name={u.name} className="size-8 shrink-0 text-[10px]" />
+                      <Avatar name={u.name} className="size-8 shrink-0 text-xs" />
                       <div className="min-w-0">
                         <div className="max-w-44 truncate font-medium text-ink">{u.name}</div>
                         <div className="max-w-44 truncate text-xs text-muted-foreground">{u.email}</div>

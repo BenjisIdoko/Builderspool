@@ -31,9 +31,6 @@ export default async function AccountNotificationsPage() {
             <BellRingingIcon aria-hidden className="size-7 shrink-0" />
             Notifications
           </h1>
-          <p className="max-w-[64ch] text-pretty text-sm text-muted-foreground">
-            Updates on your orders, delivery status, savings credits, reminders, and price alerts.
-          </p>
         </div>
         {unreadCount > 0 && (
           <form action={markAllBuyerNotificationsReadAction}>
@@ -102,7 +99,7 @@ export default async function AccountNotificationsPage() {
                           <span className="text-pretty text-sm font-semibold text-ink">{n.title}</span>
                         )}
                         {!n.read && (
-                          <span className="inline-flex items-center rounded-full bg-brand px-2 py-0.5 text-[10px] font-bold text-white">
+                          <span className="inline-flex items-center rounded-full bg-brand px-2 py-0.5 text-xs font-semibold text-white">
                             New
                           </span>
                         )}

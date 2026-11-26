@@ -33,7 +33,7 @@ export function ProductOffers({ unit }: { unit: string }) {
         Seller offers ({offers.length})
       </h2>
       <p className="mt-1 text-pretty text-body-sm text-slate">
-        Each seller sets their own price per {unit}. Pick a seller to buy from them at their price, or choose Pool &amp; Save at checkout to get the pool price.
+        Pick a seller to buy direct at their price, or choose Pool &amp; Save at checkout.
       </p>
 
       <RadioGroup value={selected?.id ?? ''} onValueChange={select} aria-labelledby="offers-heading" className="mt-4 gap-0 divide-y divide-hairline">
@@ -55,7 +55,7 @@ export function ProductOffers({ unit }: { unit: string }) {
                   Verified
                 </span>
                 {i === 0 && offers.length > 1 && (
-                  <span className="text-caption font-bold text-cyan-text">Lowest price</span>
+                  <span className="text-caption font-semibold text-cyan-text">Lowest price</span>
                 )}
               </div>
               <div className="text-caption text-slate">

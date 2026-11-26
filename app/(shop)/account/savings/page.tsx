@@ -30,28 +30,28 @@ export default async function AccountSavingsPage() {
         Savings credit
       </h1>
       <p className="mb-6 max-w-[64ch] text-pretty text-sm text-muted-foreground">
-        Your share of every saving on your orders. It&apos;s added here once we&apos;ve received and checked your order.
+        Your share of each saving, added after we check your order.
       </p>
 
       <section aria-label="Your savings credit" className={ACCOUNT_CARD}>
         <dl className="grid grid-cols-1 gap-4 border-b border-border p-5 sm:grid-cols-3">
           <div>
             <dt className="text-caption text-muted-foreground">{withdrawalsEnabled ? 'Available' : 'Savings credit'}</dt>
-            <dd className="text-xl font-bold tabular-nums text-ink">{formatNaira(wallet.available)}</dd>
+            <dd className="text-xl font-semibold tabular-nums text-ink">{formatNaira(wallet.available)}</dd>
           </div>
           {withdrawalsEnabled ? (
             <>
               <div>
                 <dt className="text-caption text-muted-foreground">Withdrawal requested</dt>
-                <dd className="text-xl font-bold tabular-nums text-ink">{formatNaira(wallet.withdrawalRequested)}</dd>
+                <dd className="text-xl font-semibold tabular-nums text-ink">{formatNaira(wallet.withdrawalRequested)}</dd>
               </div>
               <div>
                 <dt className="text-caption text-muted-foreground">Paid out so far</dt>
-                <dd className="text-xl font-bold tabular-nums text-ink">{formatNaira(wallet.paidOut)}</dd>
+                <dd className="text-xl font-semibold tabular-nums text-ink">{formatNaira(wallet.paidOut)}</dd>
               </div>
             </>
           ) : (
-            <dd className="self-end text-pretty text-sm text-muted-foreground sm:col-span-2">Withdrawals aren&apos;t available yet. Your credit stays on your account.</dd>
+            <dd className="self-end text-pretty text-sm text-muted-foreground sm:col-span-2">Withdrawals aren&apos;t available yet.</dd>
           )}
         </dl>
         {withdrawalsEnabled && wallet.available > 0 && (
@@ -73,7 +73,7 @@ export default async function AccountSavingsPage() {
         )}
         {wallet.entries.length === 0 ? (
           <p className="max-w-[64ch] text-pretty p-5 text-sm text-muted-foreground">
-            No savings yet. Savings are added once an order you place is fulfilled for less than the price you paid.
+            No savings yet. You earn credit when an order is filled for less than you paid.
           </p>
         ) : (
           <ul className="divide-y divide-border">
@@ -85,14 +85,14 @@ export default async function AccountSavingsPage() {
                       ? 'Savings credit returned'
                       : (entry.allocation?.bid.material.name ?? entry.sheetFulfilment?.orderItem.material.name)}
                   </div>
-                  <div className="mt-0.5 text-xs tabular-nums text-muted-foreground">
+                  <div className="mt-0.5 text-sm tabular-nums text-muted-foreground">
                     {entry.originEntryId
                       ? `Credit you spent on an order that could not be filled · ${formatLagosDate(entry.createdAt)}`
                       : `You paid ${formatNaira(Number(entry.referenceValue))}, actual cost ${formatNaira(Number(entry.actualValue))} · ${formatLagosDate(entry.createdAt)}`}
                   </div>
                 </div>
                 <div className="flex shrink-0 items-center gap-3">
-                  <span className="font-bold tabular-nums text-ink">+{formatNaira(Number(entry.buyerShare))}</span>
+                  <span className="font-semibold tabular-nums text-ink">+{formatNaira(Number(entry.buyerShare))}</span>
                   <Badge variant="outline" className={pillClass(walletEntryTone(entry.state))}>
                     {WALLET_LABEL[entry.state]}
                   </Badge>

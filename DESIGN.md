@@ -63,33 +63,32 @@ typography:
   families:
     sans: "'Plus Jakarta Sans', system-ui, -apple-system, 'Segoe UI', sans-serif"   # ONE family for display, UI and body
     mono: "'Geist Mono', ui-monospace, 'SF Mono', Menlo, monospace"                  # figures only
-  weights: { sans: [400, 500, 600, 700, 800], mono: [400, 500] }
+  weights: { sans: [400, 500, 600], mono: [400, 500] }
   rules:
-    min-size: 12px                # 11px permitted only for phone tab-bar labels
+    min-size: 12px                # meta only; body 16px, secondary 14px
     line-length: "60–72ch for running text, 40–48ch for card copy"
     headings: "text-wrap: balance"
     paragraphs: "text-wrap: pretty"
     numerals: "tabular-nums wherever two figures can sit in a column; ₦ is in latin-ext and must be verified in the primary face (see §3.4)"
   scale:   # fluid: size = clamp(min, preferred, max). px values assume 16px root.
-    display-xl:  { size: "clamp(2.5rem, 1.6rem + 4vw, 4.5rem)",     px: "40 → 72", weight: 800, line: 1.04, tracking: "-0.035em", use: "home hero only" }
-    display-lg:  { size: "clamp(2rem, 1.4rem + 2.6vw, 3.25rem)",    px: "32 → 52", weight: 800, line: 1.08, tracking: "-0.03em",  use: "showroom section statements" }
-    heading-xl:  { size: "clamp(1.75rem, 1.4rem + 1.4vw, 2.5rem)",  px: "28 → 40", weight: 700, line: 1.15, tracking: "-0.025em", use: "page title (h1)" }
-    heading-lg:  { size: "clamp(1.375rem, 1.2rem + 0.7vw, 1.75rem)", px: "22 → 28", weight: 700, line: 1.2,  tracking: "-0.02em",  use: "section title (h2)" }
-    heading-md:  { size: "1.25rem",   px: 20, weight: 700, line: 1.3,  tracking: "-0.01em", use: "card group / panel title (h3)" }
-    heading-sm:  { size: "1.0625rem", px: 17, weight: 700, line: 1.35, tracking: "0",       use: "row title, form section (h4)" }
-    body-lg:     { size: "1.0625rem", px: 17, weight: 400, line: 1.55, use: "intro paragraphs, hero support line" }
-    body:        { size: "0.9375rem", px: 15, weight: 400, line: 1.55, use: "default text" }
-    body-sm:     { size: "0.875rem",  px: 14, weight: 400, line: 1.45, use: "dense tables, helper text, product names" }
-    caption:     { size: "0.8125rem", px: 13, weight: 400, line: 1.4,  use: "units, timestamps, secondary notes" }
-    label:       { size: "0.75rem",   px: 12, weight: 700, line: 1.3,  tracking: "0.06em", transform: uppercase, use: "eyebrows, table headers, tags" }
-    micro:       { size: "0.6875rem", px: 11, weight: 700, line: 1.2,  use: "phone tab-bar labels only" }
-    figure-xl:   { family: mono, size: "clamp(2.25rem, 1.6rem + 3vw, 3.75rem)", px: "36 → 60", weight: 500, line: 1.0, tracking: "-0.02em", use: "pool countdown, savings headline" }
+    display-xl:  { size: "clamp(2.5rem, 1.6rem + 4vw, 4.5rem)",     px: "40 → 72", weight: 600, line: 1.1, tracking: "-0.03em", use: "home hero only" }
+    display-lg:  { size: "clamp(2rem, 1.4rem + 2.6vw, 3.25rem)",    px: "32 → 52", weight: 600, line: 1.1, tracking: "-0.025em", use: "showroom section statements" }
+    heading-xl:  { size: "clamp(1.75rem, 1.4rem + 1.4vw, 2.5rem)",  px: "28 → 40", weight: 600, line: 1.15, tracking: "-0.02em", use: "page title (h1)" }
+    heading-lg:  { size: "clamp(1.375rem, 1.2rem + 0.7vw, 1.75rem)", px: "22 → 28", weight: 600, line: 1.2,  tracking: "-0.015em", use: "section title (h2)" }
+    heading-md:  { size: "1.25rem",   px: 20, weight: 600, line: 1.25, tracking: "-0.01em", use: "card group / panel title (h3)" }
+    heading-sm:  { size: "1.125rem",  px: 18, weight: 600, line: 1.25, tracking: "0",       use: "section heading inside a page, row title (h4)" }
+    body-lg:     { size: "1.125rem",  px: 18, weight: 400, line: 1.55, use: "intro paragraphs, hero support line" }
+    body:        { size: "1rem",      px: 16, weight: 400, line: 1.55, use: "default text" }
+    body-sm:     { size: "0.875rem",  px: 14, weight: 400, line: 1.5,  use: "secondary text, helper text, dense tables" }
+    caption:     { size: "0.875rem",  px: 14, weight: 400, line: 1.5,  use: "units and secondary notes (same size as body-sm)" }
+    label:       { size: "0.75rem",   px: 12, weight: 600, line: 1.4,  tracking: "0.06em", transform: uppercase, use: "meta only: table headers, column titles, data labels" }
+    figure-xl:   { family: mono, size: "clamp(2.25rem, 1.6rem + 3vw, 3.75rem)", px: "36 → 60", weight: 500, line: 1.1, tracking: "-0.02em", use: "pool countdown, savings headline" }
     figure-lg:   { family: mono, size: "1.5rem",   px: 24, weight: 500, line: 1.1, use: "stat tiles, totals" }
-    figure:      { family: mono, size: "0.9375rem", px: 15, weight: 500, line: 1.4, use: "order numbers, ledger rows, kobo-exact amounts" }
-    price-lg:    { family: sans, size: "1.75rem",  px: 28, weight: 800, line: 1.1, tracking: "-0.02em", numerals: tabular, use: "product page price" }
-    price:       { family: sans, size: "1.25rem",  px: 20, weight: 700, line: 1.2, numerals: tabular, use: "card price" }
-    price-sm:    { family: sans, size: "1rem",     px: 16, weight: 700, line: 1.2, numerals: tabular, use: "offer rows, cart lines" }
-    wordmark:    { family: sans, size: "1.625rem", px: 26, weight: 800, tracking: "-0.03em", mobile: "20px" }
+    figure:      { family: mono, size: "1rem",     px: 16, weight: 500, line: 1.4, use: "order numbers, ledger rows, kobo-exact amounts" }
+    price-lg:    { family: sans, size: "1.75rem",  px: 28, weight: 600, line: 1.1, tracking: "-0.02em", numerals: tabular, use: "product page price" }
+    price:       { family: sans, size: "1.25rem",  px: 20, weight: 600, line: 1.2, numerals: tabular, use: "card price" }
+    price-sm:    { family: sans, size: "1rem",     px: 16, weight: 600, line: 1.2, numerals: tabular, use: "offer rows, cart lines" }
+    wordmark:    { family: sans, size: "1.625rem", px: 26, weight: 600, tracking: "-0.03em", mobile: "20px" }
 
 spacing:   # 4px base. Components use 4–24. Sections use the rhythm tokens.
   base: [4, 8, 12, 16, 20, 24, 32, 40, 48, 64, 80, 96, 128]
@@ -188,7 +187,7 @@ A page never mixes modes in one viewport. The transition between modes (home →
 
 ### 3.1 Typefaces
 
-- **Plus Jakarta Sans** is the only text face: display, headings, UI, body, buttons, tables, prices. Its geometric but warm forms hold up at 12px on low-density screens and at 72px in the hero. The weight range (400–800) replaces the old Poppins/Roboto split — hierarchy comes from weight and size inside one family.
+- **Plus Jakarta Sans** is the only text face: display, headings, UI, body, buttons, tables, prices. Its geometric but warm forms hold up at 12px on low-density screens and at 72px in the hero. Hierarchy comes from size and spacing, with weights limited to 400, 500 and 600, inside one family.
 - **Geist Mono** (tabular) is for *figures that must align or be read exactly*: the pool countdown, order numbers, reference codes, ledger rows, kobo-exact amounts, stat tiles. It is never used for sentences.
 - No third family. No italics in UI. No faux bold. Self-hosted through `next/font` (variable axis for Plus Jakarta Sans; `latin` + `latin-ext` so ₦ renders).
 
@@ -198,24 +197,23 @@ Fluid tokens interpolate between a 360px and a 1440px viewport. Use the token na
 
 | Token | Size (px) | Weight | Line | Tracking | Use |
 | --- | --- | --- | --- | --- | --- |
-| `display-xl` | 40 → 72 | 800 | 1.04 | −0.035em | Home hero headline only |
-| `display-lg` | 32 → 52 | 800 | 1.08 | −0.03em | Showroom section statements |
-| `heading-xl` | 28 → 40 | 700 | 1.15 | −0.025em | Page title (h1) |
-| `heading-lg` | 22 → 28 | 700 | 1.2 | −0.02em | Section title (h2) |
-| `heading-md` | 20 | 700 | 1.3 | −0.01em | Panel / group title (h3) |
-| `heading-sm` | 17 | 700 | 1.35 | 0 | Row title, form section (h4) |
-| `body-lg` | 17 | 400 | 1.55 | 0 | Intro paragraphs, hero support line |
-| `body` | 15 | 400 | 1.55 | 0 | Default text |
-| `body-sm` | 14 | 400 | 1.45 | 0 | Product names, dense tables, helper text |
-| `caption` | 13 | 400 | 1.4 | 0 | Units, timestamps, notes |
-| `label` | 12 | 700 | 1.3 | +0.06em, uppercase | Eyebrows, table headers, tags |
-| `micro` | 11 | 700 | 1.2 | 0 | Phone tab-bar labels only |
-| `figure-xl` | 36 → 60 | Mono 500 | 1.0 | −0.02em | Pool countdown, savings headline |
+| `display-xl` | 40 → 72 | 600 | 1.1 | −0.03em | Home hero headline only |
+| `display-lg` | 32 → 52 | 600 | 1.1 | −0.025em | Showroom section statements |
+| `heading-xl` | 28 → 40 | 600 | 1.15 | −0.02em | Page title (h1) |
+| `heading-lg` | 22 → 28 | 600 | 1.2 | −0.015em | Section title (h2) |
+| `heading-md` | 20 | 600 | 1.25 | −0.01em | Panel / group title (h3) |
+| `heading-sm` | 18 | 600 | 1.25 | 0 | Section heading inside a page, row title (h4) |
+| `body-lg` | 18 | 400 | 1.55 | 0 | Intro paragraphs, hero support line |
+| `body` | 16 | 400 | 1.55 | 0 | Default text |
+| `body-sm` | 14 | 400 | 1.5 | 0 | Secondary text, helper text, dense tables |
+| `caption` | 14 | 400 | 1.5 | 0 | Same size as `body-sm`; units and secondary notes |
+| `label` | 12 | 600 | 1.4 | +0.06em, uppercase | Meta only: table headers, column titles, data labels |
+| `figure-xl` | 36 → 60 | Mono 500 | 1.1 | −0.02em | Pool countdown, savings headline |
 | `figure-lg` | 24 | Mono 500 | 1.1 | 0 | Stat tiles, totals |
-| `figure` | 15 | Mono 500 | 1.4 | 0 | Order numbers, ledger, kobo amounts |
-| `price-lg` | 28 | 800 | 1.1 | −0.02em | Product-page price |
-| `price` | 20 | 700 | 1.2 | 0 | Card price |
-| `price-sm` | 16 | 700 | 1.2 | 0 | Offer rows, cart lines |
+| `figure` | 16 | Mono 500 | 1.4 | 0 | Order numbers, ledger, kobo amounts |
+| `price-lg` | 28 | 600 | 1.1 | −0.02em | Product-page price |
+| `price` | 20 | 600 | 1.2 | 0 | Card price |
+| `price-sm` | 16 | 600 | 1.2 | 0 | Offer rows, cart lines |
 
 ### 3.3 Rules
 
@@ -224,7 +222,10 @@ Fluid tokens interpolate between a 360px and a 1440px viewport. Use the token na
 - **Measure:** running text 60–72ch (`max-width: 68ch`); card copy 40–48ch. Never full-width paragraphs.
 - **Case:** sentence case everywhere. `label` is the only uppercase style.
 - **Colour:** headings `foreground` (navy); body `text-storefront` or `text-secondary`; captions `muted-foreground`. Never grey text on a grey ground below 4.5:1.
-- **Weights in use:** 400 body, 500 UI emphasis and buttons, 600 small headings, 700 headings and prices, 800 display only. 300 and below are not loaded.
+- **Three weights, app-wide:** 400 body, 500 labels and buttons, 600 headings and prices. Nothing heavier, nothing lighter. `<b>` and `<strong>` are set to 600.
+- **Three text sizes:** 16px body, 14px secondary, 12px meta. Nothing below 12px. Meta (12px, `text-xs`) is for timestamps, legal lines, column titles and data labels only; helper text, option descriptions and status details are 14px.
+- **No eyebrows.** A heading carries its own weight; no small caps label sits above it. Section headings inside a page use `heading-sm`, not uppercase `label`.
+- **Say it once.** A page title does not get an intro line that restates it. One short helper under a control, only when it answers a question the label cannot.
 - **Truncation:** product names clamp to 2 lines; everything else wraps. Never truncate money, units or times.
 
 ### 3.4 Money and the ₦ glyph

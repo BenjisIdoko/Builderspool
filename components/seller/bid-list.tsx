@@ -32,7 +32,7 @@ export function SellerBidList({ bids }: { bids: SellerBid[] }) {
 
           <div className="min-w-0 flex-1 basis-56">
             <div className="flex flex-wrap items-center gap-x-2 gap-y-1">
-              <span className="text-pretty font-bold text-ink">{bid.material.name}</span>
+              <span className="text-pretty font-semibold text-ink">{bid.material.name}</span>
               <Badge variant="outline" className={pillClass(bidStatusTone(bid.status))}>
                 {STATUS_LABEL[bid.status] ?? bid.status}
               </Badge>

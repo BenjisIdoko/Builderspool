@@ -38,7 +38,7 @@ export function CategoryMegaMenu({ menu }: { menu: CategoryMenuItem[] }) {
                     onClick={() => setOpen(false)}
                     onMouseEnter={() => setActiveName(c.name)}
                     onFocus={() => setActiveName(c.name)}
-                    className={`flex min-h-11 items-center justify-between gap-2 rounded-md px-3 text-[15px] outline-none transition-colors duration-150 focus-visible:ring-2 focus-visible:ring-ring ${
+                    className={`flex min-h-11 items-center justify-between gap-2 rounded-md px-3 text-base outline-none transition-colors duration-150 focus-visible:ring-2 focus-visible:ring-ring ${
                       active?.name === c.name ? 'bg-well font-semibold text-ink' : 'text-text-storefront hover:bg-well'
                     }`}
                   >

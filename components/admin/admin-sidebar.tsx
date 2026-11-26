@@ -76,8 +76,8 @@ export function AdminSidebar({ adminName }: { adminName: string }) {
         <span className="flex items-center gap-2.5">
           <LogoTile className="size-9" />
           <span className="leading-tight">
-            <span className="block font-display text-[14.5px] font-extrabold tracking-[-0.02em] text-white">BUILDERS<span className="text-orange">POOL</span></span>
-            <span className="block text-[11px] font-semibold tracking-wide text-white/60">Admin portal</span>
+            <span className="block font-display text-sm font-semibold tracking-[-0.02em] text-white">BUILDERS<span className="text-orange">POOL</span></span>
+            <span className="block text-xs font-semibold tracking-wide text-white/60">Admin portal</span>
           </span>
         </span>
         <CaretUpDownIcon className="size-3.5 text-white/40" />
@@ -90,7 +90,7 @@ export function AdminSidebar({ adminName }: { adminName: string }) {
       <nav className="flex flex-col gap-5 p-3">
         {LINK_GROUPS.map((group) => (
           <div key={group.label}>
-            <div className="mb-1.5 px-3 text-[10.5px] font-bold tracking-wide text-white/50 uppercase">
+            <div className="mb-1.5 px-3 text-xs font-semibold tracking-wide text-white/50 uppercase">
               {group.label}
             </div>
             <div className="flex flex-col gap-1">
@@ -118,9 +118,9 @@ export function AdminSidebar({ adminName }: { adminName: string }) {
         <div className="flex items-center gap-2.5 rounded-lg border border-white/15 bg-white/10 px-3 py-2.5">
           <Avatar name={adminName} className="size-8 shrink-0 bg-white! text-xs text-ink!" />
           <div className="min-w-0 flex-1">
-            <div className="truncate text-[13px] font-bold text-white">{adminName}</div>
+            <div className="truncate text-sm font-semibold text-white">{adminName}</div>
             <form action={signOutAdmin}>
-              <button type="submit" className="text-[11.5px] text-white/70 hover:text-white hover:underline">
+              <button type="submit" className="text-xs text-white/70 hover:text-white hover:underline">
                 Log out
               </button>
             </form>

@@ -25,9 +25,9 @@ const badgeVariants = cva(
         danger: "border-danger/25 bg-danger-soft text-danger",
         pool: "border-cyan/30 bg-pale-blue text-cyan-text",
         // Pool & Save tag on product cards: cyan fill with navy text.
-        poolTag: "bg-cyan text-ink font-bold text-[11px]",
+        poolTag: "bg-cyan text-ink font-semibold text-xs",
         // Simulated payments: impossible to mistake for real ones.
-        test: "bg-warning-text text-white font-bold text-[11px] uppercase tracking-wide",
+        test: "bg-warning-text text-white font-semibold text-xs uppercase tracking-wide",
       },
     },
     defaultVariants: {

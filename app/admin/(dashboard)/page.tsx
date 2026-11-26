@@ -198,7 +198,7 @@ export default async function AdminDashboardPage() {
                       className={`w-full rounded-t-md ${isLast ? 'bg-brand' : 'bg-well'}`}
                       style={{ height: `${heightPct}%` }}
                     />
-                    <div className="text-[10.5px] text-muted-foreground">W{i + 1}</div>
+                    <div className="text-xs text-muted-foreground">W{i + 1}</div>
                   </div>
                 );
               })}
@@ -210,7 +210,7 @@ export default async function AdminDashboardPage() {
               <h2 className="text-label text-muted-foreground uppercase">
                 Latest requisitions
               </h2>
-              <Link href="/admin/orders" className="text-[13px] font-bold text-brand hover:underline">
+              <Link href="/admin/orders" className="text-sm font-semibold text-brand hover:underline">
                 View all →
               </Link>
             </div>
@@ -264,8 +264,8 @@ export default async function AdminDashboardPage() {
                       <item.icon className="size-3.5" />
                     </span>
                     <div className="min-w-0">
-                      <div className="truncate text-[13px] font-bold text-ink">{item.title}</div>
-                      <div className="truncate text-[11.5px] text-muted-foreground">{item.detail}</div>
+                      <div className="truncate text-sm font-semibold text-ink">{item.title}</div>
+                      <div className="truncate text-xs text-muted-foreground">{item.detail}</div>
                     </div>
                   </Link>
                 ))}
@@ -284,10 +284,10 @@ export default async function AdminDashboardPage() {
                 {topSellers.map((s) => (
                   <div key={s.name} className="flex items-center justify-between gap-3">
                     <div className="min-w-0">
-                      <div className="truncate text-[13px] font-bold text-ink">{s.name}</div>
-                      <div className="truncate text-[11.5px] text-muted-foreground">{s.category}</div>
+                      <div className="truncate text-sm font-semibold text-ink">{s.name}</div>
+                      <div className="truncate text-xs text-muted-foreground">{s.category}</div>
                     </div>
-                    <div className="shrink-0 text-[13px] font-extrabold tabular-nums text-ink">
+                    <div className="shrink-0 text-sm font-semibold tabular-nums text-ink">
                       {formatNaira(s.revenue)}
                     </div>
                   </div>

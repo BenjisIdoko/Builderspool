@@ -32,8 +32,8 @@ export function BuyerSignUpForm() {
 
   return (
     <>
-      <h1 className="mb-1 text-2xl font-bold tracking-tight text-ink">Create your account</h1>
-      <p className="mb-7 text-pretty text-sm text-muted-foreground">Buy materials at a fixed price, pooled with other buyers. Takes under a minute.</p>
+      <h1 className="mb-1 text-2xl font-semibold tracking-tight text-ink">Create your account</h1>
+      <p className="mb-7 text-pretty text-sm text-muted-foreground">Takes under a minute.</p>
 
       <form onSubmit={handleSubmit} className="space-y-5">
         <div>
@@ -53,7 +53,7 @@ export function BuyerSignUpForm() {
             Password
           </Label>
           <PasswordInput className={AUTH_INPUT} id="password" name="password" required autoComplete="new-password" minLength={8} aria-describedby="password-hint" />
-          <p id="password-hint" className="mt-1.5 text-xs text-muted-foreground">At least 8 characters.</p>
+          <p id="password-hint" className="mt-1.5 text-sm text-muted-foreground">At least 8 characters.</p>
         </div>
         {error && <p role="alert" className="text-sm text-danger">{error}</p>}
 

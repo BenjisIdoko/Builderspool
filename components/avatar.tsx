@@ -10,7 +10,7 @@ function getInitials(name: string) {
 export function Avatar({ name, className = 'size-8' }: { name: string; className?: string }) {
   return (
     <span
-      className={`inline-flex shrink-0 items-center justify-center rounded-full bg-brand text-[11px] font-bold text-brand-ink ${className}`}
+      className={`inline-flex shrink-0 items-center justify-center rounded-full bg-brand text-xs font-semibold text-brand-ink ${className}`}
     >
       {getInitials(name)}
     </span>

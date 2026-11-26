@@ -115,7 +115,7 @@ export function SearchProvider({ portal, children }: { portal: 'admin' | 'seller
                         <Icon className="size-3.5" />
                       </span>
                       <span className="min-w-0 flex-1">
-                        <span className="block truncate text-[13px] font-semibold text-ink">{r.label}</span>
+                        <span className="block truncate text-sm font-semibold text-ink">{r.label}</span>
                         <span className="block truncate text-xs text-muted-foreground">{r.sublabel}</span>
                       </span>
                     </button>
@@ -145,7 +145,7 @@ export function TopbarSearchTrigger({ width = 240 }: { width?: number }) {
       type="button"
       onClick={open}
       style={{ width }}
-      className="flex h-[34px] shrink-0 items-center gap-2 rounded-[9px] border border-border bg-well px-3 text-left text-[12.5px] text-muted-foreground hover:bg-well/70"
+      className="flex h-[34px] shrink-0 items-center gap-2 rounded-[9px] border border-border bg-well px-3 text-left text-xs text-muted-foreground hover:bg-well/70"
     >
       <MagnifyingGlassIcon className="size-3.5 shrink-0" />
       Search anything…
@@ -160,11 +160,11 @@ export function SidebarSearchTrigger() {
     <button
       type="button"
       onClick={open}
-      className="flex h-[34px] w-full items-center gap-2 rounded-lg border border-white/15 bg-white/10 px-2.5 text-left text-[12.5px] text-white/70 hover:bg-white/15"
+      className="flex h-[34px] w-full items-center gap-2 rounded-lg border border-white/15 bg-white/10 px-2.5 text-left text-xs text-white/70 hover:bg-white/15"
     >
       <MagnifyingGlassIcon className="size-3.5 shrink-0" />
       <span className="flex-1">Search</span>
-      <span className="shrink-0 rounded-sm border border-white/20 bg-white/10 px-1.5 py-0.5 text-[10.5px] text-white/70">
+      <span className="shrink-0 rounded-sm border border-white/20 bg-white/10 px-1.5 py-0.5 text-xs text-white/70">
         ⌘K
       </span>
     </button>

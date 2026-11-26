@@ -37,7 +37,7 @@ export function SellerAccountMenu({ name, isOwner }: { name: string; isOwner: bo
         </div>
         <div role="separator" className="my-1 h-px bg-border" />
         {links.map(({ href, label, icon: Icon }) => (
-          <DropdownMenuItem key={href} asChild className="min-h-11 px-3 text-[15px]">
+          <DropdownMenuItem key={href} asChild className="min-h-11 px-3 text-base">
             <Link href={href}>
               <Icon aria-hidden className="size-5" />
               {label}
@@ -48,7 +48,7 @@ export function SellerAccountMenu({ name, isOwner }: { name: string; isOwner: bo
         <DropdownMenuItem
           disabled={isPending}
           onSelect={() => startTransition(async () => { await signOutSeller(); })}
-          className="min-h-11 justify-center px-3 text-[15px] font-semibold text-orange-text"
+          className="min-h-11 justify-center px-3 text-base font-semibold text-orange-text"
         >
           <SignOutIcon aria-hidden className="size-5" />
           Log out

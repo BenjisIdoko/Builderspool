@@ -30,7 +30,7 @@ export function LogoTile({ className = 'size-8' }: { className?: string }) {
 // BUILDERS in the logo's charcoal, POOL in logo orange, Plus Jakarta Sans 800.
 export function Wordmark({ className = '' }: { className?: string }) {
   return (
-    <span className={`font-display font-extrabold tracking-[-0.03em] ${className}`}>
+    <span className={`font-display font-semibold tracking-[-0.03em] ${className}`}>
       <span className="text-logo-gray">BUILDERS</span>
       <span className="text-orange">POOL</span>
     </span>
@@ -50,9 +50,9 @@ export function Logo({
     <span className={`inline-flex items-center gap-2 ${className}`}>
       <LogoMark className={size === 'sm' ? 'size-7' : 'size-8'} />
       <span className="flex flex-col leading-none">
-        <Wordmark className={size === 'sm' ? 'text-sm' : 'text-[15px]'} />
+        <Wordmark className={size === 'sm' ? 'text-sm' : 'text-base'} />
         {showTagline && (
-          <span className="mt-0.5 text-[10px] font-medium tracking-wide text-muted-foreground uppercase">
+          <span className="mt-0.5 text-xs font-medium tracking-wide text-muted-foreground uppercase">
             Trade materials
           </span>
         )}

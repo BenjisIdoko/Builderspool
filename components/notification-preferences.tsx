@@ -45,7 +45,7 @@ export function NotificationPreferences({ action, values, phone, phoneHref, smsE
           <input type="checkbox" name={c.name} defaultChecked={c.on} disabled={readOnly} className="mt-0.5 size-4 shrink-0 accent-brand" />
           <span className="min-w-0">
             <span className="block font-semibold text-ink">{c.label}</span>
-            <span className="block text-pretty text-xs text-muted-foreground">{c.body}</span>
+            <span className="block text-pretty text-sm text-muted-foreground">{c.body}</span>
           </span>
         </label>
       ))}
@@ -66,14 +66,14 @@ export function NotificationPreferences({ action, values, phone, phoneHref, smsE
             aria-describedby={noPhoneHint ? 'notify-phone-hint' : undefined}
           />
           {noPhoneHint && (
-            <p id="notify-phone-hint" className="text-pretty text-xs text-warning-text">
+            <p id="notify-phone-hint" className="text-pretty text-sm text-warning-text">
               Add your number to get text messages. Until then you only get email and in-app alerts.
             </p>
           )}
         </div>
       )}
       {needsPhone && (
-        <p role="status" className="text-pretty text-xs text-warning-text">
+        <p role="status" className="text-pretty text-sm text-warning-text">
           Add a phone number to get text messages.{' '}
           <a href={phoneHref!} className="rounded-sm font-semibold underline outline-none focus-visible:ring-2 focus-visible:ring-ring">
             Add it here

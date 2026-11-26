@@ -193,7 +193,7 @@ export default async function SellerRfqPage({ params }: { params: Promise<{ shee
               <li key={l.id} className="flex flex-wrap items-center gap-4 px-4 py-4 sm:px-5">
                 <MaterialImage imageUrl={l.imageUrl} category={l.category} alt={l.name} className="size-16 shrink-0 rounded-md outline outline-1 -outline-offset-1 outline-black/10 dark:outline-white/10" sizes="64px" />
                 <div className="min-w-0 flex-1 basis-48">
-                  <div className="text-pretty font-bold text-ink">{l.name}</div>
+                  <div className="text-pretty font-semibold text-ink">{l.name}</div>
                   <div className="mt-0.5 text-sm text-muted-foreground">
                     {l.quantity.toLocaleString('en-NG')} × {l.unit}
                   </div>

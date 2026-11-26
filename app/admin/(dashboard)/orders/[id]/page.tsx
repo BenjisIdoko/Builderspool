@@ -135,7 +135,7 @@ export default async function AdminOrderDetailPage({ params }: { params: Promise
       </div>
 
       <div className="mb-8 rounded-card bg-card-alt p-5">
-        <div className="mb-1 text-[11px] font-bold tracking-wide text-muted-foreground uppercase">Buyer</div>
+        <div className="mb-1 text-xs font-semibold tracking-wide text-muted-foreground uppercase">Buyer</div>
         <div className="flex flex-wrap items-center justify-between gap-4">
           <div className="flex items-center gap-3">
             <Avatar name={order.buyer.name} className="size-10 text-sm" />
@@ -178,7 +178,7 @@ export default async function AdminOrderDetailPage({ params }: { params: Promise
 
       {order.deliveryAddress && (
         <div className="mb-8 rounded-card bg-card-alt p-5">
-          <div className="mb-1 flex items-center gap-1.5 text-[11px] font-bold tracking-wide text-muted-foreground uppercase">
+          <div className="mb-1 flex items-center gap-1.5 text-xs font-semibold tracking-wide text-muted-foreground uppercase">
             <MapPinIcon className="size-3.5" />
             Delivery destination
           </div>
@@ -194,7 +194,7 @@ export default async function AdminOrderDetailPage({ params }: { params: Promise
             </div>
             {(order.deliveryContactName || order.deliveryContactPhone) && (
               <div>
-                <div className="text-[11px] font-semibold text-muted-foreground uppercase">Site contact</div>
+                <div className="text-xs font-semibold text-muted-foreground uppercase">Site contact</div>
                 <div className="text-sm text-ink">{order.deliveryContactName}</div>
                 {order.deliveryContactPhone && (
                   <a
@@ -405,7 +405,7 @@ export default async function AdminOrderDetailPage({ params }: { params: Promise
               <span className="font-mono font-medium tabular-nums">−<Money amount={savingsApplied} /></span>
             </div>
           )}
-          <div className="flex justify-between pt-1 text-base font-bold text-ink">
+          <div className="flex justify-between pt-1 text-base font-semibold text-ink">
             <span>Total</span>
             <span className="font-mono tabular-nums"><Money amount={netTotal} /></span>
           </div>

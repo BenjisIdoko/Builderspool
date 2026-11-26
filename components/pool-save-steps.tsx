@@ -9,22 +9,22 @@ function buildSteps(times: CycleTimes): HowItWorksStep[] {
   return [
     {
       title: 'Order at the catalogue price',
-      description: `Pay the fixed price now. Orders placed before ${formatClock(times.poolCloseTime)} join today’s pool.`,
+      description: `Pay the fixed price now. Orders before ${formatClock(times.poolCloseTime)} join today’s pool.`,
       theme: 'orange',
     },
     {
       title: 'Your order joins the pool',
-      description: `At ${formatClock(times.poolCloseTime)} the pool closes and goes to verified suppliers as one request.`,
+      description: `At ${formatClock(times.poolCloseTime)} the pool goes to verified suppliers as one request.`,
       theme: 'blue',
     },
     {
       title: 'Suppliers compete',
-      description: `Verified suppliers offer to fill the pool for less. Your result is ready by ${formatClock(times.fallbackTime)}.`,
+      description: `They offer to fill it for less. Result by ${formatClock(times.fallbackTime)}.`,
       theme: 'slate',
     },
     {
       title: 'You keep half the saving',
-      description: 'If suppliers beat the catalogue price, half the saving goes to your savings credit once we’ve checked your order.',
+      description: 'Half of any saving goes to your savings credit once we’ve checked your order.',
       theme: 'green',
     },
   ];

@@ -11,7 +11,7 @@ export function AdminAlertsBell({ count }: { count: number }) {
     <Link href="/admin" className="relative flex items-center" aria-label="Needs attention">
       <BellIcon className="size-[18px] text-slate" />
       {count > 0 && (
-        <span className="absolute -top-1.5 -right-1.5 flex size-4 items-center justify-center rounded-full bg-danger text-[9px] font-bold text-white">
+        <span className="absolute -top-1.5 -right-1.5 flex size-4 items-center justify-center rounded-full bg-danger text-xs font-semibold text-white">
           {count > 9 ? '9+' : count}
         </span>
       )}

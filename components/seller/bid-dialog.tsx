@@ -41,7 +41,7 @@ export function BidDialog({
           <DialogTitle className="text-lg">{cycle.material.name}</DialogTitle>
           <p className="text-pretty text-sm text-slate">
             Consolidated pool:{' '}
-            <span className="font-bold text-ink">
+            <span className="font-semibold text-ink">
               {formatQuantity(cycle.totalQuantityRequested, cycle.material.unit)}
             </span>{' '}
             ({cycle.region ?? 'National'})
@@ -49,7 +49,7 @@ export function BidDialog({
         </DialogHeader>
 
         <div className="rounded-lg bg-canvas p-4 shadow-[0_0_0_1px_var(--color-hairline)]">
-          <div className="mb-1.5 flex items-center gap-1.5 text-[12.5px] font-bold text-ink">
+          <div className="mb-1.5 flex items-center gap-1.5 text-xs font-semibold text-ink">
             <ShieldCheckIcon className="size-4 text-success" />
             Confidential blind auction guarantee
           </div>
@@ -116,7 +116,7 @@ export function BidDialog({
           <div className="flex items-center justify-between border-t border-border pt-4">
             <div>
               <div className="text-xs text-muted-foreground">Total bid value</div>
-              <div className="text-lg font-bold tabular-nums text-ink">{formatNaira(totalBidValue)}</div>
+              <div className="text-lg font-semibold tabular-nums text-ink">{formatNaira(totalBidValue)}</div>
             </div>
             <Button type="submit">{cycle.myBid ? 'Update bid' : 'Seal & submit bid'}</Button>
           </div>

@@ -32,10 +32,10 @@ export function AddressBook({
   return (
     <Tabs value={tab} onValueChange={(v) => setTab(v as 'pickup' | 'delivery')} className="gap-5">
       <TabsList variant="line" className="h-11 w-full justify-start gap-2 border-b border-hairline">
-        <TabsTrigger value="pickup" className="h-11 flex-none px-4 text-[15px] uppercase">
+        <TabsTrigger value="pickup" className="h-11 flex-none px-4 text-base uppercase">
           Pickup station
         </TabsTrigger>
-        <TabsTrigger value="delivery" className="h-11 flex-none px-4 text-[15px] uppercase">
+        <TabsTrigger value="delivery" className="h-11 flex-none px-4 text-base uppercase">
           Door delivery
         </TabsTrigger>
       </TabsList>

@@ -190,15 +190,15 @@ export default async function SellerDashboardPage() {
               {allocations.slice(0, 6).map((a) => (
                 <div key={a.id} className="rounded-card bg-card-alt px-3.5 py-3">
                   <div className="mb-1 flex items-center justify-between gap-2">
-                    <span className="text-[12.5px] font-bold text-ink">#{a.id.slice(-6).toUpperCase()}</span>
+                    <span className="text-xs font-semibold text-ink">#{a.id.slice(-6).toUpperCase()}</span>
                     <Badge variant="outline" className={pillClass(payoutStatusTone(a.payoutStatus))}>
                       {PAYOUT_LABEL[a.payoutStatus]}
                     </Badge>
                   </div>
-                  <div className="truncate text-[12.5px] text-slate">
+                  <div className="truncate text-xs text-slate">
                     {a.bid.material.name} · {formatQuantity(a.quantityFilled, a.bid.material.unit)}
                   </div>
-                  <div className="text-[13px] font-extrabold tabular-nums text-ink">
+                  <div className="text-sm font-semibold tabular-nums text-ink">
                     {formatNaira(Number(a.bid.unitPrice) * a.quantityFilled)}
                   </div>
                 </div>
@@ -244,7 +244,7 @@ export default async function SellerDashboardPage() {
         </div>
 
         <div className="rounded-card bg-card-alt p-4.5">
-          <div className="mb-3 text-xs font-bold tracking-wide text-slate uppercase">Quick actions</div>
+          <div className="mb-3 text-xs font-semibold tracking-wide text-slate uppercase">Quick actions</div>
           <div className="flex flex-col">
             {QUICK_ACTIONS.map((action, i) => (
               <Link
@@ -296,13 +296,13 @@ export default async function SellerDashboardPage() {
                 </span>
               </div>
 
-              <div className="mb-0.5 text-[15px] font-bold text-ink">{cycle.material.name}</div>
+              <div className="mb-0.5 text-base font-semibold text-ink">{cycle.material.name}</div>
               <div className="mb-3.5 text-xs text-muted-foreground">{cycle.material.category}</div>
               {cycle.material.spec && (
-                <div className="mb-4 text-[12.5px] leading-relaxed text-slate">{cycle.material.spec}</div>
+                <div className="mb-4 text-xs leading-relaxed text-slate">{cycle.material.spec}</div>
               )}
 
-              <div className="mb-1 flex justify-between text-[13px]">
+              <div className="mb-1 flex justify-between text-sm">
                 <span className="text-slate">Pooled demand</span>
                 <span className="font-semibold tabular-nums text-ink">
                   {formatQuantity(cycle.totalQuantityRequested, cycle.material.unit)}
@@ -310,11 +310,11 @@ export default async function SellerDashboardPage() {
               </div>
 
               {cycle.myBid && (
-                <div className="mt-3 flex items-start gap-1.5 rounded-md bg-well px-3 py-2.5 text-[12.5px] tabular-nums text-ink">
+                <div className="mt-3 flex items-start gap-1.5 rounded-md bg-well px-3 py-2.5 text-xs tabular-nums text-ink">
                   <CheckCircleIcon className="mt-0.5 size-3.5 shrink-0 text-brand" />
                   <span>
-                    Your bid: <span className="font-bold">{formatNaira(cycle.myBid.unitPrice)}</span> for{' '}
-                    <span className="font-bold">
+                    Your bid: <span className="font-semibold">{formatNaira(cycle.myBid.unitPrice)}</span> for{' '}
+                    <span className="font-semibold">
                       {formatQuantity(cycle.myBid.quantityOffered, cycle.material.unit)}
                     </span>
                   </span>

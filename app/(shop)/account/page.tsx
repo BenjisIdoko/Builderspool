@@ -21,7 +21,7 @@ function OverviewCard({ id, title, href, action, children }: { id: string; title
   return (
     <section aria-labelledby={id} className={`flex flex-col ${ACCOUNT_CARD}`}>
       <div className="flex items-center justify-between gap-3 border-b border-border px-5 py-3.5">
-        <h2 id={id} className="text-label text-ink uppercase">
+        <h2 id={id} className="text-heading-sm text-ink">
           {title}
         </h2>
         <Link href={href} className={`inline-flex min-h-11 items-center text-sm ${ACCOUNT_LINK}`}>
@@ -96,7 +96,7 @@ export default async function AccountPage() {
         </OverviewCard>
 
         <OverviewCard id="savings-heading" title="Savings credit" href="/account/savings" action="Details">
-          <div className="text-xl font-bold tabular-nums text-ink">{formatNaira(wallet.available)}</div>
+          <div className="text-xl font-semibold tabular-nums text-ink">{formatNaira(wallet.available)}</div>
           <p className="mt-1 text-pretty text-sm text-muted-foreground">Your share of the savings on your orders.</p>
         </OverviewCard>
 
@@ -105,7 +105,7 @@ export default async function AccountPage() {
             <p className="text-pretty text-sm text-muted-foreground">No alerts yet. Set a target price on any material.</p>
           ) : (
             <>
-              <div className="text-xl font-bold tabular-nums text-ink">{priceAlerts.length}</div>
+              <div className="text-xl font-semibold tabular-nums text-ink">{priceAlerts.length}</div>
               <p className="mt-1 text-sm tabular-nums text-muted-foreground">
                 {reached} {reached === 1 ? 'target' : 'targets'} reached
               </p>
@@ -116,7 +116,7 @@ export default async function AccountPage() {
 
       <section aria-labelledby="orders-heading" className={`mt-4 ${ACCOUNT_CARD}`}>
         <div className="flex items-center justify-between gap-3 border-b border-border px-5 py-3.5">
-          <h2 id="orders-heading" className="text-label text-ink uppercase">
+          <h2 id="orders-heading" className="text-heading-sm text-ink">
             Recent orders
           </h2>
           {orders.length > RECENT_ORDERS && (

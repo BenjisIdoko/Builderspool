@@ -61,7 +61,7 @@ export function MaterialCard({
           <span className="text-price tabular-nums text-text-storefront">
             {formatNaira(material.catalogPrice)}
           </span>
-          <span className="ml-1 text-xs text-muted-foreground">/ {material.unit}</span>
+          <span className="ml-1 text-sm text-muted-foreground">/ {material.unit}</span>
         </div>
         {showScope && (
           <p className="-mt-2 text-caption text-muted-foreground">

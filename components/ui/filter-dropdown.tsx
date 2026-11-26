@@ -34,7 +34,7 @@ export function FilterDropdown({
       <button
         type="button"
         onClick={() => setOpen((o) => !o)}
-        className="flex h-[34px] items-center gap-1.5 rounded-lg border border-border-strong bg-surface px-3.5 text-[13px] font-semibold text-ink hover:bg-well"
+        className="flex h-[34px] items-center gap-1.5 rounded-lg border border-border-strong bg-surface px-3.5 text-sm font-semibold text-ink hover:bg-well"
       >
         <FunnelIcon className="size-4" />
         {label}
@@ -50,7 +50,7 @@ export function FilterDropdown({
 
 export function FilterDropdownLabel({ children }: { children: React.ReactNode }) {
   return (
-    <div className="mb-2.5 text-[11px] font-bold tracking-wide text-muted-foreground uppercase">{children}</div>
+    <div className="mb-2.5 text-xs font-semibold tracking-wide text-muted-foreground uppercase">{children}</div>
   );
 }
 
@@ -64,7 +64,7 @@ export function FilterCheckboxRow({
   children: React.ReactNode;
 }) {
   return (
-    <label className="flex min-h-9 cursor-pointer items-center gap-2.5 py-1 text-[13px] text-ink">
+    <label className="flex min-h-9 cursor-pointer items-center gap-2.5 py-1 text-sm text-ink">
       <Checkbox checked={checked} onCheckedChange={() => onChange()} />
       {children}
     </label>

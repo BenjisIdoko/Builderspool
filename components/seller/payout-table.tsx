@@ -63,7 +63,7 @@ export function PayoutTable({ payouts }: { payouts: PayoutRow[] }) {
             {filtered.map((p) => (
               <li key={p.id} className="space-y-1 px-5 py-4">
                 <div className="flex items-start justify-between gap-3">
-                  <span className="min-w-0 text-pretty font-bold text-ink">{p.materialName}</span>
+                  <span className="min-w-0 text-pretty font-semibold text-ink">{p.materialName}</span>
                   <span className="shrink-0 font-mono font-medium tabular-nums text-ink">{formatNaira(p.amount)}</span>
                 </div>
                 <div className="flex flex-wrap items-center gap-x-2 gap-y-1">

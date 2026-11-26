@@ -163,7 +163,7 @@ export default async function OrderConfirmationPage({
       <div className="mb-8 grid grid-cols-1 gap-4 sm:grid-cols-2">
         {center && (
           <div className="rounded-lg bg-surface p-5">
-            <div className="mb-1.5 text-[11px] font-semibold text-muted-foreground uppercase">From</div>
+            <div className="mb-1.5 text-xs font-semibold text-muted-foreground uppercase">From</div>
             <div className="flex items-start gap-2">
               {isPickup ? (
                 <StorefrontIcon className="mt-0.5 size-4 shrink-0 text-brand" />
@@ -178,7 +178,7 @@ export default async function OrderConfirmationPage({
           </div>
         )}
         <div className="rounded-lg bg-surface p-5">
-          <div className="mb-1.5 text-[11px] font-semibold text-muted-foreground uppercase">
+          <div className="mb-1.5 text-xs font-semibold text-muted-foreground uppercase">
             {isPickup ? 'Pickup for' : 'Ship to'}
           </div>
           <div className="text-sm font-semibold text-ink">{buyer.businessName ?? buyer.name}</div>
@@ -200,7 +200,7 @@ export default async function OrderConfirmationPage({
       )}
 
       <div className="mb-8 rounded-lg bg-surface p-5">
-        <div className="mb-3 text-[11px] font-semibold text-muted-foreground uppercase">Contact</div>
+        <div className="mb-3 text-xs font-semibold text-muted-foreground uppercase">Contact</div>
         <div className="flex flex-wrap gap-x-8 gap-y-2 text-sm">
           <span className="flex items-center gap-1.5 text-ink">
             <EnvelopeSimpleIcon className="size-4 text-slate" />
@@ -215,7 +215,7 @@ export default async function OrderConfirmationPage({
         </div>
         {(order.deliveryContactName || order.deliveryContactPhone) && (
           <div className="mt-4 border-t border-border pt-4">
-            <div className="mb-1.5 text-[11px] font-semibold text-muted-foreground uppercase">
+            <div className="mb-1.5 text-xs font-semibold text-muted-foreground uppercase">
               Site contact for this delivery
             </div>
             <div className="flex flex-wrap gap-x-8 gap-y-2 text-sm">
@@ -276,12 +276,12 @@ export default async function OrderConfirmationPage({
                       {stage.title}
                     </span>
                     {stage.at && (
-                      <div className="mt-0.5 text-xs text-muted-foreground">
+                      <div className="mt-0.5 text-sm text-muted-foreground">
                         {formatLagosDateTime(stage.at)}
                       </div>
                     )}
                     {stage.achieved && stage.key === (isPickup ? 'Ready for pickup' : 'Out for delivery') && grnNumber && (
-                      <div className="mt-0.5 text-xs text-muted-foreground">Receipt {grnNumber}</div>
+                      <div className="mt-0.5 text-sm text-muted-foreground">Receipt {grnNumber}</div>
                     )}
                   </div>
                 </div>
@@ -297,7 +297,7 @@ export default async function OrderConfirmationPage({
             <TruckIcon className="size-4.5 text-slate" />
             <h2 className="text-heading-sm text-ink">Delivery tracking</h2>
           </div>
-          <p className="mb-5 text-pretty text-xs text-muted-foreground">
+          <p className="mb-5 text-pretty text-sm text-muted-foreground">
             No live GPS yet — status reflects what our fulfilment team last logged.
           </p>
           <div className="divide-y divide-border">
@@ -305,7 +305,7 @@ export default async function OrderConfirmationPage({
               <div key={item.id} className="flex items-center justify-between gap-4 py-3 text-sm">
                 <div className="min-w-0">
                   <div className="truncate font-medium text-ink">{item.material.name}</div>
-                  <div className="flex items-center gap-1.5 text-xs text-muted-foreground">
+                  <div className="flex items-center gap-1.5 text-sm text-muted-foreground">
                     <SteeringWheelIcon className="size-3.5" />
                     {item.dispatch!.vehicle?.type ?? 'Vehicle to be assigned'}
                     {item.dispatch!.currentLocation && ` · ${item.dispatch!.currentLocation}`}
@@ -326,7 +326,7 @@ export default async function OrderConfirmationPage({
             Items ({order.items.length})
           </h2>
         </div>
-        <div className="hidden grid-cols-[1fr_auto_auto] gap-4 px-5 py-3 text-[11px] font-semibold text-muted-foreground uppercase sm:grid">
+        <div className="hidden grid-cols-[1fr_auto_auto] gap-4 px-5 py-3 text-xs font-semibold text-muted-foreground uppercase sm:grid">
           <div>Item</div>
           <div>Qty × unit price</div>
           <div className="text-right">Total</div>
@@ -347,13 +347,13 @@ export default async function OrderConfirmationPage({
                 <div>
                   <div className="font-medium text-ink">{item.material.name}</div>
                   {line && (
-                    <div className="mt-0.5 text-xs">
+                    <div className="mt-0.5 text-sm">
                       <span className={`font-medium ${LINE_TONE_CLASS[line.tone]}`}>{line.label}</span>
                       {line.detail && <span className="text-muted-foreground"> · {line.detail}</span>}
                     </div>
                   )}
                   {item.unfilledQuantity > 0 && !line && (
-                    <div className="mt-0.5 text-xs font-medium text-danger">
+                    <div className="mt-0.5 text-sm font-medium text-danger">
                       No supplier could fill {item.unfilledQuantity} of {item.quantity}. You&apos;ll be refunded.
                     </div>
                   )}
@@ -362,7 +362,7 @@ export default async function OrderConfirmationPage({
               <div className="col-start-1 row-start-2 pl-[60px] text-sm tabular-nums text-muted-foreground sm:col-start-auto sm:row-start-auto sm:pl-0">
                 {item.quantity} × {formatNaira(item.priceLocked)}
               </div>
-              <div className="col-start-2 row-start-1 text-right font-bold tabular-nums text-ink sm:col-start-auto sm:row-start-auto">
+              <div className="col-start-2 row-start-1 text-right font-semibold tabular-nums text-ink sm:col-start-auto sm:row-start-auto">
                 {formatNaira(item.priceLocked * item.quantity)}
               </div>
             </div>
@@ -372,24 +372,24 @@ export default async function OrderConfirmationPage({
         <div className="flex flex-col gap-1.5 border-t border-border px-5 py-4 text-sm">
           <div className="flex justify-between text-slate">
             <span>Subtotal</span>
-            <span className="font-bold tabular-nums">{formatNaira(subtotal)}</span>
+            <span className="font-semibold tabular-nums">{formatNaira(subtotal)}</span>
           </div>
           <div className="flex justify-between text-slate">
             <span>Delivery</span>
-            <span className="font-bold tabular-nums">{deliveryTotal === 0 ? 'Free' : formatNaira(deliveryTotal)}</span>
+            <span className="font-semibold tabular-nums">{deliveryTotal === 0 ? 'Free' : formatNaira(deliveryTotal)}</span>
           </div>
           {savingsApplied > 0 && (
             <div className="flex justify-between text-success">
               <span>Savings credit applied</span>
-              <span className="font-bold tabular-nums">−{formatNaira(savingsApplied)}</span>
+              <span className="font-semibold tabular-nums">−{formatNaira(savingsApplied)}</span>
             </div>
           )}
-          <div className="flex justify-between pt-1 text-base font-bold text-ink">
+          <div className="flex justify-between pt-1 text-base font-semibold text-ink">
             <span>Total</span>
             <span className="tabular-nums">{formatNaira(amountDue)}</span>
           </div>
           {refundDue > 0 && refundSplit.creditKobo === 0 && (
-            <div className="flex justify-between text-sm font-bold text-danger">
+            <div className="flex justify-between text-sm font-semibold text-danger">
               <span>Refund for items no supplier filled</span>
               <span className="tabular-nums">{formatNaira(refundDue)}</span>
             </div>
@@ -397,12 +397,12 @@ export default async function OrderConfirmationPage({
           {refundDue > 0 && refundSplit.creditKobo > 0 && (
             <>
               {refundSplit.cashKobo > 0 && (
-                <div className="flex justify-between text-sm font-bold text-danger">
+                <div className="flex justify-between text-sm font-semibold text-danger">
                   <span>Refund for items no supplier filled</span>
                   <span className="tabular-nums">{formatNaira(koboToNaira(refundSplit.cashKobo))}</span>
                 </div>
               )}
-              <div className="flex justify-between text-sm font-bold text-success">
+              <div className="flex justify-between text-sm font-semibold text-success">
                 <span>Returned to your savings credit</span>
                 <span className="tabular-nums">{formatNaira(koboToNaira(refundSplit.creditKobo))}</span>
               </div>

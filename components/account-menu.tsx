@@ -25,7 +25,7 @@ export function AccountMenu({ firstName }: { firstName: string }) {
       <DropdownMenuTrigger asChild>
         <button
           type="button"
-          className="group hidden min-h-11 items-center gap-1.5 rounded-md px-2 text-[15px] font-medium text-text-storefront outline-none transition-colors duration-150 hover:text-orange-text focus-visible:ring-2 focus-visible:ring-ring data-[state=open]:bg-well md:inline-flex"
+          className="group hidden min-h-11 items-center gap-1.5 rounded-md px-2 text-base font-medium text-text-storefront outline-none transition-colors duration-150 hover:text-orange-text focus-visible:ring-2 focus-visible:ring-ring data-[state=open]:bg-well md:inline-flex"
         >
           <UserIcon aria-hidden className="size-5" />
           Hi, {firstName}
@@ -34,7 +34,7 @@ export function AccountMenu({ firstName }: { firstName: string }) {
       </DropdownMenuTrigger>
       <DropdownMenuContent align="end" className="w-60 p-1.5">
         {LINKS.map(({ href, label, icon: Icon }) => (
-          <DropdownMenuItem key={href} asChild className="min-h-11 px-3 text-[15px]">
+          <DropdownMenuItem key={href} asChild className="min-h-11 px-3 text-base">
             <Link href={href}>
               <Icon aria-hidden className="size-5" />
               {label}
@@ -45,7 +45,7 @@ export function AccountMenu({ firstName }: { firstName: string }) {
         <DropdownMenuItem
           disabled={isPending}
           onSelect={() => startTransition(async () => { await signOutBuyer(); })}
-          className="min-h-11 justify-center px-3 text-[15px] font-semibold text-orange-text"
+          className="min-h-11 justify-center px-3 text-base font-semibold text-orange-text"
         >
           <SignOutIcon aria-hidden className="size-5" />
           Log out

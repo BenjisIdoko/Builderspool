@@ -59,10 +59,10 @@ export function PriceHistoryChart({ points }: { points: { date: Date; price: num
         {points.slice(0, -1).map((p, i) => (
           <circle key={i} cx={x(p.date)} cy={y(p.price)} r={3} fill="var(--color-brand)" />
         ))}
-        <text x={PAD_X} y={HEIGHT - 8} className="fill-muted-foreground text-[10px]">
+        <text x={PAD_X} y={HEIGHT - 8} className="fill-muted-foreground text-xs">
           {formatDate(points[0].date)}
         </text>
-        <text x={WIDTH - PAD_X} y={HEIGHT - 8} textAnchor="end" className="fill-muted-foreground text-[10px]">
+        <text x={WIDTH - PAD_X} y={HEIGHT - 8} textAnchor="end" className="fill-muted-foreground text-xs">
           {formatDate(points[points.length - 1].date)}
         </text>
       </svg>
